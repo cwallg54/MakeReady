@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Accounting — G54 Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .alert-warn {
+      background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px;
+      padding: 12px 16px; font-size: 13px; color: #92400e;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .report-card-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .report-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 20px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .report-card-title { font-weight: 700; font-size: 15px; color: #1e293b; }
+    .report-card-desc { font-size: 13px; color: #64748b; flex: 1; }
+    .report-card-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-label { font-size: 12px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-input {
+      padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;
+      font-size: 14px; font-family: inherit; color: #1e293b;
+    }
+    .form-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 16px 0 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    .tfoot-total td { font-weight: 700; background: #f8fafc; border-top: 2px solid #e2e8f0; }
+  </style>
+</head>
+<body class="app-layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="logo">G54 Platform</div><div class="client">Great Mountain West</div></div>
+  <div class="sidebar-section">
+    <a href="index.html">⊞ Dashboard</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Customer</div>
+    <a href="crm.html">👥 CRM</a>
+    <a href="sales.html">🏷 Sales</a>
+    <a href="ecommerce.html">🛒 eCommerce</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Finance</div>
+    <a href="accounting.html">📒 Accounting</a>
+    <a href="controlling.html">📊 Controlling</a>
+    <a href="assets.html" class="active">🏗 Asset Accounting</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <a href="inventory.html">📦 Inventory &amp; MRP</a>
+    <a href="pos.html">🖥 Point of Sale</a>
+    <a href="jobs.html">🏭 Jobs &amp; Production</a>
+    <a href="quality.html">✅ Quality Management</a>
+    <a href="maintenance.html">🔧 Equipment Maintenance</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Enterprise</div>
+    <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+    <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Intelligence</div>
+    <a href="reports.html">📈 Reports</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">System</div>
+    <a href="admin.html">⚙ Administration</a>
+  </div>
+  <div class="sidebar-footer">CW · Christopher Wall</div>
+</aside>
+
+<div class="main-area">
+  <header class="topbar">
+    <div class="topbar-left"><span class="breadcrumb">Finance / <b>Asset Accounting</b></span></div>
+    <div class="topbar-right">
+      <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+      <div class="topbar-icon">❓</div>
+      <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Asset Accounting</h1>
+        <p class="page-subtitle">Fixed asset register, depreciation, and asset lifecycle management</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-tab="asset-register">Asset Register</button>
+      <button class="tab" data-tab="depreciation">Depreciation Schedule</button>
+      <button class="tab" data-tab="additions">Additions &amp; Disposals</button>
+      <button class="tab" data-tab="asset-reports">Asset Reports</button>
+    </div>
+
+    <!-- ─── ASSET REGISTER TAB ────────────────────────────────────── -->
+    <div class="tab-panel active" id="tab-asset-register">
+
+      <div class="kpi-grid g4">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Assets</div>
+          <div class="kpi-value">28</div>
+          <div class="kpi-trend trend-neutral">— All categories</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Asset Value</div>
+          <div class="kpi-value">$2,847,400</div>
+          <div class="kpi-trend trend-neutral">— Original cost</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Accumulated Depreciation</div>
+          <div class="kpi-value">$1,124,800</div>
+          <div class="kpi-trend trend-neutral">— To date</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Net Book Value</div>
+          <div class="kpi-value">$1,722,600</div>
+          <div class="kpi-trend trend-neutral">— Current NBV</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <select class="select-filter">
+          <option>All Categories</option>
+          <option>Equipment</option>
+          <option>Vehicles</option>
+          <option>IT</option>
+          <option>Furniture</option>
+          <option>Leasehold</option>
+        </select>
+        <select class="select-filter">
+          <option>All Statuses</option>
+          <option>Active</option>
+          <option>Near End of Life</option>
+          <option>Fully Depreciated</option>
+        </select>
+        <button class="btn btn-primary ml-auto">+ Add Asset</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Asset #</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Acq. Date</th>
+              <th class="text-right">Original Cost</th>
+              <th class="text-right">Accum. Depr.</th>
+              <th class="text-right">Net Book Value</th>
+              <th>Useful Life</th>
+              <th>Depr. Method</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">AST-001</td>
+              <td>HP Indigo 7K Press</td>
+              <td>Equipment</td>
+              <td>Press Room</td>
+              <td>Jan 2021</td>
+              <td class="text-right">$485,000</td>
+              <td class="text-right">$218,250</td>
+              <td class="text-right">$266,750</td>
+              <td>10yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-002</td>
+              <td>Canon Colorado 1650 (Large Format)</td>
+              <td>Equipment</td>
+              <td>Press Room</td>
+              <td>Mar 2022</td>
+              <td class="text-right">$128,000</td>
+              <td class="text-right">$38,400</td>
+              <td class="text-right">$89,600</td>
+              <td>10yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-003</td>
+              <td>Heidelberg Stahlfolder</td>
+              <td>Equipment</td>
+              <td>Finishing</td>
+              <td>Jun 2019</td>
+              <td class="text-right">$94,000</td>
+              <td class="text-right">$70,500</td>
+              <td class="text-right">$23,500</td>
+              <td>8yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-yellow">Near End of Life</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-004</td>
+              <td>Duplo DC-645 Booklet Maker</td>
+              <td>Equipment</td>
+              <td>Finishing</td>
+              <td>Nov 2020</td>
+              <td class="text-right">$42,000</td>
+              <td class="text-right">$21,000</td>
+              <td class="text-right">$21,000</td>
+              <td>8yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-005</td>
+              <td>Laminator Pro 6000</td>
+              <td>Equipment</td>
+              <td>Finishing</td>
+              <td>Aug 2023</td>
+              <td class="text-right">$18,500</td>
+              <td class="text-right">$3,083</td>
+              <td class="text-right">$15,417</td>
+              <td>6yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-006</td>
+              <td>Delivery Van (2022 Ford Transit)</td>
+              <td>Vehicles</td>
+              <td>Shipping</td>
+              <td>Feb 2022</td>
+              <td class="text-right">$38,000</td>
+              <td class="text-right">$19,000</td>
+              <td class="text-right">$19,000</td>
+              <td>5yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-007</td>
+              <td>Server &amp; Network Infrastructure</td>
+              <td>IT</td>
+              <td>Server Room</td>
+              <td>Jan 2022</td>
+              <td class="text-right">$28,000</td>
+              <td class="text-right">$16,800</td>
+              <td class="text-right">$11,200</td>
+              <td>5yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-008</td>
+              <td>Workstations x8 (Design Dept)</td>
+              <td>IT</td>
+              <td>Art Dept</td>
+              <td>Mar 2023</td>
+              <td class="text-right">$22,400</td>
+              <td class="text-right">$7,467</td>
+              <td class="text-right">$14,933</td>
+              <td>3yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-yellow">Deprec. Complete Soon</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-009</td>
+              <td>Leasehold Improvements</td>
+              <td>Leasehold</td>
+              <td>Main Facility</td>
+              <td>Jan 2020</td>
+              <td class="text-right">$145,000</td>
+              <td class="text-right">$87,000</td>
+              <td class="text-right">$58,000</td>
+              <td>10yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-green">Active</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-010</td>
+              <td>Office Furniture &amp; Fixtures</td>
+              <td>Furniture</td>
+              <td>All</td>
+              <td>Jan 2019</td>
+              <td class="text-right">$18,200</td>
+              <td class="text-right">$18,200</td>
+              <td class="text-right">$0</td>
+              <td>7yr</td>
+              <td>Straight-Line</td>
+              <td><span class="badge badge-gray">Fully Depreciated</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /#tab-asset-register -->
+
+    <!-- ─── DEPRECIATION SCHEDULE TAB ─────────────────────────────── -->
+    <div class="tab-panel" id="tab-depreciation">
+
+      <div class="toolbar">
+        <select class="select-filter">
+          <option>Jul 2026</option>
+          <option>Jun 2026</option>
+          <option>May 2026</option>
+        </select>
+        <div class="ml-auto"></div>
+      </div>
+
+      <div class="alert-warn">
+        ⚠ Depreciation for Jul 2026 has not been posted yet.
+        <button class="btn btn-primary btn-sm" style="margin-left:auto;">Post Depreciation</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Asset #</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th class="text-right">Monthly Depreciation</th>
+              <th class="text-right">YTD Depreciation</th>
+              <th>Remaining Life</th>
+              <th>GL Account</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">AST-001</td>
+              <td>HP Indigo 7K Press</td>
+              <td>Equipment</td>
+              <td class="text-right">$4,042</td>
+              <td class="text-right">$28,291</td>
+              <td>3yr 6mo</td>
+              <td>6000 — Depr. Expense</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-002</td>
+              <td>Canon Colorado 1650 (Large Format)</td>
+              <td>Equipment</td>
+              <td class="text-right">$1,067</td>
+              <td class="text-right">$7,467</td>
+              <td>5yr 8mo</td>
+              <td>6000 — Depr. Expense</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-003</td>
+              <td>Heidelberg Stahlfolder</td>
+              <td>Equipment</td>
+              <td class="text-right">$979</td>
+              <td class="text-right">$6,854</td>
+              <td>1yr 11mo</td>
+              <td>6000 — Depr. Expense</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-004</td>
+              <td>Duplo DC-645 Booklet Maker</td>
+              <td>Equipment</td>
+              <td class="text-right">$438</td>
+              <td class="text-right">$3,063</td>
+              <td>3yr 4mo</td>
+              <td>6000 — Depr. Expense</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-005</td>
+              <td>Laminator Pro 6000</td>
+              <td>Equipment</td>
+              <td class="text-right">$257</td>
+              <td class="text-right">$1,799</td>
+              <td>4yr 1mo</td>
+              <td>6000 — Depr. Expense</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-006</td>
+              <td>Delivery Van (2022 Ford Transit)</td>
+              <td>Vehicles</td>
+              <td class="text-right">$633</td>
+              <td class="text-right">$4,433</td>
+              <td>1yr 7mo</td>
+              <td>6010 — Vehicle Depr.</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-007</td>
+              <td>Server &amp; Network Infrastructure</td>
+              <td>IT</td>
+              <td class="text-right">$467</td>
+              <td class="text-right">$3,267</td>
+              <td>1yr 6mo</td>
+              <td>6020 — IT Depr.</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-008</td>
+              <td>Workstations x8 (Design Dept)</td>
+              <td>IT</td>
+              <td class="text-right">$622</td>
+              <td class="text-right">$4,356</td>
+              <td>8mo</td>
+              <td>6020 — IT Depr.</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-009</td>
+              <td>Leasehold Improvements</td>
+              <td>Leasehold</td>
+              <td class="text-right">$1,208</td>
+              <td class="text-right">$8,458</td>
+              <td>3yr 6mo</td>
+              <td>6030 — Leasehold Depr.</td>
+            </tr>
+            <tr>
+              <td class="td-bold">AST-010</td>
+              <td>Office Furniture &amp; Fixtures</td>
+              <td>Furniture</td>
+              <td class="text-right">$0</td>
+              <td class="text-right">$0</td>
+              <td>Fully Depreciated</td>
+              <td>6040 — Furniture Depr.</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="tfoot-total">
+              <td colspan="3"><b>Total</b></td>
+              <td class="text-right"><b>$9,713</b></td>
+              <td class="text-right"><b>$67,988</b></td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div><!-- /#tab-depreciation -->
+
+    <!-- ─── ADDITIONS & DISPOSALS TAB ─────────────────────────────── -->
+    <div class="tab-panel" id="tab-additions">
+
+      <div class="g2">
+
+        <!-- LEFT: Recent Additions -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Additions (Last 90 Days)</div>
+            <button class="btn btn-primary btn-sm">+ Add New Asset</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Asset #</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th class="text-right">Cost</th>
+                <th>Date Added</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-bold">AST-028</td>
+                <td>Epson SureColor P9570</td>
+                <td>Equipment</td>
+                <td class="text-right">$4,800</td>
+                <td>Jul 2, 2026</td>
+              </tr>
+              <tr>
+                <td class="td-bold">AST-027</td>
+                <td>Standing Desk — Sales Dept x4</td>
+                <td>Furniture</td>
+                <td class="text-right">$3,200</td>
+                <td>Jun 14, 2026</td>
+              </tr>
+              <tr>
+                <td class="td-bold">AST-026</td>
+                <td>NAS Storage Array (48TB)</td>
+                <td>IT</td>
+                <td class="text-right">$6,400</td>
+                <td>May 8, 2026</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RIGHT: Asset Disposal Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Asset Disposal</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label">Select Asset</label>
+              <select class="form-input">
+                <option>— Select asset to dispose —</option>
+                <option>AST-003 — Heidelberg Stahlfolder ($23,500 NBV)</option>
+                <option>AST-006 — Delivery Van ($19,000 NBV)</option>
+                <option>AST-010 — Office Furniture ($0 NBV)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Disposal Date</label>
+              <input type="date" class="form-input" value="2026-07-15">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Disposal Method</label>
+              <select class="form-input">
+                <option>Sale</option>
+                <option>Scrap</option>
+                <option>Trade-in</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Proceeds ($)</label>
+              <input type="text" class="form-input" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">GL Account — Gain/Loss</label>
+              <select class="form-input">
+                <option>7100 — Gain on Asset Disposal</option>
+                <option>7110 — Loss on Asset Disposal</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label">Notes</label>
+              <input type="text" class="form-input" placeholder="Optional disposal notes…">
+            </div>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px;">
+            <button class="btn btn-primary">Process Disposal</button>
+            <button class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+
+      </div><!-- /.g2 -->
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header">
+          <div class="card-title">Add New Asset</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">Asset Description</label>
+            <input type="text" class="form-input" placeholder="Enter asset description…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-input">
+              <option>Equipment</option>
+              <option>Vehicles</option>
+              <option>IT</option>
+              <option>Furniture</option>
+              <option>Leasehold</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-input" placeholder="e.g. Press Room, Art Dept…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Acquisition Date</label>
+            <input type="date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Original Cost ($)</label>
+            <input type="text" class="form-input" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Useful Life (Years)</label>
+            <select class="form-input">
+              <option>3</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>10</option>
+              <option>15</option>
+              <option>20</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Depreciation Method</label>
+            <select class="form-input">
+              <option>Straight-Line</option>
+              <option>Declining Balance</option>
+              <option>Sum-of-Years Digits</option>
+              <option>Units of Production</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Asset GL Account</label>
+            <select class="form-input">
+              <option>1500 — Equipment</option>
+              <option>1510 — Vehicles</option>
+              <option>1520 — IT Equipment</option>
+              <option>1530 — Furniture &amp; Fixtures</option>
+              <option>1540 — Leasehold Improvements</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Accum. Depr. GL Account</label>
+            <select class="form-input">
+              <option>1501 — Accum. Depr. — Equipment</option>
+              <option>1511 — Accum. Depr. — Vehicles</option>
+              <option>1521 — Accum. Depr. — IT</option>
+              <option>1531 — Accum. Depr. — Furniture</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <button class="btn btn-primary">Save Asset</button>
+          <button class="btn btn-secondary">Clear Form</button>
+        </div>
+      </div>
+
+    </div><!-- /#tab-additions -->
+
+    <!-- ─── ASSET REPORTS TAB ─────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-asset-reports">
+
+      <div class="report-card-grid">
+
+        <div class="report-card">
+          <div style="font-size:28px;margin-bottom:4px;">📋</div>
+          <div class="report-card-title">Asset Register Report</div>
+          <div class="report-card-desc">Full listing of all fixed assets with cost, accumulated depreciation, and net book value by category.</div>
+          <div class="report-card-actions">
+            <button class="btn btn-primary btn-sm">Generate</button>
+            <button class="btn btn-secondary btn-sm">Export CSV</button>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div style="font-size:28px;margin-bottom:4px;">📅</div>
+          <div class="report-card-title">Depreciation Schedule</div>
+          <div class="report-card-desc">Monthly and annual depreciation schedule for all active assets. Useful for period-end closing and audit.</div>
+          <div class="report-card-actions">
+            <button class="btn btn-primary btn-sm">Generate</button>
+            <button class="btn btn-secondary btn-sm">Export PDF</button>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div style="font-size:28px;margin-bottom:4px;">📊</div>
+          <div class="report-card-title">NBV by Category</div>
+          <div class="report-card-desc">Net book value summarized by asset category (Equipment, Vehicles, IT, Furniture, Leasehold) with totals.</div>
+          <div class="report-card-actions">
+            <button class="btn btn-primary btn-sm">Generate</button>
+            <button class="btn btn-secondary btn-sm">Export CSV</button>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div style="font-size:28px;margin-bottom:4px;">⚠️</div>
+          <div class="report-card-title">Assets Near End of Life</div>
+          <div class="report-card-desc">Assets with remaining useful life under 24 months — flag for replacement planning and capital budgeting.</div>
+          <div class="report-card-actions">
+            <button class="btn btn-primary btn-sm">Generate</button>
+            <button class="btn btn-secondary btn-sm">Export CSV</button>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div style="font-size:28px;margin-bottom:4px;">✅</div>
+          <div class="report-card-title">Fully Depreciated Assets</div>
+          <div class="report-card-desc">Assets where accumulated depreciation equals original cost — still in service but with zero NBV. Review for write-off or disposal.</div>
+          <div class="report-card-actions">
+            <button class="btn btn-primary btn-sm">Generate</button>
+            <button class="btn btn-secondary btn-sm">Export CSV</button>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div style="font-size:28px;margin-bottom:4px;">🏗</div>
+          <div class="report-card-title">Capital Expenditure Report</div>
+          <div class="report-card-desc">Year-to-date capital additions and disposals, variance vs. capex budget, and internal order settlement detail.</div>
+          <div class="report-card-actions">
+            <button class="btn btn-primary btn-sm">Generate</button>
+            <button class="btn btn-secondary btn-sm">Export PDF</button>
+          </div>
+        </div>
+
+      </div><!-- /.report-card-grid -->
+
+    </div><!-- /#tab-asset-reports -->
+
+  </div><!-- /.page-content -->
+</div><!-- /.main-area -->
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equipment Maintenance — G54 Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .util-bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .util-label { width: 200px; font-size: 13px; font-weight: 500; color: #374151; flex-shrink: 0; }
+    .util-track { flex: 1; height: 14px; background: #f1f5f9; border-radius: 7px; overflow: hidden; }
+    .util-fill { height: 100%; border-radius: 7px; }
+    .util-pct { width: 42px; text-align: right; font-size: 13px; font-weight: 700; color: #1e293b; }
+    .downtime-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .eq-status-summary { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">G54 Platform</div>
+      <div class="client">Great Mountain West</div>
+    </div>
+    <div class="sidebar-section">
+      <a href="index.html">⊞ Dashboard</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Customer</div>
+      <a href="crm.html">👥 CRM</a>
+      <a href="sales.html">🏷 Sales</a>
+      <a href="ecommerce.html">🛒 eCommerce</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="accounting.html">📒 Accounting</a>
+      <a href="controlling.html">📊 Controlling</a>
+      <a href="assets.html">🏗 Asset Accounting</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a href="inventory.html">📦 Inventory &amp; MRP</a>
+      <a href="pos.html">🖥 Point of Sale</a>
+      <a href="jobs.html">🏭 Jobs &amp; Production</a>
+      <a href="quality.html">✅ Quality Management</a>
+      <a href="maintenance.html" class="active">🔧 Equipment Maintenance</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Enterprise</div>
+      <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+      <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Intelligence</div>
+      <a href="reports.html">📈 Reports</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">System</div>
+      <a href="admin.html">⚙ Administration</a>
+    </div>
+    <div class="sidebar-footer">CW · Christopher Wall</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="breadcrumb">Operations / <b>Equipment Maintenance</b></span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+        <div class="topbar-icon">❓</div>
+        <div class="user-chip">
+          <div class="avatar">CW</div>
+          <span class="user-name">Christopher Wall</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">Equipment Maintenance</div>
+          <div class="page-subtitle">Press and finishing equipment register, maintenance plans, and work orders</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <a class="tab active" onclick="switchTab('equipment')" href="#">Equipment</a>
+        <a class="tab" onclick="switchTab('plans')" href="#">Maintenance Plans</a>
+        <a class="tab" onclick="switchTab('workorders')" href="#">Work Orders</a>
+        <a class="tab" onclick="switchTab('downtime')" href="#">Downtime Log</a>
+      </div>
+
+      <!-- TAB: Equipment -->
+      <div id="tab-equipment">
+        <div class="alert alert-warn">⚠ <strong>Press 1 (HP Indigo)</strong> is due for preventive maintenance in <strong>3 days</strong>.</div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">🔧</div>
+            <div class="kpi-label">Total Equipment</div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-change neutral">Across all categories</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">⏰</div>
+            <div class="kpi-label">Maintenance Due</div>
+            <div class="kpi-value">2</div>
+            <div class="kpi-change down">Within 7 days</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🛠</div>
+            <div class="kpi-label">In Maintenance</div>
+            <div class="kpi-value">1</div>
+            <div class="kpi-change down">Epson F6400 offline</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">⏱</div>
+            <div class="kpi-label">MTD Downtime Hours</div>
+            <div class="kpi-value">14.5</div>
+            <div class="kpi-change down">↑ 3.5 vs last month</div>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <select class="filter-select">
+            <option>All Categories</option>
+            <option>Digital Press</option>
+            <option>Large Format</option>
+            <option>Finishing</option>
+            <option>Specialty</option>
+            <option>Support</option>
+            <option>Vehicle</option>
+          </select>
+          <select class="filter-select">
+            <option>All Statuses</option>
+            <option>Active</option>
+            <option>Due Soon</option>
+            <option>In Maintenance</option>
+            <option>Inactive</option>
+          </select>
+          <div style="margin-left:auto;">
+            <button class="btn btn-primary">+ Add Equipment</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Equip #</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Location</th>
+                  <th>Make / Model</th>
+                  <th>Serial #</th>
+                  <th>Last Maintenance</th>
+                  <th>Next Due</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-mono">EQ-001</td>
+                  <td><strong>Press 1 — HP Indigo 7K</strong></td>
+                  <td>Digital Press</td>
+                  <td>Press Room</td>
+                  <td>HP / Indigo 7K</td>
+                  <td class="text-mono text-xs">HP-7K-294821</td>
+                  <td>Jun 18, 2026</td>
+                  <td style="color:#a16207;font-weight:600;">Jul 18, 2026</td>
+                  <td><span class="badge badge-yellow">Due Soon</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EQ-002</td>
+                  <td>Press 2 — Canon Colorado</td>
+                  <td>Large Format</td>
+                  <td>Press Room</td>
+                  <td>Canon / Colorado 1650</td>
+                  <td class="text-mono text-xs">CN-1650-88241</td>
+                  <td>May 30, 2026</td>
+                  <td>Aug 28, 2026</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EQ-003</td>
+                  <td>Heidelberg Stahlfolder</td>
+                  <td>Finishing</td>
+                  <td>Finishing</td>
+                  <td>Heidelberg / TH82</td>
+                  <td class="text-mono text-xs">HD-TH82-44129</td>
+                  <td>Jul 2, 2026</td>
+                  <td>Oct 1, 2026</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EQ-004</td>
+                  <td>Duplo Booklet Maker</td>
+                  <td>Finishing</td>
+                  <td>Finishing</td>
+                  <td>Duplo / DC-645</td>
+                  <td class="text-mono text-xs">DP-645-99321</td>
+                  <td>Jun 15, 2026</td>
+                  <td>Sep 15, 2026</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EQ-005</td>
+                  <td>Laminator Pro 6000</td>
+                  <td>Finishing</td>
+                  <td>Finishing</td>
+                  <td>GBC / Pro6000</td>
+                  <td class="text-mono text-xs">GBC-6000-77412</td>
+                  <td>Jul 8, 2026</td>
+                  <td>Oct 8, 2026</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr style="background:#fff7ed;">
+                  <td class="text-mono">EQ-006</td>
+                  <td><strong>Epson F6400 Sublimation</strong></td>
+                  <td>Specialty</td>
+                  <td>Press Room</td>
+                  <td>Epson / F6400</td>
+                  <td class="text-mono text-xs">EP-F64-55821</td>
+                  <td>Jul 10, 2026</td>
+                  <td>—</td>
+                  <td><span class="badge badge-orange">In Maintenance</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View WO</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EQ-007</td>
+                  <td>Air Compressor (Main)</td>
+                  <td>Support</td>
+                  <td>Press Room</td>
+                  <td>Ingersoll / R7.5</td>
+                  <td class="text-mono text-xs">IR-75-33218</td>
+                  <td>Jun 1, 2026</td>
+                  <td>Sep 1, 2026</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EQ-008</td>
+                  <td>Delivery Van — Ford Transit</td>
+                  <td>Vehicle</td>
+                  <td>Shipping</td>
+                  <td>Ford / Transit 250</td>
+                  <td class="text-mono text-xs" style="font-size:10px;">1FTBR1C82NKA12841</td>
+                  <td>Jun 30, 2026</td>
+                  <td>Dec 30, 2026</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Maintenance Plans -->
+      <div id="tab-plans" style="display:none;">
+        <div class="toolbar">
+          <select class="filter-select">
+            <option>All Equipment</option>
+            <option>Press 1 — HP Indigo</option>
+            <option>Press 2 — Canon Colorado</option>
+            <option>Heidelberg Folder</option>
+            <option>Laminator Pro</option>
+          </select>
+          <select class="filter-select">
+            <option>All Statuses</option>
+            <option>Due Soon</option>
+            <option>On Track</option>
+            <option>Overdue</option>
+          </select>
+          <div style="margin-left:auto;">
+            <button class="btn btn-primary">+ Add Plan</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Plan #</th>
+                  <th>Equipment</th>
+                  <th>Maintenance Task</th>
+                  <th>Interval Type</th>
+                  <th>Interval</th>
+                  <th>Last Performed</th>
+                  <th>Next Due</th>
+                  <th>Est. Hours</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-mono">MP-001</td>
+                  <td>Press 1 — HP Indigo</td>
+                  <td>Full PM Service</td>
+                  <td>Time-based</td>
+                  <td>Every 30 days</td>
+                  <td>Jun 18</td>
+                  <td style="color:#a16207;font-weight:600;">Jul 18, 2026</td>
+                  <td>4 hrs</td>
+                  <td><span class="badge badge-yellow">Due Soon</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-002</td>
+                  <td>Press 1 — HP Indigo</td>
+                  <td>Ink System Flush</td>
+                  <td>Counter-based</td>
+                  <td>Every 50,000 impressions</td>
+                  <td>Jul 1 (at 237,400)</td>
+                  <td>At 287,400 impressions</td>
+                  <td>1 hr</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-003</td>
+                  <td>Press 2 — Canon Colorado</td>
+                  <td>Printhead Alignment Check</td>
+                  <td>Time-based</td>
+                  <td>Every 90 days</td>
+                  <td>May 30</td>
+                  <td>Aug 28, 2026</td>
+                  <td>2 hrs</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-004</td>
+                  <td>Heidelberg Folder</td>
+                  <td>Roller &amp; Belt Inspection</td>
+                  <td>Time-based</td>
+                  <td>Every 90 days</td>
+                  <td>Jul 2</td>
+                  <td>Oct 1, 2026</td>
+                  <td>3 hrs</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-005</td>
+                  <td>Laminator Pro 6000</td>
+                  <td>Roller Cleaning</td>
+                  <td>Time-based</td>
+                  <td>Every 30 days</td>
+                  <td>Jul 8</td>
+                  <td>Aug 8, 2026</td>
+                  <td>1 hr</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-006</td>
+                  <td>Air Compressor</td>
+                  <td>Filter &amp; Oil Change</td>
+                  <td>Time-based</td>
+                  <td>Every 90 days</td>
+                  <td>Jun 1</td>
+                  <td>Sep 1, 2026</td>
+                  <td>1 hr</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-007</td>
+                  <td>Delivery Van</td>
+                  <td>Oil Change &amp; Inspection</td>
+                  <td>Time-based</td>
+                  <td>Every 180 days</td>
+                  <td>Jun 30</td>
+                  <td>Dec 30, 2026</td>
+                  <td>2 hrs</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">MP-008</td>
+                  <td>All Digital Equipment</td>
+                  <td>Software &amp; Firmware Update</td>
+                  <td>Time-based</td>
+                  <td>Every 60 days</td>
+                  <td>Jun 1</td>
+                  <td>Aug 1, 2026</td>
+                  <td>2 hrs</td>
+                  <td><span class="badge badge-green">On Track</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Work Orders -->
+      <div id="tab-workorders" style="display:none;">
+        <div class="toolbar">
+          <select class="filter-select">
+            <option>All Statuses</option>
+            <option>In Progress</option>
+            <option>Scheduled</option>
+            <option>Planned</option>
+            <option>Complete</option>
+          </select>
+          <select class="filter-select">
+            <option>All Priorities</option>
+            <option>Critical</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <select class="filter-select">
+            <option>All Equipment</option>
+            <option>Press 1 — HP Indigo</option>
+            <option>Press 2 — Canon Colorado</option>
+            <option>Epson F6400</option>
+            <option>Heidelberg Folder</option>
+          </select>
+          <div style="margin-left:auto;">
+            <button class="btn btn-primary">+ New Work Order</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>WO #</th>
+                  <th>Equipment</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Priority</th>
+                  <th>Assigned Tech</th>
+                  <th>Scheduled</th>
+                  <th>Est. Hours</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:#fff7ed;">
+                  <td class="text-mono">WO-2026-0089</td>
+                  <td>Epson F6400</td>
+                  <td><span class="badge badge-orange" style="font-size:10px;">Corrective</span></td>
+                  <td>Printhead clog — unit offline</td>
+                  <td><span class="badge badge-red">Critical</span></td>
+                  <td>M. Torres</td>
+                  <td>Jul 15, 2026</td>
+                  <td>3 hrs</td>
+                  <td><span class="badge badge-orange">In Progress</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">WO-2026-0088</td>
+                  <td>Press 1 — HP Indigo</td>
+                  <td><span class="badge badge-blue" style="font-size:10px;">Preventive</span></td>
+                  <td>30-day PM service</td>
+                  <td><span class="badge badge-yellow">High</span></td>
+                  <td>Vendor (HP)</td>
+                  <td>Jul 18, 2026</td>
+                  <td>4 hrs</td>
+                  <td><span class="badge badge-blue">Scheduled</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">WO-2026-0087</td>
+                  <td>Heidelberg Folder</td>
+                  <td><span class="badge badge-orange" style="font-size:10px;">Corrective</span></td>
+                  <td>Misalignment on fold 2</td>
+                  <td><span class="badge badge-yellow">High</span></td>
+                  <td>M. Torres</td>
+                  <td>Jul 16, 2026</td>
+                  <td>2 hrs</td>
+                  <td><span class="badge badge-blue">Scheduled</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">WO-2026-0086</td>
+                  <td>Air Compressor</td>
+                  <td><span class="badge badge-blue" style="font-size:10px;">Preventive</span></td>
+                  <td>Filter &amp; oil change</td>
+                  <td><span class="badge badge-blue">Medium</span></td>
+                  <td>M. Torres</td>
+                  <td>Jul 20, 2026</td>
+                  <td>1 hr</td>
+                  <td><span class="badge badge-blue">Scheduled</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">WO-2026-0085</td>
+                  <td>Press 2 — Canon Colorado</td>
+                  <td><span class="badge badge-blue" style="font-size:10px;">Preventive</span></td>
+                  <td>Printhead alignment check</td>
+                  <td><span class="badge badge-blue">Medium</span></td>
+                  <td>Vendor (Canon)</td>
+                  <td>Aug 28, 2026</td>
+                  <td>2 hrs</td>
+                  <td><span class="badge badge-gray">Planned</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">WO-2026-0084</td>
+                  <td>Duplo Booklet Maker</td>
+                  <td><span class="badge badge-orange" style="font-size:10px;">Corrective</span></td>
+                  <td>Staple jam — resolved</td>
+                  <td><span class="badge badge-blue">Medium</span></td>
+                  <td>M. Torres</td>
+                  <td>Jul 12, 2026</td>
+                  <td>0.5 hrs</td>
+                  <td><span class="badge badge-green">Complete</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">WO-2026-0083</td>
+                  <td>Laminator Pro 6000</td>
+                  <td><span class="badge badge-blue" style="font-size:10px;">Preventive</span></td>
+                  <td>Roller cleaning</td>
+                  <td><span class="badge badge-gray">Low</span></td>
+                  <td>M. Torres</td>
+                  <td>Jul 8, 2026</td>
+                  <td>1 hr</td>
+                  <td><span class="badge badge-green">Complete</span></td>
+                  <td><button class="btn btn-secondary btn-sm">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Downtime Log -->
+      <div id="tab-downtime" style="display:none;">
+        <!-- KPIs -->
+        <div class="downtime-kpis">
+          <div class="kpi-card">
+            <div class="kpi-icon">⏱</div>
+            <div class="kpi-label">MTD Downtime Hours</div>
+            <div class="kpi-value">14.5</div>
+            <div class="kpi-change down">Jul 1–15, 2026</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🖨</div>
+            <div class="kpi-label">Press 1 Utilization</div>
+            <div class="kpi-value">87%</div>
+            <div class="kpi-change down">↓ 5% vs last month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">🖨</div>
+            <div class="kpi-label">Press 2 Utilization</div>
+            <div class="kpi-value">94%</div>
+            <div class="kpi-change up">↑ 2% vs last month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-label">Cost Impact (Est.)</div>
+            <div class="kpi-value" style="font-size:20px;">$2,840</div>
+            <div class="kpi-change down">Lost production value</div>
+          </div>
+        </div>
+
+        <!-- Downtime Events Table -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">Downtime Events — July 2026</div>
+            <button class="btn btn-secondary btn-sm">Export CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Equipment</th>
+                  <th>Downtime Start</th>
+                  <th>Downtime End</th>
+                  <th>Duration</th>
+                  <th>Reason</th>
+                  <th>Work Order</th>
+                  <th>Cost Impact</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:#fff7ed;">
+                  <td><strong>Epson F6400 Sublimation</strong></td>
+                  <td>Jul 10, 8:00 AM</td>
+                  <td>—</td>
+                  <td style="color:#dc2626;font-weight:600;">5.0 hrs (ongoing)</td>
+                  <td>Printhead clog — corrective maintenance</td>
+                  <td class="text-mono">WO-2026-0089</td>
+                  <td>$640 est.</td>
+                  <td><span class="badge badge-orange">Active</span></td>
+                </tr>
+                <tr>
+                  <td>Press 1 — HP Indigo 7K</td>
+                  <td>Jul 8, 2:00 PM</td>
+                  <td>Jul 8, 5:30 PM</td>
+                  <td>3.5 hrs</td>
+                  <td>Paper feed jam — operator cleared</td>
+                  <td class="text-mono text-muted">—</td>
+                  <td>$875 est.</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                </tr>
+                <tr>
+                  <td>Heidelberg Stahlfolder</td>
+                  <td>Jul 7, 9:15 AM</td>
+                  <td>Jul 7, 11:00 AM</td>
+                  <td>1.75 hrs</td>
+                  <td>Fold plate misalignment — operator adjustment</td>
+                  <td class="text-mono text-muted">WO-2026-0087</td>
+                  <td>$210 est.</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                </tr>
+                <tr>
+                  <td>Duplo Booklet Maker</td>
+                  <td>Jul 12, 1:00 PM</td>
+                  <td>Jul 12, 1:30 PM</td>
+                  <td>0.5 hrs</td>
+                  <td>Staple jam — cleared by operator</td>
+                  <td class="text-mono">WO-2026-0084</td>
+                  <td>$45 est.</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                </tr>
+                <tr>
+                  <td>Press 1 — HP Indigo 7K</td>
+                  <td>Jul 3, 10:00 AM</td>
+                  <td>Jul 3, 11:45 AM</td>
+                  <td>1.75 hrs</td>
+                  <td>Ink drum temperature error — reset required</td>
+                  <td class="text-mono text-muted">—</td>
+                  <td>$437 est.</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                </tr>
+                <tr>
+                  <td>Air Compressor (Main)</td>
+                  <td>Jul 2, 7:30 AM</td>
+                  <td>Jul 2, 9:30 AM</td>
+                  <td>2.0 hrs</td>
+                  <td>Pressure relief valve triggered — safety shutdown</td>
+                  <td class="text-mono text-muted">—</td>
+                  <td>$633 est.</td>
+                  <td><span class="badge badge-green">Resolved</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Utilization chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Equipment Utilization — July 2026 (MTD)</div>
+          </div>
+          <div class="card-body">
+            <div class="util-bar-wrap">
+              <div class="util-label">Press 1 — HP Indigo 7K</div>
+              <div class="util-track"><div class="util-fill" style="width:87%;background:#3b82f6;"></div></div>
+              <div class="util-pct">87%</div>
+            </div>
+            <div class="util-bar-wrap">
+              <div class="util-label">Press 2 — Canon Colorado</div>
+              <div class="util-track"><div class="util-fill" style="width:94%;background:#22c55e;"></div></div>
+              <div class="util-pct">94%</div>
+            </div>
+            <div class="util-bar-wrap">
+              <div class="util-label">Epson F6400 Sublimation</div>
+              <div class="util-track"><div class="util-fill" style="width:58%;background:#ef4444;"></div></div>
+              <div class="util-pct">58%</div>
+            </div>
+            <div class="util-bar-wrap">
+              <div class="util-label">Finishing (avg all)</div>
+              <div class="util-track"><div class="util-fill" style="width:72%;background:#8b5cf6;"></div></div>
+              <div class="util-pct">72%</div>
+            </div>
+            <div class="util-bar-wrap">
+              <div class="util-label">Air Compressor</div>
+              <div class="util-track"><div class="util-fill" style="width:91%;background:#22c55e;"></div></div>
+              <div class="util-pct">91%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).style.display = '';
+    const map = { equipment: 0, plans: 1, workorders: 2, downtime: 3 };
+    document.querySelectorAll('.tab')[map[name]].classList.add('active');
+  }
+</script>
+</body>
+</html>

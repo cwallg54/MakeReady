@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controlling — G54 Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="app-layout">
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="logo">G54 Platform</div><div class="client">Great Mountain West</div></div>
+  <div class="sidebar-section">
+    <a href="index.html">⊞ Dashboard</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Customer</div>
+    <a href="crm.html">👥 CRM</a>
+    <a href="sales.html">🏷 Sales</a>
+    <a href="ecommerce.html">🛒 eCommerce</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Finance</div>
+    <a href="accounting.html">📒 Accounting</a>
+    <a href="controlling.html" class="active">📊 Controlling</a>
+    <a href="assets.html">🏗 Asset Accounting</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <a href="inventory.html">📦 Inventory &amp; MRP</a>
+    <a href="pos.html">🖥 Point of Sale</a>
+    <a href="jobs.html">🏭 Jobs &amp; Production</a>
+    <a href="quality.html">✅ Quality Management</a>
+    <a href="maintenance.html">🔧 Equipment Maintenance</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Enterprise</div>
+    <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+    <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Intelligence</div>
+    <a href="reports.html">📈 Reports</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">System</div>
+    <a href="admin.html">⚙ Administration</a>
+  </div>
+  <div class="sidebar-footer">CW · Christopher Wall</div>
+</aside>
+
+<div class="main-area">
+  <header class="topbar">
+    <div class="topbar-left"><span class="breadcrumb">Finance / <b>Controlling</b></span></div>
+    <div class="topbar-right">
+      <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+      <div class="topbar-icon">❓</div>
+      <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Controlling</h1>
+        <p class="page-subtitle">Cost center accounting, profit center P&amp;L, and profitability analysis</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-tab="cost-centers">Cost Centers</button>
+      <button class="tab" data-tab="profit-centers">Profit Centers</button>
+      <button class="tab" data-tab="copa">CO-PA Analysis</button>
+      <button class="tab" data-tab="internal-orders">Internal Orders</button>
+    </div>
+
+    <!-- ─── COST CENTERS TAB ──────────────────────────────────────── -->
+    <div class="tab-panel active" id="tab-cost-centers">
+
+      <div class="kpi-grid g4">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Period Costs</div>
+          <div class="kpi-value">$1,284,320</div>
+          <div class="kpi-trend trend-neutral">— Jul 2026</div>
+        </div>
+        <div class="kpi-card kpi-card--warn">
+          <div class="kpi-label">Budget Variance</div>
+          <div class="kpi-value" style="color:#ef4444;">−$42,180</div>
+          <div class="kpi-trend trend-down">▼ Over budget</div>
+        </div>
+        <div class="kpi-card kpi-card--danger">
+          <div class="kpi-label">Over-Budget Centers</div>
+          <div class="kpi-value" style="color:#ef4444;">3</div>
+          <div class="kpi-trend trend-down">▼ Requires attention</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Allocation Cycles Run</div>
+          <div class="kpi-value">2</div>
+          <div class="kpi-trend trend-neutral">— This period</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <select class="select-filter">
+          <option>Jul 2026</option>
+          <option>Jun 2026</option>
+          <option>May 2026</option>
+          <option>Q2 2026</option>
+        </select>
+        <select class="select-filter">
+          <option>All Cost Center Groups</option>
+          <option>Production</option>
+          <option>Sales &amp; Marketing</option>
+          <option>Administration</option>
+          <option>Warehouse &amp; IT</option>
+        </select>
+        <button class="btn btn-secondary ml-auto">Run Allocation</button>
+        <button class="btn btn-primary">+ New Cost Center</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Cost Center</th>
+              <th>Description</th>
+              <th>Manager</th>
+              <th class="text-right">Period Budget</th>
+              <th class="text-right">Period Actual</th>
+              <th class="text-right">Variance $</th>
+              <th class="text-right">Variance %</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">CC-100</td>
+              <td>Press Room</td>
+              <td>M. Torres</td>
+              <td class="text-right">$485,000</td>
+              <td class="text-right">$512,400</td>
+              <td class="text-right" style="color:#ef4444;">−$27,400</td>
+              <td class="text-right" style="color:#ef4444;">−5.7%</td>
+              <td><span class="badge badge-red">Over Budget</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-110</td>
+              <td>Prepress / Art</td>
+              <td>S. Chen</td>
+              <td class="text-right">$124,000</td>
+              <td class="text-right">$118,200</td>
+              <td class="text-right" style="color:#16a34a;">+$5,800</td>
+              <td class="text-right" style="color:#16a34a;">+4.7%</td>
+              <td><span class="badge badge-green">On Track</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-120</td>
+              <td>Finishing &amp; Bindery</td>
+              <td>R. Gomez</td>
+              <td class="text-right">$98,000</td>
+              <td class="text-right">$101,300</td>
+              <td class="text-right" style="color:#d97706;">−$3,300</td>
+              <td class="text-right" style="color:#d97706;">−3.4%</td>
+              <td><span class="badge badge-yellow">Near Limit</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-200</td>
+              <td>Sales</td>
+              <td>K. Peterson</td>
+              <td class="text-right">$156,000</td>
+              <td class="text-right">$148,700</td>
+              <td class="text-right" style="color:#16a34a;">+$7,300</td>
+              <td class="text-right" style="color:#16a34a;">+4.7%</td>
+              <td><span class="badge badge-green">On Track</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-300</td>
+              <td>Administration</td>
+              <td>L. Adams</td>
+              <td class="text-right">$112,000</td>
+              <td class="text-right">$119,800</td>
+              <td class="text-right" style="color:#ef4444;">−$7,800</td>
+              <td class="text-right" style="color:#ef4444;">−7.0%</td>
+              <td><span class="badge badge-red">Over Budget</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-310</td>
+              <td>Facilities</td>
+              <td>J. White</td>
+              <td class="text-right">$87,000</td>
+              <td class="text-right">$93,200</td>
+              <td class="text-right" style="color:#ef4444;">−$6,200</td>
+              <td class="text-right" style="color:#ef4444;">−7.1%</td>
+              <td><span class="badge badge-red">Over Budget</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-400</td>
+              <td>Warehouse</td>
+              <td>D. Kim</td>
+              <td class="text-right">$64,000</td>
+              <td class="text-right">$61,800</td>
+              <td class="text-right" style="color:#16a34a;">+$2,200</td>
+              <td class="text-right" style="color:#16a34a;">+3.4%</td>
+              <td><span class="badge badge-green">On Track</span></td>
+            </tr>
+            <tr>
+              <td class="td-bold">CC-500</td>
+              <td>IT</td>
+              <td>B. Singh</td>
+              <td class="text-right">$48,000</td>
+              <td class="text-right">$45,620</td>
+              <td class="text-right" style="color:#16a34a;">+$2,380</td>
+              <td class="text-right" style="color:#16a34a;">+5.0%</td>
+              <td><span class="badge badge-green">On Track</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /#tab-cost-centers -->
+
+    <!-- ─── PROFIT CENTERS TAB ────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-profit-centers">
+
+      <div class="kpi-grid g4">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value">$487,320</div>
+          <div class="kpi-trend trend-neutral">— Jul 2026</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Costs</div>
+          <div class="kpi-value">$345,840</div>
+          <div class="kpi-trend trend-neutral">— Direct + Allocated</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gross Margin</div>
+          <div class="kpi-value">$141,480</div>
+          <div class="kpi-trend trend-up">▲ Period contribution</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Margin %</div>
+          <div class="kpi-value">29.0%</div>
+          <div class="kpi-trend trend-neutral">— Blended</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Profit Center</th>
+              <th>Description</th>
+              <th class="text-right">Revenue</th>
+              <th class="text-right">Direct Costs</th>
+              <th class="text-right">Allocated Costs</th>
+              <th class="text-right">Gross Margin</th>
+              <th class="text-right">Margin %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">PC-10</td>
+              <td>Digital Print</td>
+              <td class="text-right">$218,400</td>
+              <td class="text-right">$134,200</td>
+              <td class="text-right">$48,600</td>
+              <td class="text-right">$35,600</td>
+              <td class="text-right">16.3%</td>
+            </tr>
+            <tr>
+              <td class="td-bold">PC-20</td>
+              <td>Large Format</td>
+              <td class="text-right">$98,700</td>
+              <td class="text-right">$52,100</td>
+              <td class="text-right">$22,400</td>
+              <td class="text-right">$24,200</td>
+              <td class="text-right">24.5%</td>
+            </tr>
+            <tr>
+              <td class="td-bold">PC-30</td>
+              <td>Finishing Services</td>
+              <td class="text-right">$67,300</td>
+              <td class="text-right">$38,900</td>
+              <td class="text-right">$15,200</td>
+              <td class="text-right">$13,200</td>
+              <td class="text-right">19.6%</td>
+            </tr>
+            <tr>
+              <td class="td-bold">PC-40</td>
+              <td>eCommerce</td>
+              <td class="text-right">$72,420</td>
+              <td class="text-right">$38,140</td>
+              <td class="text-right">$18,600</td>
+              <td class="text-right">$15,680</td>
+              <td class="text-right">21.7%</td>
+            </tr>
+            <tr>
+              <td class="td-bold">PC-50</td>
+              <td>Walk-in / POS</td>
+              <td class="text-right">$30,500</td>
+              <td class="text-right">$18,300</td>
+              <td class="text-right">$8,400</td>
+              <td class="text-right">$3,800</td>
+              <td class="text-right">12.5%</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2"><b>Total</b></td>
+              <td class="text-right"><b>$487,320</b></td>
+              <td class="text-right"><b>$281,640</b></td>
+              <td class="text-right"><b>$113,200</b></td>
+              <td class="text-right"><b>$92,480</b></td>
+              <td class="text-right"><b>19.0%</b></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div><!-- /#tab-profit-centers -->
+
+    <!-- ─── CO-PA ANALYSIS TAB ────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-copa">
+
+      <div class="toolbar">
+        <label style="font-size:13px;font-weight:600;color:#374151;">Segment by</label>
+        <select class="select-filter">
+          <option>Customer</option>
+          <option>Product</option>
+          <option>Channel</option>
+          <option>Sales Rep</option>
+        </select>
+        <select class="select-filter">
+          <option>Jul 2026</option>
+          <option>Jun 2026</option>
+          <option>Q2 2026</option>
+          <option>YTD 2026</option>
+        </select>
+        <select class="select-filter">
+          <option>Compare to Budget</option>
+          <option>Compare to Prior Period</option>
+          <option>Compare to Prior Year</option>
+        </select>
+        <button class="btn btn-primary ml-auto">Run Analysis</button>
+      </div>
+
+      <div class="g2">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Top 5 Customers by Margin</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th class="text-right">Revenue</th>
+                <th class="text-right">COGS</th>
+                <th class="text-right">Gross Margin</th>
+                <th class="text-right">Margin %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Summit Corp</td>
+                <td class="text-right">$48,200</td>
+                <td class="text-right">$28,100</td>
+                <td class="text-right">$20,100</td>
+                <td class="text-right" style="color:#16a34a;font-weight:600;">41.7%</td>
+              </tr>
+              <tr>
+                <td>Alpine Marketing</td>
+                <td class="text-right">$31,400</td>
+                <td class="text-right">$19,200</td>
+                <td class="text-right">$12,200</td>
+                <td class="text-right" style="color:#16a34a;font-weight:600;">38.9%</td>
+              </tr>
+              <tr>
+                <td>Western Media</td>
+                <td class="text-right">$28,700</td>
+                <td class="text-right">$18,400</td>
+                <td class="text-right">$10,300</td>
+                <td class="text-right" style="color:#16a34a;font-weight:600;">35.9%</td>
+              </tr>
+              <tr>
+                <td>Pioneer Health</td>
+                <td class="text-right">$22,100</td>
+                <td class="text-right">$14,800</td>
+                <td class="text-right">$7,300</td>
+                <td class="text-right" style="color:#16a34a;font-weight:600;">33.0%</td>
+              </tr>
+              <tr>
+                <td>Front Range Realty</td>
+                <td class="text-right">$18,400</td>
+                <td class="text-right">$13,200</td>
+                <td class="text-right">$5,200</td>
+                <td class="text-right" style="color:#d97706;font-weight:600;">28.3%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Product Category Margin</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="text-right">Margin %</th>
+                <th>Bar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Business Cards</td>
+                <td class="text-right" style="font-weight:600;">42.1%</td>
+                <td><div style="background:#e2e8f0;border-radius:3px;height:8px;"><div style="background:#16a34a;width:42.1%;height:100%;border-radius:3px;"></div></div></td>
+              </tr>
+              <tr>
+                <td>Brochures</td>
+                <td class="text-right" style="font-weight:600;">34.8%</td>
+                <td><div style="background:#e2e8f0;border-radius:3px;height:8px;"><div style="background:#3b82f6;width:34.8%;height:100%;border-radius:3px;"></div></div></td>
+              </tr>
+              <tr>
+                <td>Banners</td>
+                <td class="text-right" style="font-weight:600;">28.4%</td>
+                <td><div style="background:#e2e8f0;border-radius:3px;height:8px;"><div style="background:#3b82f6;width:28.4%;height:100%;border-radius:3px;"></div></div></td>
+              </tr>
+              <tr>
+                <td>Postcards</td>
+                <td class="text-right" style="font-weight:600;">31.2%</td>
+                <td><div style="background:#e2e8f0;border-radius:3px;height:8px;"><div style="background:#3b82f6;width:31.2%;height:100%;border-radius:3px;"></div></div></td>
+              </tr>
+              <tr>
+                <td>Signage</td>
+                <td class="text-right" style="font-weight:600;">26.7%</td>
+                <td><div style="background:#e2e8f0;border-radius:3px;height:8px;"><div style="background:#d97706;width:26.7%;height:100%;border-radius:3px;"></div></div></td>
+              </tr>
+              <tr>
+                <td>Custom</td>
+                <td class="text-right" style="font-weight:600;">38.9%</td>
+                <td><div style="background:#e2e8f0;border-radius:3px;height:8px;"><div style="background:#16a34a;width:38.9%;height:100%;border-radius:3px;"></div></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header">
+          <div class="card-title">Bottom 3 Customers by Margin</div>
+          <span class="badge badge-red">Below 15% — Action Required</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th class="text-right">Revenue</th>
+              <th class="text-right">COGS</th>
+              <th class="text-right">Gross Margin</th>
+              <th class="text-right">Margin %</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Rocky Mtn Bank</td>
+              <td class="text-right">$14,200</td>
+              <td class="text-right">$12,800</td>
+              <td class="text-right">$1,400</td>
+              <td class="text-right" style="color:#ef4444;font-weight:600;">9.9%</td>
+              <td><button class="btn btn-secondary btn-sm">Review Pricing</button></td>
+            </tr>
+            <tr>
+              <td>Cascade Coffee Roasters</td>
+              <td class="text-right">$8,700</td>
+              <td class="text-right">$7,700</td>
+              <td class="text-right">$1,000</td>
+              <td class="text-right" style="color:#ef4444;font-weight:600;">11.5%</td>
+              <td><button class="btn btn-secondary btn-sm">Review Pricing</button></td>
+            </tr>
+            <tr>
+              <td>Frontier Bank</td>
+              <td class="text-right">$6,400</td>
+              <td class="text-right">$5,600</td>
+              <td class="text-right">$800</td>
+              <td class="text-right" style="color:#ef4444;font-weight:600;">12.5%</td>
+              <td><button class="btn btn-secondary btn-sm">Review Pricing</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /#tab-copa -->
+
+    <!-- ─── INTERNAL ORDERS TAB ───────────────────────────────────── -->
+    <div class="tab-panel" id="tab-internal-orders">
+
+      <div class="toolbar">
+        <select class="select-filter">
+          <option>All Statuses</option>
+          <option>In Progress</option>
+          <option>Active</option>
+          <option>Complete</option>
+        </select>
+        <select class="select-filter">
+          <option>All Types</option>
+          <option>Capital</option>
+          <option>Marketing</option>
+          <option>Overhead</option>
+          <option>Admin</option>
+        </select>
+        <button class="btn btn-primary ml-auto">+ New Internal Order</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th class="text-right">Budget</th>
+              <th class="text-right">Actual Spend</th>
+              <th class="text-right">Variance</th>
+              <th>Status</th>
+              <th>Settlement</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-bold">IO-2026-001</td>
+              <td>Press 3 Capital Purchase</td>
+              <td><span class="badge badge-purple">Capital</span></td>
+              <td class="text-right">$185,000</td>
+              <td class="text-right">$12,400</td>
+              <td class="text-right" style="color:#16a34a;">$172,600</td>
+              <td><span class="badge badge-blue">In Progress</span></td>
+              <td>Cost Center CC-100</td>
+            </tr>
+            <tr>
+              <td class="td-bold">IO-2026-002</td>
+              <td>Q3 Marketing Campaign</td>
+              <td><span class="badge badge-teal">Marketing</span></td>
+              <td class="text-right">$24,000</td>
+              <td class="text-right">$18,700</td>
+              <td class="text-right" style="color:#16a34a;">$5,300</td>
+              <td><span class="badge badge-yellow">Active</span></td>
+              <td>Cost Center CC-200</td>
+            </tr>
+            <tr>
+              <td class="td-bold">IO-2026-003</td>
+              <td>Facility Renovation</td>
+              <td><span class="badge badge-gray">Overhead</span></td>
+              <td class="text-right">$42,000</td>
+              <td class="text-right">$41,200</td>
+              <td class="text-right" style="color:#d97706;">$800</td>
+              <td><span class="badge badge-yellow">Active</span></td>
+              <td>Cost Center CC-310</td>
+            </tr>
+            <tr>
+              <td class="td-bold">IO-2026-004</td>
+              <td>Trade Show — Print Expo</td>
+              <td><span class="badge badge-teal">Marketing</span></td>
+              <td class="text-right">$8,500</td>
+              <td class="text-right">$8,500</td>
+              <td class="text-right">$0</td>
+              <td><span class="badge badge-green">Complete</span></td>
+              <td>Settled</td>
+            </tr>
+            <tr>
+              <td class="td-bold">IO-2026-005</td>
+              <td>IT Infrastructure Upgrade</td>
+              <td><span class="badge badge-gray">Overhead</span></td>
+              <td class="text-right">$32,000</td>
+              <td class="text-right">$28,400</td>
+              <td class="text-right" style="color:#16a34a;">$3,600</td>
+              <td><span class="badge badge-blue">In Progress</span></td>
+              <td>Cost Center CC-500</td>
+            </tr>
+            <tr>
+              <td class="td-bold">IO-2026-006</td>
+              <td>Staff Training Program</td>
+              <td><span class="badge badge-gray">Admin</span></td>
+              <td class="text-right">$6,000</td>
+              <td class="text-right">$2,100</td>
+              <td class="text-right" style="color:#16a34a;">$3,900</td>
+              <td><span class="badge badge-blue">In Progress</span></td>
+              <td>Cost Center CC-300</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /#tab-internal-orders -->
+
+  </div><!-- /.page-content -->
+</div><!-- /.main-area -->
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.tab-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

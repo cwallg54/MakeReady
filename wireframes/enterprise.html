@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Entity &amp; EDI — G54 Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Entity cards */
+    .entity-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s; }
+    .entity-card:hover { border-color: #93c5fd; }
+    .entity-card.selected { border-color: #2563eb; background: #eff6ff; }
+    .entity-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+    .entity-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .entity-badges { margin-top: 8px; display: flex; gap: 6px; }
+
+    /* Intercompany balance card */
+    .ic-balance-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .ic-balance-row:last-of-type { border-bottom: none; }
+    .ic-flow { font-size: 13px; color: #374151; }
+    .ic-flow-arrow { color: #94a3b8; margin: 0 6px; }
+    .ic-amount { font-size: 14px; font-weight: 700; color: #15803d; }
+    .ic-type { font-size: 11px; color: #64748b; }
+
+    /* Document flow chain */
+    .doc-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 0; margin: 20px 0; }
+    .doc-node { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; min-width: 140px; flex-shrink: 0; position: relative; }
+    .doc-node:hover { border-color: #93c5fd; }
+    .doc-node-icon { font-size: 20px; margin-bottom: 4px; }
+    .doc-node-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; }
+    .doc-node-num { font-size: 12px; font-weight: 700; color: #1e40af; margin: 2px 0; }
+    .doc-node-date { font-size: 11px; color: #94a3b8; }
+    .doc-node-amount { font-size: 12px; font-weight: 700; color: #15803d; margin-top: 4px; }
+    .doc-arrow { font-size: 20px; color: #94a3b8; padding: 0 6px; flex-shrink: 0; align-self: center; }
+
+    /* Consol P&L */
+    .consol-table td, .consol-table th { padding: 9px 14px; }
+    .consol-table th { background: #f8fafc; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
+    .consol-table .row-total { font-weight: 700; background: #f1f5f9; }
+    .consol-table .section-head td { background: #e2e8f0; font-weight: 700; font-size: 12px; color: #374151; }
+
+    /* Elim entries */
+    .status-col { min-width: 90px; }
+
+    /* Trading partner table */
+    .partner-table { width: 100%; border-collapse: collapse; }
+    .partner-table th { background: #f8fafc; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding: 9px 14px; border-bottom: 1px solid #e2e8f0; }
+    .partner-table td { padding: 9px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">G54 Platform</div>
+      <div class="client">Great Mountain West</div>
+    </div>
+    <div class="sidebar-section">
+      <a href="index.html">⊞ Dashboard</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Customer</div>
+      <a href="crm.html">👥 CRM</a>
+      <a href="sales.html">🏷 Sales</a>
+      <a href="ecommerce.html">🛒 eCommerce</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="accounting.html">📒 Accounting</a>
+      <a href="controlling.html">📊 Controlling</a>
+      <a href="assets.html">🏗 Asset Accounting</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a href="inventory.html">📦 Inventory &amp; MRP</a>
+      <a href="pos.html">🖥 Point of Sale</a>
+      <a href="jobs.html">🏭 Jobs &amp; Production</a>
+      <a href="quality.html">✅ Quality Management</a>
+      <a href="maintenance.html">🔧 Equipment Maintenance</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Enterprise</div>
+      <a href="enterprise.html" class="active">🏢 Multi-Entity &amp; EDI</a>
+      <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Intelligence</div>
+      <a href="reports.html">📈 Reports</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">System</div>
+      <a href="admin.html">⚙ Administration</a>
+    </div>
+    <div class="sidebar-footer">CW · Christopher Wall</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="breadcrumb">Enterprise / <b>Multi-Entity &amp; EDI</b></span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+        <div class="topbar-icon">❓</div>
+        <div class="user-chip">
+          <div class="avatar">CW</div>
+          <span class="user-name">Christopher Wall</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <div class="page-title">Multi-Entity &amp; EDI</div>
+          <div class="page-subtitle">Intercompany accounting, financial consolidation, document flow, and EDI</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <a class="tab active" onclick="switchTab('intercompany')" href="#">Intercompany</a>
+        <a class="tab" onclick="switchTab('consolidation')" href="#">Consolidation</a>
+        <a class="tab" onclick="switchTab('docflow')" href="#">Document Flow</a>
+        <a class="tab" onclick="switchTab('edi')" href="#">EDI</a>
+      </div>
+
+      <!-- TAB: Intercompany -->
+      <div id="tab-intercompany">
+        <div class="g2" style="margin-bottom:20px;">
+          <!-- Entity selector -->
+          <div>
+            <div class="section-label" style="margin-bottom:10px;">Entities</div>
+            <div class="entity-card">
+              <div class="entity-name">GMW Holdings LLC</div>
+              <div class="entity-sub">EIN 84-1234567 · Colorado LLC</div>
+              <div class="entity-badges"><span class="badge badge-blue">Parent</span></div>
+            </div>
+            <div class="entity-card selected">
+              <div class="entity-name">Great Mountain West Inc</div>
+              <div class="entity-sub">EIN 84-9876543 · Colorado Corporation · Currently Viewing</div>
+              <div class="entity-badges"><span class="badge badge-green">Active</span><span class="badge badge-gray">Operating</span></div>
+            </div>
+            <div class="entity-card">
+              <div class="entity-name">GMW Fulfillment LLC</div>
+              <div class="entity-sub">EIN 84-5554321 · Colorado LLC</div>
+              <div class="entity-badges"><span class="badge badge-green">Active</span><span class="badge badge-purple">Subsidiary</span></div>
+            </div>
+          </div>
+
+          <!-- Intercompany balance card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Intercompany Balances — Jul 15, 2026</div>
+            </div>
+            <div class="card-body">
+              <div class="ic-balance-row">
+                <div>
+                  <div class="ic-flow">GMW Inc <span class="ic-flow-arrow">→</span> GMW Fulfillment</div>
+                  <div class="ic-type">Intercompany Receivable — Shared Services</div>
+                </div>
+                <div class="ic-amount">$24,400</div>
+              </div>
+              <div class="ic-balance-row">
+                <div>
+                  <div class="ic-flow">GMW Holdings <span class="ic-flow-arrow">→</span> GMW Inc</div>
+                  <div class="ic-type">Intercompany Receivable — Management Fee</div>
+                </div>
+                <div class="ic-amount">$142,000</div>
+              </div>
+              <div style="margin-top:16px;">
+                <button class="btn btn-secondary" style="width:100%;">🔄 Reconcile Intercompany</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intercompany Transactions -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">Intercompany Transactions</div>
+            <button class="btn btn-primary btn-sm">+ Post Intercompany Transaction</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Txn #</th>
+                  <th>Date</th>
+                  <th>From Entity</th>
+                  <th>To Entity</th>
+                  <th>Type</th>
+                  <th class="text-right">Amount</th>
+                  <th>GL Account</th>
+                  <th>Posted</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-mono">IC-2026-0042</td>
+                  <td>Jul 1, 2026</td>
+                  <td>GMW Holdings</td>
+                  <td>GMW Inc</td>
+                  <td>Management Fee</td>
+                  <td class="text-right text-bold">$12,000</td>
+                  <td>6100 — Mgmt Fee Expense</td>
+                  <td>Jul 1</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">IC-2026-0041</td>
+                  <td>Jul 1, 2026</td>
+                  <td>GMW Inc</td>
+                  <td>GMW Fulfillment</td>
+                  <td>Shared Services — IT</td>
+                  <td class="text-right text-bold">$3,200</td>
+                  <td>6400 — IT Cost Allocation</td>
+                  <td>Jul 1</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">IC-2026-0040</td>
+                  <td>Jun 30, 2026</td>
+                  <td>GMW Holdings</td>
+                  <td>GMW Inc</td>
+                  <td>Management Fee</td>
+                  <td class="text-right text-bold">$12,000</td>
+                  <td>6100 — Mgmt Fee Expense</td>
+                  <td>Jun 30</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">IC-2026-0039</td>
+                  <td>Jun 30, 2026</td>
+                  <td>GMW Inc</td>
+                  <td>GMW Fulfillment</td>
+                  <td>Shared Services — HR</td>
+                  <td class="text-right text-bold">$2,400</td>
+                  <td>6410 — HR Cost Allocation</td>
+                  <td>—</td>
+                  <td><span class="badge badge-yellow">Pending</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">IC-2026-0038</td>
+                  <td>Jun 15, 2026</td>
+                  <td>GMW Inc</td>
+                  <td>GMW Fulfillment</td>
+                  <td>Intercompany Loan Repayment</td>
+                  <td class="text-right text-bold">$10,000</td>
+                  <td>1500 — IC Loan Receivable</td>
+                  <td>Jun 15</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">IC-2026-0037</td>
+                  <td>Jun 1, 2026</td>
+                  <td>GMW Holdings</td>
+                  <td>GMW Inc</td>
+                  <td>Cost Allocation — Facilities</td>
+                  <td class="text-right text-bold">$8,800</td>
+                  <td>6200 — Facilities Allocation</td>
+                  <td>—</td>
+                  <td><span class="badge badge-red">Unmatched</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Consolidation -->
+      <div id="tab-consolidation" style="display:none;">
+        <div class="alert alert-info">ℹ <strong>July 2026 consolidation has not been run.</strong> Last run: June 30, 2026.</div>
+
+        <div class="g2" style="margin-bottom:20px;">
+          <!-- Consolidation status card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Consolidation Status</div>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+                <div>
+                  <div class="text-xs text-muted" style="margin-bottom:2px;">Last Run</div>
+                  <div style="font-weight:600;font-size:13px;">June 30, 2026</div>
+                </div>
+                <div>
+                  <div class="text-xs text-muted" style="margin-bottom:2px;">Entities Included</div>
+                  <div style="font-weight:600;font-size:13px;">3 of 3</div>
+                </div>
+                <div>
+                  <div class="text-xs text-muted" style="margin-bottom:2px;">Eliminations Posted</div>
+                  <div style="font-weight:600;font-size:13px;">5 entries</div>
+                </div>
+                <div>
+                  <div class="text-xs text-muted" style="margin-bottom:2px;">Status</div>
+                  <div><span class="badge badge-yellow">July Pending</span></div>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;">▶ Run July 2026 Consolidation</button>
+            </div>
+          </div>
+
+          <!-- Consolidated P&L summary -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Consolidated P&amp;L Summary — June 2026</div>
+            </div>
+            <div class="table-wrap">
+              <table class="consol-table" style="width:100%;border-collapse:collapse;">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Line Item</th>
+                    <th style="text-align:right;">GMW Inc</th>
+                    <th style="text-align:right;">GMW Fulfillment</th>
+                    <th style="text-align:right;">Consolidated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style="font-weight:500;">Revenue</td><td style="text-align:right;">$842,400</td><td style="text-align:right;">$124,800</td><td style="text-align:right;font-weight:700;">$967,200</td></tr>
+                  <tr><td style="font-weight:500;">Cost of Goods Sold</td><td style="text-align:right;">$524,800</td><td style="text-align:right;">$88,400</td><td style="text-align:right;font-weight:700;">$613,200</td></tr>
+                  <tr class="row-total"><td>Gross Margin</td><td style="text-align:right;">$317,600</td><td style="text-align:right;">$36,400</td><td style="text-align:right;">$354,000</td></tr>
+                  <tr><td style="font-weight:500;">Operating Expenses</td><td style="text-align:right;">$218,200</td><td style="text-align:right;">$24,100</td><td style="text-align:right;font-weight:700;">$242,300</td></tr>
+                  <tr class="row-total" style="background:#dcfce7;"><td>Net Income</td><td style="text-align:right;color:#15803d;">$99,400</td><td style="text-align:right;color:#15803d;">$12,300</td><td style="text-align:right;color:#15803d;font-weight:700;">$111,700</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Elimination Entries -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Elimination Entries — June 2026</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Entry #</th>
+                  <th>Description</th>
+                  <th>Debit Entity</th>
+                  <th>Credit Entity</th>
+                  <th class="text-right">Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-mono">ELIM-2026-0015</td>
+                  <td>Eliminate IC management fee — Holdings to Inc</td>
+                  <td>GMW Holdings</td>
+                  <td>GMW Inc</td>
+                  <td class="text-right text-bold">$12,000</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">ELIM-2026-0014</td>
+                  <td>Eliminate IC IT shared services — Inc to Fulfillment</td>
+                  <td>GMW Inc</td>
+                  <td>GMW Fulfillment</td>
+                  <td class="text-right text-bold">$3,200</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">ELIM-2026-0013</td>
+                  <td>Eliminate IC HR allocation — Inc to Fulfillment</td>
+                  <td>GMW Inc</td>
+                  <td>GMW Fulfillment</td>
+                  <td class="text-right text-bold">$2,400</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">ELIM-2026-0012</td>
+                  <td>Eliminate IC loan balance — Holdings to Inc</td>
+                  <td>GMW Holdings</td>
+                  <td>GMW Inc</td>
+                  <td class="text-right text-bold">$130,000</td>
+                  <td><span class="badge badge-green">Posted</span></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">ELIM-2026-0011</td>
+                  <td>Eliminate IC facilities cost allocation</td>
+                  <td>GMW Holdings</td>
+                  <td>GMW Inc</td>
+                  <td class="text-right text-bold">$8,800</td>
+                  <td><span class="badge badge-yellow">Pending Review</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Document Flow -->
+      <div id="tab-docflow" style="display:none;">
+        <!-- Search bar -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-body" style="padding:16px;">
+            <div class="section-label" style="margin-bottom:8px;">Document Chain Lookup</div>
+            <div style="display:flex;gap:10px;">
+              <input type="text" class="form-control" placeholder="Enter any document number — e.g. Q-2026-0855, ORD-2026-1021, INV-2026-1847…" value="Q-2026-0855" style="flex:1;">
+              <button class="btn btn-primary">🔍 Trace Chain</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual document chain -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">Document Chain — Summit Corp / Brochure Print Run</div>
+            <span class="badge badge-green">Fully Closed</span>
+          </div>
+          <div class="card-body">
+            <div class="doc-chain">
+              <div class="doc-node">
+                <div class="doc-node-icon">📋</div>
+                <div class="doc-node-type">Quote</div>
+                <div class="doc-node-num">Q-2026-0855</div>
+                <div style="margin:4px 0;"><span class="badge badge-green" style="font-size:10px;">Accepted</span></div>
+                <div class="doc-node-date">Jul 1, 2026</div>
+                <div class="doc-node-amount">$18,400</div>
+              </div>
+              <div class="doc-arrow">→</div>
+              <div class="doc-node">
+                <div class="doc-node-icon">📦</div>
+                <div class="doc-node-type">Sales Order</div>
+                <div class="doc-node-num">ORD-2026-1021</div>
+                <div style="margin:4px 0;"><span class="badge badge-green" style="font-size:10px;">Confirmed</span></div>
+                <div class="doc-node-date">Jul 2, 2026</div>
+                <div class="doc-node-amount">$18,400</div>
+              </div>
+              <div class="doc-arrow">→</div>
+              <div class="doc-node">
+                <div class="doc-node-icon">🏭</div>
+                <div class="doc-node-type">Production Job</div>
+                <div class="doc-node-num">JOB-2026-0847</div>
+                <div style="margin:4px 0;"><span class="badge badge-green" style="font-size:10px;">Complete</span></div>
+                <div class="doc-node-date">Jul 11, 2026</div>
+              </div>
+              <div class="doc-arrow">→</div>
+              <div class="doc-node">
+                <div class="doc-node-icon">🚚</div>
+                <div class="doc-node-type">Delivery</div>
+                <div class="doc-node-num">DEL-2026-0312</div>
+                <div style="margin:4px 0;"><span class="badge badge-green" style="font-size:10px;">Shipped</span></div>
+                <div class="doc-node-date">Jul 12, 2026</div>
+              </div>
+              <div class="doc-arrow">→</div>
+              <div class="doc-node">
+                <div class="doc-node-icon">📄</div>
+                <div class="doc-node-type">Invoice</div>
+                <div class="doc-node-num">INV-2026-1847</div>
+                <div style="margin:4px 0;"><span class="badge badge-green" style="font-size:10px;">Sent</span></div>
+                <div class="doc-node-date">Jul 12, 2026</div>
+                <div class="doc-node-amount">$18,400</div>
+              </div>
+              <div class="doc-arrow">→</div>
+              <div class="doc-node" style="border-color:#22c55e;background:#f0fdf4;">
+                <div class="doc-node-icon">✅</div>
+                <div class="doc-node-type">Payment</div>
+                <div class="doc-node-num">PAY-2026-0923</div>
+                <div style="margin:4px 0;"><span class="badge badge-green" style="font-size:10px;">Received</span></div>
+                <div class="doc-node-date">Jul 14, 2026</div>
+                <div class="doc-node-amount">$18,400</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- All Documents Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All Documents in Chain</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Document #</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th class="text-right">Amount</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>📋 Quote</td>
+                  <td class="text-mono">Q-2026-0855</td>
+                  <td><span class="badge badge-green">Accepted</span></td>
+                  <td>Jul 1, 2026</td>
+                  <td class="text-right">$18,400</td>
+                  <td><a href="#" style="color:#2563eb;font-size:12px;">Open →</a></td>
+                </tr>
+                <tr>
+                  <td>📦 Sales Order</td>
+                  <td class="text-mono">ORD-2026-1021</td>
+                  <td><span class="badge badge-green">Confirmed</span></td>
+                  <td>Jul 2, 2026</td>
+                  <td class="text-right">$18,400</td>
+                  <td><a href="#" style="color:#2563eb;font-size:12px;">Open →</a></td>
+                </tr>
+                <tr>
+                  <td>🏭 Production Job</td>
+                  <td class="text-mono">JOB-2026-0847</td>
+                  <td><span class="badge badge-green">Complete</span></td>
+                  <td>Jul 11, 2026</td>
+                  <td class="text-right">—</td>
+                  <td><a href="#" style="color:#2563eb;font-size:12px;">Open →</a></td>
+                </tr>
+                <tr>
+                  <td>🚚 Delivery</td>
+                  <td class="text-mono">DEL-2026-0312</td>
+                  <td><span class="badge badge-green">Shipped</span></td>
+                  <td>Jul 12, 2026</td>
+                  <td class="text-right">—</td>
+                  <td><a href="#" style="color:#2563eb;font-size:12px;">Open →</a></td>
+                </tr>
+                <tr>
+                  <td>📄 Invoice</td>
+                  <td class="text-mono">INV-2026-1847</td>
+                  <td><span class="badge badge-green">Sent</span></td>
+                  <td>Jul 12, 2026</td>
+                  <td class="text-right">$18,400</td>
+                  <td><a href="#" style="color:#2563eb;font-size:12px;">Open →</a></td>
+                </tr>
+                <tr>
+                  <td>✅ Payment</td>
+                  <td class="text-mono">PAY-2026-0923</td>
+                  <td><span class="badge badge-green">Received</span></td>
+                  <td>Jul 14, 2026</td>
+                  <td class="text-right">$18,400</td>
+                  <td><a href="#" style="color:#2563eb;font-size:12px;">Open →</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: EDI -->
+      <div id="tab-edi" style="display:none;">
+        <!-- KPIs -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon">🤝</div>
+            <div class="kpi-label">Active Trading Partners</div>
+            <div class="kpi-value">8</div>
+            <div class="kpi-change neutral">All connected</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">📡</div>
+            <div class="kpi-label">Transactions This Month</div>
+            <div class="kpi-value">142</div>
+            <div class="kpi-change up">↑ 18 vs last month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">⚠</div>
+            <div class="kpi-label">Errors</div>
+            <div class="kpi-value" style="color:#dc2626;">3</div>
+            <div class="kpi-change down">1 requires retry</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-label">Success Rate</div>
+            <div class="kpi-value">97.9%</div>
+            <div class="kpi-change up">↑ 0.4% vs last month</div>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <select class="filter-select">
+            <option>All Partners</option>
+            <option>Sappi Fine Paper</option>
+            <option>Summit Corp</option>
+            <option>Fujifilm Ink</option>
+            <option>Alpine Marketing</option>
+            <option>UPS Freight</option>
+          </select>
+          <select class="filter-select">
+            <option>All Transaction Types</option>
+            <option>810 Invoice</option>
+            <option>850 Purchase Order</option>
+            <option>856 Advance Ship Notice</option>
+            <option>214 Shipment Status</option>
+          </select>
+          <select class="filter-select">
+            <option>All Directions</option>
+            <option>Outbound</option>
+            <option>Inbound</option>
+          </select>
+          <input type="text" class="form-control" placeholder="Jul 1 – Jul 15, 2026" style="max-width:180px;">
+        </div>
+
+        <!-- Transaction Log -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">EDI Transaction Log</div>
+            <button class="btn btn-secondary btn-sm">Export</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Txn ID</th>
+                  <th>Date / Time</th>
+                  <th>Partner</th>
+                  <th>Type</th>
+                  <th>Direction</th>
+                  <th>Document Ref</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-mono">EDI-2026-1421</td>
+                  <td>Jul 15, 09:14</td>
+                  <td>Sappi Fine Paper</td>
+                  <td>850 Purchase Order</td>
+                  <td><span style="color:#64748b;">↑ Outbound</span></td>
+                  <td class="text-mono">PO-0148</td>
+                  <td><span class="badge badge-green">Sent</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EDI-2026-1420</td>
+                  <td>Jul 15, 08:47</td>
+                  <td>Summit Corp</td>
+                  <td>810 Invoice</td>
+                  <td><span style="color:#64748b;">↑ Outbound</span></td>
+                  <td class="text-mono">INV-2026-1851</td>
+                  <td><span class="badge badge-green">Sent</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EDI-2026-1419</td>
+                  <td>Jul 14, 16:22</td>
+                  <td>Fujifilm Ink</td>
+                  <td>856 Advance Ship Notice</td>
+                  <td><span style="color:#64748b;">↓ Inbound</span></td>
+                  <td class="text-mono">ASN-FF-8821</td>
+                  <td><span class="badge badge-green">Received</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr style="background:#fef2f2;">
+                  <td class="text-mono">EDI-2026-1418</td>
+                  <td>Jul 14, 14:05</td>
+                  <td>Alpine Marketing</td>
+                  <td>810 Invoice</td>
+                  <td><span style="color:#64748b;">↑ Outbound</span></td>
+                  <td class="text-mono">INV-2026-1849</td>
+                  <td><span class="badge badge-red">Failed</span></td>
+                  <td><button class="btn btn-primary btn-sm">Retry</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EDI-2026-1417</td>
+                  <td>Jul 14, 11:30</td>
+                  <td>Xpedx Distribution</td>
+                  <td>850 Purchase Order</td>
+                  <td><span style="color:#64748b;">↑ Outbound</span></td>
+                  <td class="text-mono">PO-0147</td>
+                  <td><span class="badge badge-green">Sent</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EDI-2026-1416</td>
+                  <td>Jul 13, 15:48</td>
+                  <td>Western Media</td>
+                  <td>810 Invoice</td>
+                  <td><span style="color:#64748b;">↑ Outbound</span></td>
+                  <td class="text-mono">INV-2026-1845</td>
+                  <td><span class="badge badge-green">Sent</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EDI-2026-1415</td>
+                  <td>Jul 13, 10:22</td>
+                  <td>UPS Freight</td>
+                  <td>214 Shipment Status</td>
+                  <td><span style="color:#64748b;">↓ Inbound</span></td>
+                  <td class="text-mono">TRK-1Z8842</td>
+                  <td><span class="badge badge-green">Received</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td class="text-mono">EDI-2026-1414</td>
+                  <td>Jul 12, 09:11</td>
+                  <td>Pioneer Health</td>
+                  <td>810 Invoice</td>
+                  <td><span style="color:#64748b;">↑ Outbound</span></td>
+                  <td class="text-mono">INV-2026-1841</td>
+                  <td><span class="badge badge-green">Sent</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Trading Partners -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Trading Partners</div>
+            <button class="btn btn-primary btn-sm">+ Add Partner</button>
+          </div>
+          <div class="table-wrap">
+            <table class="partner-table">
+              <thead>
+                <tr>
+                  <th>Partner</th>
+                  <th>Type</th>
+                  <th>Format</th>
+                  <th>ISA / GLN ID</th>
+                  <th>Transaction Sets</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Sappi Fine Paper</strong></td><td>Vendor</td><td>ANSI X12</td><td class="text-mono text-xs">084-229183721</td><td>850, 855, 856, 810</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td><strong>Summit Corp</strong></td><td>Customer</td><td>ANSI X12</td><td class="text-mono text-xs">014-881234500</td><td>810, 820</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td><strong>Fujifilm Ink Systems</strong></td><td>Vendor</td><td>ANSI X12</td><td class="text-mono text-xs">029-774412800</td><td>850, 856, 810</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td><strong>Alpine Marketing Group</strong></td><td>Customer</td><td>ANSI X12</td><td class="text-mono text-xs">014-992840012</td><td>810, 820</td><td><span class="badge badge-yellow">Error</span></td></tr>
+                <tr><td><strong>Xpedx Distribution</strong></td><td>Vendor</td><td>ANSI X12</td><td class="text-mono text-xs">084-441290083</td><td>850, 855, 856</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td><strong>Western Media Inc</strong></td><td>Customer</td><td>ANSI X12</td><td class="text-mono text-xs">014-550192884</td><td>810, 820</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td><strong>UPS Freight</strong></td><td>Carrier</td><td>ANSI X12</td><td class="text-mono text-xs">UPSG-990012</td><td>204, 214, 210</td><td><span class="badge badge-green">Active</span></td></tr>
+                <tr><td><strong>Pioneer Health Systems</strong></td><td>Customer</td><td>ANSI X12</td><td class="text-mono text-xs">014-661029334</td><td>810, 820</td><td><span class="badge badge-green">Active</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('[id^="tab-"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).style.display = '';
+    const map = { intercompany: 0, consolidation: 1, docflow: 2, edi: 3 };
+    document.querySelectorAll('.tab')[map[name]].classList.add('active');
+  }
+</script>
+</body>
+</html>
