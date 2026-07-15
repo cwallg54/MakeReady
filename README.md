@@ -1,9 +1,9 @@
-# G54 Platform
+# Makeready
 
-Enterprise resource platform for Great Mountain West (g54.com) — replacing Sage 100.
+Enterprise operations platform for commercial print & production — built for Great Mountain West (g54.com) as the founding client.
 
 **Status:** Phase 1 — Discovery & Design  
-**Client:** Great Mountain West  
+**Founding Client:** Great Mountain West  
 **Developer:** Christopher Wall  
 **Repository:** Private
 
@@ -11,15 +11,22 @@ Enterprise resource platform for Great Mountain West (g54.com) — replacing Sag
 
 ## Platform Overview
 
-A cloud-hosted, PCI DSS and SOC 2 Type 2 compliant enterprise platform consolidating:
+Makeready is a cloud-hosted, PCI DSS and SOC 2 Type 2 compliant enterprise platform purpose-built for commercial printing, large-format, and production companies. It achieves full SAP feature parity while delivering a modern, accessible user experience.
 
+Modules:
 - CRM & Sales
 - Accounting (GL, AR, AP, Banking)
-- Inventory & Warehouse Management
+- Controlling (Cost Centers, Profit Centers, CO-PA)
+- Asset Accounting
+- Inventory & MRP
 - Point of Sale
 - eCommerce Storefront
-- Project & Job Management
-- Production Scheduling & Art/Proof Workflow
+- Jobs & Production Scheduling
+- Art/Proof Workflow
+- Quality Management
+- Equipment Maintenance
+- Multi-Entity & Intercompany
+- Workflows & Approvals
 - Reporting & Analytics
 
 ---
@@ -46,10 +53,10 @@ G54-Platform/
 |---|---|---|
 | Phase 1 | Discovery, Architecture & Design | In Progress |
 | Phase 2 | Core Platform Foundation | Pending |
-| Phase 3 | Financial Suite (GL, AR, AP) | Pending |
+| Phase 3 | Financial Suite (GL, AR, AP, Controlling) | Pending |
 | Phase 4 | CRM & Sales | Pending |
-| Phase 5 | Inventory, POS & eCommerce | Pending |
-| Phase 6 | Project & Job Management | Pending |
+| Phase 5 | Inventory, MRP, POS & eCommerce | Pending |
+| Phase 6 | Jobs, Quality Management & Maintenance | Pending |
 | Phase 7 | Reporting & Analytics | Pending |
 | Phase 8 | Compliance, Security & Launch | Pending |
 
@@ -68,21 +75,27 @@ G54-Platform/
 
 **https://g54-platform.vercel.app**
 
-All 11 screens are live and interlinked. Share this URL with the client for review.
+All 17 screens are live and interlinked. Share this URL with the client for review.
 
 | Screen | URL |
 |---|---|
-| Dashboard | /index.html |
-| Login / MFA | /auth.html |
-| CRM | /crm.html |
-| Sales | /sales.html |
-| Accounting | /accounting.html |
-| Inventory | /inventory.html |
-| Point of Sale | /pos.html |
-| eCommerce | /ecommerce.html |
-| Jobs & Production | /jobs.html |
-| Reports | /reports.html |
-| Administration | /admin.html |
+| Dashboard | /index |
+| Login / MFA | /auth |
+| CRM | /crm |
+| Sales | /sales |
+| Accounting | /accounting |
+| Controlling | /controlling |
+| Asset Accounting | /assets |
+| Inventory & MRP | /inventory |
+| Point of Sale | /pos |
+| eCommerce | /ecommerce |
+| Jobs & Production | /jobs |
+| Quality Management | /quality |
+| Equipment Maintenance | /maintenance |
+| Multi-Entity & EDI | /enterprise |
+| Workflows & Approvals | /workflows |
+| Reports | /reports |
+| Administration | /admin |
 
 ## Design Assets
 

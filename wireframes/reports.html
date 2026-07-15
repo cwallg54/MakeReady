@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reports &amp; Analytics — G54 Platform</title>
+  <title>Reports &amp; Analytics â€” Makeready</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     /* Report library cards */
@@ -57,7 +57,7 @@
       margin-bottom: 6px; font-size: 13px; cursor: grab; display: flex;
       align-items: center; gap: 8px;
     }
-    .field-item::before { content: '⣿'; color: #d1d5db; font-size: 12px; }
+    .field-item::before { content: 'â£¿'; color: #d1d5db; font-size: 12px; }
     .condition-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     .condition-row select, .condition-row input { flex: 1; padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
     .condition-row .remove-btn { background: none; border: none; color: #dc2626; font-size: 16px; cursor: pointer; padding: 0 6px; }
@@ -66,52 +66,52 @@
 <body class="app-layout">
 
 <aside class="sidebar">
-  <div class="sidebar-brand"><div class="logo">G54 Platform</div><div class="client">Great Mountain West</div></div>
+  <div class="sidebar-brand"><div class="logo">Makeready</div><div class="client">Great Mountain West</div></div>
   <div class="sidebar-section">
-    <a href="index.html">⊞ Dashboard</a>
+    <a href="index.html">âŠž Dashboard</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Customer</div>
-    <a href="crm.html">👥 CRM</a>
-    <a href="sales.html">🏷 Sales</a>
-    <a href="ecommerce.html">🛒 eCommerce</a>
+    <a href="crm.html">ðŸ‘¥ CRM</a>
+    <a href="sales.html">ðŸ· Sales</a>
+    <a href="ecommerce.html">ðŸ›’ eCommerce</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Finance</div>
-    <a href="accounting.html">📒 Accounting</a>
-    <a href="controlling.html">📊 Controlling</a>
-    <a href="assets.html">🏗 Asset Accounting</a>
+    <a href="accounting.html">ðŸ“’ Accounting</a>
+    <a href="controlling.html">ðŸ“Š Controlling</a>
+    <a href="assets.html">ðŸ— Asset Accounting</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Operations</div>
-    <a href="inventory.html">📦 Inventory &amp; MRP</a>
-    <a href="pos.html">🖥 Point of Sale</a>
-    <a href="jobs.html">🏭 Jobs &amp; Production</a>
-    <a href="quality.html">✅ Quality Management</a>
-    <a href="maintenance.html">🔧 Equipment Maintenance</a>
+    <a href="inventory.html">ðŸ“¦ Inventory &amp; MRP</a>
+    <a href="pos.html">ðŸ–¥ Point of Sale</a>
+    <a href="jobs.html">ðŸ­ Jobs &amp; Production</a>
+    <a href="quality.html">âœ… Quality Management</a>
+    <a href="maintenance.html">ðŸ”§ Equipment Maintenance</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Enterprise</div>
-    <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
-    <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+    <a href="enterprise.html">ðŸ¢ Multi-Entity &amp; EDI</a>
+    <a href="workflows.html">âš¡ Workflows &amp; Approvals</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Intelligence</div>
-    <a href="reports.html" class="active">📈 Reports</a>
+    <a href="reports.html" class="active">ðŸ“ˆ Reports</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">System</div>
-    <a href="admin.html">⚙ Administration</a>
+    <a href="admin.html">âš™ Administration</a>
   </div>
-  <div class="sidebar-footer">CW · Christopher Wall</div>
+  <div class="sidebar-footer">CW Â· Christopher Wall</div>
 </aside>
 
 <div class="main-area">
   <header class="topbar">
     <div class="topbar-left"><span class="breadcrumb">Intelligence / <b>Reports &amp; Analytics</b></span></div>
     <div class="topbar-right">
-      <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
-      <div class="topbar-icon">❓</div>
+      <div class="topbar-icon">ðŸ””<span class="notif-dot"></span></div>
+      <div class="topbar-icon">â“</div>
       <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
     </div>
   </header>
@@ -121,7 +121,7 @@
       <h1 class="page-title">Reports &amp; Analytics</h1>
       <div class="page-actions">
         <select class="filter-select"><option>This Month</option><option>Last Month</option><option>This Quarter</option><option>YTD</option><option>Custom Range</option></select>
-        <button class="btn btn-secondary">⬇ Export</button>
+        <button class="btn btn-secondary">â¬‡ Export</button>
         <button class="btn btn-primary">+ New Report</button>
       </div>
     </div>
@@ -142,17 +142,17 @@
         <div class="kpi-card">
           <div class="kpi-label">Revenue MTD</div>
           <div class="kpi-value">$184,230</div>
-          <div class="kpi-sub trend-up">↑ 9.2% vs last month</div>
+          <div class="kpi-sub trend-up">â†‘ 9.2% vs last month</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Gross Margin</div>
           <div class="kpi-value">42.8%</div>
-          <div class="kpi-sub trend-up">↑ 1.4 pts vs last month</div>
+          <div class="kpi-sub trend-up">â†‘ 1.4 pts vs last month</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Net Income MTD</div>
           <div class="kpi-value">$22,418</div>
-          <div class="kpi-sub trend-up">↑ 4.1% vs last month</div>
+          <div class="kpi-sub trend-up">â†‘ 4.1% vs last month</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Cash Flow</div>
@@ -162,7 +162,7 @@
       </div>
 
       <div class="card" style="margin-top:20px;">
-        <div class="chart-title">Monthly Revenue (Jan – Jul 2026)</div>
+        <div class="chart-title">Monthly Revenue (Jan â€“ Jul 2026)</div>
         <div class="chart-placeholder">
           <div class="bar-wrap"><div class="bar" style="height:80px;"></div><div class="bar-label">Jan<br>$142k</div></div>
           <div class="bar-wrap"><div class="bar" style="height:88px;"></div><div class="bar-label">Feb<br>$156k</div></div>
@@ -252,12 +252,12 @@
         <div class="kpi-card">
           <div class="kpi-label">On-Time Delivery</div>
           <div class="kpi-value" style="color:#16a34a;">94.2%</div>
-          <div class="kpi-sub trend-up">↑ 1.8 pts vs last month</div>
+          <div class="kpi-sub trend-up">â†‘ 1.8 pts vs last month</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Avg Job Turnaround</div>
           <div class="kpi-value">3.8 days</div>
-          <div class="kpi-sub trend-up">↓ 0.3 days (improved)</div>
+          <div class="kpi-sub trend-up">â†“ 0.3 days (improved)</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Jobs In Progress</div>
@@ -271,14 +271,14 @@
         <div style="padding:8px 0;">
           <div class="progress-row">
             <div class="progress-label-row">
-              <span style="font-weight:600;">Press 1 — 4-Color Digital</span>
+              <span style="font-weight:600;">Press 1 â€” 4-Color Digital</span>
               <span style="font-weight:700;color:#f59e0b;">87%</span>
             </div>
             <div class="progress-track"><div class="progress-fill high" style="width:87%"></div></div>
           </div>
           <div class="progress-row">
             <div class="progress-label-row">
-              <span style="font-weight:600;">Press 2 — Large Format</span>
+              <span style="font-weight:600;">Press 2 â€” Large Format</span>
               <span style="font-weight:700;color:#3b82f6;">62%</span>
             </div>
             <div class="progress-track"><div class="progress-fill" style="width:62%"></div></div>
@@ -305,133 +305,133 @@
     <div class="tab-content" id="tab-library">
       <div class="report-library-grid">
         <div class="report-card">
-          <div class="report-card-icon">📋</div>
+          <div class="report-card-icon">ðŸ“‹</div>
           <div class="report-card-name">Profit &amp; Loss Statement</div>
           <div class="report-card-desc">Revenue, expenses, and net income for a selected period. Supports monthly and YTD views.</div>
           <div class="report-card-meta">Last run: Jul 1, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">⚖️</div>
+          <div class="report-card-icon">âš–ï¸</div>
           <div class="report-card-name">Balance Sheet</div>
           <div class="report-card-desc">Assets, liabilities, and equity snapshot as of any date.</div>
           <div class="report-card-meta">Last run: Jul 1, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">💰</div>
+          <div class="report-card-icon">ðŸ’°</div>
           <div class="report-card-name">Cash Flow Statement</div>
           <div class="report-card-desc">Operating, investing, and financing cash flows for the selected period.</div>
           <div class="report-card-meta">Last run: Jul 1, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">📅</div>
+          <div class="report-card-icon">ðŸ“…</div>
           <div class="report-card-name">AR Aging Report</div>
           <div class="report-card-desc">Outstanding receivables by age bucket: Current, 30, 60, 90+ days.</div>
           <div class="report-card-meta">Last run: Jul 7, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">📅</div>
+          <div class="report-card-icon">ðŸ“…</div>
           <div class="report-card-name">AP Aging Report</div>
           <div class="report-card-desc">Outstanding payables by vendor and age bucket.</div>
           <div class="report-card-meta">Last run: Jul 7, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">📧</div>
+          <div class="report-card-icon">ðŸ“§</div>
           <div class="report-card-name">Customer Statement</div>
           <div class="report-card-desc">Per-customer invoice and payment history. Supports email delivery.</div>
           <div class="report-card-meta">Last run: Jul 5, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">🏷</div>
+          <div class="report-card-icon">ðŸ·</div>
           <div class="report-card-name">Sales by Product</div>
           <div class="report-card-desc">Units sold and revenue by product, sortable by category or SKU.</div>
           <div class="report-card-meta">Last run: Jul 3, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">👤</div>
+          <div class="report-card-icon">ðŸ‘¤</div>
           <div class="report-card-name">Sales by Rep</div>
           <div class="report-card-desc">Revenue, orders, and gross margin broken down by sales representative.</div>
           <div class="report-card-meta">Last run: Jul 1, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">🏭</div>
+          <div class="report-card-icon">ðŸ­</div>
           <div class="report-card-name">Job Profitability</div>
           <div class="report-card-desc">Revenue vs. costs per job, including materials, labor, and press time.</div>
           <div class="report-card-meta">Last run: Jul 2, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">📦</div>
+          <div class="report-card-icon">ðŸ“¦</div>
           <div class="report-card-name">Inventory Valuation</div>
           <div class="report-card-desc">On-hand quantities and value by item and location, with FIFO/LIFO options.</div>
           <div class="report-card-meta">Last run: Jun 30, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">🖨</div>
+          <div class="report-card-icon">ðŸ–¨</div>
           <div class="report-card-name">Press Utilization</div>
           <div class="report-card-desc">Capacity usage, hours, and efficiency per press station.</div>
           <div class="report-card-meta">Last run: Jul 7, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card">
-          <div class="report-card-icon">🧾</div>
+          <div class="report-card-icon">ðŸ§¾</div>
           <div class="report-card-name">Tax Summary</div>
           <div class="report-card-desc">Sales tax collected and remitted by jurisdiction. Supports CPA export.</div>
           <div class="report-card-meta">Last run: Jul 1, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">⏰ Schedule</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">â° Schedule</button>
           </div>
         </div>
         <div class="report-card" style="border-color:#8b5cf6;background:#fdf4ff;">
-          <div class="report-card-icon">⭐</div>
+          <div class="report-card-icon">â­</div>
           <div class="report-card-name">Monthly Executive Summary <span class="badge badge-purple" style="font-size:10px;">Custom</span></div>
           <div class="report-card-desc">Combined finance, sales, and production KPIs. Sent monthly to leadership.</div>
           <div class="report-card-meta">Last run: Jul 1, 2026</div>
           <div class="report-card-actions">
-            <button class="btn btn-primary btn-sm">▶ Run</button>
-            <button class="btn btn-secondary btn-sm">✏️ Edit</button>
+            <button class="btn btn-primary btn-sm">â–¶ Run</button>
+            <button class="btn btn-secondary btn-sm">âœï¸ Edit</button>
           </div>
         </div>
       </div>
@@ -443,8 +443,8 @@
         <div class="card-header">
           <h2 class="card-title">Custom Report Builder</h2>
           <div style="display:flex;gap:8px;">
-            <button class="btn btn-secondary">👁 Preview</button>
-            <button class="btn btn-primary">💾 Save Report</button>
+            <button class="btn btn-secondary">ðŸ‘ Preview</button>
+            <button class="btn btn-primary">ðŸ’¾ Save Report</button>
           </div>
         </div>
 
@@ -513,14 +513,14 @@
           <div class="condition-row">
             <select><option>Sales Rep</option><option>Customer</option><option>Product Category</option><option>Amount</option></select>
             <select><option>equals</option><option>contains</option><option>greater than</option><option>less than</option></select>
-            <input type="text" placeholder="Value…">
-            <button class="remove-btn">✕</button>
+            <input type="text" placeholder="Valueâ€¦">
+            <button class="remove-btn">âœ•</button>
           </div>
           <div class="condition-row">
             <select><option>Invoice Total</option><option>Customer</option></select>
             <select><option>greater than</option></select>
             <input type="text" value="500">
-            <button class="remove-btn">✕</button>
+            <button class="remove-btn">âœ•</button>
           </div>
           <button class="btn btn-secondary btn-sm" style="margin-top:4px;">+ Add Condition</button>
         </div>
@@ -528,7 +528,7 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
           <div class="form-group">
             <label class="form-label">Group By</label>
-            <select class="form-input"><option>— None —</option><option>Sales Rep</option><option selected>Customer Name</option><option>Product Category</option><option>Month</option></select>
+            <select class="form-input"><option>â€” None â€”</option><option>Sales Rep</option><option selected>Customer Name</option><option>Product Category</option><option>Month</option></select>
           </div>
           <div class="form-group">
             <label class="form-label">Sort By</label>
@@ -537,9 +537,9 @@
         </div>
 
         <div style="display:flex;gap:12px;margin-top:16px;">
-          <button class="btn btn-secondary">👁 Preview Report</button>
-          <button class="btn btn-primary">💾 Save Report</button>
-          <button class="btn btn-secondary">📤 Export CSV</button>
+          <button class="btn btn-secondary">ðŸ‘ Preview Report</button>
+          <button class="btn btn-primary">ðŸ’¾ Save Report</button>
+          <button class="btn btn-secondary">ðŸ“¤ Export CSV</button>
         </div>
       </div>
     </div>
