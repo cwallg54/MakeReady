@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jobs &amp; Production â€” Makeready</title>
+  <title>Jobs &amp; Production — MakeReady by G54</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     /* Kanban */
@@ -84,52 +84,52 @@
 <body class="app-layout">
 
 <aside class="sidebar">
-  <div class="sidebar-brand"><div class="logo">Makeready</div><div class="client">Great Mountain West</div></div>
+  <div class="sidebar-brand"><div class="logo">MakeReady by G54</div><div class="client">Great Mountain West</div></div>
   <div class="sidebar-section">
-    <a href="index.html">âŠž Dashboard</a>
+    <a href="index.html">⊞ Dashboard</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Customer</div>
-    <a href="crm.html">ðŸ‘¥ CRM</a>
-    <a href="sales.html">ðŸ· Sales</a>
-    <a href="ecommerce.html">ðŸ›’ eCommerce</a>
+    <a href="crm.html">👥 CRM</a>
+    <a href="sales.html">🏷 Sales</a>
+    <a href="ecommerce.html">🛒 eCommerce</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Finance</div>
-    <a href="accounting.html">ðŸ“’ Accounting</a>
-    <a href="controlling.html">ðŸ“Š Controlling</a>
-    <a href="assets.html">ðŸ— Asset Accounting</a>
+    <a href="accounting.html">📒 Accounting</a>
+    <a href="controlling.html">📊 Controlling</a>
+    <a href="assets.html">🏗 Asset Accounting</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Operations</div>
-    <a href="inventory.html">ðŸ“¦ Inventory &amp; MRP</a>
-    <a href="pos.html">ðŸ–¥ Point of Sale</a>
-    <a href="jobs.html" class="active">ðŸ­ Jobs &amp; Production</a>
-    <a href="quality.html">âœ… Quality Management</a>
-    <a href="maintenance.html">ðŸ”§ Equipment Maintenance</a>
+    <a href="inventory.html">📦 Inventory &amp; MRP</a>
+    <a href="pos.html">🖥 Point of Sale</a>
+    <a href="jobs.html" class="active">🏭 Jobs &amp; Production</a>
+    <a href="quality.html">✅ Quality Management</a>
+    <a href="maintenance.html">🔧 Equipment Maintenance</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Enterprise</div>
-    <a href="enterprise.html">ðŸ¢ Multi-Entity &amp; EDI</a>
-    <a href="workflows.html">âš¡ Workflows &amp; Approvals</a>
+    <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+    <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Intelligence</div>
-    <a href="reports.html">ðŸ“ˆ Reports</a>
+    <a href="reports.html">📈 Reports</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">System</div>
-    <a href="admin.html">âš™ Administration</a>
+    <a href="admin.html">⚙ Administration</a>
   </div>
-  <div class="sidebar-footer">CW Â· Christopher Wall</div>
+  <div class="sidebar-footer">CW · Christopher Wall</div>
 </aside>
 
 <div class="main-area">
   <header class="topbar">
     <div class="topbar-left"><span class="breadcrumb">Operations / <b>Jobs &amp; Production</b></span></div>
     <div class="topbar-right">
-      <div class="topbar-icon">ðŸ””<span class="notif-dot"></span></div>
-      <div class="topbar-icon">â“</div>
+      <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+      <div class="topbar-icon">❓</div>
       <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
     </div>
   </header>
@@ -137,11 +137,12 @@
   <div class="page-content">
     <div class="page-header">
       <h1 class="page-title">Jobs &amp; Production</h1>
+      <p style="font-size:13px;color:#64748b;margin:4px 0 0;">Jobs are triggered by SAP B1 Sales Orders. Zoey orders import via Vision33 Saltbox and create Sales Orders which flow into the production queue.</p>
       <button class="btn btn-primary">+ New Job</button>
     </div>
 
     <div class="alert alert-warning" style="margin-bottom:16px;">
-      âš ï¸ <strong>3 jobs are overdue.</strong> 4 jobs awaiting art approval before production can begin.
+      ⚠️ <strong>3 jobs are overdue.</strong> 4 jobs awaiting art approval before production can begin.
     </div>
 
     <div class="tabs">
@@ -156,7 +157,7 @@
       <div class="card">
         <div class="card-header">
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <input type="text" class="filter-input" placeholder="ðŸ” Search jobsâ€¦" style="width:200px;">
+            <input type="text" class="filter-input" placeholder="🔍 Search jobs…" style="width:200px;">
             <select class="filter-select"><option>All Statuses</option><option>Not Started</option><option>Queued</option><option>In Press</option><option>Finishing</option><option>Ready</option><option>Shipped</option></select>
             <select class="filter-select"><option>All Customers</option><option>Acme Corporation</option><option>Sunrise Real Estate</option><option>Blue Ridge School Dist.</option></select>
             <input type="date" class="filter-input" value="2026-07-01">
@@ -191,13 +192,13 @@
               <td>S. Nguyen</td>
               <td><span class="badge badge-yellow">Proof Sent</span></td>
               <td><span class="badge badge-gray">Not Started</span></td>
-              <td><span style="color:#dc2626;font-weight:700;">Jul 8, 2026 âš </span></td>
+              <td><span style="color:#dc2626;font-weight:700;">Jul 8, 2026 ⚠</span></td>
               <td><a href="#" class="link-action">View</a> <a href="#" class="link-action">Edit</a></td>
             </tr>
             <tr>
               <td><strong>#J-4819</strong></td>
               <td>Peak Performance Gym</td>
-              <td>Vinyl Banners 3Ã—8 ft (custom artwork)</td>
+              <td>Vinyl Banners 3×8 ft (custom artwork)</td>
               <td>6</td>
               <td>R. Okafor</td>
               <td><span class="badge badge-green">Approved</span></td>
@@ -208,18 +209,18 @@
             <tr style="background:#fff7ed;">
               <td><strong>#J-4818</strong></td>
               <td>Sunrise Real Estate LLC</td>
-              <td>Yard Signs w/ Stakes â€” Listing Package</td>
+              <td>Yard Signs w/ Stakes — Listing Package</td>
               <td>50</td>
               <td>D. Martinez</td>
               <td><span class="badge badge-red">Needed</span></td>
               <td><span class="badge badge-gray">Not Started</span></td>
-              <td><span style="color:#dc2626;font-weight:700;">Jul 7, 2026 âš </span></td>
+              <td><span style="color:#dc2626;font-weight:700;">Jul 7, 2026 ⚠</span></td>
               <td><a href="#" class="link-action">View</a> <a href="#" class="link-action">Edit</a></td>
             </tr>
             <tr>
               <td><strong>#J-4817</strong></td>
               <td>Rocky Mountain Realty</td>
-              <td>Business Card Reorder â€” 4 staff</td>
+              <td>Business Card Reorder — 4 staff</td>
               <td>2,000</td>
               <td>S. Nguyen</td>
               <td><span class="badge badge-green">Approved</span></td>
@@ -252,12 +253,12 @@
             <tr style="background:#fff7ed;">
               <td><strong>#J-4814</strong></td>
               <td>Elk Ridge HOA</td>
-              <td>Community Newsletter â€” 4pg Full Color</td>
+              <td>Community Newsletter — 4pg Full Color</td>
               <td>800</td>
               <td>S. Nguyen</td>
               <td><span class="badge badge-yellow">Uploaded</span></td>
               <td><span class="badge badge-gray">Not Started</span></td>
-              <td><span style="color:#dc2626;font-weight:700;">Jul 9, 2026 âš </span></td>
+              <td><span style="color:#dc2626;font-weight:700;">Jul 9, 2026 ⚠</span></td>
               <td><a href="#" class="link-action">View</a> <a href="#" class="link-action">Edit</a></td>
             </tr>
             <tr>
@@ -299,13 +300,13 @@
               <div class="kanban-job-num">#J-4820</div>
               <div class="kanban-customer">Blue Ridge School Dist.</div>
               <div class="kanban-desc">Event Brochure 8-page</div>
-              <div class="kanban-meta"><span>Qty: 500</span><span style="color:#dc2626;">âš  Overdue</span></div>
+              <div class="kanban-meta"><span>Qty: 500</span><span style="color:#dc2626;">⚠ Overdue</span></div>
             </div>
             <div class="kanban-card art-border">
               <div class="kanban-job-num">#J-4818</div>
               <div class="kanban-customer">Sunrise Real Estate</div>
               <div class="kanban-desc">Yard Signs w/ Stakes</div>
-              <div class="kanban-meta"><span>Qty: 50</span><span style="color:#dc2626;">âš  Overdue</span></div>
+              <div class="kanban-meta"><span>Qty: 50</span><span style="color:#dc2626;">⚠ Overdue</span></div>
             </div>
             <div class="kanban-card art-border">
               <div class="kanban-job-num">#J-4816</div>
@@ -330,7 +331,7 @@
               <div class="kanban-job-num">#J-4814</div>
               <div class="kanban-customer">Elk Ridge HOA</div>
               <div class="kanban-desc">Newsletter 4pg Full Color</div>
-              <div class="kanban-meta"><span>Qty: 800</span><span style="color:#dc2626;">âš  Overdue</span></div>
+              <div class="kanban-meta"><span>Qty: 800</span><span style="color:#dc2626;">⚠ Overdue</span></div>
             </div>
           </div>
         </div>
@@ -343,14 +344,14 @@
               <div class="kanban-job-num">#J-4821</div>
               <div class="kanban-customer">Acme Corporation</div>
               <div class="kanban-desc">Letterhead + Envelope Package</div>
-              <div class="kanban-press">Press 1 â€” 4-Color Digital</div>
+              <div class="kanban-press">Press 1 — 4-Color Digital</div>
               <div class="kanban-meta"><span>Qty: 1,000</span><span>Due Jul 11</span></div>
             </div>
             <div class="kanban-card press-border">
               <div class="kanban-job-num">#J-4824</div>
               <div class="kanban-customer">Valley Med Group</div>
               <div class="kanban-desc">Appointment Pad 50-sheet</div>
-              <div class="kanban-press">Press 2 â€” Large Format</div>
+              <div class="kanban-press">Press 2 — Large Format</div>
               <div class="kanban-meta"><span>Qty: 200</span><span>Due Jul 13</span></div>
             </div>
           </div>
@@ -363,7 +364,7 @@
             <div class="kanban-card finish-border">
               <div class="kanban-job-num">#J-4819</div>
               <div class="kanban-customer">Peak Performance Gym</div>
-              <div class="kanban-desc">Vinyl Banners 3Ã—8 ft</div>
+              <div class="kanban-desc">Vinyl Banners 3×8 ft</div>
               <div class="kanban-meta"><span>Qty: 6</span><span>Due Jul 12</span></div>
             </div>
             <div class="kanban-card finish-border">
@@ -434,7 +435,7 @@
                 <td><strong>#J-4818</strong></td>
                 <td>Sunrise RE</td>
                 <td>Yard Signs</td>
-                <td style="color:#dc2626;font-weight:700;">Jul 7 âš </td>
+                <td style="color:#dc2626;font-weight:700;">Jul 7 ⚠</td>
                 <td>T. Kim</td>
                 <td><button class="btn btn-primary btn-sm">Upload Art</button></td>
               </tr>
@@ -490,9 +491,9 @@
           </div>
 
           <div class="proof-card">
-            <div class="proof-thumb">ðŸ–¨</div>
+            <div class="proof-thumb">🖨</div>
             <div class="proof-info">
-              <div class="proof-job">#J-4820 Â· Blue Ridge School Dist.</div>
+              <div class="proof-job">#J-4820 · Blue Ridge School Dist.</div>
               <div class="proof-customer">Event Brochure 8-page</div>
               <div class="proof-desc">Proof sent Jul 8. Awaiting customer approval.</div>
               <span class="badge badge-yellow">Awaiting Response</span>
@@ -504,9 +505,9 @@
           </div>
 
           <div class="proof-card">
-            <div class="proof-thumb">ðŸ–¨</div>
+            <div class="proof-thumb">🖨</div>
             <div class="proof-info">
-              <div class="proof-job">#J-4816 Â· Frontier Title Co.</div>
+              <div class="proof-job">#J-4816 · Frontier Title Co.</div>
               <div class="proof-customer">Closing Folder w/ Insert</div>
               <div class="proof-desc">Proof sent Jul 9. Customer requested revision.</div>
               <span class="badge badge-red">Revision Requested</span>
@@ -517,10 +518,10 @@
           </div>
 
           <div class="proof-card">
-            <div class="proof-thumb">ðŸ–¨</div>
+            <div class="proof-thumb">🖨</div>
             <div class="proof-info">
-              <div class="proof-job">#J-4830 Â· High Country Insurance</div>
-              <div class="proof-customer">Annual Report â€” 16pg Saddle Stitch</div>
+              <div class="proof-job">#J-4830 · High Country Insurance</div>
+              <div class="proof-customer">Annual Report — 16pg Saddle Stitch</div>
               <div class="proof-desc">Proof sent Jul 10. Awaiting response.</div>
               <span class="badge badge-yellow">Awaiting Response</span>
               <div class="proof-actions">
@@ -531,9 +532,9 @@
           </div>
 
           <div class="proof-card">
-            <div class="proof-thumb">ðŸ–¨</div>
+            <div class="proof-thumb">🖨</div>
             <div class="proof-info">
-              <div class="proof-job">#J-4831 Â· Pikes Peak HVAC</div>
+              <div class="proof-job">#J-4831 · Pikes Peak HVAC</div>
               <div class="proof-customer">Service Agreement Forms</div>
               <div class="proof-desc">Customer approved Jul 10.</div>
               <span class="badge badge-green">Approved</span>
@@ -553,9 +554,9 @@
         <div class="card-header">
           <h2 class="card-title">Weekly Production Schedule</h2>
           <div style="display:flex;gap:8px;">
-            <button class="btn btn-secondary btn-sm">â† Prev Week</button>
-            <span style="font-weight:600;line-height:32px;">Jul 7 â€“ Jul 11, 2026</span>
-            <button class="btn btn-secondary btn-sm">Next Week â†’</button>
+            <button class="btn btn-secondary btn-sm">← Prev Week</button>
+            <span style="font-weight:600;line-height:32px;">Jul 7 – Jul 11, 2026</span>
+            <button class="btn btn-secondary btn-sm">Next Week →</button>
           </div>
         </div>
         <table class="schedule-table">

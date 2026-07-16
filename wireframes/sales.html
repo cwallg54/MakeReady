@@ -1,56 +1,56 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Makeready Â· Sales</title>
+  <title>MakeReady by G54 · Sales</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-body">
 
-  <!-- â”€â”€â”€ SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- ─── SIDEBAR ──────────────────────────────────────────────── -->
   <aside class="sidebar">
-  <div class="sidebar-brand"><div class="logo">Makeready</div><div class="client">Great Mountain West</div></div>
+  <div class="sidebar-brand"><div class="logo">MakeReady by G54</div><div class="client">Great Mountain West</div></div>
   <div class="sidebar-section">
-    <a href="index.html">âŠž Dashboard</a>
+    <a href="index.html">⊞ Dashboard</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Customer</div>
-    <a href="crm.html">ðŸ‘¥ CRM</a>
-    <a href="sales.html" class="active">ðŸ· Sales</a>
-    <a href="ecommerce.html">ðŸ›’ eCommerce</a>
+    <a href="crm.html">👥 CRM</a>
+    <a href="sales.html" class="active">🏷 Sales</a>
+    <a href="ecommerce.html">🛒 eCommerce</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Finance</div>
-    <a href="accounting.html">ðŸ“’ Accounting</a>
-    <a href="controlling.html">ðŸ“Š Controlling</a>
-    <a href="assets.html">ðŸ— Asset Accounting</a>
+    <a href="accounting.html">📒 Accounting</a>
+    <a href="controlling.html">📊 Controlling</a>
+    <a href="assets.html">🏗 Asset Accounting</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Operations</div>
-    <a href="inventory.html">ðŸ“¦ Inventory &amp; MRP</a>
-    <a href="pos.html">ðŸ–¥ Point of Sale</a>
-    <a href="jobs.html">ðŸ­ Jobs &amp; Production</a>
-    <a href="quality.html">âœ… Quality Management</a>
-    <a href="maintenance.html">ðŸ”§ Equipment Maintenance</a>
+    <a href="inventory.html">📦 Inventory &amp; MRP</a>
+    <a href="pos.html">🖥 Point of Sale</a>
+    <a href="jobs.html">🏭 Jobs &amp; Production</a>
+    <a href="quality.html">✅ Quality Management</a>
+    <a href="maintenance.html">🔧 Equipment Maintenance</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Enterprise</div>
-    <a href="enterprise.html">ðŸ¢ Multi-Entity &amp; EDI</a>
-    <a href="workflows.html">âš¡ Workflows &amp; Approvals</a>
+    <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+    <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Intelligence</div>
-    <a href="reports.html">ðŸ“ˆ Reports</a>
+    <a href="reports.html">📈 Reports</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">System</div>
-    <a href="admin.html">âš™ Administration</a>
+    <a href="admin.html">⚙ Administration</a>
   </div>
-  <div class="sidebar-footer">CW Â· Christopher Wall</div>
+  <div class="sidebar-footer">CW · Christopher Wall</div>
 </aside>
 
-  <!-- â”€â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- ─── MAIN ─────────────────────────────────────────────────── -->
   <div class="main-wrap">
 
     <!-- TOPBAR -->
@@ -59,8 +59,8 @@
         <span class="breadcrumb">Customer / <b>Sales</b></span>
       </div>
       <div class="topbar-right">
-        <div class="topbar-icon">ðŸ””<span class="notif-dot"></span></div>
-        <div class="topbar-icon">â“</div>
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+        <div class="topbar-icon">❓</div>
         <div class="user-chip">
           <div class="avatar">CW</div>
           <span class="user-name">Christopher Wall</span>
@@ -74,21 +74,43 @@
       <div class="page-header">
         <div>
           <h1 class="page-title">Sales</h1>
-          <p class="page-subtitle">Quotes &amp; Orders</p>
+          <p class="page-subtitle">Quotations, Sales Orders &amp; Deliveries</p>
         </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary">Export</button>
+          <button class="btn btn-primary ml-auto">+ New Quotation</button>
+        </div>
+      </div>
+
+      <!-- SAP B1 Document Flow -->
+      <div style="display:flex;align-items:center;gap:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 20px;margin-bottom:20px;font-size:13px;">
+        <span style="color:#64748b;font-size:11px;font-weight:600;letter-spacing:0.05em;margin-right:16px;">SAP B1 DOCUMENT FLOW</span>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;">&#128203; Sales Quotation</span>
+          <span style="color:#94a3b8;font-size:16px;">&rarr;</span>
+          <span style="background:#ede9fe;color:#6d28d9;padding:4px 12px;border-radius:6px;font-weight:600;">&#128230; Sales Order</span>
+          <span style="color:#94a3b8;font-size:16px;">&rarr;</span>
+          <span style="background:#dcfce7;color:#15803d;padding:4px 12px;border-radius:6px;font-weight:600;">&#128666; Delivery</span>
+          <span style="color:#94a3b8;font-size:16px;">&rarr;</span>
+          <span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:6px;font-weight:600;">&#129534; AR Invoice</span>
+          <span style="color:#94a3b8;font-size:16px;">&rarr;</span>
+          <span style="background:#f0fdf4;color:#15803d;padding:4px 12px;border-radius:6px;font-weight:600;">&#128176; Incoming Payment</span>
+        </div>
+        <span style="margin-left:auto;font-size:11px;color:#94a3b8;">Zoey orders import as Sales Orders via Vision33 Saltbox</span>
       </div>
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab active" data-tab="quotes">Quotes</button>
-        <button class="tab" data-tab="orders">Orders</button>
+        <button class="tab active" data-tab="quotes">Quotations</button>
+        <button class="tab" data-tab="orders">Sales Orders</button>
+        <button class="tab" data-tab="deliveries">Deliveries</button>
       </div>
 
-      <!-- â”€â”€â”€ QUOTES TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ─── QUOTES TAB ────────────────────────────────────────── -->
       <div class="tab-panel active" id="tab-quotes">
 
         <div class="toolbar">
-          <input class="search-input" type="search" placeholder="Search quotesâ€¦" />
+          <input class="search-input" type="search" placeholder="Search quotes…" />
           <select class="select-filter">
             <option value="">All Status</option>
             <option>Draft</option>
@@ -110,13 +132,14 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Quote #</th>
-                <th>Customer</th>
+                <th>Quotation #</th>
+                <th>Business Partner</th>
                 <th>Description</th>
                 <th>Items</th>
                 <th>Amount</th>
                 <th>Created</th>
                 <th>Expires</th>
+                <th>Source</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -130,28 +153,30 @@
                 <td class="td-currency">$14,200</td>
                 <td>Jul 8, 2026</td>
                 <td>Aug 7, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-blue">Sent</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon" title="View">ðŸ‘</button>
-                  <button class="btn-icon" title="Edit">âœï¸</button>
-                  <button class="btn-icon" title="Duplicate">â§‰</button>
-                  <button class="btn-icon" title="More">â‹¯</button>
+                  <button class="btn-icon" title="View">👁</button>
+                  <button class="btn-icon" title="Edit">✏️</button>
+                  <button class="btn-icon" title="Duplicate">⧉</button>
+                  <button class="btn-icon" title="More">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">Q-2026-0883</a></td>
                 <td>Summit Healthcare Systems</td>
-                <td>Annual report â€” perfect bound, 96pp, 5,000 copies</td>
+                <td>Annual report — perfect bound, 96pp, 5,000 copies</td>
                 <td>2</td>
                 <td class="td-currency">$28,500</td>
                 <td>Jul 7, 2026</td>
                 <td>Aug 6, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-blue">Sent</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
@@ -162,76 +187,81 @@
                 <td class="td-currency">$2,840</td>
                 <td>Jul 5, 2026</td>
                 <td>Aug 4, 2026</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
                 <td><span class="badge badge-green">Accepted</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">Q-2026-0879</a></td>
                 <td>Pinnacle Real Estate</td>
-                <td>Property listing flyers, EDDM mailers â€” 10,000 qty</td>
+                <td>Property listing flyers, EDDM mailers — 10,000 qty</td>
                 <td>5</td>
                 <td class="td-currency">$8,650</td>
                 <td>Jul 3, 2026</td>
                 <td>Aug 2, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-gray">Draft</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">Q-2026-0874</a></td>
                 <td>Redrock Outdoor Supply</td>
-                <td>Hang tags, shelf talkers &amp; product labels â€” seasonal</td>
+                <td>Hang tags, shelf talkers &amp; product labels — seasonal</td>
                 <td>6</td>
                 <td class="td-currency">$4,115</td>
                 <td>Jun 28, 2026</td>
                 <td>Jul 28, 2026</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
                 <td><span class="badge badge-green">Accepted</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">Q-2026-0869</a></td>
                 <td>Rockies Auto Group</td>
-                <td>28-vehicle fleet wrap graphics â€” design &amp; install</td>
+                <td>28-vehicle fleet wrap graphics — design &amp; install</td>
                 <td>2</td>
                 <td class="td-currency">$41,800</td>
                 <td>Jun 24, 2026</td>
                 <td>Jul 24, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-blue">Sent</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">Q-2026-0862</a></td>
                 <td>Collegiate Book Distributors</td>
-                <td>Course catalog â€” 80pp, saddle stitch, 15,000 copies</td>
+                <td>Course catalog — 80pp, saddle stitch, 15,000 copies</td>
                 <td>1</td>
                 <td class="td-currency">$19,350</td>
                 <td>Jun 18, 2026</td>
                 <td>Jul 3, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-red">Expired</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
@@ -242,12 +272,13 @@
                 <td class="td-currency">$850</td>
                 <td>Jun 12, 2026</td>
                 <td>Jun 27, 2026</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
                 <td><span class="badge badge-red">Expired</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â§‰</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⧉</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
             </tbody>
@@ -257,13 +288,13 @@
         <div class="table-footer">
           <span class="table-count">Showing 8 of 231 quotes</span>
           <div class="pagination">
-            <button class="btn btn-ghost" disabled>â† Prev</button>
+            <button class="btn btn-ghost" disabled>← Prev</button>
             <span class="page-num active">1</span>
             <span class="page-num">2</span>
             <span class="page-num">3</span>
-            <span class="page-ellipsis">â€¦</span>
+            <span class="page-ellipsis">…</span>
             <span class="page-num">29</span>
-            <button class="btn btn-ghost">Next â†’</button>
+            <button class="btn btn-ghost">Next →</button>
           </div>
         </div>
 
@@ -293,11 +324,11 @@
 
       </div><!-- /#tab-quotes -->
 
-      <!-- â”€â”€â”€ ORDERS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ─── ORDERS TAB ─────────────────────────────────────────── -->
       <div class="tab-panel" id="tab-orders">
 
         <div class="toolbar">
-          <input class="search-input" type="search" placeholder="Search ordersâ€¦" />
+          <input class="search-input" type="search" placeholder="Search orders…" />
           <select class="select-filter">
             <option value="">All Status</option>
             <option>New</option>
@@ -314,13 +345,14 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Order #</th>
-                <th>Customer</th>
+                <th>Sales Order #</th>
+                <th>Business Partner</th>
                 <th>Description</th>
                 <th>Items</th>
                 <th>Amount</th>
                 <th>Order Date</th>
                 <th>Ship Date</th>
+                <th>Source</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -334,116 +366,124 @@
                 <td class="td-currency">$2,840</td>
                 <td>Jul 6, 2026</td>
                 <td>Jul 14, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-purple">In Production</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon" title="View">ðŸ‘</button>
-                  <button class="btn-icon" title="Edit">âœï¸</button>
-                  <button class="btn-icon" title="More">â‹¯</button>
+                  <button class="btn-icon" title="View">👁</button>
+                  <button class="btn-icon" title="Edit">✏️</button>
+                  <button class="btn-icon" title="More">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1041</a></td>
                 <td>Apex Marketing Group</td>
-                <td>Trade show retractable banners â€” 6 units, 33"Ã—80"</td>
+                <td>Trade show retractable banners — 6 units, 33"×80"</td>
                 <td>2</td>
                 <td class="td-currency">$1,620</td>
                 <td>Jul 5, 2026</td>
                 <td>Jul 11, 2026</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
                 <td><span class="badge badge-green">Ready to Ship</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1038</a></td>
                 <td>Summit Healthcare Systems</td>
-                <td>Patient intake forms â€” NCR 3-part, 10,000 sets</td>
+                <td>Patient intake forms — NCR 3-part, 10,000 sets</td>
                 <td>1</td>
                 <td class="td-currency">$7,400</td>
                 <td>Jul 2, 2026</td>
                 <td>Jul 10, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-blue">Shipped</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1035</a></td>
                 <td>Redrock Outdoor Supply</td>
-                <td>Seasonal catalog â€” 80pp, 25,000 copies, saddle stitch</td>
+                <td>Seasonal catalog — 80pp, 25,000 copies, saddle stitch</td>
                 <td>3</td>
                 <td class="td-currency">$24,200</td>
                 <td>Jun 30, 2026</td>
                 <td>Jul 8, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-teal">Invoiced</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1033</a></td>
                 <td>Pinnacle Real Estate</td>
-                <td>Just-listed postcards â€” 4Ã—6, UV gloss, 5,000 qty</td>
+                <td>Just-listed postcards — 4×6, UV gloss, 5,000 qty</td>
                 <td>2</td>
                 <td class="td-currency">$1,875</td>
                 <td>Jun 28, 2026</td>
                 <td>Jul 5, 2026</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
                 <td><span class="badge badge-teal">Invoiced</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1029</a></td>
                 <td>Desert Sky Events</td>
-                <td>Foam board event signs &amp; easel displays â€” 12 units</td>
+                <td>Foam board event signs &amp; easel displays — 12 units</td>
                 <td>5</td>
                 <td class="td-currency">$940</td>
                 <td>Jun 25, 2026</td>
                 <td>Jun 30, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-teal">Invoiced</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1027</a></td>
                 <td>Collegiate Book Distributors</td>
-                <td>Spring course reader â€” 112pp, coil bound, 800 copies</td>
+                <td>Spring course reader — 112pp, coil bound, 800 copies</td>
                 <td>1</td>
                 <td class="td-currency">$3,360</td>
                 <td>Jun 22, 2026</td>
                 <td>Jun 28, 2026</td>
+                <td><span class="badge badge-gray">Direct</span></td>
                 <td><span class="badge badge-teal">Invoiced</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
               <tr>
                 <td class="td-mono"><a href="#" class="link">ORD-2026-1021</a></td>
                 <td>Rockies Auto Group</td>
-                <td>Window clings &amp; promotional stickers â€” cancelled per customer</td>
+                <td>Window clings &amp; promotional stickers — cancelled per customer</td>
                 <td>2</td>
                 <td class="td-currency">$1,140</td>
                 <td>Jun 16, 2026</td>
-                <td>â€”</td>
-                <td><span class="badge badge-red">Cancelled</span></td>
+                <td>—</td>
+                <td><span class=”badge badge-gray”>Direct</span></td>
+                <td><span class=”badge badge-red”>Cancelled</span></td>
                 <td class="td-actions">
-                  <button class="btn-icon">ðŸ‘</button>
-                  <button class="btn-icon">âœï¸</button>
-                  <button class="btn-icon">â‹¯</button>
+                  <button class="btn-icon">👁</button>
+                  <button class="btn-icon">✏️</button>
+                  <button class="btn-icon">⋯</button>
                 </td>
               </tr>
             </tbody>
@@ -453,13 +493,13 @@
         <div class="table-footer">
           <span class="table-count">Showing 8 of 318 orders</span>
           <div class="pagination">
-            <button class="btn btn-ghost" disabled>â† Prev</button>
+            <button class="btn btn-ghost" disabled>← Prev</button>
             <span class="page-num active">1</span>
             <span class="page-num">2</span>
             <span class="page-num">3</span>
-            <span class="page-ellipsis">â€¦</span>
+            <span class="page-ellipsis">…</span>
             <span class="page-num">40</span>
-            <button class="btn btn-ghost">Next â†’</button>
+            <button class="btn btn-ghost">Next →</button>
           </div>
         </div>
 
@@ -489,21 +529,136 @@
 
       </div><!-- /#tab-orders -->
 
+      <!-- ─── DELIVERIES TAB ────────────────────────────────────────── -->
+      <div class="tab-panel" id="tab-deliveries">
+
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#0c4a6e;">
+          <strong>Delivery Note</strong> is the SAP B1 document that confirms goods have been dispatched. It reduces on-hand inventory, triggers the AR Invoice (billing), and sends the tracking update back to Zoey via Vision33 Saltbox.
+        </div>
+
+        <div class="toolbar">
+          <input class="search-input" type="search" placeholder="Search deliveries&hellip;" />
+          <select class="select-filter">
+            <option>All Statuses</option>
+            <option>Pending</option>
+            <option>Dispatched</option>
+            <option>Delivered</option>
+          </select>
+          <select class="select-filter">
+            <option>All Dates</option>
+            <option>This Week</option>
+            <option>This Month</option>
+          </select>
+          <button class="btn btn-primary ml-auto">+ New Delivery Note</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Delivery #</th>
+                <th>Based On (Sales Order)</th>
+                <th>Business Partner</th>
+                <th>Ship Date</th>
+                <th>Carrier / Tracking</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-mono"><a href="#" class="link">DEL-2026-0418</a></td>
+                <td><a href="#" class="link">SO-2026-1038</a></td>
+                <td>Summit Healthcare Systems</td>
+                <td>Jul 10, 2026</td>
+                <td>UPS &middot; 1Z999AA10123456784</td>
+                <td><span class="badge badge-gray">Direct</span></td>
+                <td><span class="badge badge-blue">Delivered</span></td>
+                <td><button class="btn-icon">&#128065;</button> <button class="btn-icon">&#128424;</button></td>
+              </tr>
+              <tr>
+                <td class="td-mono"><a href="#" class="link">DEL-2026-0417</a></td>
+                <td><a href="#" class="link">SO-2026-1041</a></td>
+                <td>Apex Marketing Group</td>
+                <td>Jul 11, 2026</td>
+                <td>FedEx &middot; 274899473285</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
+                <td><span class="badge badge-yellow">Dispatched</span></td>
+                <td><button class="btn-icon">&#128065;</button> <button class="btn-icon">&#128424;</button></td>
+              </tr>
+              <tr>
+                <td class="td-mono"><a href="#" class="link">DEL-2026-0415</a></td>
+                <td><a href="#" class="link">SO-2026-1035</a></td>
+                <td>Redrock Outdoor Supply</td>
+                <td>Jul 8, 2026</td>
+                <td>Will Call &middot; Customer picked up</td>
+                <td><span class="badge badge-gray">Direct</span></td>
+                <td><span class="badge badge-blue">Delivered</span></td>
+                <td><button class="btn-icon">&#128065;</button> <button class="btn-icon">&#128424;</button></td>
+              </tr>
+              <tr>
+                <td class="td-mono"><a href="#" class="link">DEL-2026-0414</a></td>
+                <td><a href="#" class="link">SO-2026-1033</a></td>
+                <td>Pinnacle Real Estate</td>
+                <td>Jul 5, 2026</td>
+                <td>UPS &middot; 1Z999AA10123456701</td>
+                <td><span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">Zoey</span></td>
+                <td><span class="badge badge-blue">Delivered</span></td>
+                <td><button class="btn-icon">&#128065;</button> <button class="btn-icon">&#128424;</button></td>
+              </tr>
+              <tr>
+                <td class="td-mono"><a href="#" class="link">DEL-2026-0413</a></td>
+                <td><a href="#" class="link">SO-2026-1029</a></td>
+                <td>Desert Sky Events</td>
+                <td>Jun 30, 2026</td>
+                <td>Will Call &middot; Customer picked up</td>
+                <td><span class="badge badge-gray">Direct</span></td>
+                <td><span class="badge badge-blue">Delivered</span></td>
+                <td><button class="btn-icon">&#128065;</button> <button class="btn-icon">&#128424;</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="summary-strip">
+          <div class="summary-card">
+            <div class="summary-label">Pending Dispatch</div>
+            <div class="summary-value">4</div>
+            <div class="summary-sub">Awaiting shipment</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Dispatched</div>
+            <div class="summary-value">7</div>
+            <div class="summary-sub">In transit</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Delivered MTD</div>
+            <div class="summary-value">31</div>
+            <div class="summary-sub">July 2026</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Zoey Status Updates Sent</div>
+            <div class="summary-value">38</div>
+            <div class="summary-sub">Via Vision33 Saltbox</div>
+          </div>
+        </div>
+
+      </div><!-- /#tab-deliveries -->
+
     </main>
   </div><!-- /.main-wrap -->
 
   <script>
-    /* Tab switching */
     const tabs = document.querySelectorAll('.tab');
-    const panels = document.querySelectorAll('.tab-panel');
-
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const target = tab.dataset.tab;
         tabs.forEach(t => t.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
-        document.getElementById('tab-' + target).classList.add('active');
+        const panel = document.getElementById('tab-' + target);
+        if (panel) panel.classList.add('active');
       });
     });
   </script>

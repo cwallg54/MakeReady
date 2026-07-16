@@ -1,52 +1,52 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Makeready â€” Inventory</title>
+  <title>MakeReady by G54 — Inventory</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="app-layout">
 
   <aside class="sidebar">
-  <div class="sidebar-brand"><div class="logo">Makeready</div><div class="client">Great Mountain West</div></div>
+  <div class="sidebar-brand"><div class="logo">MakeReady by G54</div><div class="client">Great Mountain West</div></div>
   <div class="sidebar-section">
-    <a href="index.html">âŠž Dashboard</a>
+    <a href="index.html">⊞ Dashboard</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Customer</div>
-    <a href="crm.html">ðŸ‘¥ CRM</a>
-    <a href="sales.html">ðŸ· Sales</a>
-    <a href="ecommerce.html">ðŸ›’ eCommerce</a>
+    <a href="crm.html">👥 CRM</a>
+    <a href="sales.html">🏷 Sales</a>
+    <a href="ecommerce.html">🛒 eCommerce</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Finance</div>
-    <a href="accounting.html">ðŸ“’ Accounting</a>
-    <a href="controlling.html">ðŸ“Š Controlling</a>
-    <a href="assets.html">ðŸ— Asset Accounting</a>
+    <a href="accounting.html">📒 Accounting</a>
+    <a href="controlling.html">📊 Controlling</a>
+    <a href="assets.html">🏗 Asset Accounting</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Operations</div>
-    <a href="inventory.html" class="active">ðŸ“¦ Inventory &amp; MRP</a>
-    <a href="pos.html">ðŸ–¥ Point of Sale</a>
-    <a href="jobs.html">ðŸ­ Jobs &amp; Production</a>
-    <a href="quality.html">âœ… Quality Management</a>
-    <a href="maintenance.html">ðŸ”§ Equipment Maintenance</a>
+    <a href="inventory.html" class="active">📦 Inventory &amp; MRP</a>
+    <a href="pos.html">🖥 Point of Sale</a>
+    <a href="jobs.html">🏭 Jobs &amp; Production</a>
+    <a href="quality.html">✅ Quality Management</a>
+    <a href="maintenance.html">🔧 Equipment Maintenance</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Enterprise</div>
-    <a href="enterprise.html">ðŸ¢ Multi-Entity &amp; EDI</a>
-    <a href="workflows.html">âš¡ Workflows &amp; Approvals</a>
+    <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+    <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Intelligence</div>
-    <a href="reports.html">ðŸ“ˆ Reports</a>
+    <a href="reports.html">📈 Reports</a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">System</div>
-    <a href="admin.html">âš™ Administration</a>
+    <a href="admin.html">⚙ Administration</a>
   </div>
-  <div class="sidebar-footer">CW Â· Christopher Wall</div>
+  <div class="sidebar-footer">CW · Christopher Wall</div>
 </aside>
 
   <div class="main-wrapper">
@@ -55,8 +55,8 @@
         <span class="breadcrumb">Operations / <b>Inventory</b></span>
       </div>
       <div class="topbar-right">
-        <div class="topbar-icon">ðŸ””<span class="notif-dot"></span></div>
-        <div class="topbar-icon">â“</div>
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+        <div class="topbar-icon">❓</div>
         <div class="user-chip">
           <div class="avatar">CW</div>
           <span class="user-name">Christopher Wall</span>
@@ -70,7 +70,15 @@
       <div class="page-header">
         <div>
           <h1 class="page-title">Inventory</h1>
-          <p class="page-subtitle">Stock management, purchasing, and receiving</p>
+          <p class="page-subtitle">Item Master, Warehouse Stock &amp; Purchasing &mdash; inventory syncs to Zoey product catalog via Vision33 Saltbox</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:#0f172a;border-radius:8px;padding:7px 14px;font-size:12px;color:#e2e8f0;margin-top:10px;">
+          <span style="background:#6366f1;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;font-size:11px;">ZOEY</span>
+          <span style="color:#94a3b8;">via</span>
+          <span style="font-weight:600;color:#e2e8f0;">Vision33 Saltbox</span>
+          <span style="background:#1e293b;border-radius:20px;padding:2px 10px;color:#94a3b8;">Product &amp; Inventory Sync</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 6px rgba(34,197,94,0.5);display:inline-block;"></span>Live &mdash; last synced 6:00 AM</span>
+          <span style="margin-left:auto;color:#64748b;">Connector: gmw-zoey-v2</span>
         </div>
         <div class="page-header-actions">
           <button class="btn btn-secondary">Export</button>
@@ -93,7 +101,7 @@
         <!-- Toolbar -->
         <div class="toolbar">
           <div class="toolbar-left">
-            <input type="text" class="input-sm" placeholder="Search SKU, product name...">
+            <input type="text" class="input-sm" placeholder="Search Item Code, product name...">
             <select class="input-sm">
               <option>All Categories</option>
               <option>Paper Stock</option>
@@ -119,7 +127,7 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>SKU</th>
+                <th>Item Code (SAP B1)</th>
                 <th>Product Name</th>
                 <th>Category</th>
                 <th>Unit</th>
@@ -130,6 +138,7 @@
                 <th class="text-right">Available</th>
                 <th class="text-right">Reorder Pt</th>
                 <th>Status</th>
+                <th>Zoey Sync</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -146,7 +155,8 @@
                 <td class="text-right"><b>24</b></td>
                 <td class="text-right">20</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">&#10003; Synced</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr class="low-stock-row">
                 <td><code class="sku">INK-4CLR-PRO</code></td>
@@ -160,7 +170,8 @@
                 <td class="text-right"><b style="color:#f59e0b;">1</b></td>
                 <td class="text-right">8</td>
                 <td><span class="badge badge-red">Low Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button> <button class="btn-icon" title="Create PO">ðŸ›’</button></td>
+                <td><span style="color:#94a3b8;font-size:12px;">&mdash; Internal</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button> <button class="btn-icon" title="Create PO">🛒</button></td>
               </tr>
               <tr>
                 <td><code class="sku">SUB-VNL-13OZ</code></td>
@@ -174,7 +185,8 @@
                 <td class="text-right"><b>5</b></td>
                 <td class="text-right">4</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">&#10003; Synced</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr>
                 <td><code class="sku">SUB-FOAM-3MM</code></td>
@@ -188,7 +200,8 @@
                 <td class="text-right"><b>80</b></td>
                 <td class="text-right">50</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">&#10003; Synced</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr class="low-stock-row">
                 <td><code class="sku">SUP-LAM-GLOSS</code></td>
@@ -202,7 +215,8 @@
                 <td class="text-right"><b style="color:#f59e0b;">1</b></td>
                 <td class="text-right">5</td>
                 <td><span class="badge badge-red">Low Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button> <button class="btn-icon" title="Create PO">ðŸ›’</button></td>
+                <td><span style="color:#94a3b8;font-size:12px;">&mdash; Internal</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button> <button class="btn-icon" title="Create PO">🛒</button></td>
               </tr>
               <tr>
                 <td><code class="sku">PAP-100CS-WHT</code></td>
@@ -216,7 +230,8 @@
                 <td class="text-right"><b>16</b></td>
                 <td class="text-right">15</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">&#10003; Synced</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr>
                 <td><code class="sku">PKG-KENV-10B</code></td>
@@ -230,7 +245,8 @@
                 <td class="text-right"><b>9</b></td>
                 <td class="text-right">10</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="color:#94a3b8;font-size:12px;">&mdash; Internal</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr>
                 <td><code class="sku">PKG-BBAG-MED</code></td>
@@ -244,7 +260,8 @@
                 <td class="text-right"><b>14</b></td>
                 <td class="text-right">10</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="color:#94a3b8;font-size:12px;">&mdash; Internal</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr class="low-stock-row" style="background:#fef2f2;">
                 <td><code class="sku">INK-TNRK-BLK</code></td>
@@ -258,7 +275,8 @@
                 <td class="text-right"><b style="color:#ef4444;">-2</b></td>
                 <td class="text-right">4</td>
                 <td><span class="badge badge-red">Out of Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button> <button class="btn-icon" title="Emergency PO">ðŸš¨</button></td>
+                <td><span style="color:#94a3b8;font-size:12px;">&mdash; Internal</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button> <button class="btn-icon" title="Emergency PO">🚨</button></td>
               </tr>
               <tr>
                 <td><code class="sku">SUP-COAT-UVG</code></td>
@@ -272,20 +290,21 @@
                 <td class="text-right"><b>7</b></td>
                 <td class="text-right">6</td>
                 <td><span class="badge badge-green">In Stock</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">&#10003; Synced</span></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
             </tbody>
           </table>
           <div class="table-footer">
-            <span class="table-count">Showing 10 of 248 products Â· 2 low stock Â· 1 out of stock</span>
+            <span class="table-count">Showing 10 of 248 products · 2 low stock · 1 out of stock</span>
             <div class="pagination">
-              <button class="btn-page" disabled>â€¹ Prev</button>
+              <button class="btn-page" disabled>‹ Prev</button>
               <button class="btn-page active">1</button>
               <button class="btn-page">2</button>
               <button class="btn-page">3</button>
-              <span>â€¦</span>
+              <span>…</span>
               <button class="btn-page">25</button>
-              <button class="btn-page">Next â€º</button>
+              <button class="btn-page">Next ›</button>
             </div>
           </div>
         </div>
@@ -295,8 +314,8 @@
       <div id="tab-stock" class="tab-panel">
 
         <div class="alert alert-warn">
-          âš ï¸ <strong>3 products below reorder point.</strong> 1 product is <strong>out of stock</strong> with committed demand.
-          <a href="#" class="alert-link">Create Purchase Orders â†’</a>
+          ⚠️ <strong>3 products below reorder point.</strong> 1 product is <strong>out of stock</strong> with committed demand.
+          <a href="#" class="alert-link">Create Purchase Orders →</a>
         </div>
 
         <!-- Toolbar -->
@@ -329,8 +348,8 @@
             <thead>
               <tr>
                 <th>Product</th>
-                <th>SKU</th>
-                <th>Location</th>
+                <th>Item Code (SAP B1)</th>
+                <th>Warehouse</th>
                 <th class="text-right">On Hand</th>
                 <th class="text-right">Committed</th>
                 <th class="text-right">Available</th>
@@ -391,7 +410,7 @@
                 <td class="text-right">15</td>
                 <td class="text-right">10</td>
                 <td class="text-right"><b>5</b></td>
-                <td class="text-right">â€”</td>
+                <td class="text-right">—</td>
                 <td><span class="badge badge-green">In Stock</span></td>
                 <td><button class="btn btn-secondary btn-sm">Transfer</button></td>
               </tr>
@@ -519,7 +538,7 @@
                   <span class="progress-pct">0%</span>
                 </td>
                 <td><span class="badge badge-blue">Sent</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0141</a></td>
@@ -533,7 +552,7 @@
                   <span class="progress-pct">0%</span>
                 </td>
                 <td><span class="badge badge-yellow">Draft</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">âœï¸</button> <button class="btn-icon" title="Send to Vendor">ðŸ“§</button></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">✏️</button> <button class="btn-icon" title="Send to Vendor">📧</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0140</a></td>
@@ -547,7 +566,7 @@
                   <span class="progress-pct">50%</span>
                 </td>
                 <td><span class="badge badge-yellow">Partial</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon" title="Receive">ðŸ“¦</button></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon" title="Receive">📦</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0139</a></td>
@@ -561,7 +580,7 @@
                   <span class="progress-pct">100%</span>
                 </td>
                 <td><span class="badge badge-green">Received</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">ðŸ–¨</button></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">🖨</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0137</a></td>
@@ -575,7 +594,7 @@
                   <span class="progress-pct">100%</span>
                 </td>
                 <td><span class="badge badge-green">Received</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon">ðŸ–¨</button></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon">🖨</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0134</a></td>
@@ -589,7 +608,7 @@
                   <span class="progress-pct">75%</span>
                 </td>
                 <td><span class="badge badge-yellow">Partial</span></td>
-                <td><button class="btn-icon">ðŸ‘</button> <button class="btn-icon" title="Receive Remaining">ðŸ“¦</button></td>
+                <td><button class="btn-icon">👁</button> <button class="btn-icon" title="Receive Remaining">📦</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0129</a></td>
@@ -603,17 +622,17 @@
                   <span class="progress-pct" style="color:#ef4444;">0%</span>
                 </td>
                 <td><span class="badge badge-red">Cancelled</span></td>
-                <td><button class="btn-icon">ðŸ‘</button></td>
+                <td><button class="btn-icon">👁</button></td>
               </tr>
             </tbody>
           </table>
           <div class="table-footer">
             <span class="table-count">Showing 7 of 38 purchase orders</span>
             <div class="pagination">
-              <button class="btn-page" disabled>â€¹ Prev</button>
+              <button class="btn-page" disabled>‹ Prev</button>
               <button class="btn-page active">1</button>
               <button class="btn-page">2</button>
-              <button class="btn-page">Next â€º</button>
+              <button class="btn-page">Next ›</button>
             </div>
           </div>
         </div>
@@ -623,7 +642,7 @@
       <div id="tab-receiving" class="tab-panel">
 
         <div class="alert alert-info">
-          ðŸ“¦ <strong>2 shipments expected today</strong> (Jul 10, 2026). Check in arriving goods below.
+          📦 <strong>2 shipments expected today</strong> (Jul 10, 2026). Check in arriving goods below.
         </div>
 
         <!-- Toolbar -->
@@ -666,7 +685,7 @@
                 <td class="text-right">3</td>
                 <td class="text-right">$4,320.00</td>
                 <td><span class="badge badge-blue">Sent</span></td>
-                <td><button class="btn btn-primary btn-sm" onclick="toggleReceiveForm('form-0142')">ðŸ“¦ Receive</button></td>
+                <td><button class="btn btn-primary btn-sm" onclick="toggleReceiveForm('form-0142')">📦 Receive</button></td>
               </tr>
               <tr style="background:#eff6ff;">
                 <td><a href="#" class="link">PO-2026-0141</a></td>
@@ -675,7 +694,7 @@
                 <td class="text-right">2</td>
                 <td class="text-right">$2,880.00</td>
                 <td><span class="badge badge-blue">Sent</span></td>
-                <td><button class="btn btn-primary btn-sm" onclick="toggleReceiveForm('form-0141')">ðŸ“¦ Receive</button></td>
+                <td><button class="btn btn-primary btn-sm" onclick="toggleReceiveForm('form-0141')">📦 Receive</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0140</a></td>
@@ -684,7 +703,7 @@
                 <td class="text-right">4</td>
                 <td class="text-right">$8,410.00</td>
                 <td><span class="badge badge-yellow">Partial</span></td>
-                <td><button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0140')">ðŸ“¦ Receive</button></td>
+                <td><button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0140')">📦 Receive</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0139</a></td>
@@ -693,7 +712,7 @@
                 <td class="text-right">1</td>
                 <td class="text-right">$1,750.00</td>
                 <td><span class="badge badge-yellow">Partial</span></td>
-                <td><button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0139')">ðŸ“¦ Receive</button></td>
+                <td><button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0139')">📦 Receive</button></td>
               </tr>
               <tr>
                 <td><a href="#" class="link">PO-2026-0134</a></td>
@@ -702,16 +721,16 @@
                 <td class="text-right">5</td>
                 <td class="text-right">$7,840.00</td>
                 <td><span class="badge badge-yellow">Partial</span></td>
-                <td><button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0134')">ðŸ“¦ Receive</button></td>
+                <td><button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0134')">📦 Receive</button></td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Receiving Form â€” PO-2026-0142 (initially visible as example) -->
+        <!-- Receiving Form — PO-2026-0142 (initially visible as example) -->
         <div class="card receiving-form" id="form-0142">
           <div class="card-header">
-            <div class="card-title">Receiving â€” PO-2026-0142 / Sappi Fine Paper Co.</div>
+            <div class="card-title">Receiving — PO-2026-0142 / Sappi Fine Paper Co.</div>
             <div class="card-actions">
               <button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0142')">Cancel</button>
               <button class="btn btn-primary btn-sm">Post Receipt</button>
@@ -752,7 +771,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>SKU</th>
+                <th>Item Code (SAP B1)</th>
                 <th>Product</th>
                 <th class="text-right">Ordered</th>
                 <th class="text-right">Previously Rec.</th>
@@ -826,53 +845,53 @@
         <!-- Collapsed receiving forms for other POs -->
         <div class="card receiving-form receiving-form--collapsed" id="form-0141" style="display:none;">
           <div class="card-header">
-            <div class="card-title">Receiving â€” PO-2026-0141 / Fujifilm Ink Systems</div>
+            <div class="card-title">Receiving — PO-2026-0141 / Fujifilm Ink Systems</div>
             <div class="card-actions">
               <button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0141')">Cancel</button>
               <button class="btn btn-primary btn-sm">Post Receipt</button>
             </div>
           </div>
           <div class="receive-form-placeholder">
-            <p style="color:#64748b;padding:24px;text-align:center;">Line item entry for PO-2026-0141 Â· 2 items Â· $2,880.00</p>
+            <p style="color:#64748b;padding:24px;text-align:center;">Line item entry for PO-2026-0141 · 2 items · $2,880.00</p>
           </div>
         </div>
 
         <div class="card receiving-form receiving-form--collapsed" id="form-0140" style="display:none;">
           <div class="card-header">
-            <div class="card-title">Receiving â€” PO-2026-0140 / Xpedx Distribution (Partial)</div>
+            <div class="card-title">Receiving — PO-2026-0140 / Xpedx Distribution (Partial)</div>
             <div class="card-actions">
               <button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0140')">Cancel</button>
               <button class="btn btn-primary btn-sm">Post Receipt</button>
             </div>
           </div>
           <div class="receive-form-placeholder">
-            <p style="color:#64748b;padding:24px;text-align:center;">Receiving 2 of 4 remaining items Â· Partial PO-2026-0140</p>
+            <p style="color:#64748b;padding:24px;text-align:center;">Receiving 2 of 4 remaining items · Partial PO-2026-0140</p>
           </div>
         </div>
 
         <div class="card receiving-form receiving-form--collapsed" id="form-0139" style="display:none;">
           <div class="card-header">
-            <div class="card-title">Receiving â€” PO-2026-0139 / Ryobi MHI Graphics</div>
+            <div class="card-title">Receiving — PO-2026-0139 / Ryobi MHI Graphics</div>
             <div class="card-actions">
               <button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0139')">Cancel</button>
               <button class="btn btn-primary btn-sm">Post Receipt</button>
             </div>
           </div>
           <div class="receive-form-placeholder">
-            <p style="color:#64748b;padding:24px;text-align:center;">Line item entry for PO-2026-0139 Â· 1 item Â· $1,750.00</p>
+            <p style="color:#64748b;padding:24px;text-align:center;">Line item entry for PO-2026-0139 · 1 item · $1,750.00</p>
           </div>
         </div>
 
         <div class="card receiving-form receiving-form--collapsed" id="form-0134" style="display:none;">
           <div class="card-header">
-            <div class="card-title">Receiving â€” PO-2026-0134 / Sappi Fine Paper (Overdue Partial)</div>
+            <div class="card-title">Receiving — PO-2026-0134 / Sappi Fine Paper (Overdue Partial)</div>
             <div class="card-actions">
               <button class="btn btn-secondary btn-sm" onclick="toggleReceiveForm('form-0134')">Cancel</button>
               <button class="btn btn-primary btn-sm">Post Receipt</button>
             </div>
           </div>
           <div class="receive-form-placeholder">
-            <p style="color:#64748b;padding:24px;text-align:center;">Receiving remainder of overdue PO-2026-0134 Â· 5 items Â· $7,840.00 total</p>
+            <p style="color:#64748b;padding:24px;text-align:center;">Receiving remainder of overdue PO-2026-0134 · 5 items · $7,840.00 total</p>
           </div>
         </div>
 
