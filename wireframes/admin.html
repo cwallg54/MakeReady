@@ -625,30 +625,18 @@
             <h2 class="card-title">Connected Platforms</h2>
             <button class="btn btn-secondary btn-sm">+ Add Integration</button>
           </div>
-          <p style="font-size:13px;color:#64748b;margin:0 0 16px;">MakeReady integrates with SAP Business One, Zoey B2B eCommerce, and other services via Vision33 Saltbox and direct API connections.</p>
+          <p style="font-size:13px;color:#64748b;margin:0 0 16px;">MakeReady connects to SAP Business One and other services via direct API connections. The Web Store is native — no third-party connector required.</p>
 
-          <!-- Vision33 / Saltbox -->
-          <div class="integration-item" style="background:#f8fafc;padding:12px;border-radius:8px;margin-bottom:10px;border:1px solid #e2e8f0;">
-            <div class="integration-icon">&#128279;</div>
-            <div style="flex:1;">
-              <div class="integration-name">Vision33 Saltbox</div>
-              <div style="font-size:12px;color:#64748b;margin-top:2px;">iPaaS connector &mdash; routes data between MakeReady, SAP Business One, and Zoey</div>
-              <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-family:monospace;">Connector: gmw-zoey-v2 &middot; Last sync: 4 min ago &middot; 0 errors</div>
-            </div>
-            <span class="badge badge-green">Connected</span>
-            <button class="btn btn-secondary btn-sm">Manage</button>
-          </div>
-
-          <!-- Zoey -->
-          <div class="integration-item" style="background:#f8fafc;padding:12px;border-radius:8px;margin-bottom:10px;border:1px solid #e2e8f0;">
+          <!-- MakeReady Web Store (native) -->
+          <div class="integration-item" style="background:#f0fdf4;padding:12px;border-radius:8px;margin-bottom:10px;border:1px solid #bbf7d0;">
             <div class="integration-icon">&#128717;</div>
             <div style="flex:1;">
-              <div class="integration-name">Zoey.com (B2B eCommerce)</div>
-              <div style="font-size:12px;color:#64748b;margin-top:2px;">Online storefront, B2B customer portal, quote-to-order, account groups &amp; price lists</div>
-              <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-family:monospace;">Store: greatmountainwest.zoey.com &middot; API: zk_live_••••4f8a</div>
+              <div class="integration-name">MakeReady Web Store</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">Native B2B storefront — orders, quote-to-order, account groups, price lists, and proofing built in</div>
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-family:monospace;">store.g54.com &middot; Last order: 4 min ago &middot; 0 errors</div>
             </div>
-            <span class="badge badge-green">Connected</span>
-            <button class="btn btn-secondary btn-sm">Manage</button>
+            <span class="badge badge-green">Active</span>
+            <button class="btn btn-secondary btn-sm">Configure</button>
           </div>
 
           <!-- SAP Business One -->
@@ -708,7 +696,7 @@
             <div class="card-header">
               <h2 class="card-title">SAP B1 Migration Status</h2>
             </div>
-            <p style="font-size:13px;color:#64748b;margin:0 0 12px;">Tracking data migration from SAP Business One into MakeReady. Vision33 is managing the migration using Saltbox pipelines.</p>
+            <p style="font-size:13px;color:#64748b;margin:0 0 12px;">Tracking data migration from SAP Business One into MakeReady.</p>
             <div style="font-size:13px;">
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;">
                 <span>Business Partners (BP Master)</span>
@@ -745,31 +733,31 @@
             </div>
             <div style="margin-top:12px;background:#f8fafc;border-radius:6px;padding:10px;font-size:12px;color:#64748b;">
               <strong>Estimated cutover:</strong> Q4 2026<br>
-              <strong>Point of contact:</strong> Vision33 implementation team<br>
+              <strong>Point of contact:</strong>  implementation team<br>
               <strong>Run-parallel period:</strong> 90 days post-cutover
             </div>
           </div>
 
-          <!-- Saltbox Sync Log -->
+          <!--  Sync Log -->
           <div class="card">
             <div class="card-header">
-              <h2 class="card-title">Recent Saltbox Sync Events</h2>
+              <h2 class="card-title">Recent Web Store Activity</h2>
               <a href="#" class="btn btn-secondary btn-sm">Full Log</a>
             </div>
             <div style="font-size:12px;">
               <div style="padding:7px 0;border-bottom:1px solid #f1f5f9;display:flex;gap:8px;align-items:center;">
                 <span class="badge badge-green">OK</span>
-                <span style="flex:1;">Order WEB-2847 imported from Zoey &rarr; MakeReady (SO-1042)</span>
+                <span style="flex:1;">Order WEB-2847 imported from Web Store &rarr; MakeReady (SO-1042)</span>
                 <span style="color:#94a3b8;white-space:nowrap;">4 min ago</span>
               </div>
               <div style="padding:7px 0;border-bottom:1px solid #f1f5f9;display:flex;gap:8px;align-items:center;">
                 <span class="badge badge-green">OK</span>
-                <span style="flex:1;">Inventory sync completed &mdash; 847 items pushed to Zoey</span>
+                <span style="flex:1;">Inventory sync completed &mdash; 847 items pushed to Web Store</span>
                 <span style="color:#94a3b8;white-space:nowrap;">6:00 AM</span>
               </div>
               <div style="padding:7px 0;border-bottom:1px solid #f1f5f9;display:flex;gap:8px;align-items:center;">
                 <span class="badge badge-green">OK</span>
-                <span style="flex:1;">WEB-2844 status updated in Zoey: In Production</span>
+                <span style="flex:1;">WEB-2844 status updated in Web Store: In Production</span>
                 <span style="color:#94a3b8;white-space:nowrap;">Yesterday 4:12 PM</span>
               </div>
               <div style="padding:7px 0;display:flex;gap:8px;align-items:center;">

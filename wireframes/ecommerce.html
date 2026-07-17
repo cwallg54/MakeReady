@@ -71,24 +71,24 @@
     }
     .toggle-track.on::after { left: 18px; }
 
-    /* Zoey Platform Bar */
-    .zoey-platform-bar {
+    /* Web Store Platform Bar */
+    .web-store-platform-bar {
       display: flex; align-items: center; justify-content: space-between;
       background: #0f172a; color: #94a3b8; font-size: 13px;
       padding: 10px 16px; border-radius: 8px; margin-bottom: 16px;
     }
-    .zoey-badge { display: flex; align-items: center; gap: 10px; }
-    .zoey-logo-pill {
+    .web-store-badge { display: flex; align-items: center; gap: 10px; }
+    .web-store-logo-pill {
       background: #6366f1; color: #fff; font-size: 11px; font-weight: 800;
       padding: 2px 9px; border-radius: 4px; letter-spacing: 0.05em;
     }
-    .saltbox-health { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .-health { display: flex; align-items: center; gap: 8px; font-size: 12px; }
     .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .sync-dot.green { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
     .sync-dot.yellow { background: #f59e0b; }
     .sync-dot.red { background: #ef4444; }
 
-    /* Saltbox Integration Card */
+    /* Web Store Integration Card */
     .sync-flow-row {
       display: flex; align-items: center; gap: 12px; padding: 10px 0;
       border-bottom: 1px solid #f1f5f9; font-size: 13px;
@@ -185,15 +185,15 @@
       </div>
     </div>
 
-    <!-- Zoey Platform Bar -->
-    <div class="zoey-platform-bar">
-      <div class="zoey-badge">
-        <span class="zoey-logo-pill">ZOEY</span>
+    <!-- Web Store Platform Bar -->
+    <div class="web-store-platform-bar">
+      <div class="web-store-badge">
+        <span class="web-store-logo-pill">WEB</span>
         <span>B2B eCommerce Platform &mdash; Great Mountain West Storefront</span>
       </div>
-      <div class="saltbox-health">
+      <div class="-health">
         <span class="sync-dot green"></span>
-        <span>Vision33 Saltbox: Connected</span>
+        <span>MakeReady Web Store: Connected</span>
         <span style="color:#475569;margin:0 6px;">&middot;</span>
         <span>Last sync 4 min ago &mdash; WEB-2847 imported</span>
         <a href="#" style="color:#60a5fa;font-size:12px;margin-left:16px;">Sync Log &rarr;</a>
@@ -234,10 +234,10 @@
         </div>
       </div>
 
-      <!-- Vision33 Saltbox Integration Health -->
+      <!-- MakeReady Web Store Integration Health -->
       <div class="card" style="margin-top:20px;">
         <div class="card-header">
-          <h2 class="card-title">Vision33 Saltbox &mdash; Integration Health</h2>
+          <h2 class="card-title">Web Store &mdash; Integration Health</h2>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-secondary btn-sm">View Error Queue</button>
             <button class="btn btn-secondary btn-sm">Run Manual Sync</button>
@@ -245,45 +245,45 @@
         </div>
         <div>
           <div class="sync-flow-row">
-            <span class="flow-direction-badge">Zoey &rarr; MakeReady</span>
+            <span class="flow-direction-badge">Web Store &rarr; MakeReady</span>
             <span class="flow-label">Order Import</span>
             <span class="flow-status-ok">&#10003; Live</span>
             <span class="flow-meta">Last: 4 min ago &middot; WEB-2847 &middot; 47 orders today</span>
           </div>
           <div class="sync-flow-row">
-            <span class="flow-direction-badge">MakeReady &rarr; Zoey</span>
+            <span class="flow-direction-badge">MakeReady &rarr; Web Store</span>
             <span class="flow-label">Product &amp; Inventory Sync (Item Master)</span>
             <span class="flow-status-ok">&#10003; Live</span>
             <span class="flow-meta">Last: Today 6:00 AM &middot; 847 items synced</span>
           </div>
           <div class="sync-flow-row">
-            <span class="flow-direction-badge">Zoey &rarr; MakeReady</span>
+            <span class="flow-direction-badge">Web Store &rarr; MakeReady</span>
             <span class="flow-label">Customer / Account Sync (Business Partners)</span>
             <span class="flow-status-ok">&#10003; Live</span>
             <span class="flow-meta">Last: Today 6:00 AM &middot; 312 accounts</span>
           </div>
           <div class="sync-flow-row">
-            <span class="flow-direction-badge">MakeReady &rarr; Zoey</span>
+            <span class="flow-direction-badge">MakeReady &rarr; Web Store</span>
             <span class="flow-label">Price Lists (Account Group Pricing)</span>
             <span class="flow-status-warn">&#9888; Queued</span>
             <span class="flow-meta">3 price list updates pending next sync cycle</span>
           </div>
           <div class="sync-flow-row">
-            <span class="flow-direction-badge">MakeReady &rarr; Zoey</span>
+            <span class="flow-direction-badge">MakeReady &rarr; Web Store</span>
             <span class="flow-label">Order Status &amp; Tracking Updates</span>
             <span class="flow-status-ok">&#10003; Live</span>
             <span class="flow-meta">Last: 4 min ago &middot; WEB-2844 marked Shipped</span>
           </div>
         </div>
         <div class="sync-card-footer">
-          <span><strong>0 sync errors</strong> in last 24 hours &middot; Saltbox Connector: <code>gmw-zoey-v2</code></span>
+          <span><strong>0 sync errors</strong> in last 24 hours &middot;  </span>
           <a href="#" class="btn btn-secondary btn-sm">View Full Sync Log</a>
         </div>
       </div>
 
       <div class="card" style="margin-top:20px;">
         <div class="card-header">
-          <h2 class="card-title">Recent Zoey Orders</h2>
+          <h2 class="card-title">Recent Web Orders</h2>
           <a href="#" class="btn btn-secondary btn-sm">View All Orders</a>
         </div>
         <table class="data-table">
@@ -395,7 +395,7 @@
         </div>
         <table class="data-table">
           <thead>
-            <tr><th>Product</th><th>Item Code (SAP B1)</th><th>Zoey Sync</th><th>Online Price</th><th>Visible</th><th>In Stock</th><th>Sales (30d)</th><th>Actions</th></tr>
+            <tr><th>Product</th><th>Item Code (SAP B1)</th><th>Published</th><th>Online Price</th><th>Visible</th><th>In Stock</th><th>Sales (30d)</th><th>Actions</th></tr>
           </thead>
           <tbody>
             <tr>
@@ -492,11 +492,11 @@
           <div class="card-header">
             <h2 class="card-title">Account Groups</h2>
             <div style="display:flex;gap:8px;">
-              <span style="font-size:12px;color:#64748b;align-self:center;">Synced to Zoey via Saltbox</span>
+              <span style="font-size:12px;color:#64748b;align-self:center;">Published online</span>
               <button class="btn btn-primary btn-sm">+ New Group</button>
             </div>
           </div>
-          <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Account Groups define pricing, catalog access, payment terms, and order approval rules for B2B customer segments in Zoey.</p>
+          <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Account Groups define pricing, catalog access, payment terms, and order approval rules for B2B customer segments in the Web Store.</p>
           <div class="acct-group-row">
             <div class="acct-group-name">Walk-in / Retail</div>
             <div class="acct-group-meta">Standard pricing &middot; Pay at time of order &middot; No credit terms<br>44 accounts &middot; Catalog: Full</div>
@@ -541,7 +541,7 @@
               <h2 class="card-title">Price Lists</h2>
               <button class="btn btn-secondary btn-sm">+ New List</button>
             </div>
-            <p style="color:#64748b;font-size:13px;margin:0 0 12px;">Price Lists are maintained in MakeReady and pushed to Zoey via Saltbox on each sync cycle.</p>
+            <p style="color:#64748b;font-size:13px;margin:0 0 12px;">Price Lists are maintained in MakeReady and pushed to Web Store via  on each sync cycle.</p>
             <div style="font-size:13px;">
               <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;">
                 <span><strong>Retail Price List</strong><br><span style="color:#64748b;font-size:12px;">44 accounts &middot; No discount</span></span>
@@ -570,11 +570,11 @@
             <div class="card-header">
               <h2 class="card-title">B2B Order Approval Rules</h2>
             </div>
-            <p style="color:#64748b;font-size:13px;margin:0 0 12px;">Zoey approval rules enforce internal review before large orders are accepted into MakeReady production.</p>
+            <p style="color:#64748b;font-size:13px;margin:0 0 12px;">Web Store approval rules enforce internal review before large orders are accepted into MakeReady production.</p>
             <div style="font-size:13px;">
               <div style="padding:8px 0;border-bottom:1px solid #f1f5f9;">
                 <strong>Wholesale orders &gt; $5,000</strong><br>
-                <span style="color:#64748b;font-size:12px;">Requires Sales Manager approval in MakeReady before Zoey confirms order</span>
+                <span style="color:#64748b;font-size:12px;">Requires Sales Manager approval in MakeReady before Web Store confirms order</span>
               </div>
               <div style="padding:8px 0;border-bottom:1px solid #f1f5f9;">
                 <strong>Key Account orders &gt; $10,000</strong><br>
@@ -595,37 +595,37 @@
     <div class="tab-content" id="tab-settings">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
 
-        <!-- Zoey Connection -->
+        <!-- Web Store Configuration -->
         <div class="card">
-          <h2 class="card-title" style="margin-bottom:4px;">Zoey Platform Connection</h2>
-          <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Managed via Vision33 Saltbox connector <code>gmw-zoey-v2</code>. Changes here update the Saltbox field mappings.</p>
+          <h2 class="card-title" style="margin-bottom:4px;">Web Store Configuration</h2>
+          <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Native MakeReady Web Store settings — no third-party connector required.</p>
           <div class="form-group">
-            <label class="form-label">Zoey Store URL</label>
-            <input type="text" class="form-input" value="https://greatmountainwest.zoey.com">
+            <label class="form-label">Store URL</label>
+            <input type="text" class="form-input" value="https://store.g54.com">
           </div>
           <div class="form-group">
-            <label class="form-label">Zoey API Key</label>
-            <input type="text" class="form-input" value="zk_live_••••••••••••••••4f8a" style="font-family:monospace;">
+            <label class="form-label">Store Display Name</label>
+            <input type="text" class="form-input" value="Great Mountain West Printing">
           </div>
           <div class="form-group">
-            <label class="form-label">Saltbox Connector ID</label>
-            <input type="text" class="form-input" value="gmw-zoey-v2" style="font-family:monospace;" readonly>
+            <label class="form-label">Order Processing</label>
+            <select class="form-input"><option selected>Automatic (real-time)</option><option>Batched — hourly</option><option>Manual review queue</option></select>
           </div>
           <div class="form-group">
-            <label class="form-label">Sync Frequency</label>
-            <select class="form-input"><option selected>Every 5 minutes (orders)</option><option>Every 15 minutes</option><option>Every hour</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Inventory Sync (Product/Item Master)</label>
+            <label class="form-label">Inventory Publish Schedule</label>
             <select class="form-input"><option selected>Daily at 6:00 AM</option><option>Twice daily</option><option>Hourly</option></select>
           </div>
-          <button class="btn btn-primary">Save Connection Settings</button>
+          <div class="form-group">
+            <label class="form-label">SAP B1 Sales Order Prefix</label>
+            <input type="text" class="form-input" value="WEB-" style="font-family:monospace;">
+          </div>
+          <button class="btn btn-primary">Save Configuration</button>
         </div>
 
         <!-- Storefront & Payment -->
         <div class="card">
           <h2 class="card-title" style="margin-bottom:4px;">Storefront &amp; Payment Settings</h2>
-          <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Customer-facing display and accepted payment methods on Zoey storefront.</p>
+          <p style="color:#64748b;font-size:13px;margin:0 0 16px;">Customer-facing display and accepted payment methods on Web Store storefront.</p>
           <div class="form-group">
             <label class="form-label">Store Display Name</label>
             <input type="text" class="form-input" value="Great Mountain West Printing">
