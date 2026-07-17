@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MakeReady · Requirements Portal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #6366f1;
+      --primary-light: #ede9fe;
+      --primary-dark: #4f46e5;
+      --success: #059669;
+      --success-bg: #d1fae5;
+      --warning: #d97706;
+      --warning-bg: #fef3c7;
+      --info: #2563eb;
+      --info-bg: #dbeafe;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --header-h: 60px;
+      --sidebar-w: 268px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; color: var(--gray-900); background: #fff; }
+
+    /* ── HEADER ──────────────────────────────────── */
+    .portal-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h);
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; gap: 16px; padding: 0 24px;
+    }
+    .portal-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+    .portal-brand-logo { width: 32px; height: 32px; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; }
+    .portal-brand-text { font-weight: 700; font-size: 15px; color: var(--gray-900); }
+    .portal-brand-sub { font-size: 12px; color: var(--gray-500); font-weight: 400; }
+    .header-divider { width: 1px; height: 28px; background: var(--gray-200); flex-shrink: 0; }
+    .search-wrap { flex: 1; max-width: 440px; position: relative; }
+    .search-wrap input {
+      width: 100%; padding: 8px 12px 8px 36px;
+      border: 1px solid var(--gray-200); border-radius: 8px;
+      font-size: 14px; color: var(--gray-900); outline: none; background: var(--gray-50);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .search-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,.1); background: #fff; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 15px; pointer-events: none; }
+    .search-results {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #fff; border: 1px solid var(--gray-200); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); max-height: 360px; overflow-y: auto;
+      display: none; z-index: 200;
+    }
+    .search-results.open { display: block; }
+    .search-result-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--gray-100); }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: var(--gray-50); }
+    .search-result-title { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+    .search-result-ctx { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+    .search-result-mark { background: #fef9c3; border-radius: 2px; padding: 0 2px; }
+    .header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .btn-portal { padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background .15s; }
+    .btn-outline { border: 1px solid var(--gray-200); color: var(--gray-700); background: #fff; }
+    .btn-outline:hover { background: var(--gray-50); }
+    .btn-primary-sm { border: none; background: var(--primary); color: #fff; }
+    .btn-primary-sm:hover { background: var(--primary-dark); }
+    .last-updated { font-size: 12px; color: var(--gray-400); white-space: nowrap; }
+
+    /* ── LAYOUT ──────────────────────────────────── */
+    .portal-layout { display: flex; padding-top: var(--header-h); min-height: 100vh; }
+
+    /* ── SIDEBAR ─────────────────────────────────── */
+    .portal-sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      position: sticky; top: var(--header-h); height: calc(100vh - var(--header-h));
+      overflow-y: auto; overflow-x: hidden;
+      background: var(--gray-50); border-right: 1px solid var(--gray-200);
+      padding: 20px 0 40px;
+    }
+    .sidebar-progress { padding: 0 16px 16px; border-bottom: 1px solid var(--gray-200); margin-bottom: 12px; }
+    .sidebar-progress-label { font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .progress-bar-wrap { height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+    .progress-bar-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+    .progress-text { font-size: 11px; color: var(--gray-500); }
+
+    .sidebar-group { margin-bottom: 4px; }
+    .sidebar-group-label {
+      padding: 6px 16px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .07em; color: var(--gray-400);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    .sidebar-group-label:hover { color: var(--gray-700); }
+    .sidebar-group-toggle { font-size: 10px; transition: transform .2s; }
+    .sidebar-group.open .sidebar-group-toggle { transform: rotate(90deg); }
+    .sidebar-links { display: none; }
+    .sidebar-group.open .sidebar-links { display: block; }
+    .sidebar-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 16px 6px 24px; font-size: 13px; color: var(--gray-700);
+      text-decoration: none; border-radius: 0; cursor: pointer;
+      transition: background .1s, color .1s;
+    }
+    .sidebar-link:hover { background: var(--gray-100); color: var(--gray-900); }
+    .sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; border-right: 2px solid var(--primary); }
+    .sidebar-link-top { padding-left: 16px; font-weight: 500; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot-complete { background: var(--success); }
+    .dot-progress { background: var(--primary); }
+    .dot-discovery { background: var(--warning); }
+    .dot-stub { background: var(--gray-300, #d1d5db); }
+
+    /* ── MAIN CONTENT ────────────────────────────── */
+    .portal-content { flex: 1; max-width: 860px; padding: 48px 60px 120px; }
+
+    /* Sections */
+    .req-section { margin-bottom: 72px; scroll-margin-top: 80px; }
+    .section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--primary); margin-bottom: 8px; }
+    .section-title { font-size: 28px; font-weight: 800; color: var(--gray-900); margin-bottom: 10px; line-height: 1.25; }
+    .section-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200); }
+    .section-body { color: var(--gray-700); line-height: 1.7; }
+    .section-body p { margin-bottom: 16px; }
+    .section-body h3 { font-size: 17px; font-weight: 700; color: var(--gray-900); margin: 32px 0 12px; }
+    .section-body h4 { font-size: 14px; font-weight: 700; color: var(--gray-700); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* Badges */
+    .badge-status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .badge-complete { background: var(--success-bg); color: var(--success); }
+    .badge-progress { background: var(--info-bg); color: var(--info); }
+    .badge-discovery { background: var(--warning-bg); color: var(--warning); }
+    .badge-stub { background: var(--gray-100); color: var(--gray-500); }
+
+    /* Stakeholder chips */
+    .stakeholder-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--gray-100); border-radius: 20px; padding: 3px 10px 3px 4px; font-size: 12px; color: var(--gray-700); font-weight: 500; }
+    .stakeholder-avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+
+    /* User Story Cards */
+    .us-card { border: 1px solid var(--gray-200); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .us-card-header { background: var(--gray-50); padding: 14px 20px 12px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .us-card-id { font-size: 11px; font-weight: 800; color: var(--primary); letter-spacing: .06em; font-family: 'SF Mono', 'Fira Code', monospace; }
+    .us-card-title { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-top: 2px; }
+    .us-card-body { padding: 16px 20px 18px; }
+    .us-story { background: var(--primary-light); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 16px; }
+    .us-story-line { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+    .us-story-line strong { color: var(--gray-900); }
+    .ac-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--gray-500); margin-bottom: 8px; }
+    .ac-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .ac-list li { font-size: 13px; color: var(--gray-700); line-height: 1.6; display: flex; gap: 8px; }
+    .ac-list li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .ac-list li .kw { color: var(--gray-900); font-weight: 600; }
+
+    /* Discovery callout */
+    .discovery-box { background: var(--warning-bg); border: 1px solid #fde68a; border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+    .discovery-box-title { font-size: 13px; font-weight: 700; color: var(--warning); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .discovery-box ul { padding-left: 18px; }
+    .discovery-box ul li { font-size: 13px; color: var(--gray-700); margin-bottom: 4px; line-height: 1.6; }
+
+    /* Info box */
+    .info-box { background: var(--info-bg); border: 1px solid #93c5fd; border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+    .info-box p { font-size: 13px; color: var(--gray-700); margin: 0; line-height: 1.6; }
+
+    /* Tables */
+    .req-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+    .req-table th { text-align: left; padding: 8px 12px; background: var(--gray-50); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--gray-500); border-bottom: 1px solid var(--gray-200); }
+    .req-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); vertical-align: top; color: var(--gray-700); }
+    .req-table tr:last-child td { border-bottom: none; }
+    .req-table tr:hover td { background: var(--gray-50); }
+
+    /* Divider */
+    .group-divider { height: 1px; background: var(--gray-200); margin: 56px 0 48px; }
+    .group-header { margin-bottom: 48px; }
+    .group-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--gray-400); margin-bottom: 6px; }
+    .group-title { font-size: 22px; font-weight: 800; color: var(--gray-900); margin-bottom: 8px; }
+    .group-desc { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
+    /* Code */
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; background: var(--gray-100); padding: 2px 6px; border-radius: 4px; color: var(--primary-dark); }
+
+    /* Epics table status col */
+    .epic-phase { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+    .epic-mvp { background: var(--success-bg); color: var(--success); }
+    .epic-p2  { background: var(--gray-100); color: var(--gray-500); }
+
+    /* Roadmap cards */
+    .roadmap-grid { display: flex; flex-direction: column; gap: 12px; }
+    .roadmap-card { border: 1px solid var(--gray-200); border-radius: 10px; padding: 16px 20px; }
+    .roadmap-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .phase-badge { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: var(--primary-light); color: var(--primary); white-space: nowrap; }
+    .roadmap-card h4 { font-size: 15px; font-weight: 700; color: var(--gray-900); margin: 0; }
+    .roadmap-card p { font-size: 13px; color: var(--gray-500); margin-bottom: 8px; line-height: 1.5; }
+    .roadmap-items { display: flex; flex-wrap: wrap; gap: 6px; }
+    .roadmap-item { font-size: 12px; background: var(--gray-100); color: var(--gray-700); padding: 3px 10px; border-radius: 8px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .portal-sidebar { display: none; }
+      .portal-content { padding: 32px 24px 80px; max-width: 100%; }
+    }
+
+    /* Print */
+    @media print {
+      .portal-header, .portal-sidebar { display: none; }
+      .portal-content { padding: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ───────────────────────────────────────────────────── -->
+<header class="portal-header">
+  <a class="portal-brand" href="requirements-portal.html">
+    <div class="portal-brand-logo">MR</div>
+    <div>
+      <div class="portal-brand-text">MakeReady</div>
+      <div class="portal-brand-sub">Requirements Portal</div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="searchInput" placeholder="Search requirements, user stories, stakeholders…" autocomplete="off" />
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="header-actions">
+    <span class="last-updated">Last updated July 17, 2026</span>
+    <a class="btn-portal btn-outline" href="index.html" target="_blank">View Wireframes ↗</a>
+    <a class="btn-portal btn-primary-sm" href="#stakeholders">Stakeholders</a>
+  </div>
+</header>
+
+<!-- ── LAYOUT ───────────────────────────────────────────────────── -->
+<div class="portal-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="portal-sidebar" id="sidebar">
+
+    <div class="sidebar-progress">
+      <div class="sidebar-progress-label">Requirements Progress</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:52%"></div></div>
+      <div class="progress-text">11 of 21 sections documented · 3 pending discovery</div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Overview <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link sidebar-link-top" href="#overview">Project Overview</a>
+        <a class="sidebar-link sidebar-link-top" href="#stakeholders">Stakeholders</a>
+        <a class="sidebar-link sidebar-link-top" href="#roadmap">Delivery Roadmap</a>
+      </div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Sales Group <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link" href="#sales-req">Sales <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#crm-req">CRM <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#web-store-req">Web Store / eComm <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#digital-catalogs">Digital Catalogs <span class="status-dot dot-discovery"></span></a>
+      </div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Finance Group <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link" href="#accounting-req">Accounting &amp; AP <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#ar-req">Accounts Receivable <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#reports-req">Reports <span class="status-dot dot-discovery"></span></a>
+      </div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Operations Group <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link" href="#production-req">Jobs &amp; Production <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#inventory-req">Inventory <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#process-req">Process &amp; Workflows <span class="status-dot dot-complete"></span></a>
+      </div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Art Group <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link" href="#art-requests">Art Requests &amp; Schedule <span class="status-dot dot-discovery"></span></a>
+        <a class="sidebar-link" href="#content-library-req">Content Library <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#art-website">Website <span class="status-dot dot-discovery"></span></a>
+      </div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Technical <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link" href="#architecture">Architecture <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#data-model">Data Model <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#integrations">Integrations &amp; Migration <span class="status-dot dot-progress"></span></a>
+      </div>
+    </div>
+
+    <div style="padding:16px;margin-top:8px;border-top:1px solid var(--gray-200)">
+      <div style="font-size:11px;color:var(--gray-400);line-height:1.6;">
+        <span class="status-dot dot-complete" style="display:inline-block;margin-right:4px;"></span>Complete &nbsp;
+        <span class="status-dot dot-progress" style="display:inline-block;margin-right:4px;margin-left:8px;"></span>In Progress<br>
+        <span class="status-dot dot-discovery" style="display:inline-block;margin-right:4px;margin-top:6px;"></span>Discovery Needed
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="portal-content" id="mainContent">
+
+    <!-- ══════════════════════════════════════════════ OVERVIEW -->
+    <section class="req-section" id="overview">
+      <div class="section-eyebrow">Project Overview</div>
+      <h1 class="section-title">MakeReady by G54</h1>
+      <div class="section-meta">
+        <span class="badge-status badge-progress">● In Progress</span>
+        <span style="font-size:13px;color:var(--gray-500);">Great Mountain West · g54.com</span>
+        <a href="index.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View live wireframes ↗</a>
+      </div>
+      <div class="section-body">
+        <p>MakeReady is a purpose-built <strong>Print Management Information System (Print MIS) and ERP</strong> for Great Mountain West, a commercial print and graphics production company. It replaces three disconnected systems with a single integrated platform.</p>
+        <table class="req-table">
+          <thead><tr><th>Replaced System</th><th>Function</th><th>MakeReady Equivalent</th></tr></thead>
+          <tbody>
+            <tr><td><strong>SAP Business One</strong></td><td>ERP — accounting, inventory, sales</td><td>Native Finance, Sales, Inventory modules</td></tr>
+            <tr><td><strong>Zoey B2B</strong> (greatmountainwest.zoey.com)</td><td>B2B eCommerce storefront</td><td>Native Web Store at store.g54.com</td></tr>
+            <tr><td><strong>Vision33 Saltbox</strong></td><td>iPaaS connector between SAP and Zoey</td><td>Eliminated — direct integrations only</td></tr>
+          </tbody>
+        </table>
+        <h3>Key Decisions Already Made</h3>
+        <table class="req-table">
+          <thead><tr><th>Decision</th><th>Choice</th></tr></thead>
+          <tbody>
+            <tr><td>eCommerce platform</td><td>Native Web Store module — no third-party dependency</td></tr>
+            <tr><td>Integration middleware</td><td>None — Vision33 Saltbox removed</td></tr>
+            <tr><td>B2B storefront URL</td><td>store.g54.com (replaces greatmountainwest.zoey.com)</td></tr>
+            <tr><td>AI provider (Content Library)</td><td>Anthropic Claude — NLP search &amp; auto-tagging</td></tr>
+            <tr><td>Web Store order prefix</td><td>WEB- (e.g., WEB-00142)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ STAKEHOLDERS -->
+    <section class="req-section" id="stakeholders">
+      <div class="section-eyebrow">Stakeholders</div>
+      <h2 class="section-title">Contacts &amp; Ownership</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+      </div>
+      <div class="section-body">
+        <p>Business requirements are organized into four groups. Each group owns discovery, validation, and sign-off for their domain.</p>
+        <table class="req-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Groups</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Kim Lund</strong></td><td>kim@g54.com</td><td>480-292-6226</td><td>Sales (Sales), Finance</td></tr>
+            <tr><td><strong>Chase de Jong</strong></td><td>chase@g54.com</td><td>385-315-2670</td><td>Sales (CRM, eComm)</td></tr>
+            <tr><td><strong>Britney de Jong</strong></td><td>britney@g54.com</td><td>801-520-1073</td><td>Finance (Accounting, AP), Operations (Process)</td></tr>
+            <tr><td><strong>Leslie Weiler</strong></td><td>leslie@g54.com</td><td>801-558-0778</td><td>Sales (Digital Catalogs), Finance (AR, Reports), Operations (Inventory)</td></tr>
+            <tr><td><strong>Tyson Johnson</strong></td><td>tyson@g54.com</td><td>801-318-5803</td><td>Operations (Production, Inventory, Process), Art (Library)</td></tr>
+            <tr><td><strong>Cody de Jong</strong></td><td>cody@g54.com</td><td>801-560-6702</td><td>Sales (eComm, Digital Catalogs), Art (Requests, Library, Website)</td></tr>
+            <tr><td><strong>Jon [TBD]</strong></td><td>TBD</td><td>TBD</td><td>Art (Library)</td></tr>
+          </tbody>
+        </table>
+        <h3>Section Ownership</h3>
+        <table class="req-table">
+          <thead><tr><th>Group</th><th>Section</th><th>Owner(s)</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="4"><strong>Sales</strong></td><td>Sales</td><td>Kim Lund</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>CRM</td><td>Kim Lund, Chase de Jong</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Web Store / eComm</td><td>Cody de Jong, Chase de Jong</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Digital Catalogs</td><td>Cody de Jong, Leslie Weiler</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
+            <tr><td rowspan="3"><strong>Finance</strong></td><td>Accounting &amp; AP</td><td>Britney de Jong</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Accounts Receivable</td><td>Leslie Weiler</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Reports</td><td>Leslie Weiler</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
+            <tr><td rowspan="3"><strong>Operations</strong></td><td>Production</td><td>Tyson Johnson</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Inventory</td><td>Leslie Weiler, Tyson Johnson</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Process &amp; Workflows</td><td>Britney de Jong, Tyson Johnson</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td rowspan="3"><strong>Art</strong></td><td>Requests &amp; Schedule</td><td>Cody de Jong</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
+            <tr><td>Content Library</td><td>Cody de Jong, Jon [TBD]</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Website</td><td>Cody de Jong, Leslie Weiler</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ ROADMAP -->
+    <section class="req-section" id="roadmap">
+      <div class="section-eyebrow">Product Plan</div>
+      <h2 class="section-title">Delivery Roadmap</h2>
+      <div class="section-meta"><span class="badge-status badge-complete">✓ Complete</span></div>
+      <div class="section-body">
+        <p>MakeReady is delivered in eight phases. Each phase produces working, deployable software. Later phases depend on earlier ones but are independently useful.</p>
+        <div class="roadmap-grid">
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 1</span><h4>Platform Foundation</h4></div><p>Login, roles, dashboard, user management, audit log.</p><div class="roadmap-items"><span class="roadmap-item">Authentication</span><span class="roadmap-item">6 Roles / RBAC</span><span class="roadmap-item">Dashboard</span><span class="roadmap-item">Audit Log</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 2</span><h4>Customer &amp; Sales</h4></div><p>Full quote-to-payment cycle for G54's sales team.</p><div class="roadmap-items"><span class="roadmap-item">Business Partners / CRM</span><span class="roadmap-item">Quotes</span><span class="roadmap-item">Sales Orders</span><span class="roadmap-item">Delivery → Invoice → Payment</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 3</span><h4>Web Store (Native B2B eComm)</h4></div><p>Replaces Zoey B2B. store.g54.com live and operational. Web Store orders become Sales Orders automatically.</p><div class="roadmap-items"><span class="roadmap-item">Product Catalog</span><span class="roadmap-item">Account Group Pricing</span><span class="roadmap-item">Auto SO Creation</span><span class="roadmap-item">Order Approval Rules</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 4</span><h4>Operations</h4></div><p>Production job management, inventory, quality, and equipment maintenance.</p><div class="roadmap-items"><span class="roadmap-item">Jobs &amp; Production Queue</span><span class="roadmap-item">Artwork Attachment</span><span class="roadmap-item">Inventory / MRP</span><span class="roadmap-item">Quality &amp; Maintenance</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 5</span><h4>Finance &amp; Accounting</h4></div><p>Full accounting suite. SAP Business One is decommissioned after this phase.</p><div class="roadmap-items"><span class="roadmap-item">AP / AR</span><span class="roadmap-item">Bank Reconciliation</span><span class="roadmap-item">Cost Centers</span><span class="roadmap-item">Fixed Assets</span><span class="roadmap-item">SAP B1 Migration Complete</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 6</span><h4>Content Library (DAM)</h4></div><p>AI-powered art and graphics management. Find any asset in seconds using natural language.</p><div class="roadmap-items"><span class="roadmap-item">Upload (all formats)</span><span class="roadmap-item">AI Auto-Tagging</span><span class="roadmap-item">NLP Search</span><span class="roadmap-item">Collections</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 7</span><h4>Field Sales &amp; RBAC</h4></div><p>Field sales reps can log in from any tablet and submit client orders and artwork without office access.</p><div class="roadmap-items"><span class="roadmap-item">Mobile-Responsive Sales View</span><span class="roadmap-item">Field Order Upload</span><span class="roadmap-item">Artwork Upload from Device</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 8</span><h4>Workflows, Reports &amp; Intelligence</h4></div><p>Automated approval rules and management dashboards.</p><div class="roadmap-items"><span class="roadmap-item">Approval Rules Engine</span><span class="roadmap-item">Sales / Finance / Production Dashboards</span><span class="roadmap-item">CSV / PDF Export</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="group-divider"></div>
+
+    <!-- ══════════════════════════════════════ SALES GROUP -->
+    <div class="group-header" id="sales-group">
+      <div class="group-eyebrow">Group 1</div>
+      <div class="group-title">Sales</div>
+      <div class="group-desc">Owners: Kim Lund · Chase de Jong · Cody de Jong · Leslie Weiler</div>
+    </div>
+
+    <!-- SALES REQUIREMENTS -->
+    <section class="req-section" id="sales-req">
+      <div class="section-eyebrow">Sales</div>
+      <h2 class="section-title">Sales — Quote to Cash</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
+        <a href="sales.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>The Sales module manages G54's full quote-to-cash document flow. Every sales order — whether entered manually by a rep or received from the Web Store — follows the same path through to collected payment.</p>
+        <div class="info-box"><p><strong>Document flow:</strong> Quote → Sales Order → Production Job (auto) → Delivery → AR Invoice → Incoming Payment</p></div>
+
+        <h3>User Stories</h3>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-SALES-01</div><div class="us-card-title">Create a Quote</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep or Sales Manager</div>
+              <div class="us-story-line"><strong>I want to</strong> create a price quote for a customer</div>
+              <div class="us-story-line"><strong>So that</strong> I can present a formal price before they commit to an order</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span><span class="kw">Given</span> I create a quote, <span class="kw">then</span> I must select a Business Partner; the system applies their Account Group pricing to line items automatically</span></li>
+              <li><span><span class="kw">Given</span> a discount exceeds 10%, <span class="kw">then</span> a Sales Manager approval flag is set before the quote can be sent</span></li>
+              <li><span><span class="kw">Given</span> I save a quote, <span class="kw">then</span> it receives a system-generated number with prefix <code>QUO-</code></span></li>
+              <li><span>Status flow: <code>Draft</code> → <code>Sent</code> → <code>Accepted</code> → <code>Converted to SO</code> | <code>Declined</code> | <code>Expired</code></span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-SALES-04</div><div class="us-card-title">Web Store Order Becomes a Sales Order</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager</div>
+              <div class="us-story-line"><strong>I want</strong> Web Store orders to appear as Sales Orders automatically</div>
+              <div class="us-story-line"><strong>So that</strong> no manual re-entry is required for online orders</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span><span class="kw">Given</span> a customer places an order on store.g54.com, <span class="kw">within 60 seconds</span> a Sales Order appears in MakeReady with prefix <code>WEB-</code></span></li>
+              <li><span>The SO contains: all line items, quantities, BP link, shipping address, and Web Store order reference</span></li>
+              <li><span><span class="kw">Given</span> the order total is ≥ $5,000, <span class="kw">then</span> the SO is created in <code>Pending Approval</code> status and does not enter production until approved</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-SALES-08</div><div class="us-card-title">Field Sales Order Submission (Mobile)</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep in the field</div>
+              <div class="us-story-line"><strong>I want to</strong> create a Sales Order and attach client artwork from my tablet</div>
+              <div class="us-story-line"><strong>So that</strong> the order is in the system before I leave the client's location</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>The sales order form is usable on a tablet (768px width) without horizontal scrolling</span></li>
+              <li><span><span class="kw">Given</span> I tap "Attach Artwork," <span class="kw">when</span> I select a file from my device, <span class="kw">then</span> it uploads and attaches to the SO</span></li>
+              <li><span><span class="kw">Given</span> I submit the SO, <span class="kw">then</span> I receive a confirmation screen with the new SO number</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CRM -->
+    <section class="req-section" id="crm-req">
+      <div class="section-eyebrow">Sales Group</div>
+      <h2 class="section-title">CRM — Customer Management</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">CD</span>Chase de Jong</span>
+        <a href="crm.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>Every customer in MakeReady is a <strong>Business Partner (BP)</strong>, mirroring the SAP Business One entity model. The Account Group assigned to a BP controls their Web Store pricing tier and catalog access automatically.</p>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-CRM-01</div><div class="us-card-title">Create a Business Partner</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep or Sales Manager</div>
+              <div class="us-story-line"><strong>I want to</strong> create a new customer Business Partner record</div>
+              <div class="us-story-line"><strong>So that</strong> I can associate sales orders, invoices, and Web Store access with that customer</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Required fields: Company Name, Account Group, Primary Contact Name, Primary Contact Email</span></li>
+              <li><span><span class="kw">Given</span> I save the BP, <span class="kw">then</span> it receives a system-generated <code>BP-XXXXX</code> number</span></li>
+              <li><span>Duplicate company names show a warning but are allowed with confirmation</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-CRM-04</div><div class="us-card-title">Account Groups</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager or Admin</div>
+              <div class="us-story-line"><strong>I want to</strong> assign a Business Partner to an Account Group</div>
+              <div class="us-story-line"><strong>So that</strong> their pricing tier and Web Store catalog access are automatically controlled</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span><span class="kw">Given</span> I change a BP's Account Group, <span class="kw">then</span> their Web Store pricing updates on next login</span></li>
+              <li><span>Account Group names and pricing rules: <strong>[TBD — to be defined by Kim Lund and Chase de Jong]</strong></span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-CRM-05</div><div class="us-card-title">Activity Log</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep</div>
+              <div class="us-story-line"><strong>I want to</strong> log notes, calls, emails, and visits against a customer</div>
+              <div class="us-story-line"><strong>So that</strong> anyone on the team can see the full relationship history</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Activity types: Note, Call, Email, Visit, Other</span></li>
+              <li><span>Activities are immutable once saved — no edit or delete</span></li>
+              <li><span>All team members' activities on a BP are visible to all reps (not just the author)</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WEB STORE -->
+    <section class="req-section" id="web-store-req">
+      <div class="section-eyebrow">Sales Group</div>
+      <h2 class="section-title">Web Store — Native B2B eCommerce</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">CD</span>Chase de Jong</span>
+        <a href="ecommerce.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>The Web Store replaces Zoey B2B and the Vision33 Saltbox connector. It is a native MakeReady module — there is no sync delay, no middleware, and no third-party storefront license. The customer-facing storefront runs at <strong>store.g54.com</strong>.</p>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-WEB-02</div><div class="us-card-title">Account Group Pricing</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager or Admin</div>
+              <div class="us-story-line"><strong>I want to</strong> assign different price lists to different Account Groups</div>
+              <div class="us-story-line"><strong>So that</strong> wholesale customers automatically see wholesale pricing at checkout</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Customers see their Account Group's price list automatically — no manual selection</span></li>
+              <li><span>Price list updates reflect on the storefront within 60 seconds</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header">
+            <div><div class="us-card-id">US-WEB-04</div><div class="us-card-title">Order Approval Rules</div></div>
+            <span class="badge-status badge-complete">Complete</span>
+          </div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager</div>
+              <div class="us-story-line"><strong>I want</strong> orders above a dollar threshold to require my approval</div>
+              <div class="us-story-line"><strong>So that</strong> G54 doesn't commit to large orders without management sign-off</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Orders ≥ <strong>$5,000</strong> are created in <code>Pending Approval</code> status; Sales Manager is notified</span></li>
+              <li><span>Approved orders enter the production queue immediately</span></li>
+              <li><span>The $5,000 threshold is configurable by Admin without a code change</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIGITAL CATALOGS -->
+    <section class="req-section" id="digital-catalogs">
+      <div class="section-eyebrow">Sales Group</div>
+      <h2 class="section-title">Digital Catalogs</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-discovery">⚠ Discovery Needed</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
+      </div>
+      <div class="section-body">
+        <p>Digital Catalogs is an adjacent feature to the Web Store — the ability to produce and distribute product catalogs for sales presentations and customer browsing. Requirements for this section are pending a working session with Cody and Leslie.</p>
+        <div class="discovery-box">
+          <div class="discovery-box-title">⚠ Open Questions — Discovery Session Required</div>
+          <ul>
+            <li>What format do catalogs take — online flipbook, PDF, or both?</li>
+            <li>Who builds a catalog — is it a staff-facing drag-and-drop tool?</li>
+            <li>Can customers order directly from a catalog, or is it browse-only?</li>
+            <li>How do catalogs relate to the Web Store? Are they the same catalog or separate?</li>
+            <li>Are catalog assets pulled from the Content Library?</li>
+            <li>Are catalogs client-specific (e.g., custom catalog per account)?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="group-divider"></div>
+
+    <!-- ══════════════════════════════════════ FINANCE GROUP -->
+    <div class="group-header" id="finance-group">
+      <div class="group-eyebrow">Group 2</div>
+      <div class="group-title">Finance</div>
+      <div class="group-desc">Owners: Britney de Jong (Accounting, AP) · Leslie Weiler (AR, Reports)</div>
+    </div>
+
+    <section class="req-section" id="accounting-req">
+      <div class="section-eyebrow">Finance Group</div>
+      <h2 class="section-title">Accounting &amp; Accounts Payable</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
+        <a href="accounting.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>The Accounting module replaces G54's SAP Business One accounting installation. All master data and open transactions migrate from SAP B1 before go-live. After Phase 5, SAP B1 is decommissioned.</p>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ACC-03</div><div class="us-card-title">Accounts Payable</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance member (Britney de Jong)</div>
+              <div class="us-story-line"><strong>I want to</strong> record and manage vendor invoices</div>
+              <div class="us-story-line"><strong>So that</strong> G54 pays vendors on time and AP liability is tracked accurately</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Required AP invoice fields: vendor, invoice number, invoice date, due date, amount, GL account</span></li>
+              <li><span>AP aging report exportable to PDF and CSV</span></li>
+              <li><span><span class="kw">Given</span> a vendor payment is recorded, <span class="kw">then</span> the AP invoice balance reduces accordingly</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ACC-05</div><div class="us-card-title">Journal Entries</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance member</div>
+              <div class="us-story-line"><strong>I want to</strong> create manual journal entries</div>
+              <div class="us-story-line"><strong>So that</strong> I can post adjustments, accruals, and corrections</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Journal entries must balance (debits = credits) before saving</span></li>
+              <li><span>Posted entries are immutable — corrections require a counter/reversal entry</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="discovery-box">
+          <div class="discovery-box-title">⚠ Open Questions — Britney de Jong</div>
+          <ul>
+            <li>Bank reconciliation: how does G54 currently import bank statements? (CSV, OFX, manual entry?)</li>
+            <li>Does G54 do batch AP payment runs, or are vendor invoices paid individually?</li>
+            <li>SAP B1 historical data cutoff: how far back do closed invoices migrate?</li>
+            <li>Tax setup: how many sales tax rates/jurisdictions?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="ar-req">
+      <div class="section-eyebrow">Finance Group</div>
+      <h2 class="section-title">Accounts Receivable</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
+        <a href="accounting.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ACC-02</div><div class="us-card-title">AR Aging &amp; Collections</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance member (Leslie Weiler)</div>
+              <div class="us-story-line"><strong>I want to</strong> see all outstanding AR invoices and their aging</div>
+              <div class="us-story-line"><strong>So that</strong> I can monitor cash collection and follow up on overdue accounts</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>AR aging buckets: Current · 1–30 days · 31–60 days · 61–90 days · 90+ days</span></li>
+              <li><span>Overdue invoices are visually flagged</span></li>
+              <li><span>AR aging report is exportable to PDF and CSV</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="reports-req">
+      <div class="section-eyebrow">Finance Group</div>
+      <h2 class="section-title">Reports &amp; Business Intelligence</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-discovery">⚠ Discovery Needed</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
+        <a href="reports.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>The wireframe shows the reporting module structure. Full requirements depend on a discovery session with Leslie to identify which specific reports drive business decisions.</p>
+        <div class="discovery-box">
+          <div class="discovery-box-title">⚠ Open Questions — Leslie Weiler</div>
+          <ul>
+            <li>What specific reports does Leslie currently run on a weekly/monthly basis?</li>
+            <li>Which reports does leadership ask for most often?</li>
+            <li>What decisions do these reports drive (pricing, collections, capacity)?</li>
+            <li>Is there a preferred export format (PDF, Excel, CSV)?</li>
+            <li>Are there any reports currently run manually in spreadsheets that should be automated?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="group-divider"></div>
+
+    <!-- ══════════════════════════════════ OPERATIONS GROUP -->
+    <div class="group-header" id="operations-group">
+      <div class="group-eyebrow">Group 3</div>
+      <div class="group-title">Operations</div>
+      <div class="group-desc">Owners: Tyson Johnson (Production) · Leslie Weiler &amp; Tyson Johnson (Inventory) · Britney de Jong &amp; Tyson Johnson (Process)</div>
+    </div>
+
+    <section class="req-section" id="production-req">
+      <div class="section-eyebrow">Operations Group</div>
+      <h2 class="section-title">Jobs &amp; Production</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">TJ</span>Tyson Johnson</span>
+        <a href="jobs.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>Every confirmed Sales Order automatically generates a production Job. Jobs move through a defined status pipeline from receipt to shipping.</p>
+        <div class="info-box"><p><strong>Job status pipeline:</strong> New → Prepress → Printing → Finishing → Ready to Ship → Shipped</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-JOB-01</div><div class="us-card-title">Auto-Create Job from Sales Order</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Production member</div>
+              <div class="us-story-line"><strong>I want</strong> a job to be created automatically when a Sales Order is confirmed</div>
+              <div class="us-story-line"><strong>So that</strong> I don't have to re-enter details already in the SO</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Within 30 seconds of SO confirmation, a Job with prefix <code>JOB-</code> appears in the production queue</span></li>
+              <li><span>Job contains: linked SO number, customer name, line items, quantities, and due date</span></li>
+              <li><span>Initial status is <code>New</code></span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-JOB-04</div><div class="us-card-title">Attach Artwork to a Job</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As an</strong> Art Department member</div>
+              <div class="us-story-line"><strong>I want to</strong> attach approved artwork files to a job</div>
+              <div class="us-story-line"><strong>So that</strong> Production has the correct files without searching for them</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Artwork can be selected from the Content Library or uploaded directly (new uploads are added to the Library simultaneously)</span></li>
+              <li><span>Job shows a thumbnail preview and filename for each attached asset</span></li>
+              <li><span>Clicking the thumbnail opens the full-resolution file or a viewer</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="inventory-req">
+      <div class="section-eyebrow">Operations Group</div>
+      <h2 class="section-title">Inventory &amp; MRP</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">TJ</span>Tyson Johnson</span>
+        <a href="inventory.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>Inventory tracks G54's Item Master — the products and materials the company sells and uses in production. Items are published to the Web Store for customer ordering.</p>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-INV-02</div><div class="us-card-title">Stock Levels</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Production or Inventory manager</div>
+              <div class="us-story-line"><strong>I want to</strong> see current stock levels for all items</div>
+              <div class="us-story-line"><strong>So that</strong> I know what's available for upcoming jobs and what needs reordering</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>For each item: On-Hand qty · Committed qty (reserved for open SOs) · Available qty (On-Hand − Committed)</span></li>
+              <li><span>Items below reorder point are visually flagged</span></li>
+              <li><span>Available quantity calculation is real-time, not cached</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="process-req">
+      <div class="section-eyebrow">Operations Group</div>
+      <h2 class="section-title">Process &amp; Workflows</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">TJ</span>Tyson Johnson</span>
+        <a href="workflows.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>Configurable approval rules automatically route documents and events to the right approvers. This replaces manual email-based approval chains.</p>
+        <h3>Pre-Configured Approval Rules</h3>
+        <table class="req-table">
+          <thead><tr><th>Rule</th><th>Trigger</th><th>Condition</th><th>Approver</th></tr></thead>
+          <tbody>
+            <tr><td>Web Store Order Approval</td><td>Web Store order received</td><td>Total ≥ $5,000</td><td>Sales Manager</td></tr>
+            <tr><td>Credit Limit Override</td><td>Sales Order created</td><td>BP credit limit exceeded</td><td>Finance role</td></tr>
+            <tr><td>Artwork Approval</td><td>Job in Prepress — marked complete</td><td>Artwork attached</td><td>Art Dept lead</td></tr>
+            <tr><td>Discount Override</td><td>Quote created</td><td>Discount > 10%</td><td>Sales Manager</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px;color:var(--gray-500);">All thresholds are configurable in Administration. Additional rules to be defined during Operations/Process discovery.</p>
+      </div>
+    </section>
+
+    <div class="group-divider"></div>
+
+    <!-- ══════════════════════════════════════ ART GROUP -->
+    <div class="group-header" id="art-group">
+      <div class="group-eyebrow">Group 4</div>
+      <div class="group-title">Art</div>
+      <div class="group-desc">Owners: Cody de Jong · Jon [TBD] · Leslie Weiler</div>
+    </div>
+
+    <section class="req-section" id="art-requests">
+      <div class="section-eyebrow">Art Group</div>
+      <h2 class="section-title">Art Requests &amp; Schedule</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-discovery">⚠ Discovery Needed</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
+      </div>
+      <div class="section-body">
+        <p>This section covers how the Art Department receives, tracks, and schedules incoming artwork requests from internal sales and external clients. Requirements pending discovery with Cody.</p>
+        <div class="discovery-box">
+          <div class="discovery-box-title">⚠ Open Questions — Cody de Jong</div>
+          <ul>
+            <li>How does the Art Department currently receive requests — email, verbal, spreadsheet, Slack?</li>
+            <li>What does a "request" contain? (Client, job number, turnaround time, specs, reference images?)</li>
+            <li>Is there a scheduling or capacity component — does the art team manage a queue or calendar?</li>
+            <li>Who can submit art requests — only internal sales reps, or also clients directly?</li>
+            <li>What does the approval/delivery handoff look like when artwork is complete?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="content-library-req">
+      <div class="section-eyebrow">Art Group</div>
+      <h2 class="section-title">Content Library — Digital Asset Management</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">J?</span>Jon [TBD]</span>
+        <a href="library.html" target="_blank" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe ↗</a>
+      </div>
+      <div class="section-body">
+        <p>The Content Library gives the Art Department a single place to store, organize, and retrieve every piece of artwork and graphic. The defining capability is <strong>AI-powered natural language search</strong> — staff can describe what they're looking for in plain English and receive ranked, relevant results.</p>
+        <div class="info-box"><p><strong>Example query:</strong> "find all graphics that feature a moose and look like they could fit into a national parks theme" — the AI interprets this into visual tags and searches across auto-generated image descriptions, returning results ranked by relevance.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-LIB-02</div><div class="us-card-title">AI Auto-Tagging on Upload</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As an</strong> Art Department member</div>
+              <div class="us-story-line"><strong>I want</strong> uploaded assets to be automatically tagged with descriptive labels</div>
+              <div class="us-story-line"><strong>So that</strong> assets are searchable immediately without manual tagging effort</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>AI analysis completes within 60 seconds of upload; at least 3 auto-generated tags are applied</span></li>
+              <li><span>Tags capture: primary subjects, setting/location, color palette, style/aesthetic, and mood</span></li>
+              <li><span>Auto-tags are visually distinguished from manual tags in the UI</span></li>
+              <li><span>If AI analysis fails, the asset still uploads successfully and is flagged for manual tagging</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-LIB-03</div><div class="us-card-title">Natural Language Search</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As any</strong> MakeReady user with Content Library access</div>
+              <div class="us-story-line"><strong>I want to</strong> search for assets using plain English descriptions</div>
+              <div class="us-story-line"><strong>So that</strong> I can find relevant artwork without knowing filenames or tags</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Natural language results return within 10 seconds for a library of up to 10,000 assets</span></li>
+              <li><span>Results are ranked by visual relevance (High / Medium / Low with percentage score)</span></li>
+              <li><span>A summary of how the AI interpreted the query is shown (e.g., "Searched for: wildlife featuring moose · national parks aesthetic · rustic color palette")</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-LIB-08</div><div class="us-card-title">Client Assignment &amp; Access Control</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As an</strong> Art Department member</div>
+              <div class="us-story-line"><strong>I want to</strong> assign assets to a specific client</div>
+              <div class="us-story-line"><strong>So that</strong> client-owned artwork is organized by account and access is controlled</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Sales Reps can only see assets assigned to their own clients, plus G54-owned stock</span></li>
+              <li><span>"Client-owned (restricted)" assets are not visible to users outside the client's sales rep and Art Department</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="art-website">
+      <div class="section-eyebrow">Art Group</div>
+      <h2 class="section-title">Website</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-discovery">⚠ Discovery Needed</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
+      </div>
+      <div class="section-body">
+        <p>This section covers website management capabilities — likely g54.com content management. Full requirements pending discovery with Cody and Leslie.</p>
+        <div class="discovery-box">
+          <div class="discovery-box-title">⚠ Open Questions — Cody de Jong &amp; Leslie Weiler</div>
+          <ul>
+            <li>Is this g54.com's own marketing website, or a website builder for client sites?</li>
+            <li>What CMS or platform is the current g54.com built on?</li>
+            <li>What content needs to be manageable from within MakeReady? (Portfolio, blog, pricing, team?)</li>
+            <li>Who updates the website today — Art, Marketing, or IT?</li>
+            <li>Does the website connect to the Content Library for portfolio images?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="group-divider"></div>
+
+    <!-- ══════════════════════════════════════ TECHNICAL -->
+    <div class="group-header" id="technical-group">
+      <div class="group-eyebrow">Technical Specifications</div>
+      <div class="group-title">Architecture &amp; Integrations</div>
+      <div class="group-desc">For development team reference. Final stack decisions to be confirmed with the dev firm.</div>
+    </div>
+
+    <section class="req-section" id="architecture">
+      <div class="section-eyebrow">Technical</div>
+      <h2 class="section-title">System Architecture</h2>
+      <div class="section-meta"><span class="badge-status badge-progress">● In Progress</span></div>
+      <div class="section-body">
+        <table class="req-table">
+          <thead><tr><th>Requirement</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr><td>Application type</td><td>Web application — browser-based, no native app required for MVP</td></tr>
+            <tr><td>Responsive design</td><td>Must work on tablet (768px min) for field sales use</td></tr>
+            <tr><td>Data residency</td><td>US-based cloud hosting only</td></tr>
+            <tr><td>Database</td><td>PostgreSQL — relational; required for financial data integrity</td></tr>
+            <tr><td>File storage</td><td>Cloud object storage (AWS S3 or Azure Blob) — 500 MB max per file</td></tr>
+            <tr><td>AI service</td><td>Anthropic Claude API — Content Library NLP search &amp; auto-tagging</td></tr>
+            <tr><td>Vector search</td><td>pgvector (Postgres extension) or Pinecone — for NLP similarity</td></tr>
+            <tr><td>Financial integrity</td><td>Posted transactions are immutable — corrections via reversal entries only</td></tr>
+            <tr><td>Audit logging</td><td>Every write operation logged: user, timestamp, before/after values — cannot be disabled</td></tr>
+            <tr><td>Architecture pattern</td><td>Monolith recommended for initial build — modules are tightly interdependent</td></tr>
+          </tbody>
+        </table>
+        <div class="discovery-box">
+          <div class="discovery-box-title">⚠ Decisions Pending Dev Firm Input</div>
+          <ul>
+            <li>Frontend framework (Next.js / Remix recommended)</li>
+            <li>Backend framework and language</li>
+            <li>Auth provider (Clerk, Auth0, or custom JWT)</li>
+            <li>Email service (Resend, SendGrid, or AWS SES)</li>
+            <li>PDF generation library</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="req-section" id="data-model">
+      <div class="section-eyebrow">Technical</div>
+      <h2 class="section-title">Data Model — Key Entities</h2>
+      <div class="section-meta"><span class="badge-status badge-progress">● In Progress</span></div>
+      <div class="section-body">
+        <table class="req-table">
+          <thead><tr><th>Entity</th><th>Key Fields</th><th>Relates To</th></tr></thead>
+          <tbody>
+            <tr><td><code>business_partner</code></td><td>bp_number, company_name, account_group, credit_limit, payment_terms</td><td>contacts, quotes, sales_orders, content_assets</td></tr>
+            <tr><td><code>sales_order</code></td><td>so_number (SO- / WEB-), source, status, total, web_store_order_ref</td><td>business_partner, so_line_items, job, delivery</td></tr>
+            <tr><td><code>job</code></td><td>job_number (JOB-), status, assigned_to, due_date</td><td>sales_order, job_artwork → content_asset</td></tr>
+            <tr><td><code>ar_invoice</code></td><td>invoice_number (INV-), status, total, balance, due_date</td><td>delivery, incoming_payments</td></tr>
+            <tr><td><code>content_asset</code></td><td>filename, storage_key, file_type, ai_description, ai_embedding, usage_rights</td><td>asset_tags, collections, jobs, business_partner</td></tr>
+            <tr><td><code>item</code></td><td>item_code, item_name, unit_of_measure, on_hand_qty, committed_qty, web_store_published</td><td>so_line_items, quote_line_items</td></tr>
+            <tr><td><code>audit_log</code></td><td>user_id, action, module, record_type, record_id, old_value, new_value, timestamp</td><td>user (immutable)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="req-section" id="integrations">
+      <div class="section-eyebrow">Technical</div>
+      <h2 class="section-title">Integrations &amp; SAP B1 Migration</h2>
+      <div class="section-meta"><span class="badge-status badge-progress">● In Progress</span></div>
+      <div class="section-body">
+        <div class="info-box"><p><strong>No middleware.</strong> All integrations are direct API-to-API. Vision33 Saltbox has been removed from the architecture entirely.</p></div>
+        <h3>SAP Business One Migration</h3>
+        <table class="req-table">
+          <thead><tr><th>Data Category</th><th>What Migrates</th><th>Validation Owner</th></tr></thead>
+          <tbody>
+            <tr><td>Master Data</td><td>Business Partners, Contacts, Chart of Accounts, Item Master, Vendors, Cost Centers, Fixed Asset Register</td><td>Kim Lund</td></tr>
+            <tr><td>Open Transactions</td><td>Open SOs, open AR Invoices, open AP Invoices, open Deliveries</td><td>Britney &amp; Leslie</td></tr>
+            <tr><td>Financial Opening Balances</td><td>Trial balance as of migration date posted as opening journal entry</td><td>Britney de Jong</td></tr>
+            <tr><td>Historical (closed)</td><td>Cutoff date TBD with Finance team</td><td>Kim Lund</td></tr>
+          </tbody>
+        </table>
+        <p>Migration approach: Extract from SAP B1 → Transform via migration scripts → Load into MakeReady → Finance validates record counts and balances → Cutover to MakeReady → Parallel run period → SAP B1 decommissioned.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // ── Sidebar toggle ──────────────────────────────────────────
+  function toggleGroup(el) {
+    el.parentElement.classList.toggle('open');
+  }
+
+  // ── Scrollspy ───────────────────────────────────────────────
+  const sections = document.querySelectorAll('.req-section, .group-header');
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        sidebarLinks.forEach(l => {
+          l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => obs.observe(s));
+
+  // ── Search ──────────────────────────────────────────────────
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+
+  // Build index from headings + us-card titles + ac-list items
+  const index = [];
+  document.querySelectorAll('.req-section').forEach(sec => {
+    const id = sec.id;
+    const title = sec.querySelector('h2, h1')?.textContent || id;
+    // Section-level entry
+    index.push({ id, title, ctx: sec.querySelector('.section-eyebrow')?.textContent || '', text: title.toLowerCase() });
+    // User story entries
+    sec.querySelectorAll('.us-card').forEach(card => {
+      const storyId = card.querySelector('.us-card-id')?.textContent || '';
+      const storyTitle = card.querySelector('.us-card-title')?.textContent || '';
+      index.push({ id, title: storyId + ' — ' + storyTitle, ctx: title, text: (storyId + ' ' + storyTitle).toLowerCase() });
+    });
+  });
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) { searchResults.classList.remove('open'); searchResults.innerHTML = ''; return; }
+    const hits = index.filter(item => item.text.includes(q)).slice(0, 12);
+    if (!hits.length) {
+      searchResults.innerHTML = '<div class="search-result-item"><div class="search-result-title">No results</div></div>';
+    } else {
+      searchResults.innerHTML = hits.map(h => `
+        <div class="search-result-item" onclick="goto('${h.id}')">
+          <div class="search-result-title">${h.title.replace(new RegExp('(' + q + ')', 'gi'), '<mark class="search-result-mark">$1</mark>')}</div>
+          ${h.ctx ? `<div class="search-result-ctx">${h.ctx}</div>` : ''}
+        </div>`).join('');
+    }
+    searchResults.classList.add('open');
+  });
+
+  function goto(id) {
+    searchResults.classList.remove('open');
+    searchInput.value = '';
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.addEventListener('click', e => {
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.classList.remove('open');
+    }
+  });
+
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { searchResults.classList.remove('open'); searchInput.value = ''; }
+  });
+</script>
+</body>
+</html>

@@ -98,6 +98,14 @@
     }
     .logo-upload-area:hover { background: #f8fafc; border-color: #3b82f6; }
   </style>
+  <style>
+    .topbar-portal-link {
+      font-size: 12px; font-weight: 600; color: #6366f1; text-decoration: none;
+      padding: 5px 10px; border: 1px solid #c4b5fd; border-radius: 6px;
+      background: #ede9fe; margin-right: 4px; white-space: nowrap;
+    }
+    .topbar-portal-link:hover { background: #ddd6fe; }
+  </style>
 </head>
 <body class="app-layout">
 
@@ -150,7 +158,8 @@
   <header class="topbar">
     <div class="topbar-left"><span class="breadcrumb">System / <b>Administration</b></span></div>
     <div class="topbar-right">
-      <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+      <a href="requirements-portal.html" class="topbar-portal-link" title="Requirements Portal">📋 Requirements</a>
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
       <div class="topbar-icon">❓</div>
       <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
     </div>

@@ -24,6 +24,14 @@
     .radio-opt input { width: 16px; height: 16px; accent-color: #2563eb; }
     .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
   </style>
+  <style>
+    .topbar-portal-link {
+      font-size: 12px; font-weight: 600; color: #6366f1; text-decoration: none;
+      padding: 5px 10px; border: 1px solid #c4b5fd; border-radius: 6px;
+      background: #ede9fe; margin-right: 4px; white-space: nowrap;
+    }
+    .topbar-portal-link:hover { background: #ddd6fe; }
+  </style>
 </head>
 <body>
 <div class="app">
@@ -84,6 +92,7 @@
         <span class="breadcrumb">Operations / <b>Quality Management</b></span>
       </div>
       <div class="topbar-right">
+        <a href="requirements-portal.html" class="topbar-portal-link" title="Requirements Portal">📋 Requirements</a>
         <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
         <div class="topbar-icon">❓</div>
         <div class="user-chip">

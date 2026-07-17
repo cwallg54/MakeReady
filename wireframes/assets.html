@@ -31,6 +31,14 @@
     .form-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 16px 0 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
     .tfoot-total td { font-weight: 700; background: #f8fafc; border-top: 2px solid #e2e8f0; }
   </style>
+  <style>
+    .topbar-portal-link {
+      font-size: 12px; font-weight: 600; color: #6366f1; text-decoration: none;
+      padding: 5px 10px; border: 1px solid #c4b5fd; border-radius: 6px;
+      background: #ede9fe; margin-right: 4px; white-space: nowrap;
+    }
+    .topbar-portal-link:hover { background: #ddd6fe; }
+  </style>
 </head>
 <body class="app-layout">
 
@@ -83,7 +91,8 @@
   <header class="topbar">
     <div class="topbar-left"><span class="breadcrumb">Finance / <b>Asset Accounting</b></span></div>
     <div class="topbar-right">
-      <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+      <a href="requirements-portal.html" class="topbar-portal-link" title="Requirements Portal">📋 Requirements</a>
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
       <div class="topbar-icon">❓</div>
       <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
     </div>
