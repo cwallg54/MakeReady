@@ -354,6 +354,87 @@
     /* Import button in header */
     .btn-import { padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--primary-light); color: var(--primary); border: 1px solid #c4b5fd; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: background .15s; }
     .btn-import:hover { background: #ddd6fe; }
+
+    /* ── REQUIREMENTS MANAGER ─────────────────────────────────── */
+
+    /* Manage button */
+    .btn-manage { padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; color: var(--gray-700); border: 1px solid var(--gray-200); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all .15s; }
+    .btn-manage:hover { background: var(--gray-50); }
+    .btn-manage.active { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+
+    /* Story controls bar (bottom of each us-card, shown in edit mode) */
+    .story-controls { display: none; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--gray-200); background: var(--gray-50); align-items: center; }
+    body.edit-mode .story-controls { display: flex; }
+    .sc-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-700); transition: all .15s; white-space: nowrap; }
+    .sc-btn:hover { background: var(--gray-100); }
+    .sc-edit:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+    .sc-lock:hover { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+    .sc-delete:hover { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .sc-btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
+    /* Add requirement button per section */
+    .add-req-btn { display: none; width: 100%; margin-top: 12px; padding: 11px; border: 2px dashed var(--gray-200); border-radius: 10px; background: #fff; color: var(--gray-400); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center; }
+    body.edit-mode .add-req-btn { display: block; }
+    .add-req-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    /* Locked card */
+    .us-card.req-locked { border: 2px solid #34d399 !important; }
+    .us-card.req-locked .us-card-header { background: var(--success-bg) !important; }
+    .signoff-banner { padding: 9px 20px; background: var(--success-bg); border-top: 1px solid #a7f3d0; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #065f46; }
+    .signoff-banner strong { color: #047857; }
+
+    /* Edited indicator */
+    .us-card.req-edited .us-card-id::after { content: ' ✏'; font-size: 10px; opacity: .6; }
+
+    /* Manually added card */
+    .us-card.req-added { border: 2px dashed var(--primary); }
+    .us-card.req-added .us-card-header { background: var(--primary-light) !important; }
+    .req-added-badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: var(--primary-light); color: var(--primary); border: 1px solid #c4b5fd; }
+
+    /* Edit mode status bar */
+    .edit-mode-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 400; background: #fef3c7; border-top: 2px solid #fde68a; padding: 10px 24px; align-items: center; justify-content: space-between; font-size: 13px; color: #92400e; font-weight: 600; box-shadow: 0 -4px 16px rgba(0,0,0,.08); }
+    body.edit-mode .edit-mode-bar { display: flex; }
+    body.edit-mode .portal-content { padding-bottom: 80px; }
+    .edit-mode-bar-info { display: flex; align-items: center; gap: 10px; }
+    .edit-mode-pill { font-size: 11px; font-weight: 700; background: #fde68a; color: #92400e; padding: 2px 8px; border-radius: 8px; }
+    .edit-mode-bar button { padding: 6px 14px; border: 1px solid #fbbf24; border-radius: 8px; background: #fff; color: #92400e; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .edit-mode-bar button:hover { background: #fffbeb; }
+
+    /* ── REQUIREMENT EDITOR MODAL ─────────────────────────────── */
+    .req-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1500; align-items: center; justify-content: center; padding: 20px; }
+    .req-modal-overlay.open { display: flex; }
+    .req-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+    .req-modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0; }
+    .req-modal-title { font-size: 18px; font-weight: 800; color: var(--gray-900); }
+    .req-modal-sub { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+    .req-modal-close { width: 32px; height: 32px; border: 1px solid var(--gray-200); border-radius: 8px; background: #fff; color: var(--gray-500); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .req-modal-close:hover { background: var(--gray-100); color: var(--gray-900); }
+    .req-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .req-modal-footer { padding: 14px 24px; border-top: 1px solid var(--gray-200); display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+    .mf-label { font-size: 12px; font-weight: 700; color: var(--gray-700); margin-bottom: 5px; }
+    .mf-hint { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+    .mf-input, .mf-select, .mf-textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 14px; color: var(--gray-900); font-family: inherit; outline: none; background: var(--gray-50); transition: border-color .15s, box-shadow .15s; }
+    .mf-input:focus, .mf-select:focus, .mf-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,.1); background: #fff; }
+    .mf-textarea { resize: vertical; }
+    .mf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .btn-modal-cancel { padding: 9px 18px; border: 1px solid var(--gray-200); border-radius: 8px; background: #fff; color: var(--gray-700); font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-modal-cancel:hover { background: var(--gray-50); }
+    .btn-modal-save { padding: 9px 20px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-modal-save:hover { background: var(--primary-dark); }
+
+    /* Lock confirmation modal */
+    .lock-modal-inner { background: #fff; border-radius: 16px; width: 100%; max-width: 440px; display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.3); overflow: hidden; }
+    .lock-modal-body { padding: 32px 28px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+    .lock-icon-lg { font-size: 44px; line-height: 1; }
+    .lock-modal-title { font-size: 18px; font-weight: 800; color: var(--gray-900); }
+    .lock-modal-desc { font-size: 13px; color: var(--gray-500); line-height: 1.7; max-width: 340px; }
+    .lock-name-field { width: 100%; margin-top: 4px; }
+    .lock-name-field input { width: 100%; padding: 10px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 14px; font-family: inherit; outline: none; text-align: center; transition: border-color .15s, box-shadow .15s; }
+    .lock-name-field input:focus { border-color: var(--success); box-shadow: 0 0 0 3px rgba(5,150,105,.12); }
+    .lock-modal-footer { padding: 4px 28px 24px; display: flex; gap: 8px; }
+    .lock-modal-footer button { flex: 1; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-700); transition: background .15s; }
+    .lock-modal-footer .btn-lock-confirm { background: var(--success); color: #fff; border-color: transparent; }
+    .lock-modal-footer .btn-lock-confirm:hover { background: #047857; }
   </style>
 </head>
 <body>
@@ -376,6 +457,7 @@
   <div class="header-actions">
     <span class="last-updated">Last updated July 17, 2026</span>
     <a class="btn-portal btn-outline" href="index.html" target="_blank">View Wireframes ↗</a>
+    <button class="btn-manage" id="editModeBtn" onclick="toggleEditMode()">✏ Manage</button>
     <button class="btn-import" onclick="openDrawer()">📤 Import Transcript</button>
     <a class="btn-portal btn-primary-sm" href="#stakeholders">Stakeholders</a>
   </div>
@@ -1230,6 +1312,121 @@
   </main>
 </div>
 
+<!-- ── EDIT MODE BAR ────────────────────────────────────────────── -->
+<div class="edit-mode-bar" id="editModeBar">
+  <div class="edit-mode-bar-info">
+    <span class="edit-mode-pill">EDIT MODE</span>
+    Use the Edit and Sign Off buttons on each requirement card. Click &ldquo;+ Add Requirement&rdquo; inside any section to create a new story.
+  </div>
+  <button onclick="toggleEditMode()">Exit Edit Mode</button>
+</div>
+
+<!-- ── REQUIREMENT EDITOR MODAL ────────────────────────────────── -->
+<div class="req-modal-overlay" id="reqModal" onclick="onReqModalOverlayClick(event)">
+  <div class="req-modal">
+    <div class="req-modal-header">
+      <div>
+        <div class="req-modal-title" id="reqModalTitle">Add Requirement</div>
+        <div class="req-modal-sub" id="reqModalSub">Type a new user story</div>
+      </div>
+      <button class="req-modal-close" onclick="closeReqModal()">✕</button>
+    </div>
+    <div class="req-modal-body">
+      <div>
+        <div class="mf-label">Section</div>
+        <select id="mfSection" class="mf-select">
+          <optgroup label="Sales Group">
+            <option value="sales-req">Sales</option>
+            <option value="crm-req">CRM</option>
+            <option value="web-store-req">Web Store / eCommerce</option>
+            <option value="digital-catalogs">Digital Catalogs</option>
+          </optgroup>
+          <optgroup label="Finance Group">
+            <option value="accounting-req">Accounting &amp; AP</option>
+            <option value="ar-req">Accounts Receivable</option>
+            <option value="reports-req">Reports</option>
+          </optgroup>
+          <optgroup label="Operations Group">
+            <option value="production-req">Jobs &amp; Production</option>
+            <option value="inventory-req">Inventory</option>
+            <option value="process-req">Process &amp; Workflows</option>
+          </optgroup>
+          <optgroup label="Art Group">
+            <option value="art-requests">Art Requests &amp; Schedule</option>
+            <option value="content-library-req">Content Library</option>
+            <option value="art-website">Website</option>
+          </optgroup>
+          <optgroup label="Platform">
+            <option value="overview">Overview</option>
+            <option value="architecture">Architecture</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="mf-row">
+        <div>
+          <div class="mf-label">Story ID</div>
+          <input type="text" id="mfId" class="mf-input" placeholder="e.g. US-CRM-06" />
+        </div>
+        <div>
+          <div class="mf-label">Priority</div>
+          <select id="mfPriority" class="mf-select">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="mf-label">Title *</div>
+        <input type="text" id="mfTitle" class="mf-input" placeholder="Short descriptive title" />
+      </div>
+      <div>
+        <div class="mf-label">As a&hellip; (role)</div>
+        <input type="text" id="mfRole" class="mf-input" placeholder="e.g. Sales Rep, Finance Manager" />
+      </div>
+      <div>
+        <div class="mf-label">I want to&hellip;</div>
+        <input type="text" id="mfWant" class="mf-input" placeholder="Start with a verb — view, create, export…" />
+      </div>
+      <div>
+        <div class="mf-label">So that&hellip;</div>
+        <input type="text" id="mfSoThat" class="mf-input" placeholder="The business outcome or benefit" />
+      </div>
+      <div>
+        <div class="mf-label">Acceptance Criteria</div>
+        <textarea id="mfAC" class="mf-textarea" rows="5" placeholder="One criterion per line&#10;Given [context] when [action] then [result]"></textarea>
+        <div class="mf-hint">One criterion per line. Will render as a checklist on the card.</div>
+      </div>
+      <div>
+        <div class="mf-label">Internal Notes (optional)</div>
+        <textarea id="mfNotes" class="mf-textarea" rows="2" placeholder="Discovery notes, open questions, caveats…"></textarea>
+      </div>
+    </div>
+    <div class="req-modal-footer">
+      <button class="btn-modal-cancel" onclick="closeReqModal()">Cancel</button>
+      <button class="btn-modal-save" onclick="saveReqForm()">Save Requirement</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOCK CONFIRMATION MODAL ──────────────────────────────────── -->
+<div class="req-modal-overlay" id="lockModal" onclick="onLockModalOverlayClick(event)">
+  <div class="lock-modal-inner">
+    <div class="lock-modal-body">
+      <div class="lock-icon-lg">🔒</div>
+      <div class="lock-modal-title">Sign Off on This Requirement?</div>
+      <div class="lock-modal-desc">Once signed off, this requirement is marked <strong>Approved for Development</strong> and editing is disabled. Enter your name to confirm.</div>
+      <div class="lock-name-field">
+        <input type="text" id="lockNameInput" placeholder="Your name" onkeydown="if(event.key==='Enter')confirmLock()" />
+      </div>
+    </div>
+    <div class="lock-modal-footer">
+      <button onclick="closeLockModal()">Cancel</button>
+      <button class="btn-lock-confirm" onclick="confirmLock()">✓ &nbsp;Sign Off &amp; Lock</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── DRAWER OVERLAY ──────────────────────────────────────────── -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 
@@ -1432,7 +1629,13 @@
     document.getElementById('drawerOverlay').classList.remove('open');
     document.body.style.overflow = '';
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('lockModal').classList.contains('open')) { closeLockModal(); }
+      else if (document.getElementById('reqModal').classList.contains('open')) { closeReqModal(); }
+      else { closeDrawer(); }
+    }
+  });
 
   // ── Form / results state switches ──────────────────────────
   function showIntakeForm() {
@@ -1675,6 +1878,385 @@
     if (!str) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  // ── REQUIREMENTS MANAGER ─────────────────────────────────────
+
+  const REQ_STORE = 'makeready_reqs_v1';
+  let _editKey = null;      // null = new | 'section:idx' = existing | 'addition:uuid' = added
+  let _editSection = '';    // section pre-fill for new stories
+  let _lockKey = null;
+
+  function reqGet() {
+    try { return JSON.parse(localStorage.getItem(REQ_STORE)) || { overrides: {}, additions: [] }; }
+    catch(e) { return { overrides: {}, additions: [] }; }
+  }
+  function reqSave(data) { localStorage.setItem(REQ_STORE, JSON.stringify(data)); }
+
+  function findCard(key) {
+    return [...document.querySelectorAll('.us-card[data-story-key]')].find(c => c.dataset.storyKey === key) || null;
+  }
+
+  // ── Init ─────────────────────────────────────────────────────
+  function initReqManager() {
+    document.querySelectorAll('.req-section').forEach(section => {
+      const sid = section.id;
+      section.querySelectorAll('.us-card').forEach((card, i) => {
+        const key = sid + ':' + i;
+        card.dataset.storyKey = key;
+        card.dataset.sectionId = sid;
+        injectStoryControls(card, key, false);
+      });
+      const body = section.querySelector('.section-body');
+      if (body) {
+        const btn = document.createElement('button');
+        btn.className = 'add-req-btn';
+        btn.textContent = '+ Add Requirement to this Section';
+        btn.addEventListener('click', () => openReqModal(null, sid));
+        body.appendChild(btn);
+      }
+    });
+    applyPersistedState();
+    renderAdditions();
+  }
+
+  function injectStoryControls(card, key, isAddition) {
+    if (card.querySelector('.story-controls')) return;
+    const ctrl = document.createElement('div');
+    ctrl.className = 'story-controls';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'sc-btn sc-edit';
+    editBtn.setAttribute('data-key', key);
+    editBtn.textContent = '✏ Edit';
+    editBtn.addEventListener('click', () => openReqModal(key, card.dataset.sectionId || ''));
+    ctrl.appendChild(editBtn);
+
+    const lockBtn = document.createElement('button');
+    lockBtn.className = 'sc-btn sc-lock';
+    lockBtn.setAttribute('data-key', key);
+    lockBtn.textContent = '🔒 Sign Off';
+    lockBtn.addEventListener('click', () => openLockModal(key));
+    ctrl.appendChild(lockBtn);
+
+    if (isAddition) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'sc-btn sc-delete';
+      delBtn.textContent = '🗑 Delete';
+      delBtn.addEventListener('click', () => deleteAddition(key));
+      ctrl.appendChild(delBtn);
+    }
+
+    card.appendChild(ctrl);
+  }
+
+  // ── Edit mode toggle ──────────────────────────────────────────
+  function toggleEditMode() {
+    const on = document.body.classList.toggle('edit-mode');
+    const btn = document.getElementById('editModeBtn');
+    if (btn) { btn.textContent = on ? '✕ Exit Manage' : '✏ Manage'; btn.classList.toggle('active', on); }
+  }
+
+  // ── Apply persisted state on load ─────────────────────────────
+  function applyPersistedState() {
+    const store = reqGet();
+    document.querySelectorAll('.us-card[data-story-key]').forEach(card => {
+      const key = card.dataset.storyKey;
+      const ov = store.overrides && store.overrides[key];
+      if (!ov) return;
+      if (ov.editedContent) renderCardContent(card, ov.editedContent);
+      if (ov.locked) applyLockVisual(card, ov.lockedBy, ov.lockedAt);
+    });
+  }
+
+  function renderAdditions() {
+    const store = reqGet();
+    (store.additions || []).forEach(item => appendAddedCard(item));
+  }
+
+  // ── Requirement editor modal ──────────────────────────────────
+  function openReqModal(key, sectionId) {
+    _editKey = key;
+    _editSection = sectionId || '';
+    const isNew = key === null;
+    document.getElementById('reqModalTitle').textContent = isNew ? 'Add Requirement' : 'Edit Requirement';
+    document.getElementById('reqModalSub').textContent  = isNew ? 'Type a new user story manually' : 'Modify this user story — changes saved to portal';
+
+    if (!isNew) {
+      const store = reqGet();
+      let data;
+      if (typeof key === 'string' && key.startsWith('addition:')) {
+        const uuid = key.slice(9);
+        const item = (store.additions || []).find(a => a.uuid === uuid) || {};
+        data = item;
+        sectionId = item.section || sectionId;
+      } else {
+        data = (store.overrides[key] && store.overrides[key].editedContent)
+             || parseCardDOM(findCard(key));
+      }
+      populateReqForm(data, sectionId);
+    } else {
+      clearReqForm();
+      const sel = document.getElementById('mfSection');
+      if (sectionId) sel.value = sectionId;
+    }
+
+    document.getElementById('reqModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('mfTitle').focus(), 80);
+  }
+
+  function closeReqModal() {
+    document.getElementById('reqModal').classList.remove('open');
+    document.body.style.overflow = '';
+    _editKey = null;
+  }
+
+  function onReqModalOverlayClick(e) {
+    if (e.target === document.getElementById('reqModal')) closeReqModal();
+  }
+
+  // ── Lock modal ────────────────────────────────────────────────
+  function openLockModal(key) {
+    _lockKey = key;
+    document.getElementById('lockNameInput').value = '';
+    document.getElementById('lockNameInput').style.borderColor = '';
+    document.getElementById('lockModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('lockNameInput').focus(), 80);
+  }
+
+  function closeLockModal() {
+    document.getElementById('lockModal').classList.remove('open');
+    document.body.style.overflow = '';
+    _lockKey = null;
+  }
+
+  function onLockModalOverlayClick(e) {
+    if (e.target === document.getElementById('lockModal')) closeLockModal();
+  }
+
+  function confirmLock() {
+    const name = document.getElementById('lockNameInput').value.trim();
+    if (!name) {
+      const inp = document.getElementById('lockNameInput');
+      inp.focus(); inp.style.borderColor = '#ef4444';
+      setTimeout(() => inp.style.borderColor = '', 1500);
+      return;
+    }
+    const store = reqGet();
+    const key = _lockKey;
+    if (!store.overrides) store.overrides = {};
+    if (!store.overrides[key]) store.overrides[key] = {};
+    const now = new Date().toISOString();
+    store.overrides[key].locked   = true;
+    store.overrides[key].lockedBy = name;
+    store.overrides[key].lockedAt = now;
+    reqSave(store);
+    const card = findCard(key);
+    if (card) applyLockVisual(card, name, now);
+    closeLockModal();
+  }
+
+  function applyLockVisual(card, lockedBy, lockedAt) {
+    card.classList.add('req-locked');
+    const editBtn = card.querySelector('.sc-edit');
+    if (editBtn) editBtn.disabled = true;
+    const lockBtn = card.querySelector('.sc-lock');
+    if (lockBtn) { lockBtn.disabled = true; lockBtn.textContent = '🔒 Signed Off'; }
+    card.querySelector('.signoff-banner')?.remove();
+    const banner = document.createElement('div');
+    banner.className = 'signoff-banner';
+    const dateStr = lockedAt
+      ? new Date(lockedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : '';
+    banner.innerHTML = '<span>🔒</span> <strong>Approved for Development</strong>&nbsp;&nbsp;·&nbsp;&nbsp;Signed off by <strong>'
+      + esc(lockedBy) + '</strong>' + (dateStr ? '&nbsp;&nbsp;·&nbsp;&nbsp;' + dateStr : '');
+    card.appendChild(banner);
+  }
+
+  // ── Form helpers ──────────────────────────────────────────────
+  function parseCardDOM(card) {
+    if (!card) return {};
+    const getText = el => el ? el.textContent.trim() : '';
+    const lines   = [...card.querySelectorAll('.us-story-line')];
+    return {
+      id:    getText(card.querySelector('.us-card-id')),
+      title: getText(card.querySelector('.us-card-title')),
+      role:    getText(lines[0]).replace(/^As an?\s+/i, ''),
+      want:    getText(lines[1]).replace(/^I want to\s+/i, ''),
+      so_that: getText(lines[2]).replace(/^So that\s+/i, ''),
+      acceptanceCriteria: [...card.querySelectorAll('.ac-list li')]
+        .map(li => getText(li.querySelector('span') || li)).filter(Boolean),
+      priority: 'medium',
+      notes: '',
+    };
+  }
+
+  function populateReqForm(data, sectionId) {
+    document.getElementById('mfId').value      = data.id || '';
+    document.getElementById('mfTitle').value   = data.title || '';
+    document.getElementById('mfRole').value    = data.role || '';
+    document.getElementById('mfWant').value    = data.want || '';
+    document.getElementById('mfSoThat').value  = data.so_that || '';
+    document.getElementById('mfAC').value      = (data.acceptanceCriteria || []).join('\n');
+    document.getElementById('mfPriority').value = data.priority || 'medium';
+    document.getElementById('mfNotes').value   = data.notes || '';
+    const sel = document.getElementById('mfSection');
+    sel.value = sectionId || data.section || '';
+  }
+
+  function clearReqForm() {
+    ['mfId','mfTitle','mfRole','mfWant','mfSoThat','mfAC','mfNotes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('mfPriority').value = 'medium';
+  }
+
+  function readReqForm() {
+    return {
+      id:      document.getElementById('mfId').value.trim(),
+      title:   document.getElementById('mfTitle').value.trim(),
+      role:    document.getElementById('mfRole').value.trim(),
+      want:    document.getElementById('mfWant').value.trim(),
+      so_that: document.getElementById('mfSoThat').value.trim(),
+      acceptanceCriteria: document.getElementById('mfAC').value.split('\n').map(s=>s.trim()).filter(Boolean),
+      priority: document.getElementById('mfPriority').value,
+      notes:   document.getElementById('mfNotes').value.trim(),
+      section: document.getElementById('mfSection').value,
+    };
+  }
+
+  function saveReqForm() {
+    const data = readReqForm();
+    if (!data.title) {
+      const inp = document.getElementById('mfTitle');
+      inp.focus(); inp.style.borderColor = '#ef4444';
+      setTimeout(() => inp.style.borderColor = '', 1500);
+      return;
+    }
+
+    const store = reqGet();
+
+    if (_editKey === null) {
+      // ── New addition ─────────────────────────────────
+      const uuid = 'req' + Date.now() + Math.random().toString(36).slice(2, 7);
+      const item = Object.assign({}, data, { uuid, createdAt: new Date().toISOString() });
+      if (!store.additions) store.additions = [];
+      store.additions.push(item);
+      reqSave(store);
+      appendAddedCard(item);
+
+    } else if (_editKey.startsWith('addition:')) {
+      // ── Edit an existing addition ─────────────────────
+      const uuid = _editKey.slice(9);
+      const idx = (store.additions || []).findIndex(a => a.uuid === uuid);
+      if (idx !== -1) {
+        store.additions[idx] = Object.assign({}, store.additions[idx], data);
+        reqSave(store);
+        const card = findCard(_editKey);
+        if (card) renderCardContent(card, store.additions[idx]);
+      }
+
+    } else {
+      // ── Edit an existing static card ──────────────────
+      if (!store.overrides) store.overrides = {};
+      if (!store.overrides[_editKey]) store.overrides[_editKey] = {};
+      store.overrides[_editKey].editedContent = data;
+      reqSave(store);
+      const card = findCard(_editKey);
+      if (card) renderCardContent(card, data);
+    }
+
+    closeReqModal();
+  }
+
+  // ── Render card content from data ────────────────────────────
+  function renderCardContent(card, data) {
+    const idEl = card.querySelector('.us-card-id');
+    if (idEl && data.id !== undefined) idEl.textContent = data.id;
+    const titleEl = card.querySelector('.us-card-title');
+    if (titleEl) titleEl.textContent = data.title || '';
+
+    const lines = card.querySelectorAll('.us-story-line');
+    if (lines[0] && data.role    !== undefined) lines[0].innerHTML = '<strong>As a</strong> '       + esc(data.role);
+    if (lines[1] && data.want    !== undefined) lines[1].innerHTML = '<strong>I want to</strong> '  + esc(data.want);
+    if (lines[2] && data.so_that !== undefined) lines[2].innerHTML = '<strong>So that</strong> '    + esc(data.so_that);
+
+    const acList = card.querySelector('.ac-list');
+    if (acList && data.acceptanceCriteria) {
+      acList.innerHTML = (data.acceptanceCriteria || []).map(a => '<li><span>' + esc(a) + '</span></li>').join('');
+    }
+
+    if (data.notes) {
+      const body = card.querySelector('.us-card-body');
+      let noteEl = body && body.querySelector('.req-note');
+      if (!noteEl && body) {
+        noteEl = document.createElement('div');
+        noteEl.className = 'req-note source-quote';
+        const ctrl = body.querySelector('.story-controls');
+        if (ctrl) body.insertBefore(noteEl, ctrl);
+        else body.appendChild(noteEl);
+      }
+      if (noteEl) noteEl.textContent = 'Note: ' + data.notes;
+    }
+
+    card.classList.add('req-edited');
+  }
+
+  // ── Append a manually added card ──────────────────────────────
+  function appendAddedCard(item) {
+    const targetSection = document.getElementById(item.section);
+    if (!targetSection) return;
+    const body = targetSection.querySelector('.section-body');
+    if (!body) return;
+
+    const key  = 'addition:' + item.uuid;
+    const acs  = (item.acceptanceCriteria || []).map(a => '<li><span>' + esc(a) + '</span></li>').join('');
+
+    const card = document.createElement('div');
+    card.className = 'us-card req-added';
+    card.dataset.storyKey  = key;
+    card.dataset.sectionId = item.section;
+    card.innerHTML =
+      '<div class="us-card-header">'
+      + '<div><div class="us-card-id">' + esc(item.id || 'US-NEW') + '</div>'
+      + '<div class="us-card-title">' + esc(item.title) + '</div></div>'
+      + '<span class="req-added-badge">+ Added</span></div>'
+      + '<div class="us-card-body">'
+      + '<div class="us-story" style="margin-bottom:14px;">'
+      + '<div class="us-story-line"><strong>As a</strong> ' + esc(item.role) + '</div>'
+      + '<div class="us-story-line"><strong>I want to</strong> ' + esc(item.want) + '</div>'
+      + '<div class="us-story-line"><strong>So that</strong> ' + esc(item.so_that) + '</div>'
+      + '</div>'
+      + (acs ? '<div class="ac-label">Acceptance Criteria</div><ul class="ac-list" style="margin-bottom:14px;">' + acs + '</ul>' : '')
+      + (item.notes ? '<div class="source-quote req-note">' + esc(item.notes) + '</div>' : '')
+      + '</div>';
+
+    injectStoryControls(card, key, true);
+
+    // Apply lock if already saved
+    const store = reqGet();
+    const ov = store.overrides && store.overrides[key];
+    if (ov && ov.locked) applyLockVisual(card, ov.lockedBy, ov.lockedAt);
+
+    const addBtn = body.querySelector('.add-req-btn');
+    if (addBtn) body.insertBefore(card, addBtn);
+    else body.appendChild(card);
+  }
+
+  // ── Delete an addition ────────────────────────────────────────
+  function deleteAddition(key) {
+    if (!confirm('Delete this requirement? This cannot be undone.')) return;
+    const uuid = key.slice(9);
+    const store = reqGet();
+    store.additions = (store.additions || []).filter(a => a.uuid !== uuid);
+    if (store.overrides) delete store.overrides[key];
+    reqSave(store);
+    findCard(key)?.remove();
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', initReqManager);
 </script>
 </body>
 </html>
