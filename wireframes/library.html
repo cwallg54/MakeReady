@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Makeready · Content Library</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── AI Search Bar ─────────────────────────────── */
+    .ai-search-wrap {
+      background: #fff;
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.08);
+    }
+    .ai-search-wrap input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: #1e293b;
+      background: transparent;
+    }
+    .ai-search-wrap input::placeholder { color: #94a3b8; }
+    .ai-pill {
+      background: #6366f1;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .ai-interpret-banner {
+      background: linear-gradient(135deg,#ede9fe,#e0f2fe);
+      border: 1px solid #c4b5fd;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .ai-interpret-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .ai-interpret-label { font-size: 11px; font-weight: 700; color: #6d28d9; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .ai-interpret-text { font-size: 13px; color: #1e293b; }
+    .ai-tag { display: inline-block; background: #ddd6fe; color: #5b21b6; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin: 2px 3px 0 0; }
+
+    /* ── Asset Grid ────────────────────────────────── */
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .asset-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .asset-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-2px); }
+    .asset-thumb {
+      width: 100%;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .asset-thumb-label {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .asset-info { padding: 10px 12px 12px; }
+    .asset-name { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .asset-meta { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+    .asset-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .asset-tag { font-size: 10px; background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 8px; }
+    .asset-tag.auto { background: #ede9fe; color: #6d28d9; }
+    .asset-actions { display: flex; gap: 6px; }
+    .match-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+    .match-high { background: #dcfce7; color: #15803d; }
+    .match-med  { background: #fef9c3; color: #92400e; }
+    .match-low  { background: #f1f5f9; color: #64748b; }
+
+    /* ── Collection Cards ──────────────────────────── */
+    .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .collection-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
+    .collection-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .collection-icon { font-size: 28px; }
+    .collection-name { font-size: 14px; font-weight: 600; color: #0f172a; }
+    .collection-count { font-size: 12px; color: #64748b; }
+
+    /* ── Upload Zone ───────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed #c4b5fd;
+      border-radius: 12px;
+      background: #faf5ff;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .upload-zone:hover { background: #ede9fe; }
+    .upload-zone-icon { font-size: 40px; margin-bottom: 12px; }
+    .upload-zone-text { font-size: 15px; font-weight: 600; color: #4c1d95; margin-bottom: 4px; }
+    .upload-zone-sub { font-size: 13px; color: #64748b; }
+    .upload-queue { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .upload-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+    .upload-item-thumb { width: 44px; height: 44px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .upload-progress { flex: 1; }
+    .upload-filename { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
+    .upload-status { font-size: 11px; color: #6d28d9; }
+    .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #6366f1; border-radius: 2px; }
+
+    /* ── Filter Sidebar ────────────────────────────── */
+    .library-layout { display: flex; gap: 20px; }
+    .filter-sidebar { width: 200px; flex-shrink: 0; }
+    .filter-section { margin-bottom: 18px; }
+    .filter-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .filter-option { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; font-size: 13px; color: #374151; cursor: pointer; }
+    .filter-option:hover { color: #6366f1; }
+    .filter-count { font-size: 11px; color: #94a3b8; background: #f1f5f9; padding: 1px 6px; border-radius: 8px; }
+    .filter-option.active { color: #6366f1; font-weight: 600; }
+    .filter-option.active .filter-count { background: #ede9fe; color: #6d28d9; }
+    .library-main { flex: 1; min-width: 0; }
+    .results-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .results-count { font-size: 13px; color: #64748b; }
+    .view-toggles { display: flex; gap: 6px; }
+    .view-btn { padding: 4px 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; font-size: 12px; cursor: pointer; color: #64748b; }
+    .view-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+  </style>
+</head>
+<body class="app-layout">
+
+  <!-- ─── SIDEBAR ──────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="logo">Makeready</div><div class="client">Great Mountain West</div></div>
+    <div class="sidebar-section">
+      <a href="index.html">⊞ Dashboard</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Customer</div>
+      <a href="crm.html">👥 CRM</a>
+      <a href="sales.html">🏷 Sales</a>
+      <a href="ecommerce.html">🛒 Web Store</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="accounting.html">📒 Accounting</a>
+      <a href="controlling.html">📊 Controlling</a>
+      <a href="assets.html">🏗 Asset Accounting</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a href="inventory.html">📦 Inventory &amp; MRP</a>
+      <a href="pos.html">🖥 Point of Sale</a>
+      <a href="jobs.html">🏭 Jobs &amp; Production</a>
+      <a href="quality.html">✅ Quality Management</a>
+      <a href="maintenance.html">🔧 Equipment Maintenance</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Creative</div>
+      <a href="library.html" class="active">🎨 Content Library</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Enterprise</div>
+      <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+      <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Intelligence</div>
+      <a href="reports.html">📈 Reports</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">System</div>
+      <a href="admin.html">⚙ Administration</a>
+    </div>
+    <div class="sidebar-footer">CW · Christopher Wall</div>
+  </aside>
+
+  <!-- ─── MAIN ──────────────────────────────────────────────────────── -->
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="breadcrumb">Creative / <b>Content Library</b></span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-icon">🔔<span class="notif-dot"></span></div>
+        <div class="topbar-icon">❓</div>
+        <div class="user-chip">
+          <div class="avatar">CW</div>
+          <span class="user-name">Christopher Wall</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="main-content">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Content Library</h1>
+          <p class="page-subtitle">Art &amp; graphics asset management — AI-powered visual search and auto-tagging</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary">⬇ Export Index</button>
+          <button class="btn btn-primary">⬆ Upload Assets</button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" data-tab="library">Library</button>
+        <button class="tab" data-tab="collections">Collections</button>
+        <button class="tab" data-tab="upload">Upload</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </div>
+
+      <!-- ═══ TAB: LIBRARY ═══════════════════════════════════════════ -->
+      <div class="tab-panel active" id="tab-library">
+
+        <!-- AI Search Bar -->
+        <div class="ai-search-wrap">
+          <span class="ai-pill">AI SEARCH</span>
+          <input type="text" value="find all graphics that feature a moose and look like they could fit into a national parks theme" />
+          <button class="btn btn-primary btn-sm">Search</button>
+          <button class="btn btn-secondary btn-sm">Clear</button>
+        </div>
+
+        <!-- AI Interpretation Banner -->
+        <div class="ai-interpret-banner">
+          <div class="ai-interpret-icon">🤖</div>
+          <div>
+            <div class="ai-interpret-label">AI Interpreted Your Search As</div>
+            <div class="ai-interpret-text" style="margin-bottom:8px;">
+              Searching across visual content, auto-tags, and descriptions for assets matching:
+            </div>
+            <span class="ai-tag">🦌 moose / elk / deer</span>
+            <span class="ai-tag">🌲 national parks aesthetic</span>
+            <span class="ai-tag">🏔 outdoor / wilderness</span>
+            <span class="ai-tag">rustic color palette</span>
+            <span class="ai-tag">park signage style</span>
+            <span class="ai-tag">tourism / travel</span>
+            <div style="margin-top:8px;font-size:12px;color:#6d28d9;">
+              <strong>8 assets found</strong> · Ranked by visual relevance · Search also checked: filenames, client tags, job history, and AI-generated descriptions
+            </div>
+          </div>
+        </div>
+
+        <div class="library-layout">
+
+          <!-- Filter Sidebar -->
+          <div class="filter-sidebar">
+            <div class="filter-section">
+              <div class="filter-title">File Type</div>
+              <div class="filter-option active">All Types <span class="filter-count">8</span></div>
+              <div class="filter-option">JPEG / PNG <span class="filter-count">4</span></div>
+              <div class="filter-option">SVG / EPS <span class="filter-count">2</span></div>
+              <div class="filter-option">AI / PSD <span class="filter-count">2</span></div>
+              <div class="filter-option">PDF <span class="filter-count">0</span></div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-title">Relevance</div>
+              <div class="filter-option">High match <span class="filter-count">3</span></div>
+              <div class="filter-option">Medium match <span class="filter-count">3</span></div>
+              <div class="filter-option">Low match <span class="filter-count">2</span></div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-title">Category</div>
+              <div class="filter-option">Photography <span class="filter-count">3</span></div>
+              <div class="filter-option">Illustration <span class="filter-count">3</span></div>
+              <div class="filter-option">Vector / Logo <span class="filter-count">1</span></div>
+              <div class="filter-option">Template <span class="filter-count">1</span></div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-title">Client</div>
+              <div class="filter-option">All Clients <span class="filter-count">8</span></div>
+              <div class="filter-option">Elk Ridge HOA <span class="filter-count">2</span></div>
+              <div class="filter-option">Apex Marketing <span class="filter-count">2</span></div>
+              <div class="filter-option">Stock / Internal <span class="filter-count">4</span></div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-title">Uploaded By</div>
+              <div class="filter-option">Tyson Johnson <span class="filter-count">5</span></div>
+              <div class="filter-option">Kim Lund <span class="filter-count">2</span></div>
+              <div class="filter-option">Cody de Jong <span class="filter-count">1</span></div>
+            </div>
+          </div>
+
+          <!-- Asset Grid -->
+          <div class="library-main">
+            <div class="results-meta">
+              <span class="results-count">8 results for AI search &mdash; sorted by relevance</span>
+              <div class="view-toggles">
+                <button class="view-btn active">Grid</button>
+                <button class="view-btn">List</button>
+              </div>
+            </div>
+
+            <div class="asset-grid">
+
+              <!-- Asset 1 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#78350f,#92400e,#166534);">
+                  🦌
+                  <span class="asset-thumb-label">JPG</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-high">● High Match — 96%</div>
+                  <div class="asset-name">moose-at-sunrise-yellowstone.jpg</div>
+                  <div class="asset-meta">4.2 MB · 3840×2560 · Jul 2, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 moose</span>
+                    <span class="asset-tag auto">🤖 sunrise</span>
+                    <span class="asset-tag auto">🤖 national park</span>
+                    <span class="asset-tag">wildlife</span>
+                    <span class="asset-tag">stock</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 2 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#1e3a5f,#065f46,#374151);">
+                  🗺
+                  <span class="asset-thumb-label">AI</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-high">● High Match — 91%</div>
+                  <div class="asset-name">national-parks-trail-map-illu.ai</div>
+                  <div class="asset-meta">18.7 MB · Vector · Jun 28, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 trail map</span>
+                    <span class="asset-tag auto">🤖 wilderness</span>
+                    <span class="asset-tag auto">🤖 topographic</span>
+                    <span class="asset-tag">illustration</span>
+                    <span class="asset-tag">Elk Ridge HOA</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 3 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#4c1d95,#1e40af,#065f46);">
+                  🏕
+                  <span class="asset-thumb-label">SVG</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-high">● High Match — 88%</div>
+                  <div class="asset-name">parks-badge-set-12icons.svg</div>
+                  <div class="asset-meta">840 KB · Vector · May 15, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 badge</span>
+                    <span class="asset-tag auto">🤖 park icon</span>
+                    <span class="asset-tag auto">🤖 emblem</span>
+                    <span class="asset-tag">retro</span>
+                    <span class="asset-tag">tourism</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 4 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#134e4a,#1e3a2f,#3b2a14);">
+                  🌲
+                  <span class="asset-thumb-label">PSD</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-med">◐ Medium Match — 74%</div>
+                  <div class="asset-name">mountain-wildlife-poster-v3.psd</div>
+                  <div class="asset-meta">92.4 MB · 24×36in @300dpi · Jun 10, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 mountain</span>
+                    <span class="asset-tag auto">🤖 forest</span>
+                    <span class="asset-tag auto">🤖 deer</span>
+                    <span class="asset-tag">poster</span>
+                    <span class="asset-tag">Apex Marketing</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 5 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#92400e,#78350f,#1c1917);">
+                  🏞
+                  <span class="asset-thumb-label">JPG</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-med">◐ Medium Match — 71%</div>
+                  <div class="asset-name">yellowstone-tourism-wide.jpg</div>
+                  <div class="asset-meta">7.1 MB · 5472×3648 · Apr 3, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 geyser</span>
+                    <span class="asset-tag auto">🤖 yellowstone</span>
+                    <span class="asset-tag auto">🤖 landscape</span>
+                    <span class="asset-tag">stock</span>
+                    <span class="asset-tag">tourism</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 6 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#1e3a5f,#0f2744,#1c2a1a);">
+                  🌙
+                  <span class="asset-thumb-label">JPG</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-med">◐ Medium Match — 68%</div>
+                  <div class="asset-name">rustic-forest-background-dark.jpg</div>
+                  <div class="asset-meta">3.8 MB · 4000×2667 · Mar 18, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 forest</span>
+                    <span class="asset-tag auto">🤖 dark</span>
+                    <span class="asset-tag auto">🤖 texture</span>
+                    <span class="asset-tag">background</span>
+                    <span class="asset-tag">stock</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 7 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#2563eb,#1d4ed8,#1e3a8a);">
+                  🏃
+                  <span class="asset-thumb-label">SVG</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-low">○ Low Match — 41%</div>
+                  <div class="asset-name">outdoor-adventure-logo-final.svg</div>
+                  <div class="asset-meta">128 KB · Vector · Feb 22, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 adventure</span>
+                    <span class="asset-tag auto">🤖 running</span>
+                    <span class="asset-tag auto">🤖 outdoor</span>
+                    <span class="asset-tag">logo</span>
+                    <span class="asset-tag">Elk Ridge HOA</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Asset 8 -->
+              <div class="asset-card">
+                <div class="asset-thumb" style="background:linear-gradient(135deg,#374151,#4b5563,#1f2937);">
+                  🐻
+                  <span class="asset-thumb-label">AI</span>
+                </div>
+                <div class="asset-info">
+                  <div class="match-badge match-low">○ Low Match — 38%</div>
+                  <div class="asset-name">bear-ridge-trail-poster.ai</div>
+                  <div class="asset-meta">24.1 MB · Vector · Jan 14, 2026</div>
+                  <div class="asset-tags">
+                    <span class="asset-tag auto">🤖 bear</span>
+                    <span class="asset-tag auto">🤖 trail</span>
+                    <span class="asset-tag auto">🤖 poster</span>
+                    <span class="asset-tag">print-ready</span>
+                    <span class="asset-tag">Apex Marketing</span>
+                  </div>
+                  <div class="asset-actions">
+                    <button class="btn btn-secondary btn-sm">Preview</button>
+                    <button class="btn btn-secondary btn-sm">Use in Job</button>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /.asset-grid -->
+          </div><!-- /.library-main -->
+        </div><!-- /.library-layout -->
+      </div><!-- /#tab-library -->
+
+      <!-- ═══ TAB: COLLECTIONS ════════════════════════════════════════ -->
+      <div class="tab-panel" id="tab-collections">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <p style="font-size:13px;color:#64748b;margin:0;">Organize assets into collections by client, theme, or campaign.</p>
+          <button class="btn btn-primary">+ New Collection</button>
+        </div>
+        <div class="collection-grid">
+          <div class="collection-card">
+            <div class="collection-icon">🏔</div>
+            <div class="collection-name">Outdoor &amp; Nature</div>
+            <div class="collection-count">34 assets · Last updated Jul 8</div>
+            <div style="font-size:12px;color:#64748b;">Wildlife, landscapes, parks, trails</div>
+          </div>
+          <div class="collection-card">
+            <div class="collection-icon">🏠</div>
+            <div class="collection-name">Real Estate Templates</div>
+            <div class="collection-count">28 assets · Last updated Jul 10</div>
+            <div style="font-size:12px;color:#64748b;">Yard signs, brochures, postcards</div>
+          </div>
+          <div class="collection-card">
+            <div class="collection-icon">🏫</div>
+            <div class="collection-name">Education &amp; Schools</div>
+            <div class="collection-count">19 assets · Last updated Jun 15</div>
+            <div style="font-size:12px;color:#64748b;">School district branding, banners</div>
+          </div>
+          <div class="collection-card">
+            <div class="collection-icon">🏥</div>
+            <div class="collection-name">Healthcare</div>
+            <div class="collection-count">12 assets · Last updated Jun 3</div>
+            <div style="font-size:12px;color:#64748b;">Clinic signage, patient materials</div>
+          </div>
+          <div class="collection-card">
+            <div class="collection-icon">🎨</div>
+            <div class="collection-name">Brand Logos — Clients</div>
+            <div class="collection-count">87 assets · Last updated Jul 11</div>
+            <div style="font-size:12px;color:#64748b;">Client logo files, brand guidelines</div>
+          </div>
+          <div class="collection-card">
+            <div class="collection-icon">🖼</div>
+            <div class="collection-name">Stock &amp; Internal</div>
+            <div class="collection-count">214 assets · Last updated Jul 1</div>
+            <div style="font-size:12px;color:#64748b;">Licensed stock, G54 internal assets</div>
+          </div>
+          <div class="collection-card">
+            <div class="collection-icon">📋</div>
+            <div class="collection-name">Print Templates</div>
+            <div class="collection-count">56 assets · Last updated Jul 5</div>
+            <div style="font-size:12px;color:#64748b;">Reusable production-ready templates</div>
+          </div>
+          <div class="collection-card" style="border:2px dashed #e2e8f0;background:#fafafa;">
+            <div class="collection-icon">➕</div>
+            <div class="collection-name" style="color:#94a3b8;">New Collection</div>
+            <div class="collection-count" style="color:#c4b5fd;">Click to create</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: UPLOAD ══════════════════════════════════════════════ -->
+      <div class="tab-panel" id="tab-upload">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+          <div>
+            <!-- Drop Zone -->
+            <div class="upload-zone">
+              <div class="upload-zone-icon">☁</div>
+              <div class="upload-zone-text">Drop files here or click to browse</div>
+              <div class="upload-zone-sub">PNG, JPG, SVG, PDF, AI, EPS, PSD · Max 500 MB per file</div>
+              <button class="btn btn-primary" style="margin-top:16px;">Browse Files</button>
+            </div>
+
+            <!-- Upload Queue -->
+            <div class="upload-queue">
+              <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;">Uploading</div>
+              <div class="upload-item">
+                <div class="upload-item-thumb">🖼</div>
+                <div class="upload-progress">
+                  <div class="upload-filename">elk-ridge-summer-banner.ai</div>
+                  <div class="upload-status">🤖 AI analyzing &amp; auto-tagging…</div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:72%;"></div></div>
+                </div>
+                <span style="font-size:12px;color:#6366f1;font-weight:600;">72%</span>
+              </div>
+              <div class="upload-item">
+                <div class="upload-item-thumb">🌄</div>
+                <div class="upload-progress">
+                  <div class="upload-filename">summit-healthcare-exterior.jpg</div>
+                  <div class="upload-status" style="color:#15803d;">✓ Complete — 6 tags added</div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#22c55e;"></div></div>
+                </div>
+                <span style="font-size:12px;color:#15803d;font-weight:600;">Done</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <!-- Tagging Panel -->
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">Asset Settings &amp; Tags</h2></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Assign to Client</label>
+                  <select class="form-control">
+                    <option>— No client (stock / internal) —</option>
+                    <option selected>Elk Ridge HOA</option>
+                    <option>Apex Marketing Group</option>
+                    <option>Summit Healthcare</option>
+                    <option>Rocky Mountain Realty</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Category</label>
+                  <select class="form-control">
+                    <option>Photography</option>
+                    <option selected>Illustration</option>
+                    <option>Vector / Logo</option>
+                    <option>Template</option>
+                    <option>Background / Texture</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">AI Auto-Tags <span style="color:#6366f1;font-size:11px;font-weight:600;">(Generated)</span></label>
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:#f8fafc;border-radius:6px;border:1px solid #e2e8f0;">
+                    <span class="asset-tag auto">🤖 summer</span>
+                    <span class="asset-tag auto">🤖 banner</span>
+                    <span class="asset-tag auto">🤖 outdoor</span>
+                    <span class="asset-tag auto">🤖 event</span>
+                    <span class="asset-tag auto">🤖 community</span>
+                    <span class="asset-tag auto">🤖 green palette</span>
+                  </div>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Manual Tags</label>
+                  <input type="text" class="form-control" placeholder="Add tags separated by commas…" value="hoa, summer event, banner">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Usage Rights</label>
+                  <select class="form-control">
+                    <option selected>Client-owned (restricted to client jobs)</option>
+                    <option>Licensed stock (internal use)</option>
+                    <option>G54 owned (unrestricted)</option>
+                    <option>Royalty-free (unlimited)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label class="form-label">Notes</label>
+                  <textarea class="form-control" rows="2" placeholder="Optional notes about this asset…"></textarea>
+                </div>
+                <button class="btn btn-primary">Save &amp; Add to Library</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: SETTINGS ═══════════════════════════════════════════ -->
+      <div class="tab-panel" id="tab-settings">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">AI Tagging &amp; Search</h2></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Auto-tag on upload</div>
+                  <div style="font-size:12px;color:#64748b;">AI analyzes every uploaded image and generates descriptive tags</div>
+                </div>
+                <div class="toggle-track on" style="flex-shrink:0;"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Natural language search</div>
+                  <div style="font-size:12px;color:#64748b;">Allow plain-language queries like "national parks moose theme"</div>
+                </div>
+                <div class="toggle-track on" style="flex-shrink:0;"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Visual similarity search</div>
+                  <div style="font-size:12px;color:#64748b;">Find assets that look visually similar to a selected image</div>
+                </div>
+                <div class="toggle-track on" style="flex-shrink:0;"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-weight:600;font-size:13px;">Auto-generate asset descriptions</div>
+                  <div style="font-size:12px;color:#64748b;">AI writes a one-sentence description of each asset for search</div>
+                </div>
+                <div class="toggle-track on" style="flex-shrink:0;"></div>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">AI Model</label>
+                <select class="form-control">
+                  <option selected>Claude (Anthropic) — Recommended</option>
+                  <option>GPT-4 Vision (OpenAI)</option>
+                  <option>Google Gemini Vision</option>
+                </select>
+              </div>
+              <button class="btn btn-primary">Save AI Settings</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">Storage &amp; File Limits</h2></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+                  <span style="font-weight:600;">Storage Used</span>
+                  <span style="color:#64748b;">248 GB / 1 TB</span>
+                </div>
+                <div class="progress-bar" style="height:8px;border-radius:4px;">
+                  <div class="progress-fill" style="width:24%;background:#6366f1;"></div>
+                </div>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Max file size per upload</label>
+                <select class="form-control"><option>100 MB</option><option>250 MB</option><option selected>500 MB</option><option>1 GB</option></select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Allowed file types</label>
+                <div style="display:flex;flex-direction:column;gap:5px;font-size:13px;margin-top:4px;">
+                  <label><input type="checkbox" checked style="margin-right:6px;">Images (JPG, PNG, WEBP, TIFF)</label>
+                  <label><input type="checkbox" checked style="margin-right:6px;">Vector (SVG, EPS, AI)</label>
+                  <label><input type="checkbox" checked style="margin-right:6px;">Design files (PSD, INDD, XD)</label>
+                  <label><input type="checkbox" checked style="margin-right:6px;">PDF (print-ready)</label>
+                  <label><input type="checkbox" style="margin-right:6px;">Video (MP4, MOV)</label>
+                </div>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Auto-generate thumbnails at</label>
+                <select class="form-control"><option selected>400×300px (web preview)</option><option>800×600px (high-res preview)</option></select>
+              </div>
+              <button class="btn btn-primary">Save Storage Settings</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + target).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
