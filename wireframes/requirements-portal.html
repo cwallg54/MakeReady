@@ -357,6 +357,9 @@
 
     /* ── REQUIREMENTS MANAGER ─────────────────────────────────── */
 
+    /* Sync status */
+    .sync-status { font-size: 12px; font-weight: 600; white-space: nowrap; transition: color .3s; min-width: 0; }
+
     /* Manage button */
     .btn-manage { padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; color: var(--gray-700); border: 1px solid var(--gray-200); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all .15s; }
     .btn-manage:hover { background: var(--gray-50); }
@@ -457,6 +460,7 @@
   <div class="header-actions">
     <span class="last-updated">Last updated July 17, 2026</span>
     <a class="btn-portal btn-outline" href="index.html" target="_blank">View Wireframes ↗</a>
+    <span class="sync-status" id="syncStatus"></span>
     <button class="btn-manage" id="editModeBtn" onclick="toggleEditMode()">✏ Manage</button>
     <button class="btn-import" onclick="openDrawer()">📤 Import Transcript</button>
     <a class="btn-portal btn-primary-sm" href="#stakeholders">Stakeholders</a>
@@ -1886,18 +1890,71 @@
   let _editSection = '';    // section pre-fill for new stories
   let _lockKey = null;
 
+  // ── Storage: localStorage (fast) + API (shared across devices) ─
+
   function reqGet() {
     try { return JSON.parse(localStorage.getItem(REQ_STORE)) || { overrides: {}, additions: [] }; }
     catch(e) { return { overrides: {}, additions: [] }; }
   }
-  function reqSave(data) { localStorage.setItem(REQ_STORE, JSON.stringify(data)); }
+
+  function reqSave(data) {
+    localStorage.setItem(REQ_STORE, JSON.stringify(data));
+    pushToAPI(data);
+  }
+
+  async function loadFromAPI() {
+    try {
+      const res = await fetch('/api/requirements');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.overrides) data.overrides = {};
+      if (!data.additions) data.additions = [];
+      // API is source of truth — overwrite local cache
+      localStorage.setItem(REQ_STORE, JSON.stringify(data));
+    } catch(e) {
+      // Silently fall back to whatever's in localStorage
+    }
+  }
+
+  async function pushToAPI(data) {
+    setSyncStatus('saving');
+    try {
+      const res = await fetch('/api/requirements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      setSyncStatus('saved');
+    } catch(e) {
+      setSyncStatus('error');
+    }
+  }
+
+  function setSyncStatus(state) {
+    const el = document.getElementById('syncStatus');
+    if (!el) return;
+    if (state === 'saving') {
+      el.textContent = '↑ Saving…';
+      el.style.color = 'var(--gray-400)';
+    } else if (state === 'saved') {
+      el.textContent = '✓ Synced';
+      el.style.color = 'var(--success)';
+      setTimeout(() => { el.textContent = ''; }, 2500);
+    } else if (state === 'error') {
+      el.textContent = '⚠ Sync failed — saved locally';
+      el.style.color = 'var(--warning)';
+      setTimeout(() => { el.textContent = ''; }, 5000);
+    }
+  }
 
   function findCard(key) {
     return [...document.querySelectorAll('.us-card[data-story-key]')].find(c => c.dataset.storyKey === key) || null;
   }
 
   // ── Init ─────────────────────────────────────────────────────
-  function initReqManager() {
+  async function initReqManager() {
+    await loadFromAPI();   // pull shared state from KV before rendering
     document.querySelectorAll('.req-section').forEach(section => {
       const sid = section.id;
       section.querySelectorAll('.us-card').forEach((card, i) => {
@@ -2256,7 +2313,7 @@
   }
 
   // ── Boot ──────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', initReqManager);
+  document.addEventListener('DOMContentLoaded', () => initReqManager());
 </script>
 </body>
 </html>
