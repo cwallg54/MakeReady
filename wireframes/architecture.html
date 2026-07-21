@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeReady by G54 — Architecture Mapping</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .topbar-portal-link {
+      font-size: 12px; font-weight: 600; color: #6366f1; text-decoration: none;
+      padding: 5px 10px; border: 1px solid #c4b5fd; border-radius: 6px;
+      background: #ede9fe; margin-right: 4px; white-space: nowrap;
+    }
+    .topbar-portal-link:hover { background: #ddd6fe; }
+
+    /* ── Diagram framework (Lucid / Visio style) ─────────────────── */
+    .arch-intro { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+    .arch-pill { font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:20px; background:#eef2ff; color:#4338ca; border:1px solid #e0e7ff; }
+    .arch-note { font-size:12.5px; color:#64748b; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; margin-bottom:20px; }
+
+    .dgm { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:22px 24px 24px; margin-bottom:26px; }
+    .dgm-title { font-size:16px; font-weight:700; color:#0f172a; }
+    .dgm-sub { font-size:12.5px; color:#64748b; margin:4px 0 20px; max-width:900px; line-height:1.5; }
+    .dgm-canvas {
+      background:#f8fafc; border:1px solid #eef2f7; border-radius:10px; padding:26px 22px;
+      background-image: radial-gradient(#e3e8ef 1px, transparent 1px); background-size:22px 22px;
+    }
+
+    /* Layered architecture */
+    .layer { position:relative; border:1px dashed #cbd5e1; border-radius:10px; padding:28px 16px 18px; background:rgba(255,255,255,.55); }
+    .layer-tag { position:absolute; top:-11px; left:16px; background:#1e293b; color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 10px; border-radius:6px; }
+    .layer-row { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; align-items:stretch; }
+    .v-arrow { width:2px; height:22px; background:#cbd5e1; margin:6px auto; position:relative; }
+    .v-arrow::after { content:''; position:absolute; bottom:-1px; left:-4px; border:5px solid transparent; border-top-color:#94a3b8; }
+
+    .node {
+      background:#fff; border:1px solid #d8dee9; border-left:4px solid #64748b; border-radius:8px;
+      padding:11px 15px; min-width:158px; max-width:280px; box-shadow:0 1px 3px rgba(15,23,42,.07);
+    }
+    .node b { font-size:13px; color:#0f172a; display:block; line-height:1.25; }
+    .node span { font-size:11px; color:#64748b; display:block; margin-top:3px; line-height:1.35; }
+    .n-client { border-left-color:#2563eb; } .n-client b { color:#1d4ed8; }
+    .n-edge   { border-left-color:#0ea5e9; }
+    .n-data   { border-left-color:#059669; }
+    .n-ext    { border-left-color:#d97706; }
+    .n-mig    { border-left-color:#dc2626; border-style:dashed; background:#fff7f7; }
+
+    /* Application module chips */
+    .app-shell { border:1.5px solid #ddd6fe; background:#faf5ff; border-radius:10px; padding:16px; width:100%; }
+    .app-shell-label { font-size:12px; font-weight:700; color:#6d28d9; margin-bottom:12px; text-align:center; }
+    .mod-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
+    .mod { background:#fff; border:1px solid #e9d5ff; color:#5b21b6; border-radius:7px; padding:9px 8px; font-size:12px; font-weight:600; text-align:center; }
+    .mod small { display:block; font-weight:500; color:#8b5cf6; font-size:10px; margin-top:2px; }
+
+    /* Horizontal flow */
+    .flow { display:flex; align-items:center; flex-wrap:wrap; gap:2px; }
+    .flow .node { margin:6px 0; min-width:130px; }
+    .flow-arrow { display:flex; flex-direction:column; align-items:center; color:#94a3b8; padding:0 6px; min-width:34px; }
+    .flow-arrow .a-line { font-size:20px; line-height:1; }
+    .flow-arrow .a-lbl { font-size:9.5px; color:#94a3b8; text-align:center; margin-top:2px; max-width:64px; line-height:1.2; }
+    .flow-return { margin-top:14px; font-size:12px; color:#0369a1; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:9px 13px; }
+    .flow-return b { color:#075985; }
+
+    /* Swimlane */
+    .lane { display:flex; align-items:stretch; margin-bottom:12px; }
+    .lane:last-child { margin-bottom:0; }
+    .lane-label { width:150px; flex-shrink:0; display:flex; align-items:center; font-size:12px; font-weight:700; color:#334155; padding-right:12px; border-right:3px solid #e2e8f0; }
+    .lane-body { flex:1; padding-left:16px; display:flex; align-items:center; flex-wrap:wrap; gap:2px; }
+
+    /* ER / data model */
+    .er-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+    .er-domain { border:1px solid #e2e8f0; border-radius:10px; background:#fff; overflow:hidden; }
+    .er-domain-head { font-size:12px; font-weight:700; color:#fff; padding:8px 12px; }
+    .er-entities { padding:10px 12px; display:flex; flex-direction:column; gap:7px; }
+    .er-ent { font-size:12px; color:#0f172a; background:#f8fafc; border:1px solid #eef2f7; border-radius:6px; padding:6px 9px; }
+    .er-ent b { font-family:'SFMono-Regular',Consolas,monospace; font-size:11.5px; color:#0f172a; }
+    .er-ent span { color:#64748b; font-size:10.5px; }
+
+    .rel-table td code { font-family:'SFMono-Regular',Consolas,monospace; font-size:11.5px; background:#f1f5f9; padding:1px 5px; border-radius:4px; color:#334155; }
+
+    .legend { display:flex; gap:18px; flex-wrap:wrap; margin-top:16px; font-size:11.5px; color:#475569; }
+    .legend i { width:11px; height:11px; border-radius:3px; display:inline-block; margin-right:6px; vertical-align:middle; }
+
+    .decided { background:#dcfce7; color:#15803d; }
+    .proposed { background:#fef9c3; color:#a16207; }
+  </style>
+</head>
+<body class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="logo">MakeReady by G54</div><div class="client">Great Mountain West</div></div>
+    <div class="sidebar-section">
+      <a href="index.html">⊞ Dashboard</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Customer</div>
+      <a href="crm.html">👥 CRM</a>
+      <a href="sales.html">🏷 Sales</a>
+      <a href="ecommerce.html">🛒 eCommerce</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="accounting.html">📒 Accounting</a>
+      <a href="controlling.html">📊 Controlling</a>
+      <a href="assets.html">🏗 Asset Accounting</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a href="inventory.html">📦 Inventory &amp; MRP</a>
+      <a href="pos.html">🖥 Point of Sale</a>
+      <a href="jobs.html">🏭 Jobs &amp; Production</a>
+      <a href="quality.html">✅ Quality Management</a>
+      <a href="maintenance.html">🔧 Equipment Maintenance</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Creative</div>
+      <a href="library.html">🎨 Content Library</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Enterprise</div>
+      <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+      <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Planning</div>
+      <a href="requirements-portal.html">📋 Requirements Portal</a>
+      <a href="architecture.html" class="active">🗺 Architecture Mapping</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">System</div>
+      <a href="admin.html">⚙ Administration</a>
+    </div>
+    <div class="sidebar-footer">CW · Christopher Wall</div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="breadcrumb">Planning / <b>Architecture Mapping</b></span>
+      </div>
+      <div class="topbar-right">
+        <a href="requirements-portal.html" class="topbar-portal-link" title="Requirements Portal">📋 Requirements</a>
+        <a href="index.html" class="topbar-portal-link" title="Dashboard &amp; Wireframes">⊞ Wireframes</a>
+        <div class="user-chip">
+          <div class="avatar">CW</div>
+          <span class="user-name">Christopher Wall</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">Architecture Mapping</div>
+          <div class="page-subtitle">System architecture, data flow, and data model for the MakeReady platform — a living map maintained as decisions are made.</div>
+        </div>
+      </div>
+
+      <div class="arch-intro">
+        <span class="arch-pill">Native Web Store (no Zoey)</span>
+        <span class="arch-pill">No middleware / iPaaS</span>
+        <span class="arch-pill">Single PostgreSQL</span>
+        <span class="arch-pill">Well-structured monolith</span>
+        <span class="arch-pill">Direct integrations only</span>
+        <span class="arch-pill">US data residency</span>
+        <span class="arch-pill">SAP B1 → migration source</span>
+        <span class="arch-pill">Claude API for DAM AI</span>
+      </div>
+      <div class="arch-note">
+        <strong>Reading this map:</strong> Boxes with a solid border reflect <strong>decisions already made</strong> (see Requirements Portal → Key Decisions). Boxes with dashed borders or a <span style="color:#a16207;font-weight:600;">proposed</span> tag are <strong>current recommendations pending sign-off</strong> from the client and the development firm. Hosting/vendor specifics marked below are the recommended defaults, not final selections.
+      </div>
+
+      <!-- ══ DIAGRAM 1 — SYSTEM ARCHITECTURE ══════════════════════════ -->
+      <div class="dgm">
+        <div class="dgm-title">1 · System Architecture</div>
+        <div class="dgm-sub">Layered view of the platform. Two client types reach a single Next.js application (server-side rendered), which is organized as a monolith of interdependent domain modules over one PostgreSQL database and object storage. External services are called directly — no integration middleware.</div>
+        <div class="dgm-canvas">
+
+          <div class="layer">
+            <span class="layer-tag">Clients</span>
+            <div class="layer-row">
+              <div class="node n-client"><b>Internal Users</b><span>Sales · Finance · Production · Art — browser &amp; tablet (≥ 768px)</span></div>
+              <div class="node n-client"><b>Web Store Customers</b><span>B2B buyers on store.g54.com</span></div>
+            </div>
+          </div>
+
+          <div class="v-arrow"></div>
+
+          <div class="layer">
+            <span class="layer-tag">Edge / Presentation</span>
+            <div class="layer-row">
+              <div class="node n-edge"><b>CDN + TLS/HTTPS</b><span>Static assets · HTTP→HTTPS redirect</span></div>
+              <div class="node n-edge"><b>Next.js Frontend</b><span>SSR · React components · responsive</span></div>
+              <div class="node n-edge"><b>store.g54.com Storefront</b><span>Native module — served by MakeReady</span></div>
+            </div>
+          </div>
+
+          <div class="v-arrow"></div>
+
+          <div class="layer">
+            <span class="layer-tag">Application</span>
+            <div class="layer-row">
+              <div class="app-shell">
+                <div class="app-shell-label">MakeReady Application — Monolith · Node.js / Next.js API · server-side RBAC on every endpoint · audit log on every write</div>
+                <div class="mod-grid">
+                  <div class="mod">Auth <small>login · roles · reset</small></div>
+                  <div class="mod">Customers <small>BP · contacts · groups</small></div>
+                  <div class="mod">Sales <small>quotes · SO · AR</small></div>
+                  <div class="mod">Web Store <small>catalog · order sync</small></div>
+                  <div class="mod">Production <small>jobs · pipeline</small></div>
+                  <div class="mod">Inventory <small>items · stock · MRP</small></div>
+                  <div class="mod">Finance <small>GL · AP · bank rec</small></div>
+                  <div class="mod">Controlling <small>cost centers</small></div>
+                  <div class="mod">Asset Acctg <small>fixed assets</small></div>
+                  <div class="mod">Content Library <small>DAM · AI tagging</small></div>
+                  <div class="mod">Workflows <small>rules · approvals</small></div>
+                  <div class="mod">Reports <small>queries · exports</small></div>
+                  <div class="mod">Administration <small>users · config · audit</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="v-arrow"></div>
+
+          <div class="layer">
+            <span class="layer-tag">Data Stores</span>
+            <div class="layer-row">
+              <div class="node n-data"><b>PostgreSQL</b><span>Single instance · financial integrity · immutable postings</span></div>
+              <div class="node n-data"><b>pgvector</b><span>Embedding index for NLP search</span></div>
+              <div class="node n-data"><b>Object Storage</b><span>S3 / Azure Blob — DAM files &amp; thumbnails</span></div>
+            </div>
+          </div>
+
+          <div class="v-arrow"></div>
+
+          <div class="layer">
+            <span class="layer-tag">External Services &amp; Subscriptions</span>
+            <div class="layer-row">
+              <div class="node n-ext"><b>Anthropic Claude API</b><span>Vision auto-tagging · NLP search</span></div>
+              <div class="node n-ext"><b>Email Service</b><span>Transactional — Resend / SendGrid / SES</span></div>
+              <div class="node n-ext"><b>Auth Provider</b><span>Clerk / Auth0 / custom JWT</span></div>
+              <div class="node n-mig"><b>SAP Business One</b><span>Migration source — one-time, then decommissioned</span></div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span><i class="proposed" style="background:#2563eb;"></i>Clients</span>
+            <span><i style="background:#0ea5e9;"></i>Edge / presentation</span>
+            <span><i style="background:#7c3aed;"></i>Application modules</span>
+            <span><i style="background:#059669;"></i>Data stores</span>
+            <span><i style="background:#d97706;"></i>External services</span>
+            <span><i style="background:#dc2626;"></i>Migration source (dashed = one-time)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DIAGRAM 2 — QUOTE-TO-CASH & WEB STORE DATA FLOW ══════════ -->
+      <div class="dgm">
+        <div class="dgm-title">2 · Data Flow — Quote-to-Cash &amp; Web Store Orders</div>
+        <div class="dgm-sub">The core document flow. Orders originate either manually (Quote → Sales Order) or from the Web Store (auto-created SO with <code>WEB-</code> prefix within 60 seconds). From confirmation onward, both follow the same path to collected payment. Status changes sync back to the storefront.</div>
+        <div class="dgm-canvas">
+
+          <div class="lane">
+            <div class="lane-label">Web Store<br>(store.g54.com)</div>
+            <div class="lane-body">
+              <div class="node n-client"><b>Customer places order</b><span>B2B catalog · account-group pricing</span></div>
+              <div class="flow-arrow"><span class="a-line">→</span><span class="a-lbl">&lt; 60 sec</span></div>
+              <div class="node n-edge"><b>Order event → API</b><span>Internal API call to Sales</span></div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-label">Sales</div>
+            <div class="lane-body">
+              <div class="node"><b>Quote (QUO-)</b><span>manual path · draft→sent→accepted</span></div>
+              <div class="flow-arrow"><span class="a-line">→</span><span class="a-lbl">convert</span></div>
+              <div class="node" style="border-left-color:#2563eb;"><b>Sales Order</b><span>SO- (manual) / WEB- (store)</span></div>
+              <div class="flow-arrow"><span class="a-line">→</span><span class="a-lbl">on confirm</span></div>
+              <div class="node" style="border-left-color:#7c3aed;"><b>Production Job (JOB-)</b><span>auto-created</span></div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-label">Fulfilment<br>&amp; Finance</div>
+            <div class="lane-body">
+              <div class="node" style="border-left-color:#7c3aed;"><b>Job pipeline</b><span>prepress→printing→finishing</span></div>
+              <div class="flow-arrow"><span class="a-line">→</span><span class="a-lbl">complete</span></div>
+              <div class="node n-edge"><b>Delivery (DEL-)</b><span>ship date · tracking · carrier</span></div>
+              <div class="flow-arrow"><span class="a-line">→</span></div>
+              <div class="node n-data"><b>AR Invoice (INV-)</b><span>from delivery · GL AR control</span></div>
+              <div class="flow-arrow"><span class="a-line">→</span></div>
+              <div class="node n-data"><b>Incoming Payment</b><span>immutable once posted</span></div>
+            </div>
+          </div>
+
+          <div class="flow-return">
+            ↩ <b>Status sync back to Web Store</b> (&lt; 5 min): SO status (confirmed / in production / shipped) and delivery tracking number are pushed to the storefront order view. Stock and publish changes update storefront availability per the publish schedule.
+          </div>
+          <div class="flow-return" style="background:#f8fafc;border-color:#e2e8f0;color:#475569;margin-top:8px;">
+            🛈 Every create/update/approve on this path writes to the <b>audit_log</b> table (cannot be disabled). Posted financial records (invoices, payments) are corrected by reversal, never edited.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DIAGRAM 3 — CONTENT LIBRARY AI PIPELINE ═════════════════ -->
+      <div class="dgm">
+        <div class="dgm-title">3 · Data Flow — Content Library AI Pipeline</div>
+        <div class="dgm-sub">Every upload is analyzed by the Claude Vision API to generate tags and a rich description, which is embedded and stored in pgvector so assets are findable by natural-language search. If the AI call fails, the asset still uploads and is flagged for manual tagging.</div>
+        <div class="dgm-canvas">
+          <div style="font-size:11.5px;font-weight:700;color:#64748b;margin-bottom:10px;">INGEST</div>
+          <div class="flow">
+            <div class="node"><b>Upload</b><span>≤ 500 MB · MIME validated</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node n-data"><b>Object Storage</b><span>store file + thumbnail</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node n-ext"><b>Claude Vision API</b><span>tags + description</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node"><b>Embedding model</b><span>vector of description</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node n-data"><b>pgvector index</b><span>asset now searchable</span></div>
+          </div>
+
+          <div style="font-size:11.5px;font-weight:700;color:#64748b;margin:22px 0 10px;">NLP SEARCH</div>
+          <div class="flow">
+            <div class="node n-client"><b>Query</b><span>"moose national park graphics"</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node"><b>Embed query</b><span>same embedding model</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node n-data"><b>Vector similarity</b><span>cosine search in pgvector</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node"><b>Ranked results</b><span>top-N with relevance score</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DIAGRAM 4 — SAP B1 MIGRATION ════════════════════════════ -->
+      <div class="dgm">
+        <div class="dgm-title">4 · SAP Business One Migration Flow</div>
+        <div class="dgm-sub">One-time data migration before go-live. Master data and open transactions move from SAP B1 into MakeReady; Finance validates counts and balances; the two systems run in parallel before SAP B1 is decommissioned.</div>
+        <div class="dgm-canvas">
+          <div class="flow">
+            <div class="node n-mig"><b>1 · Extract</b><span>SAP B1 → CSV / Excel</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node"><b>2 · Transform</b><span>scripts validate &amp; map fields</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node n-edge"><b>3 · Load</b><span>admin API (preferred) or DB insert</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node"><b>4 · Validate</b><span>Finance checks counts &amp; balances</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node" style="border-left-color:#2563eb;"><b>5 · Cutover</b><span>freeze B1 · new txns in MakeReady</span></div>
+            <div class="flow-arrow"><span class="a-line">→</span></div>
+            <div class="node n-data"><b>6 · Parallel run</b><span>then decommission SAP B1</span></div>
+          </div>
+          <div class="flow-return" style="background:#fff7f7;border-color:#fecaca;color:#b91c1c;">
+            Migrated: Business Partners &amp; contacts · Chart of Accounts · Item Master · Vendors · Cost Centers · Fixed Assets · open SOs / AR / AP / deliveries · trial balance. Historical cutoff dates <b>[TBD — confirm with Finance: Kim Lund, Britney de Jong, Leslie Weiler]</b>.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DIAGRAM 5 — DATA MODEL (ER) ═════════════════════════════ -->
+      <div class="dgm">
+        <div class="dgm-title">5 · Data Model — Core Entities</div>
+        <div class="dgm-sub">Key entities grouped by domain over a single PostgreSQL schema. This is the shape of the data, not the final schema — the development firm owns detailed schema design. UUID primary keys throughout; every write is mirrored to <code>audit_log</code>.</div>
+        <div class="dgm-canvas">
+          <div class="er-grid">
+            <div class="er-domain">
+              <div class="er-domain-head" style="background:#2563eb;">Customer</div>
+              <div class="er-entities">
+                <div class="er-ent"><b>account_group</b> <span>→ price_list · web_store_enabled</span></div>
+                <div class="er-ent"><b>business_partner</b> <span>BP-##### · credit · terms</span></div>
+                <div class="er-ent"><b>contact</b> <span>many per BP · one primary</span></div>
+                <div class="er-ent"><b>price_list</b> <span>account-group pricing</span></div>
+              </div>
+            </div>
+            <div class="er-domain">
+              <div class="er-domain-head" style="background:#7c3aed;">Sales &amp; Production</div>
+              <div class="er-entities">
+                <div class="er-ent"><b>quote</b> <span>QUO- · → sales_order</span></div>
+                <div class="er-ent"><b>sales_order</b> <span>SO- / WEB- · source enum</span></div>
+                <div class="er-ent"><b>so_line_item / quote_line_item</b> <span>→ item</span></div>
+                <div class="er-ent"><b>job</b> <span>JOB- · 1:1 from SO</span></div>
+                <div class="er-ent"><b>delivery</b> <span>DEL- · tracking</span></div>
+              </div>
+            </div>
+            <div class="er-domain">
+              <div class="er-domain-head" style="background:#059669;">Finance</div>
+              <div class="er-entities">
+                <div class="er-ent"><b>ar_invoice</b> <span>INV- · balance · GL account</span></div>
+                <div class="er-ent"><b>incoming_payment</b> <span>immutable · partials allowed</span></div>
+                <div class="er-ent"><b>item</b> <span>SKU · on_hand · committed</span></div>
+                <div class="er-ent"><span>+ AP, GL, cost centers, fixed assets (from SAP B1)</span></div>
+              </div>
+            </div>
+            <div class="er-domain">
+              <div class="er-domain-head" style="background:#d97706;">Content Library</div>
+              <div class="er-entities">
+                <div class="er-ent"><b>content_asset</b> <span>storage_key · ai_description · ai_embedding</span></div>
+                <div class="er-ent"><b>asset_tag</b> <span>ai_generated / manual</span></div>
+                <div class="er-ent"><b>collection</b> <span>M:N via members</span></div>
+                <div class="er-ent"><b>job_artwork</b> <span>asset ↔ job join</span></div>
+              </div>
+            </div>
+            <div class="er-domain">
+              <div class="er-domain-head" style="background:#475569;">Platform</div>
+              <div class="er-entities">
+                <div class="er-ent"><b>user</b> <span>roles[] · bcrypt hash</span></div>
+                <div class="er-ent"><b>role</b> <span>M:N with user</span></div>
+                <div class="er-ent"><b>audit_log</b> <span>every write · immutable</span></div>
+                <div class="er-ent"><b>activity_log</b> <span>per business_partner</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap" style="margin-top:20px;">
+            <table class="rel-table">
+              <thead><tr><th>Relationship</th><th>Type</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td><code>business_partner</code> → <code>account_group</code></td><td>Many-to-one</td><td>Each BP has one Account Group (drives pricing &amp; store access)</td></tr>
+                <tr><td><code>business_partner</code> → <code>contact</code></td><td>One-to-many</td><td>Multiple contacts per BP</td></tr>
+                <tr><td><code>quote</code> → <code>sales_order</code></td><td>One-to-one</td><td>Optional, via conversion</td></tr>
+                <tr><td><code>sales_order</code> → <code>job</code></td><td>One-to-one</td><td>Auto-created on SO confirmation</td></tr>
+                <tr><td><code>sales_order</code> → <code>delivery</code></td><td>One-to-one</td><td>Created when job is complete</td></tr>
+                <tr><td><code>delivery</code> → <code>ar_invoice</code></td><td>One-to-one</td><td>Invoice generated from delivery</td></tr>
+                <tr><td><code>ar_invoice</code> → <code>incoming_payment</code></td><td>One-to-many</td><td>Partial payments supported</td></tr>
+                <tr><td><code>content_asset</code> ↔ <code>job</code></td><td>Many-to-many</td><td>Via <code>job_artwork</code> join table</td></tr>
+                <tr><td><code>content_asset</code> ↔ <code>collection</code></td><td>Many-to-many</td><td>Via <code>asset_collection_member</code></td></tr>
+                <tr><td><code>user</code> ↔ <code>role</code></td><td>Many-to-many</td><td>Users can hold multiple roles</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RECOMMENDED STACK & SUBSCRIPTIONS ═══════════════════════ -->
+      <div class="dgm">
+        <div class="dgm-title">6 · Recommended Stack &amp; Subscriptions</div>
+        <div class="dgm-sub">Current recommendations to resolve the open <code>[TBD]</code> items in the technical docs. <span class="badge badge-green">Decided</span> items are locked; <span class="badge badge-yellow">Proposed</span> items are the recommended default pending client / dev-firm sign-off.</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Layer / Need</th><th>Recommendation</th><th>Status</th><th>Rationale &amp; alternatives</th></tr></thead>
+            <tbody>
+              <tr><td><b>Frontend</b></td><td>Next.js (React, SSR)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Already the wireframe stack; SSR performance, component reuse. Alt: Remix</td></tr>
+              <tr><td><b>Backend / API</b></td><td>Next.js API routes + tRPC (Node/TS)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Keep one language across stack. Alt: .NET 8 if dev firm prefers</td></tr>
+              <tr><td><b>Database</b></td><td>PostgreSQL — single managed instance</td><td><span class="badge badge-green">Decided</span></td><td>Relational integrity for financial data; one DB for the monolith</td></tr>
+              <tr><td><b>DB hosting</b></td><td>Neon (managed Postgres, US region)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Serverless Postgres, pairs with Vercel. Alt: AWS RDS, Azure Database</td></tr>
+              <tr><td><b>ORM</b></td><td>Prisma or Drizzle</td><td><span class="badge badge-yellow">Proposed</span></td><td>Type-safe schema/migrations for the TS stack</td></tr>
+              <tr><td><b>Vector search</b></td><td>pgvector (Postgres extension)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Keeps embeddings in the same DB. Alt: Pinecone</td></tr>
+              <tr><td><b>App hosting</b></td><td>Vercel (US region)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Current wireframe host. Alt: AWS Elastic Beanstalk, Azure App Service</td></tr>
+              <tr><td><b>Object storage (DAM)</b></td><td>AWS S3 or Azure Blob + CDN</td><td><span class="badge badge-yellow">Proposed</span></td><td>≤ 500 MB/file, server-side thumbnails</td></tr>
+              <tr><td><b>Auth</b></td><td>Clerk or Auth0</td><td><span class="badge badge-yellow">Proposed</span></td><td>Managed sessions/MFA; server-side role enforcement still required. Alt: custom JWT</td></tr>
+              <tr><td><b>AI / Vision</b></td><td>Anthropic Claude API</td><td><span class="badge badge-green">Decided</span></td><td>Auto-tagging + NLP search in Content Library</td></tr>
+              <tr><td><b>Transactional email</b></td><td>Resend</td><td><span class="badge badge-yellow">Proposed</span></td><td>Notifications, approvals, password reset. Alt: SendGrid, AWS SES</td></tr>
+              <tr><td><b>PDF generation</b></td><td>React-PDF or Puppeteer</td><td><span class="badge badge-yellow">Proposed</span></td><td>Quote / invoice PDFs</td></tr>
+              <tr><td><b>eCommerce</b></td><td>Native Web Store module</td><td><span class="badge badge-green">Decided</span></td><td>Removes Zoey B2B; store.g54.com served by MakeReady</td></tr>
+              <tr><td><b>Integration middleware</b></td><td>None — direct integrations only</td><td><span class="badge badge-green">Decided</span></td><td>Vision33 Saltbox removed</td></tr>
+              <tr><td><b>Legacy system</b></td><td>SAP Business One — migrate then retire</td><td><span class="badge badge-green">Decided</span></td><td>Source for master data + open transactions</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="arch-note" style="margin:18px 0 0;">
+          <strong>Still open (need decisions):</strong> cloud provider &amp; region · production domain (e.g. app.makeready.g54.com) · embedding model choice · email provider &amp; from-address · malware scanning on uploads · SAP B1 historical-data cutoff dates · parallel-run duration.
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>
