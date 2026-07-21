@@ -374,6 +374,9 @@
     .sc-lock:hover { background: var(--success-bg); border-color: var(--success); color: var(--success); }
     .sc-delete:hover { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
     .sc-btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+    .sc-status-wrap { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; }
+    .sc-status-wrap label { font-size: 12px; font-weight: 600; color: var(--gray-500); }
+    .sc-status { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-700); }
 
     /* Add requirement button per section */
     .add-req-btn { display: none; width: 100%; margin-top: 12px; padding: 11px; border: 2px dashed var(--gray-200); border-radius: 10px; background: #fff; color: var(--gray-400); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; text-align: center; }
@@ -491,9 +494,9 @@
     <div class="sidebar-group open">
       <div class="sidebar-group-label" onclick="toggleGroup(this)">Sales Group <span class="sidebar-group-toggle">▶</span></div>
       <div class="sidebar-links">
-        <a class="sidebar-link" href="#sales-req">Sales <span class="status-dot dot-complete"></span></a>
-        <a class="sidebar-link" href="#crm-req">CRM <span class="status-dot dot-complete"></span></a>
-        <a class="sidebar-link" href="#web-store-req">Web Store / eComm <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#sales-req">Sales <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#crm-req">CRM <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#web-store-req">Web Store / eComm <span class="status-dot dot-progress"></span></a>
         <a class="sidebar-link" href="#digital-catalogs">Digital Catalogs <span class="status-dot dot-discovery"></span></a>
       </div>
     </div>
@@ -501,8 +504,8 @@
     <div class="sidebar-group open">
       <div class="sidebar-group-label" onclick="toggleGroup(this)">Finance Group <span class="sidebar-group-toggle">▶</span></div>
       <div class="sidebar-links">
-        <a class="sidebar-link" href="#accounting-req">Accounting &amp; AP <span class="status-dot dot-complete"></span></a>
-        <a class="sidebar-link" href="#ar-req">Accounts Receivable <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#accounting-req">Accounting &amp; AP <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#ar-req">Accounts Receivable <span class="status-dot dot-progress"></span></a>
         <a class="sidebar-link" href="#reports-req">Reports <span class="status-dot dot-discovery"></span></a>
       </div>
     </div>
@@ -510,9 +513,9 @@
     <div class="sidebar-group open">
       <div class="sidebar-group-label" onclick="toggleGroup(this)">Operations Group <span class="sidebar-group-toggle">▶</span></div>
       <div class="sidebar-links">
-        <a class="sidebar-link" href="#production-req">Jobs &amp; Production <span class="status-dot dot-complete"></span></a>
-        <a class="sidebar-link" href="#inventory-req">Inventory <span class="status-dot dot-complete"></span></a>
-        <a class="sidebar-link" href="#process-req">Process &amp; Workflows <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#production-req">Jobs &amp; Production <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#inventory-req">Inventory <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#process-req">Process &amp; Workflows <span class="status-dot dot-progress"></span></a>
       </div>
     </div>
 
@@ -520,7 +523,7 @@
       <div class="sidebar-group-label" onclick="toggleGroup(this)">Art Group <span class="sidebar-group-toggle">▶</span></div>
       <div class="sidebar-links">
         <a class="sidebar-link" href="#art-requests">Art Requests &amp; Schedule <span class="status-dot dot-discovery"></span></a>
-        <a class="sidebar-link" href="#content-library-req">Content Library <span class="status-dot dot-complete"></span></a>
+        <a class="sidebar-link" href="#content-library-req">Content Library <span class="status-dot dot-progress"></span></a>
         <a class="sidebar-link" href="#art-website">Website <span class="status-dot dot-discovery"></span></a>
       </div>
     </div>
@@ -536,7 +539,7 @@
 
     <div style="padding:16px;margin-top:8px;border-top:1px solid var(--gray-200)">
       <div style="font-size:11px;color:var(--gray-400);line-height:1.6;">
-        <span class="status-dot dot-complete" style="display:inline-block;margin-right:4px;"></span>Complete &nbsp;
+        <span class="status-dot dot-progress" style="display:inline-block;margin-right:4px;"></span>Complete &nbsp;
         <span class="status-dot dot-progress" style="display:inline-block;margin-right:4px;margin-left:8px;"></span>In Progress<br>
         <span class="status-dot dot-discovery" style="display:inline-block;margin-right:4px;margin-top:6px;"></span>Discovery Needed
       </div>
@@ -584,7 +587,7 @@
       <div class="section-eyebrow">Stakeholders</div>
       <h2 class="section-title">Contacts &amp; Ownership</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
       </div>
       <div class="section-body">
         <p>Business requirements are organized into four groups. Each group owns discovery, validation, and sign-off for their domain.</p>
@@ -604,18 +607,18 @@
         <table class="req-table">
           <thead><tr><th>Group</th><th>Section</th><th>Owner(s)</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td rowspan="4"><strong>Sales</strong></td><td>Sales</td><td>Kim Lund</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
-            <tr><td>CRM</td><td>Kim Lund, Chase de Jong</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
-            <tr><td>Web Store / eComm</td><td>Cody de Jong, Chase de Jong</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td rowspan="4"><strong>Sales</strong></td><td>Sales</td><td>Kim Lund</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
+            <tr><td>CRM</td><td>Kim Lund, Chase de Jong</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
+            <tr><td>Web Store / eComm</td><td>Cody de Jong, Chase de Jong</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
             <tr><td>Digital Catalogs</td><td>Cody de Jong, Leslie Weiler</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
-            <tr><td rowspan="3"><strong>Finance</strong></td><td>Accounting &amp; AP</td><td>Britney de Jong</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
-            <tr><td>Accounts Receivable</td><td>Leslie Weiler</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td rowspan="3"><strong>Finance</strong></td><td>Accounting &amp; AP</td><td>Britney de Jong</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
+            <tr><td>Accounts Receivable</td><td>Leslie Weiler</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
             <tr><td>Reports</td><td>Leslie Weiler</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
-            <tr><td rowspan="3"><strong>Operations</strong></td><td>Production</td><td>Tyson Johnson</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
-            <tr><td>Inventory</td><td>Leslie Weiler, Tyson Johnson</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
-            <tr><td>Process &amp; Workflows</td><td>Britney de Jong, Tyson Johnson</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td rowspan="3"><strong>Operations</strong></td><td>Production</td><td>Tyson Johnson</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
+            <tr><td>Inventory</td><td>Leslie Weiler, Tyson Johnson</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
+            <tr><td>Process &amp; Workflows</td><td>Britney de Jong, Tyson Johnson</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
             <tr><td rowspan="3"><strong>Art</strong></td><td>Requests &amp; Schedule</td><td>Cody de Jong</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
-            <tr><td>Content Library</td><td>Cody de Jong, Jon [TBD]</td><td><span class="badge-status badge-complete">Complete</span></td></tr>
+            <tr><td>Content Library</td><td>Cody de Jong, Jon [TBD]</td><td><span class="badge-status badge-progress">In Progress</span></td></tr>
             <tr><td>Website</td><td>Cody de Jong, Leslie Weiler</td><td><span class="badge-status badge-discovery">Discovery Needed</span></td></tr>
           </tbody>
         </table>
@@ -626,7 +629,7 @@
     <section class="req-section" id="roadmap">
       <div class="section-eyebrow">Product Plan</div>
       <h2 class="section-title">Delivery Roadmap</h2>
-      <div class="section-meta"><span class="badge-status badge-complete">✓ Complete</span></div>
+      <div class="section-meta"><span class="badge-status badge-progress">● In Progress</span></div>
       <div class="section-body">
         <p>MakeReady is delivered in eight phases. Each phase produces working, deployable software. Later phases depend on earlier ones but are independently useful.</p>
         <div class="roadmap-grid">
@@ -656,7 +659,7 @@
       <div class="section-eyebrow">Sales</div>
       <h2 class="section-title">Sales — Quote to Cash</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
         <a href="sales.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
@@ -669,7 +672,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-SALES-01</div><div class="us-card-title">Create a Quote</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -690,7 +693,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-SALES-04</div><div class="us-card-title">Web Store Order Becomes a Sales Order</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -710,7 +713,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-SALES-08</div><div class="us-card-title">Field Sales Order Submission (Mobile)</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -734,7 +737,7 @@
       <div class="section-eyebrow">Sales Group</div>
       <h2 class="section-title">CRM — Customer Management</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">CD</span>Chase de Jong</span>
         <a href="crm.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
@@ -745,7 +748,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-CRM-01</div><div class="us-card-title">Create a Business Partner</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -765,7 +768,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-CRM-04</div><div class="us-card-title">Account Groups</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -784,7 +787,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-CRM-05</div><div class="us-card-title">Activity Log</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -808,7 +811,7 @@
       <div class="section-eyebrow">Sales Group</div>
       <h2 class="section-title">Web Store — Native B2B eCommerce</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">CD</span>Chase de Jong</span>
         <a href="ecommerce.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
@@ -819,7 +822,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-WEB-02</div><div class="us-card-title">Account Group Pricing</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -838,7 +841,7 @@
         <div class="us-card">
           <div class="us-card-header">
             <div><div class="us-card-id">US-WEB-04</div><div class="us-card-title">Order Approval Rules</div></div>
-            <span class="badge-status badge-complete">Complete</span>
+            <span class="badge-status badge-progress">In Progress</span>
           </div>
           <div class="us-card-body">
             <div class="us-story">
@@ -895,7 +898,7 @@
       <div class="section-eyebrow">Finance Group</div>
       <h2 class="section-title">Accounting &amp; Accounts Payable</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
         <a href="accounting.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
@@ -903,7 +906,7 @@
         <p>The Accounting module replaces G54's SAP Business One accounting installation. All master data and open transactions migrate from SAP B1 before go-live. After Phase 5, SAP B1 is decommissioned.</p>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-ACC-03</div><div class="us-card-title">Accounts Payable</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-ACC-03</div><div class="us-card-title">Accounts Payable</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As a</strong> Finance member (Britney de Jong)</div>
@@ -920,7 +923,7 @@
         </div>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-ACC-05</div><div class="us-card-title">Journal Entries</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-ACC-05</div><div class="us-card-title">Journal Entries</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As a</strong> Finance member</div>
@@ -951,13 +954,13 @@
       <div class="section-eyebrow">Finance Group</div>
       <h2 class="section-title">Accounts Receivable</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
         <a href="accounting.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
       <div class="section-body">
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-ACC-02</div><div class="us-card-title">AR Aging &amp; Collections</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-ACC-02</div><div class="us-card-title">AR Aging &amp; Collections</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As a</strong> Finance member (Leslie Weiler)</div>
@@ -1011,7 +1014,7 @@
       <div class="section-eyebrow">Operations Group</div>
       <h2 class="section-title">Jobs &amp; Production</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">TJ</span>Tyson Johnson</span>
         <a href="jobs.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
@@ -1020,7 +1023,7 @@
         <div class="info-box"><p><strong>Job status pipeline:</strong> New → Prepress → Printing → Finishing → Ready to Ship → Shipped</p></div>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-JOB-01</div><div class="us-card-title">Auto-Create Job from Sales Order</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-JOB-01</div><div class="us-card-title">Auto-Create Job from Sales Order</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As a</strong> Production member</div>
@@ -1037,7 +1040,7 @@
         </div>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-JOB-04</div><div class="us-card-title">Attach Artwork to a Job</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-JOB-04</div><div class="us-card-title">Attach Artwork to a Job</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As an</strong> Art Department member</div>
@@ -1059,7 +1062,7 @@
       <div class="section-eyebrow">Operations Group</div>
       <h2 class="section-title">Inventory &amp; MRP</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">TJ</span>Tyson Johnson</span>
         <a href="inventory.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
@@ -1068,7 +1071,7 @@
         <p>Inventory tracks G54's Item Master — the products and materials the company sells and uses in production. Items are published to the Web Store for customer ordering.</p>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-INV-02</div><div class="us-card-title">Stock Levels</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-INV-02</div><div class="us-card-title">Stock Levels</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As a</strong> Production or Inventory manager</div>
@@ -1090,7 +1093,7 @@
       <div class="section-eyebrow">Operations Group</div>
       <h2 class="section-title">Process &amp; Workflows</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">TJ</span>Tyson Johnson</span>
         <a href="workflows.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
@@ -1146,7 +1149,7 @@
       <div class="section-eyebrow">Art Group</div>
       <h2 class="section-title">Content Library — Digital Asset Management</h2>
       <div class="section-meta">
-        <span class="badge-status badge-complete">✓ Complete</span>
+        <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">J?</span>Jon [TBD]</span>
         <a href="library.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
@@ -1156,7 +1159,7 @@
         <div class="info-box"><p><strong>Example query:</strong> "find all graphics that feature a moose and look like they could fit into a national parks theme" — the AI interprets this into visual tags and searches across auto-generated image descriptions, returning results ranked by relevance.</p></div>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-LIB-02</div><div class="us-card-title">AI Auto-Tagging on Upload</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-LIB-02</div><div class="us-card-title">AI Auto-Tagging on Upload</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As an</strong> Art Department member</div>
@@ -1174,7 +1177,7 @@
         </div>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-LIB-03</div><div class="us-card-title">Natural Language Search</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-LIB-03</div><div class="us-card-title">Natural Language Search</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As any</strong> MakeReady user with Content Library access</div>
@@ -1191,7 +1194,7 @@
         </div>
 
         <div class="us-card">
-          <div class="us-card-header"><div><div class="us-card-id">US-LIB-08</div><div class="us-card-title">Client Assignment &amp; Access Control</div></div><span class="badge-status badge-complete">Complete</span></div>
+          <div class="us-card-header"><div><div class="us-card-id">US-LIB-08</div><div class="us-card-title">Client Assignment &amp; Access Control</div></div><span class="badge-status badge-progress">In Progress</span></div>
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As an</strong> Art Department member</div>
@@ -1379,6 +1382,14 @@
             <option value="low">Low</option>
           </select>
         </div>
+      </div>
+      <div>
+        <div class="mf-label">Status</div>
+        <select id="mfStatus" class="mf-select">
+          <option value="progress" selected>● In Progress</option>
+          <option value="complete">✓ Complete</option>
+          <option value="discovery">⚠ Discovery Needed</option>
+        </select>
       </div>
       <div>
         <div class="mf-label">Title *</div>
@@ -2003,7 +2014,75 @@
       ctrl.appendChild(delBtn);
     }
 
+    // Inline status selector — quick edit without opening the modal
+    const statusWrap = document.createElement('div');
+    statusWrap.className = 'sc-status-wrap';
+    const statusLabel = document.createElement('label');
+    statusLabel.textContent = 'Status:';
+    const statusSel = document.createElement('select');
+    statusSel.className = 'sc-status';
+    [['progress','● In Progress'],['complete','✓ Complete'],['discovery','⚠ Discovery Needed']]
+      .forEach(([v, l]) => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = l;
+        statusSel.appendChild(o);
+      });
+    statusSel.value = statusFromClass(card.querySelector('.us-card-header .badge-status'));
+    statusSel.addEventListener('change', () => setCardStatus(key, statusSel.value));
+    statusWrap.appendChild(statusLabel);
+    statusWrap.appendChild(statusSel);
+    ctrl.appendChild(statusWrap);
+
     card.appendChild(ctrl);
+  }
+
+  // ── Status helpers ────────────────────────────────────────────
+  function statusMeta(key) {
+    switch (key) {
+      case 'complete':  return { cls: 'badge-complete',  label: '✓ Complete' };
+      case 'discovery': return { cls: 'badge-discovery', label: '⚠ Discovery Needed' };
+      default:          return { cls: 'badge-progress',  label: '● In Progress' };
+    }
+  }
+
+  function statusFromClass(el) {
+    if (!el) return 'progress';
+    if (el.classList.contains('badge-complete'))  return 'complete';
+    if (el.classList.contains('badge-discovery')) return 'discovery';
+    return 'progress';
+  }
+
+  function applyStatusBadge(card, statusKey) {
+    const header = card.querySelector('.us-card-header');
+    if (!header) return;
+    let badge = header.querySelector('.badge-status');
+    const meta = statusMeta(statusKey);
+    if (!badge) {
+      badge = document.createElement('span');
+      const addedBadge = header.querySelector('.req-added-badge');
+      if (addedBadge) header.insertBefore(badge, addedBadge);
+      else header.appendChild(badge);
+    }
+    badge.className = 'badge-status ' + meta.cls;
+    badge.textContent = meta.label;
+    const sel = card.querySelector('.sc-status');
+    if (sel) sel.value = statusKey;
+  }
+
+  function setCardStatus(key, statusKey) {
+    const card = findCard(key);
+    if (card) applyStatusBadge(card, statusKey);
+    const store = reqGet();
+    if (typeof key === 'string' && key.startsWith('addition:')) {
+      const uuid = key.slice(9);
+      const idx = (store.additions || []).findIndex(a => a.uuid === uuid);
+      if (idx !== -1) { store.additions[idx].status = statusKey; reqSave(store); }
+    } else {
+      if (!store.overrides) store.overrides = {};
+      if (!store.overrides[key]) store.overrides[key] = {};
+      store.overrides[key].status = statusKey;
+      reqSave(store);
+    }
   }
 
   // ── Edit mode toggle ──────────────────────────────────────────
@@ -2021,6 +2100,7 @@
       const ov = store.overrides && store.overrides[key];
       if (!ov) return;
       if (ov.editedContent) renderCardContent(card, ov.editedContent);
+      if (ov.status) applyStatusBadge(card, ov.status);
       if (ov.locked) applyLockVisual(card, ov.lockedBy, ov.lockedAt);
     });
   }
@@ -2049,6 +2129,10 @@
       } else {
         data = (store.overrides[key] && store.overrides[key].editedContent)
              || parseCardDOM(findCard(key));
+        // Latest inline status change wins over any older edited content
+        if (store.overrides[key] && store.overrides[key].status) {
+          data = Object.assign({}, data, { status: store.overrides[key].status });
+        }
       }
       populateReqForm(data, sectionId);
     } else {
@@ -2145,6 +2229,7 @@
       acceptanceCriteria: [...card.querySelectorAll('.ac-list li')]
         .map(li => getText(li.querySelector('span') || li)).filter(Boolean),
       priority: 'medium',
+      status: statusFromClass(card.querySelector('.us-card-header .badge-status')),
       notes: '',
     };
   }
@@ -2157,6 +2242,7 @@
     document.getElementById('mfSoThat').value  = data.so_that || '';
     document.getElementById('mfAC').value      = (data.acceptanceCriteria || []).join('\n');
     document.getElementById('mfPriority').value = data.priority || 'medium';
+    document.getElementById('mfStatus').value   = data.status || 'progress';
     document.getElementById('mfNotes').value   = data.notes || '';
     const sel = document.getElementById('mfSection');
     sel.value = sectionId || data.section || '';
@@ -2167,6 +2253,7 @@
       document.getElementById(id).value = '';
     });
     document.getElementById('mfPriority').value = 'medium';
+    document.getElementById('mfStatus').value = 'progress';
   }
 
   function readReqForm() {
@@ -2178,6 +2265,7 @@
       so_that: document.getElementById('mfSoThat').value.trim(),
       acceptanceCriteria: document.getElementById('mfAC').value.split('\n').map(s=>s.trim()).filter(Boolean),
       priority: document.getElementById('mfPriority').value,
+      status:  document.getElementById('mfStatus').value,
       notes:   document.getElementById('mfNotes').value.trim(),
       section: document.getElementById('mfSection').value,
     };
@@ -2219,6 +2307,7 @@
       if (!store.overrides) store.overrides = {};
       if (!store.overrides[_editKey]) store.overrides[_editKey] = {};
       store.overrides[_editKey].editedContent = data;
+      store.overrides[_editKey].status = data.status;
       reqSave(store);
       const card = findCard(_editKey);
       if (card) renderCardContent(card, data);
@@ -2257,6 +2346,8 @@
       if (noteEl) noteEl.textContent = 'Note: ' + data.notes;
     }
 
+    if (data.status) applyStatusBadge(card, data.status);
+
     card.classList.add('req-edited');
   }
 
@@ -2278,7 +2369,8 @@
       '<div class="us-card-header">'
       + '<div><div class="us-card-id">' + esc(item.id || 'US-NEW') + '</div>'
       + '<div class="us-card-title">' + esc(item.title) + '</div></div>'
-      + '<span class="req-added-badge">+ Added</span></div>'
+      + '<span class="badge-status ' + statusMeta(item.status).cls + '">' + statusMeta(item.status).label + '</span>'
+      + ' <span class="req-added-badge">+ Added</span></div>'
       + '<div class="us-card-body">'
       + '<div class="us-story" style="margin-bottom:14px;">'
       + '<div class="us-story-line"><strong>As a</strong> ' + esc(item.role) + '</div>'
