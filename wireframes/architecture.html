@@ -166,9 +166,10 @@
         <span class="arch-pill">US data residency</span>
         <span class="arch-pill">SAP B1 → migration source</span>
         <span class="arch-pill">Claude API for DAM AI</span>
+        <span class="arch-pill" style="background:#dcfce7;color:#15803d;border-color:#bbf7d0;">Stack: Vercel · Neon · Prisma · Clerk · Resend</span>
       </div>
       <div class="arch-note">
-        <strong>Reading this map:</strong> Boxes with a solid border reflect <strong>decisions already made</strong> (see Requirements Portal → Key Decisions). Boxes with dashed borders or a <span style="color:#a16207;font-weight:600;">proposed</span> tag are <strong>current recommendations pending sign-off</strong> from the client and the development firm. Hosting/vendor specifics marked below are the recommended defaults, not final selections.
+        <strong>Reading this map:</strong> Boxes with a solid border reflect <strong>decisions already made</strong> (see Requirements Portal → Key Decisions). Boxes with dashed borders or a <span style="color:#a16207;font-weight:600;">proposed</span> tag are <strong>current recommendations pending sign-off</strong> from the client and the development firm. The stack &amp; subscriptions in section 6 are now confirmed decisions; a short list of operational specifics remains open.
       </div>
 
       <!-- ══ DIAGRAM 1 — SYSTEM ARCHITECTURE ══════════════════════════ -->
@@ -227,9 +228,9 @@
           <div class="layer">
             <span class="layer-tag">Data Stores</span>
             <div class="layer-row">
-              <div class="node n-data"><b>PostgreSQL</b><span>Single instance · financial integrity · immutable postings</span></div>
+              <div class="node n-data"><b>PostgreSQL — Neon</b><span>Single instance · financial integrity · immutable postings</span></div>
               <div class="node n-data"><b>pgvector</b><span>Embedding index for NLP search</span></div>
-              <div class="node n-data"><b>Object Storage</b><span>S3 / Azure Blob — DAM files &amp; thumbnails</span></div>
+              <div class="node n-data"><b>Object Storage</b><span>Vercel Blob — DAM files &amp; thumbnails</span></div>
             </div>
           </div>
 
@@ -239,8 +240,8 @@
             <span class="layer-tag">External Services &amp; Subscriptions</span>
             <div class="layer-row">
               <div class="node n-ext"><b>Anthropic Claude API</b><span>Vision auto-tagging · NLP search</span></div>
-              <div class="node n-ext"><b>Email Service</b><span>Transactional — Resend / SendGrid / SES</span></div>
-              <div class="node n-ext"><b>Auth Provider</b><span>Clerk / Auth0 / custom JWT</span></div>
+              <div class="node n-ext"><b>Email — Resend</b><span>Transactional: notifications · approvals · reset</span></div>
+              <div class="node n-ext"><b>Auth — Clerk</b><span>Managed sessions &amp; MFA</span></div>
               <div class="node n-mig"><b>SAP Business One</b><span>Migration source — one-time, then decommissioned</span></div>
             </div>
           </div>
@@ -436,23 +437,23 @@
       <!-- ══ RECOMMENDED STACK & SUBSCRIPTIONS ═══════════════════════ -->
       <div class="dgm">
         <div class="dgm-title">6 · Recommended Stack &amp; Subscriptions</div>
-        <div class="dgm-sub">Current recommendations to resolve the open <code>[TBD]</code> items in the technical docs. <span class="badge badge-green">Decided</span> items are locked; <span class="badge badge-yellow">Proposed</span> items are the recommended default pending client / dev-firm sign-off.</div>
+        <div class="dgm-sub">Confirmed stack for the platform — every layer below is now <span class="badge badge-green">Decided</span>. A few operational specifics remain open and are listed underneath.</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Layer / Need</th><th>Recommendation</th><th>Status</th><th>Rationale &amp; alternatives</th></tr></thead>
             <tbody>
-              <tr><td><b>Frontend</b></td><td>Next.js (React, SSR)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Already the wireframe stack; SSR performance, component reuse. Alt: Remix</td></tr>
-              <tr><td><b>Backend / API</b></td><td>Next.js API routes + tRPC (Node/TS)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Keep one language across stack. Alt: .NET 8 if dev firm prefers</td></tr>
+              <tr><td><b>Frontend</b></td><td>Next.js (React, SSR)</td><td><span class="badge badge-green">Decided</span></td><td>Wireframe stack; SSR performance, component reuse</td></tr>
+              <tr><td><b>Backend / API</b></td><td>Next.js API routes + tRPC (Node/TS)</td><td><span class="badge badge-green">Decided</span></td><td>One language across the stack; typed end-to-end</td></tr>
               <tr><td><b>Database</b></td><td>PostgreSQL — single managed instance</td><td><span class="badge badge-green">Decided</span></td><td>Relational integrity for financial data; one DB for the monolith</td></tr>
-              <tr><td><b>DB hosting</b></td><td>Neon (managed Postgres, US region)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Serverless Postgres, pairs with Vercel. Alt: AWS RDS, Azure Database</td></tr>
-              <tr><td><b>ORM</b></td><td>Prisma or Drizzle</td><td><span class="badge badge-yellow">Proposed</span></td><td>Type-safe schema/migrations for the TS stack</td></tr>
-              <tr><td><b>Vector search</b></td><td>pgvector (Postgres extension)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Keeps embeddings in the same DB. Alt: Pinecone</td></tr>
-              <tr><td><b>App hosting</b></td><td>Vercel (US region)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Current wireframe host. Alt: AWS Elastic Beanstalk, Azure App Service</td></tr>
-              <tr><td><b>Object storage (DAM)</b></td><td>AWS S3 or Azure Blob + CDN</td><td><span class="badge badge-yellow">Proposed</span></td><td>≤ 500 MB/file, server-side thumbnails</td></tr>
-              <tr><td><b>Auth</b></td><td>Clerk or Auth0</td><td><span class="badge badge-yellow">Proposed</span></td><td>Managed sessions/MFA; server-side role enforcement still required. Alt: custom JWT</td></tr>
+              <tr><td><b>DB hosting</b></td><td>Neon (serverless Postgres, US region)</td><td><span class="badge badge-green">Decided</span></td><td>Pairs natively with Vercel; branching for dev/preview</td></tr>
+              <tr><td><b>ORM</b></td><td>Prisma</td><td><span class="badge badge-green">Decided</span></td><td>Type-safe schema &amp; migrations; strong tooling/DX</td></tr>
+              <tr><td><b>Vector search</b></td><td>pgvector (Postgres extension)</td><td><span class="badge badge-green">Decided</span></td><td>Embeddings live in the same DB — no separate vector service</td></tr>
+              <tr><td><b>App hosting</b></td><td>Vercel (US region)</td><td><span class="badge badge-green">Decided</span></td><td>Current wireframe host; Git-driven + CLI deploys</td></tr>
+              <tr><td><b>Object storage (DAM)</b></td><td>Vercel Blob (S3-compatible) + CDN</td><td><span class="badge badge-green">Decided</span></td><td>≤ 500 MB/file, server-side thumbnails; same platform as hosting</td></tr>
+              <tr><td><b>Auth</b></td><td>Clerk</td><td><span class="badge badge-green">Decided</span></td><td>Managed sessions/MFA; server-side role enforcement still required</td></tr>
               <tr><td><b>AI / Vision</b></td><td>Anthropic Claude API</td><td><span class="badge badge-green">Decided</span></td><td>Auto-tagging + NLP search in Content Library</td></tr>
-              <tr><td><b>Transactional email</b></td><td>Resend</td><td><span class="badge badge-yellow">Proposed</span></td><td>Notifications, approvals, password reset. Alt: SendGrid, AWS SES</td></tr>
-              <tr><td><b>PDF generation</b></td><td>React-PDF or Puppeteer</td><td><span class="badge badge-yellow">Proposed</span></td><td>Quote / invoice PDFs</td></tr>
+              <tr><td><b>Transactional email</b></td><td>Resend</td><td><span class="badge badge-green">Decided</span></td><td>Notifications, approvals, password reset; React email templates</td></tr>
+              <tr><td><b>PDF generation</b></td><td>React-PDF</td><td><span class="badge badge-green">Decided</span></td><td>Quote / invoice PDFs, server-rendered</td></tr>
               <tr><td><b>eCommerce</b></td><td>Native Web Store module</td><td><span class="badge badge-green">Decided</span></td><td>Removes Zoey B2B; store.g54.com served by MakeReady</td></tr>
               <tr><td><b>Integration middleware</b></td><td>None — direct integrations only</td><td><span class="badge badge-green">Decided</span></td><td>Vision33 Saltbox removed</td></tr>
               <tr><td><b>Legacy system</b></td><td>SAP Business One — migrate then retire</td><td><span class="badge badge-green">Decided</span></td><td>Source for master data + open transactions</td></tr>
@@ -460,7 +461,7 @@
           </table>
         </div>
         <div class="arch-note" style="margin:18px 0 0;">
-          <strong>Still open (need decisions):</strong> cloud provider &amp; region · production domain (e.g. app.makeready.g54.com) · embedding model choice · email provider &amp; from-address · malware scanning on uploads · SAP B1 historical-data cutoff dates · parallel-run duration.
+          <strong>Still open (need decisions):</strong> production domain (e.g. app.makeready.g54.com) · email from-address (e.g. noreply@makeready.g54.com) · embedding model choice · malware scanning on uploads · SAP B1 historical-data cutoff dates · parallel-run duration.
         </div>
       </div>
 
