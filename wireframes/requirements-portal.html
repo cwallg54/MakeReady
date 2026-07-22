@@ -1112,6 +1112,82 @@
           </tbody>
         </table>
         <p style="font-size:13px;color:var(--gray-500);">All thresholds are configurable in Administration. Additional rules to be defined during Operations/Process discovery.</p>
+
+        <h3 style="margin-top:26px;">Platform Efficiency &amp; Data Entry <span style="font-weight:500;color:var(--gray-500);font-size:14px;">(cross-cutting)</span></h3>
+        <div class="info-box"><p><strong>Source insight — discovery (July 2026):</strong> In the current tool (Zoey), tasks that used to be fast in a spreadsheet now take <em>longer</em> because of the number of button clicks required. These requirements ensure MakeReady is faster than <em>both</em> the spreadsheet and Zoey — and that the improvement is measurable. They apply platform-wide, not only to Process &amp; Workflows.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-EFF-01</div><div class="us-card-title">Spreadsheet-Speed Data Entry (Editable Grids)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> high-volume user (Sales, Inventory, Finance)</div>
+              <div class="us-story-line"><strong>I want</strong> to enter and edit records in an editable, spreadsheet-style grid — paste rows from Excel, move with Tab/Enter, fill-down a column, and edit inline</div>
+              <div class="us-story-line"><strong>So that</strong> bulk entry is at least as fast as a spreadsheet and faster than clicking through Zoey's forms</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span><span class="kw">Given</span> a list or document, I can paste multiple rows copied from Excel/CSV directly into the grid, with columns auto-mapped</span></li>
+              <li><span><span class="kw">Given</span> I am in a grid, <span class="kw">then</span> Tab/Enter move between cells and rows with no page reload; Esc cancels the edit</span></li>
+              <li><span>I can select a cell and fill its value down to the rows below</span></li>
+              <li><span>Inline edits commit on Enter/blur — no modal or separate page for routine changes</span></li>
+              <li><span>Applies at minimum to: Quote / Sales Order line items, Item master, and Business Partners</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-EFF-02</div><div class="us-card-title">Minimal-Click Task Completion (Efficiency Standard)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> daily user</div>
+              <div class="us-story-line"><strong>I want</strong> the most common tasks to take the fewest possible clicks and to support keyboard shortcuts</div>
+              <div class="us-story-line"><strong>So that</strong> MakeReady is faster than the tools it replaces, never slower</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>A documented click/keystroke budget exists for top tasks (create quote, add line items, convert Quote→SO, post payment) and each meets its target</span></li>
+              <li><span>Frequent actions have keyboard shortcuts (new record, save, add line, submit for approval)</span></li>
+              <li><span>Common actions are inline (row / detail actions), not multi-page wizards, wherever a single step is possible</span></li>
+              <li><span>New records default sensible values (BP pricing, payment terms, dates) so users don't re-enter known data</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-EFF-03</div><div class="us-card-title">Bulk Actions &amp; Excel Round-Trip</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> power user or manager</div>
+              <div class="us-story-line"><strong>I want</strong> to act on many records at once, and to export any list to Excel, edit it, and re-import the changes</div>
+              <div class="us-story-line"><strong>So that</strong> I can still "work in a spreadsheet" when that's fastest and push results back without re-keying</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>I can select multiple rows and apply a bulk action: status change, price update, Web Store publish/unpublish, or assignment</span></li>
+              <li><span>Any list view exports to Excel/CSV honoring the current columns and filters</span></li>
+              <li><span>An edited export can be re-imported with a validation preview (adds / updates / errors) shown before commit</span></li>
+              <li><span>Bulk operations write to the audit log and respect approval rules and role permissions</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-EFF-04</div><div class="us-card-title">Efficiency &amp; Value Metrics</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As</strong> leadership / an operations manager</div>
+              <div class="us-story-line"><strong>I want</strong> to see how long tasks take and how much time the platform saves versus the old way</div>
+              <div class="us-story-line"><strong>So that</strong> the value of MakeReady is measurable — dollars, hours saved, throughput, retention</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Cycle time is tracked for key flows (Quote→SO, Order→Ship, Invoice→Payment)</span></li>
+              <li><span>An efficiency dashboard shows records processed per user/period, average time per task, and estimated hours saved vs a baseline</span></li>
+              <li><span>Where available, a baseline (spreadsheet / Zoey) is captured for before/after comparison</span></li>
+              <li><span>Metrics are exportable for leadership reporting</span></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
