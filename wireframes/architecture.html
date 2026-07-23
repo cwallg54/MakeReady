@@ -168,6 +168,7 @@
         <span class="arch-pill">Well-structured monolith</span>
         <span class="arch-pill">Direct integrations only</span>
         <span class="arch-pill">US data residency</span>
+        <span class="arch-pill" style="background:#fef2f2;color:#b91c1c;border-color:#fecaca;">PCI DSS compliant</span>
         <span class="arch-pill">Legacy ERP → migration source</span>
         <span class="arch-pill">Claude API for DAM AI</span>
         <span class="arch-pill" style="background:#dcfce7;color:#15803d;border-color:#bbf7d0;">Stack: Vercel · Neon · Prisma · Clerk · Resend</span>
@@ -246,6 +247,7 @@
               <div class="node n-ext"><b>Anthropic Claude API</b><span>Vision auto-tagging · NLP search</span></div>
               <div class="node n-ext"><b>Email — Resend</b><span>Transactional: notifications · approvals · reset</span></div>
               <div class="node n-ext"><b>Auth — Clerk</b><span>Managed sessions &amp; MFA</span></div>
+              <div class="node n-ext"><b>Payment Gateway (PCI)</b><span>Bank merchant gateway · tokenized cards &amp; ACH</span></div>
               <div class="node n-mig"><b>Legacy ERP</b><span>Migration source — one-time, then decommissioned</span></div>
             </div>
           </div>
@@ -458,6 +460,8 @@
               <tr><td><b>AI / Vision</b></td><td>Anthropic Claude API</td><td><span class="badge badge-green">Decided</span></td><td>Auto-tagging + NLP search in Content Library</td></tr>
               <tr><td><b>Transactional email</b></td><td>Resend</td><td><span class="badge badge-green">Decided</span></td><td>Notifications, approvals, password reset; React email templates</td></tr>
               <tr><td><b>PDF generation</b></td><td>React-PDF</td><td><span class="badge badge-green">Decided</span></td><td>Quote / invoice PDFs, server-rendered</td></tr>
+              <tr><td><b>PCI compliance</b></td><td>Tokenized capture · no PAN stored</td><td><span class="badge badge-green">Decided</span></td><td>Hosted fields / vault keep MakeReady out of PAN scope (SAQ A/A-EP); encrypted in transit &amp; at rest; card data not readable after submit</td></tr>
+              <tr><td><b>Payment processing</b></td><td>Bank merchant gateway (card + ACH)</td><td><span class="badge badge-yellow">Proposed</span></td><td>Charge on ship, 3% card fee / ACH; specific processor to confirm with Capital Community Bank</td></tr>
               <tr><td><b>eCommerce</b></td><td>Native Web Store module</td><td><span class="badge badge-green">Decided</span></td><td>Removes Zoey B2B; store.g54.com served by MakeReady</td></tr>
               <tr><td><b>Integration middleware</b></td><td>None — direct integrations only</td><td><span class="badge badge-green">Decided</span></td><td>Vision33 Saltbox removed</td></tr>
               <tr><td><b>Legacy system</b></td><td>Legacy ERP — migrate then retire</td><td><span class="badge badge-green">Decided</span></td><td>Source for master data + open transactions</td></tr>

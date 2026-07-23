@@ -1016,6 +1016,44 @@
             </ul>
           </div>
         </div>
+
+        <div class="info-box" style="background:#fef2f2;border-color:#fecaca;"><p><strong>PCI DSS is a hard requirement.</strong> Because MakeReady captures card details on the Credit Card Info form and processes payments, all cardholder data must be encrypted in transit and at rest and <strong>must not be readable once submitted</strong>. The platform will integrate with the bank for sales/payment processing.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-07</div><div class="us-card-title">PCI-Compliant Cardholder Data Handling</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> business owner / customer</div>
+              <div class="us-story-line"><strong>I want</strong> all credit-card data encrypted, tokenized, and never readable after submission</div>
+              <div class="us-story-line"><strong>So that</strong> we are PCI DSS compliant and card data cannot be exposed</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Card data is captured via a PCI-compliant hosted field / tokenization service — the raw PAN never touches MakeReady servers or database (scope minimized to SAQ A / A-EP)</span></li>
+              <li><span>All cardholder data is encrypted in transit (TLS) and at rest; only a non-reversible token + last-4 and brand are retained</span></li>
+              <li><span>Full card number, CVV, and expiry are <strong>not readable or retrievable</strong> by any user or admin after submission; CVV is never stored</span></li>
+              <li><span>Access is logged; PCI DSS controls (key management, network segmentation, quarterly scans, SAQ) are documented and enforced</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-08</div><div class="us-card-title">Bank / Payment-Processor Integration for Sales Processing</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance user</div>
+              <div class="us-story-line"><strong>I want</strong> MakeReady integrated with the bank / payment gateway to process card and ACH payments</div>
+              <div class="us-story-line"><strong>So that</strong> sales are charged, settled, and reconciled without leaving the platform</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Tokenized cards are charged through the bank's merchant gateway when an order is ready to ship</span></li>
+              <li><span>Supports card and ACH; applies the 3% card-processing fee and offers ACH to avoid it</span></li>
+              <li><span>Authorizations, captures, refunds, and settlement status sync to the order and AR (auto-reconciliation)</span></li>
+              <li><span>Bank/gateway credentials held in a secrets manager; specific processor confirmed with the bank (Capital Community Bank)</span></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
