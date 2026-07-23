@@ -90,6 +90,10 @@
   <aside class="sidebar">
     <div class="sidebar-brand"><div class="logo">MakeReady by G54</div><div class="client">Great Mountain West</div></div>
     <div class="sidebar-section">
+      <div class="sidebar-section-label">Lifecycle</div>
+      <a href="intake.html">📥 Sales Intake</a>
+    </div>
+    <div class="sidebar-section">
       <a href="index.html">⊞ Dashboard</a>
     </div>
     <div class="sidebar-section">
@@ -164,7 +168,7 @@
         <span class="arch-pill">Well-structured monolith</span>
         <span class="arch-pill">Direct integrations only</span>
         <span class="arch-pill">US data residency</span>
-        <span class="arch-pill">SAP B1 → migration source</span>
+        <span class="arch-pill">Legacy ERP → migration source</span>
         <span class="arch-pill">Claude API for DAM AI</span>
         <span class="arch-pill" style="background:#dcfce7;color:#15803d;border-color:#bbf7d0;">Stack: Vercel · Neon · Prisma · Clerk · Resend</span>
       </div>
@@ -242,7 +246,7 @@
               <div class="node n-ext"><b>Anthropic Claude API</b><span>Vision auto-tagging · NLP search</span></div>
               <div class="node n-ext"><b>Email — Resend</b><span>Transactional: notifications · approvals · reset</span></div>
               <div class="node n-ext"><b>Auth — Clerk</b><span>Managed sessions &amp; MFA</span></div>
-              <div class="node n-mig"><b>SAP Business One</b><span>Migration source — one-time, then decommissioned</span></div>
+              <div class="node n-mig"><b>Legacy ERP</b><span>Migration source — one-time, then decommissioned</span></div>
             </div>
           </div>
 
@@ -336,13 +340,13 @@
         </div>
       </div>
 
-      <!-- ══ DIAGRAM 4 — SAP B1 MIGRATION ════════════════════════════ -->
+      <!-- ══ DIAGRAM 4 — LEGACY DATA MIGRATION ════════════════════════════ -->
       <div class="dgm">
-        <div class="dgm-title">4 · SAP Business One Migration Flow</div>
-        <div class="dgm-sub">One-time data migration before go-live. Master data and open transactions move from SAP B1 into MakeReady; Finance validates counts and balances; the two systems run in parallel before SAP B1 is decommissioned.</div>
+        <div class="dgm-title">4 · Legacy Data Migration Flow</div>
+        <div class="dgm-sub">One-time data migration before go-live. Master data and open transactions move from the legacy ERP into MakeReady; Finance validates counts and balances; the two systems run in parallel before the legacy system is decommissioned.</div>
         <div class="dgm-canvas">
           <div class="flow">
-            <div class="node n-mig"><b>1 · Extract</b><span>SAP B1 → CSV / Excel</span></div>
+            <div class="node n-mig"><b>1 · Extract</b><span>Legacy ERP → CSV / Excel</span></div>
             <div class="flow-arrow"><span class="a-line">→</span></div>
             <div class="node"><b>2 · Transform</b><span>scripts validate &amp; map fields</span></div>
             <div class="flow-arrow"><span class="a-line">→</span></div>
@@ -352,7 +356,7 @@
             <div class="flow-arrow"><span class="a-line">→</span></div>
             <div class="node" style="border-left-color:#2563eb;"><b>5 · Cutover</b><span>freeze B1 · new txns in MakeReady</span></div>
             <div class="flow-arrow"><span class="a-line">→</span></div>
-            <div class="node n-data"><b>6 · Parallel run</b><span>then decommission SAP B1</span></div>
+            <div class="node n-data"><b>6 · Parallel run</b><span>then decommission legacy ERP</span></div>
           </div>
           <div class="flow-return" style="background:#fff7f7;border-color:#fecaca;color:#b91c1c;">
             Migrated: Business Partners &amp; contacts · Chart of Accounts · Item Master · Vendors · Cost Centers · Fixed Assets · open SOs / AR / AP / deliveries · trial balance. Historical cutoff dates <b>[TBD — confirm with Finance: Kim Lund, Britney de Jong, Leslie Weiler]</b>.
@@ -391,7 +395,7 @@
                 <div class="er-ent"><b>ar_invoice</b> <span>INV- · balance · GL account</span></div>
                 <div class="er-ent"><b>incoming_payment</b> <span>immutable · partials allowed</span></div>
                 <div class="er-ent"><b>item</b> <span>SKU · on_hand · committed</span></div>
-                <div class="er-ent"><span>+ AP, GL, cost centers, fixed assets (from SAP B1)</span></div>
+                <div class="er-ent"><span>+ AP, GL, cost centers, fixed assets (from legacy ERP)</span></div>
               </div>
             </div>
             <div class="er-domain">
@@ -456,12 +460,12 @@
               <tr><td><b>PDF generation</b></td><td>React-PDF</td><td><span class="badge badge-green">Decided</span></td><td>Quote / invoice PDFs, server-rendered</td></tr>
               <tr><td><b>eCommerce</b></td><td>Native Web Store module</td><td><span class="badge badge-green">Decided</span></td><td>Removes Zoey B2B; store.g54.com served by MakeReady</td></tr>
               <tr><td><b>Integration middleware</b></td><td>None — direct integrations only</td><td><span class="badge badge-green">Decided</span></td><td>Vision33 Saltbox removed</td></tr>
-              <tr><td><b>Legacy system</b></td><td>SAP Business One — migrate then retire</td><td><span class="badge badge-green">Decided</span></td><td>Source for master data + open transactions</td></tr>
+              <tr><td><b>Legacy system</b></td><td>Legacy ERP — migrate then retire</td><td><span class="badge badge-green">Decided</span></td><td>Source for master data + open transactions</td></tr>
             </tbody>
           </table>
         </div>
         <div class="arch-note" style="margin:18px 0 0;">
-          <strong>Still open (need decisions):</strong> production domain (e.g. app.makeready.g54.com) · email from-address (e.g. noreply@makeready.g54.com) · embedding model choice · malware scanning on uploads · SAP B1 historical-data cutoff dates · parallel-run duration.
+          <strong>Still open (need decisions):</strong> production domain (e.g. app.makeready.g54.com) · email from-address (e.g. noreply@makeready.g54.com) · embedding model choice · malware scanning on uploads · legacy historical-data cutoff dates · parallel-run duration.
         </div>
       </div>
 

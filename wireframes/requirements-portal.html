@@ -575,9 +575,9 @@
         <table class="req-table">
           <thead><tr><th>Replaced System</th><th>Function</th><th>MakeReady Equivalent</th></tr></thead>
           <tbody>
-            <tr><td><strong>SAP Business One</strong></td><td>ERP — accounting, inventory, sales</td><td>Native Finance, Sales, Inventory modules</td></tr>
+            <tr><td><strong>Legacy ERP</strong></td><td>Accounting, inventory, sales</td><td>Native Finance, Sales, Inventory modules</td></tr>
             <tr><td><strong>Zoey B2B</strong> (greatmountainwest.zoey.com)</td><td>B2B eCommerce storefront</td><td>Native Web Store at store.g54.com</td></tr>
-            <tr><td><strong>Vision33 Saltbox</strong></td><td>iPaaS connector between SAP and Zoey</td><td>Eliminated — direct integrations only</td></tr>
+            <tr><td><strong>Vision33 Saltbox</strong></td><td>iPaaS connector between the legacy ERP and Zoey</td><td>Eliminated — direct integrations only</td></tr>
           </tbody>
         </table>
         <h3>Key Decisions Already Made</h3>
@@ -649,7 +649,7 @@
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 2</span><h4>Customer &amp; Sales</h4></div><p>Full quote-to-payment cycle for G54's sales team.</p><div class="roadmap-items"><span class="roadmap-item">Business Partners / CRM</span><span class="roadmap-item">Quotes</span><span class="roadmap-item">Sales Orders</span><span class="roadmap-item">Delivery → Invoice → Payment</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 3</span><h4>Web Store (Native B2B eComm)</h4></div><p>Replaces Zoey B2B. store.g54.com live and operational. Web Store orders become Sales Orders automatically.</p><div class="roadmap-items"><span class="roadmap-item">Product Catalog</span><span class="roadmap-item">Account Group Pricing</span><span class="roadmap-item">Auto SO Creation</span><span class="roadmap-item">Order Approval Rules</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 4</span><h4>Operations</h4></div><p>Production job management, inventory, quality, and equipment maintenance.</p><div class="roadmap-items"><span class="roadmap-item">Jobs &amp; Production Queue</span><span class="roadmap-item">Artwork Attachment</span><span class="roadmap-item">Inventory / MRP</span><span class="roadmap-item">Quality &amp; Maintenance</span></div></div>
-          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 5</span><h4>Finance &amp; Accounting</h4></div><p>Full accounting suite. SAP Business One is decommissioned after this phase.</p><div class="roadmap-items"><span class="roadmap-item">AP / AR</span><span class="roadmap-item">Bank Reconciliation</span><span class="roadmap-item">Cost Centers</span><span class="roadmap-item">Fixed Assets</span><span class="roadmap-item">SAP B1 Migration Complete</span></div></div>
+          <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 5</span><h4>Finance &amp; Accounting</h4></div><p>Full accounting suite. the legacy ERP is decommissioned after this phase.</p><div class="roadmap-items"><span class="roadmap-item">AP / AR</span><span class="roadmap-item">Bank Reconciliation</span><span class="roadmap-item">Cost Centers</span><span class="roadmap-item">Fixed Assets</span><span class="roadmap-item">legacy ERP Migration Complete</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 6</span><h4>Content Library (DAM)</h4></div><p>AI-powered art and graphics management. Find any asset in seconds using natural language.</p><div class="roadmap-items"><span class="roadmap-item">Upload (all formats)</span><span class="roadmap-item">AI Auto-Tagging</span><span class="roadmap-item">NLP Search</span><span class="roadmap-item">Collections</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 7</span><h4>Field Sales &amp; RBAC</h4></div><p>Field sales reps can log in from any tablet and submit client orders and artwork without office access.</p><div class="roadmap-items"><span class="roadmap-item">Mobile-Responsive Sales View</span><span class="roadmap-item">Field Order Upload</span><span class="roadmap-item">Artwork Upload from Device</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 8</span><h4>Workflows, Reports &amp; Intelligence</h4></div><p>Automated approval rules and management dashboards.</p><div class="roadmap-items"><span class="roadmap-item">Approval Rules Engine</span><span class="roadmap-item">Sales / Finance / Production Dashboards</span><span class="roadmap-item">CSV / PDF Export</span></div></div>
@@ -908,11 +908,12 @@
       <div class="section-meta">
         <span class="badge-status badge-progress">● In Progress</span>
         <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
-        <a href="accounting.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
+        <a href="intake.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
       <div class="section-body">
-        <p>New-customer setup is manual: jot-form credit and tax-exempt applications emailed to Stacey/Britney, with Experian run by hand on ~95% of terms accounts. Nothing routes to a team, and the customer is never told the outcome.</p>
+        <p>New-customer setup is manual: jot-form credit and tax-exempt applications emailed to Stacey/Britney, with Experian run by hand on ~95% of terms accounts. Nothing routes to a team, and the customer is never told the outcome. <strong>G54's actual paper forms have been digitized into the <a href="intake.html" style="color:var(--primary);font-weight:600;">Sales Intake</a> wireframe.</strong></p>
         <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> Chris's challenge — "Rather than coming to a person, if it goes into a queue a team is added to, then if you have turnover you're protected." And: automate credit-app reminders so sales don't chase Stacey.</p></div>
+        <div class="info-box" style="background:#f0fdf4;border-color:#bbf7d0;"><p><strong>Digitized forms (from G54, July 22):</strong> <strong>Terms Application</strong> (company · ownership · contacts · AP · bank reference · 3+ trade references · amount of credit requested · Net 30 T&amp;C · credit-report authorization · optional personal guarantee), <strong>Credit Card Application</strong> (company · contacts · AP · agreement), and a confidential <strong>Credit Card Info</strong> sheet. Key rules captured: first order COD/CC/approved credit; <strong>Net 30</strong>; <strong>1.5%/mo (18% APR)</strong> on late balances; <strong>3% card-processing fee</strong> (eff. Apr 1, 2026) with ACH to avoid it; card charged when ready to ship; card data held in a PCI-compliant vault, never in the main record.</p></div>
 
         <div class="us-card">
           <div class="us-card-header"><div><div class="us-card-id">US-ONB-01</div><div class="us-card-title">Guided Client Onboarding &amp; Document Capture</div></div><span class="badge-status badge-progress">In Progress</span></div>
@@ -1029,7 +1030,7 @@
         <a href="workflows.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
       <div class="section-body">
-        <p>The #1 pain: no end-to-end status visibility across Zoey + SAP + Trello, so reps can't answer "what's the status?" These requirements deliver a Domino's-style tracker, self-service portals, a built-in Kanban, and auditable approvals.</p>
+        <p>The #1 pain: no end-to-end status visibility across Zoey + Trello + spreadsheets, so reps can't answer "what's the status?" These requirements deliver a Domino's-style tracker, self-service portals, a built-in Kanban, and auditable approvals.</p>
         <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> The "pizza tracker" — welcome → waiting for credit → art received/in progress → production → shipped, with red-flag states. "That visibility into the life cycle was a huge pain point for your team." <strong>Decision:</strong> co-branding independent portals was <em>rejected</em> — G54 wants its own brand front and center.</p></div>
 
         <div class="us-card">
@@ -1044,7 +1045,7 @@
             <ul class="ac-list">
               <li><span>Stages: account created → credit approval → art submitted/in progress → production → shipped</span></li>
               <li><span>Red-flag states surface blockers ("something didn't add up — call us")</span></li>
-              <li><span>Single source of truth (not stitched across Zoey/SAP/Trello); expected time frames shown</span></li>
+              <li><span>Single source of truth (not stitched across Zoey/Trello/spreadsheets); expected time frames shown</span></li>
             </ul>
           </div>
         </div>
@@ -1146,7 +1147,7 @@
         <span class="stakeholder-chip"><span class="stakeholder-avatar">CW</span>Chris Wall</span>
       </div>
       <div class="section-body">
-        <p>Reporting is powerful but sprawling — thousands of Crystal reports with unknown usage. Rollout must be modular and low-risk: replace Zoey, SAP, Trello, spreadsheets, and email with one platform, one module at a time.</p>
+        <p>Reporting is powerful but sprawling — thousands of Crystal reports with unknown usage. Rollout must be modular and low-risk: replace Zoey, Trello, spreadsheets, and email with one platform, one module at a time.</p>
         <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> "We have thousands of reports and who knows who's using them." And the rollout thesis: start with the intake/lead-to-cash module because if it breaks, the fallback is just email/phone — low risk.</p></div>
 
         <div class="us-card">
@@ -1176,7 +1177,7 @@
             </div>
             <div class="ac-label">Acceptance Criteria</div>
             <ul class="ac-list">
-              <li><span>Phase 1 = customer intake through order submission; can hand off to SAP via an export/import if needed</span></li>
+              <li><span>Phase 1 = customer intake through order submission; can hand off to the legacy ERP via an export/import if needed</span></li>
               <li><span>Modules that can't stand alone aren't deployed until they combine into a usable whole</span></li>
               <li><span>Each phase has a manual fallback (email/phone) so a failure never halts the business</span></li>
             </ul>
@@ -1205,13 +1206,13 @@
           <div class="us-card-body">
             <div class="us-story">
               <div class="us-story-line"><strong>As</strong> G54</div>
-              <div class="us-story-line"><strong>I want</strong> one platform replacing Zoey, SAP, Trello, spreadsheets, and email</div>
+              <div class="us-story-line"><strong>I want</strong> one platform replacing Zoey, Trello, spreadsheets, and email</div>
               <div class="us-story-line"><strong>So that</strong> we have one data model and one status picture end-to-end</div>
             </div>
             <div class="ac-label">Acceptance Criteria</div>
             <ul class="ac-list">
-              <li><span>Eliminates the disjointed Zoey↔SAP↔Trello↔spreadsheet↔email stack over the phased rollout</span></li>
-              <li><span>Finance/accounting cut over running parallel to SAP to reconcile the numbers before retiring it</span></li>
+              <li><span>Eliminates the disjointed Zoey↔Trello↔spreadsheet↔email stack over the phased rollout</span></li>
+              <li><span>Finance/accounting cut over running parallel to the legacy ERP to reconcile the numbers before retiring it</span></li>
               <li><span>One data model; no re-entry between systems</span></li>
             </ul>
           </div>
@@ -1317,7 +1318,7 @@
         <a href="crm.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
       <div class="section-body">
-        <p>Every customer in MakeReady is a <strong>Business Partner (BP)</strong>, mirroring the SAP Business One entity model. The Account Group assigned to a BP controls their Web Store pricing tier and catalog access automatically.</p>
+        <p>Every customer in MakeReady is a <strong>Business Partner (BP)</strong>, as the single customer/vendor master record. The Account Group assigned to a BP controls their Web Store pricing tier and catalog access automatically.</p>
 
         <div class="us-card">
           <div class="us-card-header">
@@ -1477,7 +1478,7 @@
         <a href="accounting.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
       </div>
       <div class="section-body">
-        <p>The Accounting module replaces G54's SAP Business One accounting installation. All master data and open transactions migrate from SAP B1 before go-live. After Phase 5, SAP B1 is decommissioned.</p>
+        <p>The Accounting module replaces G54's legacy accounting installation. All master data and open transactions migrate from the legacy ERP before go-live. After Phase 5, the legacy system is decommissioned.</p>
 
         <div class="us-card">
           <div class="us-card-header"><div><div class="us-card-id">US-ACC-03</div><div class="us-card-title">Accounts Payable</div></div><span class="badge-status badge-progress">In Progress</span></div>
@@ -1517,7 +1518,7 @@
           <ul>
             <li>Bank reconciliation: how does G54 currently import bank statements? (CSV, OFX, manual entry?)</li>
             <li>Does G54 do batch AP payment runs, or are vendor invoices paid individually?</li>
-            <li>SAP B1 historical data cutoff: how far back do closed invoices migrate?</li>
+            <li>Legacy historical data cutoff: how far back do closed invoices migrate?</li>
             <li>Tax setup: how many sales tax rates/jurisdictions?</li>
           </ul>
         </div>
@@ -1948,11 +1949,11 @@
 
     <section class="req-section" id="integrations">
       <div class="section-eyebrow">Technical</div>
-      <h2 class="section-title">Integrations &amp; SAP B1 Migration</h2>
+      <h2 class="section-title">Integrations &amp; Legacy Migration</h2>
       <div class="section-meta"><span class="badge-status badge-progress">● In Progress</span></div>
       <div class="section-body">
         <div class="info-box"><p><strong>No middleware.</strong> All integrations are direct API-to-API. Vision33 Saltbox has been removed from the architecture entirely.</p></div>
-        <h3>SAP Business One Migration</h3>
+        <h3>Legacy System Migration</h3>
         <table class="req-table">
           <thead><tr><th>Data Category</th><th>What Migrates</th><th>Validation Owner</th></tr></thead>
           <tbody>
@@ -1962,7 +1963,7 @@
             <tr><td>Historical (closed)</td><td>Cutoff date TBD with Finance team</td><td>Kim Lund</td></tr>
           </tbody>
         </table>
-        <p>Migration approach: Extract from SAP B1 → Transform via migration scripts → Load into MakeReady → Finance validates record counts and balances → Cutover to MakeReady → Parallel run period → SAP B1 decommissioned.</p>
+        <p>Migration approach: Extract from the legacy ERP → Transform via migration scripts → Load into MakeReady → Finance validates record counts and balances → Cutover to MakeReady → Parallel run period → legacy system decommissioned.</p>
       </div>
     </section>
 

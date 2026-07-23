@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeReady by G54 — Sales Intake</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .topbar-portal-link { font-size:12px; font-weight:600; color:#6366f1; text-decoration:none; padding:5px 10px; border:1px solid #c4b5fd; border-radius:6px; background:#ede9fe; margin-right:4px; white-space:nowrap; }
+    .topbar-portal-link:hover { background:#ddd6fe; }
+
+    .lifecycle { display:flex; align-items:center; gap:0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 20px; margin-bottom:20px; font-size:13px; flex-wrap:wrap; }
+    .lifecycle .lc-label { color:#64748b; font-size:11px; font-weight:600; letter-spacing:0.05em; margin-right:16px; }
+    .lc-step { padding:4px 12px; border-radius:6px; font-weight:600; background:#eef2ff; color:#64748b; }
+    .lc-step.active { background:#2563eb; color:#fff; }
+    .lc-arrow { color:#94a3b8; font-size:16px; padding:0 4px; }
+
+    .intake-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:0; margin-bottom:20px; overflow:hidden; }
+    .intake-card-head { padding:16px 22px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .intake-card-head h2 { font-size:16px; font-weight:700; color:#0f172a; margin:0; }
+    .intake-card-head p { font-size:12.5px; color:#64748b; margin:3px 0 0; }
+    .intake-card-body { padding:22px; }
+
+    .form-section-title { font-size:12px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:0.05em; margin:22px 0 12px; padding-bottom:6px; border-bottom:1px solid #eef2f7; }
+    .form-section-title:first-child { margin-top:0; }
+    .req::after { content:" *"; color:#dc2626; }
+    .radio-row { display:flex; gap:18px; flex-wrap:wrap; }
+    .radio-opt { display:flex; align-items:center; gap:7px; font-size:13px; color:#334155; }
+    .contact-block { border:1px solid #eef2f7; border-radius:8px; padding:14px; background:#fafbfc; margin-bottom:12px; }
+    .contact-block-label { font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; }
+
+    .terms-box { font-size:12px; color:#475569; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px; line-height:1.55; }
+    .terms-box strong { color:#0f172a; }
+    .fee-note { font-size:12.5px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:11px 14px; margin-bottom:16px; }
+    .pci-note { font-size:12px; color:#075985; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:11px 14px; margin-bottom:16px; }
+    .check-row { display:flex; align-items:flex-start; gap:9px; font-size:12.5px; color:#334155; margin-top:12px; }
+    .sig-row { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-top:14px; }
+    .sig-line { border-bottom:1.5px solid #cbd5e1; height:34px; }
+    .sig-cap { font-size:11px; color:#94a3b8; margin-top:4px; }
+
+    .app-type { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .app-type-btn { flex:1; min-width:180px; border:1px solid #d1d5db; border-radius:9px; background:#fff; padding:14px 16px; cursor:pointer; text-align:left; transition:all .15s; }
+    .app-type-btn b { display:block; font-size:14px; color:#0f172a; }
+    .app-type-btn span { font-size:11.5px; color:#64748b; }
+    .app-type-btn.active { border-color:#2563eb; background:#eff6ff; box-shadow:0 0 0 3px #dbeafe; }
+
+    .route-panel { background:#f8fafc; border:1px dashed #cbd5e1; border-radius:9px; padding:16px 18px; margin-top:20px; }
+    .route-panel h4 { font-size:12px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 10px; }
+    .route-flow { display:flex; align-items:center; flex-wrap:wrap; gap:2px; }
+    .route-node { background:#fff; border:1px solid #e2e8f0; border-left:3px solid #2563eb; border-radius:7px; padding:8px 12px; font-size:12px; }
+    .route-node b { display:block; color:#0f172a; font-size:12px; }
+    .route-node span { color:#64748b; font-size:10.5px; }
+    .route-arrow { color:#94a3b8; padding:0 6px; }
+
+    .pdf-link { font-size:12px; color:#2563eb; text-decoration:none; font-weight:600; border:1px solid #bfdbfe; background:#eff6ff; padding:5px 11px; border-radius:6px; white-space:nowrap; }
+    .pdf-link:hover { background:#dbeafe; }
+  </style>
+</head>
+<body class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="logo">MakeReady by G54</div><div class="client">Great Mountain West</div></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Lifecycle</div>
+      <a href="intake.html" class="active">📥 Sales Intake</a>
+    </div>
+    <div class="sidebar-section">
+      <a href="index.html">⊞ Dashboard</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Customer</div>
+      <a href="crm.html">👥 CRM</a>
+      <a href="sales.html">🏷 Sales</a>
+      <a href="ecommerce.html">🛒 eCommerce</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Finance</div>
+      <a href="accounting.html">📒 Accounting</a>
+      <a href="controlling.html">📊 Controlling</a>
+      <a href="assets.html">🏗 Asset Accounting</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a href="inventory.html">📦 Inventory &amp; MRP</a>
+      <a href="pos.html">🖥 Point of Sale</a>
+      <a href="jobs.html">🏭 Jobs &amp; Production</a>
+      <a href="quality.html">✅ Quality Management</a>
+      <a href="maintenance.html">🔧 Equipment Maintenance</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Creative</div>
+      <a href="library.html">🎨 Content Library</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Enterprise</div>
+      <a href="enterprise.html">🏢 Multi-Entity &amp; EDI</a>
+      <a href="workflows.html">⚡ Workflows &amp; Approvals</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Planning</div>
+      <a href="requirements-portal.html">📋 Requirements Portal</a>
+      <a href="architecture.html">🗺 Architecture Mapping</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">System</div>
+      <a href="admin.html">⚙ Administration</a>
+    </div>
+    <div class="sidebar-footer">CW · Christopher Wall</div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="breadcrumb">Lifecycle / <b>Sales Intake</b></span>
+      </div>
+      <div class="topbar-right">
+        <a href="requirements-portal.html" class="topbar-portal-link">📋 Requirements</a>
+        <div class="user-chip"><div class="avatar">CW</div><span class="user-name">Christopher Wall</span></div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Sales Intake</h1>
+          <p class="page-subtitle">Stage 1 of the lead-to-cash lifecycle — capture leads, onboard new customers, and register partner deals in one place.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary">Import Lead</button>
+          <button class="btn btn-primary ml-auto">+ New Intake</button>
+        </div>
+      </div>
+
+      <!-- LIFECYCLE STRIP -->
+      <div class="lifecycle">
+        <span class="lc-label">LEAD-TO-CASH LIFECYCLE</span>
+        <span class="lc-step active">📥 Sales Intake</span>
+        <span class="lc-arrow">→</span>
+        <span class="lc-step">✏️ Quote / Order</span>
+        <span class="lc-arrow">→</span>
+        <span class="lc-step">🎨 Art &amp; Approval</span>
+        <span class="lc-arrow">→</span>
+        <span class="lc-step">🏭 Production</span>
+        <span class="lc-arrow">→</span>
+        <span class="lc-step">🚚 Delivery</span>
+        <span class="lc-arrow">→</span>
+        <span class="lc-step">💰 Invoice &amp; Payment</span>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" data-tab="lead">Lead Intake</button>
+        <button class="tab" data-tab="onboarding">New Customer Onboarding</button>
+        <button class="tab" data-tab="deal">Deal Registration</button>
+      </div>
+
+      <!-- ─── LEAD INTAKE ─────────────────────────────────────────── -->
+      <div class="tab-panel active" id="tab-lead">
+        <div class="intake-card">
+          <div class="intake-card-head">
+            <div><h2>New Lead</h2><p>Capture inbound and outbound leads. Source is a controlled list so reporting stays clean.</p></div>
+          </div>
+          <div class="intake-card-body">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label req">Company / Contact</label><input class="form-control" placeholder="Company or person"></div>
+              <div class="form-group"><label class="form-label">Assigned Rep</label><select class="form-control"><option>Auto-assign by territory</option><option>Kim Lund</option><option>Chase de Jong</option><option>Unassigned — route to queue</option></select></div>
+            </div>
+            <div class="form-row-3">
+              <div class="form-group"><label class="form-label">Email</label><input class="form-control" placeholder="name@company.com"></div>
+              <div class="form-group"><label class="form-label">Phone</label><input class="form-control" placeholder="(000) 000-0000"></div>
+              <div class="form-group"><label class="form-label req">Marketing Source</label>
+                <select class="form-control"><option value="">Select…</option><option>Trade Show</option><option>Door-Knock / Field</option><option>Website</option><option>Referral</option><option>Facebook</option><option>Instagram</option><option>Phone / Inbound</option></select>
+                <div class="form-hint">Controlled list — not free text — so marketing-source ROI reports stay consistent.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Lead Type</label><select class="form-control"><option>Standard</option><option>Trade Show (fast-track)</option><option>Earth Sun Moon / high-touch</option><option>Guest / one-off (in-stock only)</option></select></div>
+              <div class="form-group"><label class="form-label">Estimated Value</label><input class="form-control" placeholder="$"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Needs / Notes</label><textarea class="form-control" rows="3" placeholder="What are they looking for?"></textarea></div>
+            <div style="display:flex;gap:10px;margin-top:6px;">
+              <button class="btn btn-primary">Create Lead &amp; Assign</button>
+              <button class="btn btn-secondary">Save Draft</button>
+            </div>
+            <div class="route-panel">
+              <h4>What happens next</h4>
+              <div class="route-flow">
+                <div class="route-node"><b>Lead created</b><span>logged to CRM timeline</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Auto-qualify</b><span>filter junk · auto-response</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Route to rep / queue</b><span>follow-up task + cadence</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Convert</b><span>→ New Customer Onboarding</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── NEW CUSTOMER ONBOARDING ─────────────────────────────── -->
+      <div class="tab-panel" id="tab-onboarding">
+        <div class="intake-card">
+          <div class="intake-card-head">
+            <div><h2>New Customer Onboarding</h2><p>Digitized from G54's paper forms. Choose the application type — the customer completes it online instead of a PDF.</p></div>
+          </div>
+          <div class="intake-card-body">
+
+            <div class="app-type">
+              <button class="app-type-btn active" data-app="terms"><b>📄 Terms Application</b><span>Open account · Net 30 · credit + trade references</span></button>
+              <button class="app-type-btn" data-app="cc"><b>💳 Credit Card Application</b><span>Pay by card · charged when ready to ship</span></button>
+              <button class="app-type-btn" data-app="ccinfo"><b>🔒 Credit Card Info</b><span>Confidential card details (PCI-protected)</span></button>
+            </div>
+
+            <!-- TERMS APPLICATION -->
+            <div class="app-form" id="app-terms">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><a class="pdf-link" href="forms/terms-application.pdf" target="_blank">⭳ Original PDF form</a></div>
+
+              <div class="form-section-title">Company Information</div>
+              <div class="form-group"><label class="form-label req">Company</label><input class="form-control"></div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label req">Billing Address</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Shipping Address</label><input class="form-control"></div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group"><label class="form-label req">Billing City</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">State</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Zip</label><input class="form-control"></div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group"><label class="form-label req">Shipping City</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">State</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Zip</label><input class="form-control"></div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group"><label class="form-label req">Telephone</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label">Fax</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Email</label><input class="form-control"></div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group"><label class="form-label req">Type of Ownership</label>
+                  <div class="radio-row" style="padding-top:6px;">
+                    <label class="radio-opt"><input type="radio" name="own-t"> Corporation</label>
+                    <label class="radio-opt"><input type="radio" name="own-t"> Partnership</label>
+                    <label class="radio-opt"><input type="radio" name="own-t"> Sole Proprietorship</label>
+                  </div>
+                </div>
+                <div class="form-group"><label class="form-label req">How Long Established?</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Type of Business</label><input class="form-control"></div>
+              </div>
+
+              <div class="form-section-title">Contacts</div>
+              <div class="contact-block">
+                <div class="contact-block-label">Owner</div>
+                <div class="form-row"><div class="form-group"><label class="form-label req">Owner's Name</label><input class="form-control"></div><div class="form-group"><label class="form-label">Email</label><input class="form-control"></div></div>
+                <div class="form-row-3"><div class="form-group"><label class="form-label">Title</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div><div class="form-group"><label class="form-label">Address</label><input class="form-control"></div></div>
+              </div>
+              <div class="contact-block">
+                <div class="contact-block-label">Additional Contact</div>
+                <div class="form-row-4"><div class="form-group"><label class="form-label">Name</label><input class="form-control"></div><div class="form-group"><label class="form-label">Title</label><input class="form-control"></div><div class="form-group"><label class="form-label">Email</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div></div>
+              </div>
+              <div class="contact-block">
+                <div class="contact-block-label">Additional Contact</div>
+                <div class="form-row-4"><div class="form-group"><label class="form-label">Name</label><input class="form-control"></div><div class="form-group"><label class="form-label">Title</label><input class="form-control"></div><div class="form-group"><label class="form-label">Email</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div></div>
+              </div>
+
+              <div class="form-section-title">Accounts Payable</div>
+              <div class="form-row-3">
+                <div class="form-group"><label class="form-label req">Contact Name</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Phone</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Email Address</label><input class="form-control"></div>
+              </div>
+              <div class="form-hint">Invoices will be emailed to the address above.</div>
+
+              <div class="form-section-title">Bank Reference</div>
+              <div class="form-row"><div class="form-group"><label class="form-label">Bank Name</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div></div>
+              <div class="form-row"><div class="form-group"><label class="form-label">Address</label><input class="form-control"></div><div class="form-group"><label class="form-label">Officer to Contact</label><input class="form-control"></div></div>
+
+              <div class="form-section-title">Trade References <span style="font-weight:500;text-transform:none;color:#94a3b8;">— at least 3 responding references required</span></div>
+              <div class="contact-block"><div class="contact-block-label">Reference 1</div><div class="form-row-4"><div class="form-group"><label class="form-label req">Name</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Email</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div><div class="form-group"><label class="form-label">Account #</label><input class="form-control"></div></div></div>
+              <div class="contact-block"><div class="contact-block-label">Reference 2</div><div class="form-row-4"><div class="form-group"><label class="form-label req">Name</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Email</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div><div class="form-group"><label class="form-label">Account #</label><input class="form-control"></div></div></div>
+              <div class="contact-block"><div class="contact-block-label">Reference 3</div><div class="form-row-4"><div class="form-group"><label class="form-label req">Name</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Email</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div><div class="form-group"><label class="form-label">Account #</label><input class="form-control"></div></div></div>
+
+              <div class="form-section-title">Credit Requested &amp; Agreement</div>
+              <div class="form-group" style="max-width:320px;"><label class="form-label">Amount of Credit Requested</label><input class="form-control" placeholder="$"></div>
+              <div class="terms-box">
+                <strong>Terms &amp; Conditions of Open Account.</strong> First order: COD, credit card, or on approved credit. Subsequent orders: <strong>Net 30</strong> after credit is established. A <strong>1.5% per month</strong> interest charge (18% APR) applies to amounts unpaid after 30 days. Orders exceeding the credit limit may ship C.O.D. In the event of default, applicant agrees to pay accrued interest, collection costs of 50% of the remaining balance, and reasonable attorney fees.
+              </div>
+              <label class="check-row"><input type="checkbox"> <span>I authorize Great Mountain West Supply (GMWS) or its agent to secure a credit report and agree to the release of credit information. This authorization is continuing without expiration.</span></label>
+              <label class="check-row"><input type="checkbox"> <span>I acknowledge and accept GMWS's terms &amp; conditions of open account and certify the information provided is true and correct.</span></label>
+              <label class="check-row"><input type="checkbox"> <span><strong>Personal Guarantee (optional)</strong> — the undersigned jointly and severally guarantee payment of all indebtedness to GMWS on demand.</span></label>
+              <div class="sig-row"><div><div class="sig-line"></div><div class="sig-cap">Signed *</div></div><div><div class="sig-line"></div><div class="sig-cap">Title *</div></div></div>
+              <div class="sig-row"><div><div class="sig-line"></div><div class="sig-cap">Company Name *</div></div><div><div class="sig-line"></div><div class="sig-cap">Date *</div></div></div>
+              <div class="form-hint" style="margin-top:8px;">Without signing and dating, this credit application cannot be processed.</div>
+
+              <div style="display:flex;gap:10px;margin-top:18px;">
+                <button class="btn btn-primary">Submit Application → Finance Queue</button>
+                <button class="btn btn-secondary">Send to Customer to Complete</button>
+              </div>
+            </div>
+
+            <!-- CREDIT CARD APPLICATION -->
+            <div class="app-form" id="app-cc" style="display:none;">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><a class="pdf-link" href="forms/credit-card-application.pdf" target="_blank">⭳ Original PDF form</a></div>
+              <div class="fee-note">💳 The card is charged when the order is ready to ship. <strong>A 3% processing fee</strong> applies to all credit-card transactions (effective April 1, 2026). To avoid the fee, request ACH banking info or apply for terms instead.</div>
+
+              <div class="form-section-title">Company Information</div>
+              <div class="form-group"><label class="form-label req">Company</label><input class="form-control"></div>
+              <div class="form-row"><div class="form-group"><label class="form-label req">Billing Address</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Shipping Address</label><input class="form-control"></div></div>
+              <div class="form-row-3"><div class="form-group"><label class="form-label req">City</label><input class="form-control"></div><div class="form-group"><label class="form-label req">State</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Zip</label><input class="form-control"></div></div>
+              <div class="form-row-3"><div class="form-group"><label class="form-label req">Telephone</label><input class="form-control"></div><div class="form-group"><label class="form-label">Fax</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Email</label><input class="form-control"></div></div>
+              <div class="form-row-3">
+                <div class="form-group"><label class="form-label req">Type of Ownership</label><div class="radio-row" style="padding-top:6px;"><label class="radio-opt"><input type="radio" name="own-c"> Corporation</label><label class="radio-opt"><input type="radio" name="own-c"> Partnership</label><label class="radio-opt"><input type="radio" name="own-c"> Sole Prop.</label></div></div>
+                <div class="form-group"><label class="form-label req">How Long Established?</label><input class="form-control"></div>
+                <div class="form-group"><label class="form-label req">Type of Business</label><input class="form-control"></div>
+              </div>
+
+              <div class="form-section-title">Contacts</div>
+              <div class="contact-block"><div class="contact-block-label">Owner</div><div class="form-row-4"><div class="form-group"><label class="form-label req">Owner's Name</label><input class="form-control"></div><div class="form-group"><label class="form-label">Title</label><input class="form-control"></div><div class="form-group"><label class="form-label">Email</label><input class="form-control"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-control"></div></div></div>
+
+              <div class="form-section-title">Accounts Payable</div>
+              <div class="form-row-3"><div class="form-group"><label class="form-label req">Contact Name</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Phone</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Email Address</label><input class="form-control"></div></div>
+
+              <div class="form-section-title">Agreement</div>
+              <div class="terms-box">If an order is shipped before the card is charged, a <strong>1.5% per month</strong> interest fee applies to amounts not paid within 14 days of the invoice date. In the event of default, the undersigned agrees to pay accrued interest, collection costs of 50% of the remaining balance, and reasonable attorney fees, and personally guarantees payment of all indebtedness to GMWS.</div>
+              <label class="check-row"><input type="checkbox"> <span>I agree to the terms above and authorize GMWS to charge the card on file when orders are ready to ship.</span></label>
+              <div class="sig-row"><div><div class="sig-line"></div><div class="sig-cap">Signed *</div></div><div><div class="sig-line"></div><div class="sig-cap">Date *</div></div></div>
+              <div class="pci-note" style="margin-top:16px;">🔒 Next step: the customer completes the confidential <strong>Credit Card Info</strong> sheet separately (card number is never captured on this form). Card data is stored in a PCI-compliant vault, not the main record.</div>
+              <div style="display:flex;gap:10px;margin-top:6px;">
+                <button class="btn btn-primary">Submit &amp; Request Card Info</button>
+                <button class="btn btn-secondary">Send to Customer to Complete</button>
+              </div>
+            </div>
+
+            <!-- CREDIT CARD INFO -->
+            <div class="app-form" id="app-ccinfo" style="display:none;">
+              <div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><a class="pdf-link" href="forms/credit-card-info.pdf" target="_blank">⭳ Original PDF form</a></div>
+              <div class="pci-note">🔒 <strong>Confidential.</strong> In the live platform this form is served over a PCI-compliant, tokenized capture — raw card numbers are never stored in MakeReady. The card is charged when the order is ready to ship; an invoice and receipt are emailed. A 3% processing fee applies (effective April 1, 2026).</div>
+              <div class="form-section-title">Card Details</div>
+              <div class="form-group"><label class="form-label">Company Name</label><input class="form-control"></div>
+              <div class="form-row"><div class="form-group"><label class="form-label req">Card Type</label><select class="form-control"><option>Visa</option><option>Mastercard</option><option>Discover</option><option>American Express</option></select></div><div class="form-group"><label class="form-label req">Card Number</label><input class="form-control" placeholder="•••• •••• •••• ••••"></div></div>
+              <div class="form-row"><div class="form-group"><label class="form-label req">Expiration Date</label><input class="form-control" placeholder="MM / YY"></div><div class="form-group"><label class="form-label req">Security Code</label><input class="form-control" placeholder="CVV"></div></div>
+              <div class="form-section-title">Accounts Payable</div>
+              <div class="form-row-3"><div class="form-group"><label class="form-label req">Contact Name</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Phone</label><input class="form-control"></div><div class="form-group"><label class="form-label req">Email Address</label><input class="form-control"></div></div>
+              <div style="margin-top:14px;"><button class="btn btn-primary">Securely Save Card</button></div>
+            </div>
+
+            <!-- ROUTING / WHAT HAPPENS NEXT -->
+            <div class="route-panel">
+              <h4>Onboarding workflow</h4>
+              <div class="route-flow">
+                <div class="route-node"><b>Submit</b><span>customer or rep</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Finance queue</b><span>team-based, not a person</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Credit check</b><span>Experian on terms · flags</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Approve · set limit</b><span>customer number issued</span></div>
+                <span class="route-arrow">→</span>
+                <div class="route-node"><b>Welcome packet</b><span>terms · limit · rep contact</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── DEAL REGISTRATION ───────────────────────────────────── -->
+      <div class="tab-panel" id="tab-deal">
+        <div class="intake-card">
+          <div class="intake-card-head">
+            <div><h2>Independent-Rep Deal Registration</h2><p>Dead-simple submission for independent reps — no full order entry, no lost emails. Reportable and trackable.</p></div>
+          </div>
+          <div class="intake-card-body">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label req">Opportunity Name</label><input class="form-control" placeholder="e.g. Grant's Farm — spring apparel"></div>
+              <div class="form-group"><label class="form-label req">G54 Contact</label><select class="form-control"><option>Britney de Jong</option><option>Kim Lund</option><option>Tara</option></select></div>
+            </div>
+            <div class="form-row-3">
+              <div class="form-group"><label class="form-label req">Customer Phone</label><input class="form-control"></div>
+              <div class="form-group"><label class="form-label req">Customer Email</label><input class="form-control"></div>
+              <div class="form-group"><label class="form-label">Close Likelihood</label><select class="form-control"><option>High</option><option>Medium</option><option>Low</option></select></div>
+            </div>
+            <div class="form-group"><label class="form-label">Details</label><textarea class="form-control" rows="3" placeholder="What's the opportunity?"></textarea></div>
+            <div class="form-hint">Independent reps see only their own registered deals and status — no CRM, drip, or pricing. G54 branding only (no co-brand).</div>
+            <div style="margin-top:12px;"><button class="btn btn-primary">Register Deal</button></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+    // Application-type switching
+    document.querySelectorAll('.app-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.app-type-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.app-form').forEach(f => f.style.display = 'none');
+        btn.classList.add('active');
+        document.getElementById('app-' + btn.dataset.app).style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
