@@ -480,7 +480,7 @@
     <div class="sidebar-progress">
       <div class="sidebar-progress-label">Requirements Progress</div>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:52%"></div></div>
-      <div class="progress-text">11 of 21 sections documented · 3 pending discovery</div>
+      <div class="progress-text">16 of 26 sections documented · 3 pending discovery · +5 from Jul 22 discovery</div>
     </div>
 
     <div class="sidebar-group open">
@@ -489,6 +489,17 @@
         <a class="sidebar-link sidebar-link-top" href="#overview">Project Overview</a>
         <a class="sidebar-link sidebar-link-top" href="#stakeholders">Stakeholders</a>
         <a class="sidebar-link sidebar-link-top" href="#roadmap">Delivery Roadmap</a>
+      </div>
+    </div>
+
+    <div class="sidebar-group open">
+      <div class="sidebar-group-label" onclick="toggleGroup(this)">Lead-to-Cash (Jul 22) <span class="sidebar-group-toggle">▶</span></div>
+      <div class="sidebar-links">
+        <a class="sidebar-link" href="#l2c-crm">CRM &amp; Lead Mgmt <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#l2c-quoting">Quoting &amp; Pricing <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#l2c-onboarding">Onboarding &amp; Credit <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#l2c-portal">Portal &amp; Status <span class="status-dot dot-progress"></span></a>
+        <a class="sidebar-link" href="#l2c-rollout">Reporting &amp; Rollout <span class="status-dot dot-progress"></span></a>
       </div>
     </div>
 
@@ -642,6 +653,568 @@
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 6</span><h4>Content Library (DAM)</h4></div><p>AI-powered art and graphics management. Find any asset in seconds using natural language.</p><div class="roadmap-items"><span class="roadmap-item">Upload (all formats)</span><span class="roadmap-item">AI Auto-Tagging</span><span class="roadmap-item">NLP Search</span><span class="roadmap-item">Collections</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 7</span><h4>Field Sales &amp; RBAC</h4></div><p>Field sales reps can log in from any tablet and submit client orders and artwork without office access.</p><div class="roadmap-items"><span class="roadmap-item">Mobile-Responsive Sales View</span><span class="roadmap-item">Field Order Upload</span><span class="roadmap-item">Artwork Upload from Device</span></div></div>
           <div class="roadmap-card"><div class="roadmap-card-header"><span class="phase-badge">Phase 8</span><h4>Workflows, Reports &amp; Intelligence</h4></div><p>Automated approval rules and management dashboards.</p><div class="roadmap-items"><span class="roadmap-item">Approval Rules Engine</span><span class="roadmap-item">Sales / Finance / Production Dashboards</span><span class="roadmap-item">CSV / PDF Export</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="group-divider"></div>
+
+    <!-- ══════════════════════════ LEAD-TO-CASH DISCOVERY (JULY 22) -->
+    <div class="group-header" id="l2c-group">
+      <div class="group-eyebrow">Discovery · July 22, 2026</div>
+      <div class="group-title">Lead-to-Cash Discovery</div>
+      <div class="group-desc">Findings from the CRM, Lead Qualification, Quoting Automation &amp; Portal Strategy session — the full journey from first contact to cash. Owners: Kim Lund (Sales) · Britney de Jong (Finance) · Tyson Johnson (Production) · Chris Wall (Facilitator)</div>
+    </div>
+
+    <!-- ── CRM & LEAD MANAGEMENT ── -->
+    <section class="req-section" id="l2c-crm">
+      <div class="section-eyebrow">Lead-to-Cash</div>
+      <h2 class="section-title">CRM &amp; Lead Management</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-progress">● In Progress</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
+        <a href="crm.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
+      </div>
+      <div class="section-body">
+        <p>G54 has <strong>never had a CRM</strong>. Today follow-ups live in each rep's head, GoodNotes, Trello, flagged emails, or a personal calendar — so a rep's book of business walks out the door when they leave. These requirements establish a shared system of record for the relationship side of sales.</p>
+        <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> "Every salesperson has a different method. Some use GoodNotes, some Trello, some flag emails… some flat out don't have a system." The goal: capture activity in-platform so managers have visibility and no relationship is lost to turnover.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-CRM-10</div><div class="us-card-title">Unified Activity Timeline &amp; Team Calendar</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager or Rep</div>
+              <div class="us-story-line"><strong>I want</strong> every email, call, and meeting logged against the customer on a shared timeline and team calendar</div>
+              <div class="us-story-line"><strong>So that</strong> when a rep leaves, their contacts and follow-ups stay with the company, not on their phone</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Calls, emails, meetings, and notes are captured against the Business Partner / contact record</span></li>
+              <li><span>A shared team calendar shows upcoming touches; managers can view any rep's activity</span></li>
+              <li><span>Book of business (contacts, history, next steps) persists when a rep departs — no data on personal devices</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-CRM-11</div><div class="us-card-title">Configurable Follow-Up Cadence (Campaign Management)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager</div>
+              <div class="us-story-line"><strong>I want</strong> configurable follow-up cadences with room for rep flexibility</div>
+              <div class="us-story-line"><strong>So that</strong> no customer is forgotten, while professional reps keep the "art" of the relationship</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Reminders fire on a defined cadence (e.g. "contact me in February" → nudge in November, then closer)</span></li>
+              <li><span>Cadences can be per-contact and per lead type; some steps are enforced, others discretionary</span></li>
+              <li><span>Triggers can send an email or (preferred) prompt a phone-call task; manager can escalate stalled stages</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-CRM-12</div><div class="us-card-title">Marketing Source Tracking (Controlled Pick List)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As</strong> leadership</div>
+              <div class="us-story-line"><strong>I want</strong> every customer tagged with a marketing source from a short controlled list</div>
+              <div class="us-story-line"><strong>So that</strong> we can report where deals come from and spend effort/dollars where they pay off</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Source is a controlled pick list (e.g. Trade Show, Door-Knock, Web, Referral, Facebook, Instagram) — <strong>not</strong> free text, to keep reporting clean</span></li>
+              <li><span>Source is captured at acquisition; repeat orders roll up as "existing / other"</span></li>
+              <li><span>Reporting ties source to revenue and cost so ROI per channel is visible</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-CRM-13</div><div class="us-card-title">Lead Intake &amp; Qualification</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales operations owner</div>
+              <div class="us-story-line"><strong>I want</strong> website/phone/trade-show leads captured and qualified in one intake flow</div>
+              <div class="us-story-line"><strong>So that</strong> junk is filtered, good leads route to the right rep, and nothing falls through the cracks</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Website job/contact form creates a lead and can auto-send a qualifying response</span></li>
+              <li><span>Qualified leads auto-assign/route to the appropriate rep with a follow-up task; trade-show leads can fast-track</span></li>
+              <li><span>Qualification criteria are systematized (not dependent on one person) with a manual override</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-CRM-14</div><div class="us-card-title">Role-Based Visibility (Manager / Rep / Independent)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Manager</div>
+              <div class="us-story-line"><strong>I want</strong> role-based access: managers see all, in-house reps see their contacts, independent reps see only their submitted orders</div>
+              <div class="us-story-line"><strong>So that</strong> the right people see the right data without exposing the whole book</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>In-house reps: full CRM (contacts, cadence) scoped to their accounts; managers: org-wide</span></li>
+              <li><span>Independent reps: order/status view for their own deals only — no CRM or drip features</span></li>
+              <li><span>Activity/KPI views (contacts per trip, outreach counts) available to reps and managers</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-CRM-15</div><div class="us-card-title">System of Record — "If It's Not in the Platform, It Didn't Happen"</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> business owner</div>
+              <div class="us-story-line"><strong>I want</strong> orders and deals submitted through the platform, not email</div>
+              <div class="us-story-line"><strong>So that</strong> everything is trackable, reportable, and accountable — emails get lost</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Orders/registrations submitted in-platform; email is not a valid submission channel for processing</span></li>
+              <li><span>Every submission is timestamped, attributed, and reportable</span></li>
+              <li><span>Reps are accountable for capturing activity in-system</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── QUOTING & PRICING AUTOMATION ── -->
+    <section class="req-section" id="l2c-quoting">
+      <div class="section-eyebrow">Lead-to-Cash</div>
+      <h2 class="section-title">Quoting &amp; Pricing Automation</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-progress">● In Progress</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
+        <a href="sales.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
+      </div>
+      <div class="section-body">
+        <p>Pricing runs through a separate "Apollo" calculator spreadsheet with manual entry. A price-check step <em>after</em> the order catches errors (wrong garment tier, missing $0.15 barcode charge) — forcing reps back to customers, eroding trust and hurting commission-driven reps. There is no official quote document.</p>
+        <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> "You already quoted the customer… then two days later after processing we get 'your cost is off.' From a sales side you look like a dope." The more automation removes human error, the fewer of these trust-killing call-backs.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-QT-01</div><div class="us-card-title">Quote Builder with Embedded Pricing Calculator</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep</div>
+              <div class="us-story-line"><strong>I want</strong> the pricing calculator built into the quote/order screen (not a separate spreadsheet)</div>
+              <div class="us-story-line"><strong>So that</strong> price is right the first time and there's no re-keying between tools</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Rep builds a quote by picking garment, decoration (silk screen / embroidery), locations, and extras; price computes inline</span></li>
+              <li><span>Replaces the standalone "Apollo" spreadsheet; supports draft state before it becomes an order</span></li>
+              <li><span>Multi-line quotes with per-line quantity, color, and size runs</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-QT-02</div><div class="us-card-title">Supplier Catalogs &amp; Conditional (Dependent) Pick Lists</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep</div>
+              <div class="us-story-line"><strong>I want</strong> to pick a supplier and then only see that supplier's garments/styles</div>
+              <div class="us-story-line"><strong>So that</strong> I can't accidentally price the wrong product (5001 vs 5000 = two different prices)</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Full supplier catalogs loaded (SanMar, S&amp;S / SNS, AS Color, Gildan, etc.)</span></li>
+              <li><span>Choosing a supplier filters the style list to that supplier's numbers only</span></li>
+              <li><span>Catalog carries cost so the rep never hand-types cost</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-QT-03</div><div class="us-card-title">Automatic Quantity-Tier Markup</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep</div>
+              <div class="us-story-line"><strong>I want</strong> markup applied automatically from cost-band × quantity multiplier tiers</div>
+              <div class="us-story-line"><strong>So that</strong> I only enter quantity and extras — price is calculated, not guessed</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Multiplier tiers by cost band (e.g. $0–4, $4.01–15…) and quantity are configured centrally</span></li>
+              <li><span>Selling price shows with markup already baked in; cost breakdown is hidden from the customer</span></li>
+              <li><span>Reps enter quantity + add-ons only; the system computes the line total</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-QT-04</div><div class="us-card-title">Supplier Price Updates (Quarterly Import / API — Not Live)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As</strong> pricing admin</div>
+              <div class="us-story-line"><strong>I want</strong> supplier costs refreshed on a schedule (import or API), not live</div>
+              <div class="us-story-line"><strong>So that</strong> a quote doesn't change minutes after it's given, while we avoid manual re-entry</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Costs update via spreadsheet import or supplier API on a quarterly (configurable) cadence — explicitly not real-time</span></li>
+              <li><span>A quoted price is locked at quote time and honored to the customer even if cost later moves</span></li>
+              <li><span>Manual and API suppliers coexist; manual ones flagged as higher-risk</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-QT-05</div><div class="us-card-title">Official Quote / Proposal Document</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep</div>
+              <div class="us-story-line"><strong>I want</strong> to generate a professional, official quote/proposal</div>
+              <div class="us-story-line"><strong>So that</strong> customers get more than an ad-hoc email, and the quote→order handoff is clean</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Branded quote document (PDF) with line items, garment images, quantities, and pricing</span></li>
+              <li><span>Quote converts to an order without re-entry; a double-check step runs before commit to print</span></li>
+              <li><span>Quote status flow (draft → sent → accepted → converted) is tracked</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-QT-06</div><div class="us-card-title">Add-On Services &amp; Per-Customer Requirements</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Sales Rep</div>
+              <div class="us-story-line"><strong>I want</strong> add-on services (e.g. barcodes/UPC, folding, shipping) flagged per customer and added as priced line items</div>
+              <div class="us-story-line"><strong>So that</strong> recurring per-customer requirements aren't forgotten and re-priced inconsistently</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Customers can carry default requirements (e.g. "always UPC barcodes +$0.15") applied to their orders</span></li>
+              <li><span>Add-ons are visible, priced line items; totals stay consistent across reorders</span></li>
+              <li><span>Shipping treatment (absorbed vs charged) captured per customer</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CUSTOMER ONBOARDING & CREDIT ── -->
+    <section class="req-section" id="l2c-onboarding">
+      <div class="section-eyebrow">Lead-to-Cash</div>
+      <h2 class="section-title">Customer Onboarding &amp; Credit</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-progress">● In Progress</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">BD</span>Britney de Jong</span>
+        <a href="accounting.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
+      </div>
+      <div class="section-body">
+        <p>New-customer setup is manual: jot-form credit and tax-exempt applications emailed to Stacey/Britney, with Experian run by hand on ~95% of terms accounts. Nothing routes to a team, and the customer is never told the outcome.</p>
+        <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> Chris's challenge — "Rather than coming to a person, if it goes into a queue a team is added to, then if you have turnover you're protected." And: automate credit-app reminders so sales don't chase Stacey.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-01</div><div class="us-card-title">Guided Client Onboarding &amp; Document Capture</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance/AR user</div>
+              <div class="us-story-line"><strong>I want</strong> a guided onboarding that captures all required documents in-platform</div>
+              <div class="us-story-line"><strong>So that</strong> new accounts are set up consistently without chasing paperwork by email</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Structured intake replaces jot forms; captures credit application and tax-exempt form</span></li>
+              <li><span>Automated reminders nudge the customer until required docs are submitted</span></li>
+              <li><span>Existing customers skip setup and start at order entry</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-02</div><div class="us-card-title">Credit Application — Terms vs Credit Card &amp; Tax-Exempt</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance user</div>
+              <div class="us-story-line"><strong>I want</strong> two application paths (terms vs credit card) plus tax-exempt capture</div>
+              <div class="us-story-line"><strong>So that</strong> the right process runs and fees are surfaced up front</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Applicant chooses terms or credit card; CC path clearly shows the ~3% fee before submit</span></li>
+              <li><span>Tax-exempt form captured and stored on the account</span></li>
+              <li><span>Bank-drafted / compliant form fields (reviewed with Finance)</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-03</div><div class="us-card-title">Credit-Check Integration &amp; Policy Flags (Experian / Bank)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance user</div>
+              <div class="us-story-line"><strong>I want</strong> credit checks integrated and driven by policy flags</div>
+              <div class="us-story-line"><strong>So that</strong> the process is consistent and not dependent on one person's discretion</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Experian integration (replaces the ~30/month manual pulls); optional bank (Capital Community) integration</span></li>
+              <li><span>Policy flags decide when a check runs (e.g. all terms accounts; CC over a $ threshold)</span></li>
+              <li><span>Credit references remain discretionary (on decline/fail); results set credit limit &amp; terms</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-04</div><div class="us-card-title">Queue-Based Routing (Not to a Person)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> business owner</div>
+              <div class="us-story-line"><strong>I want</strong> onboarding/credit requests to land in a team queue, not an individual's inbox</div>
+              <div class="us-story-line"><strong>So that</strong> turnover or absence never strands a deal</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Setup requests route to a shared queue any team member can work</span></li>
+              <li><span>Ownership, SLA, and status are visible on each item</span></li>
+              <li><span>No single-person dependency for processing</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-05</div><div class="us-card-title">Two-Stage Credit (Account Approval + Per-Order Check)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> Finance user</div>
+              <div class="us-story-line"><strong>I want</strong> a distinction between account-level credit approval and per-order credit/past-due checks</div>
+              <div class="us-story-line"><strong>So that</strong> orders don't ship to over-limit or past-due customers</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Stage 1: account credit approval at setup (limit &amp; terms established)</span></li>
+              <li><span>Stage 2: each submitted order checks credit-limit headroom and past-due status before production/ship</span></li>
+              <li><span>Order holds and required overrides are logged</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ONB-06</div><div class="us-card-title">Automated Welcome Packet</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> new customer</div>
+              <div class="us-story-line"><strong>I want</strong> a welcome message confirming my approval, terms, credit limit, and my salesperson's contact</div>
+              <div class="us-story-line"><strong>So that</strong> I know I'm set up — today customers are never told</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>On approval, an automated welcome packet is sent (terms, credit limit, rep name &amp; contact)</span></li>
+              <li><span>Same content every time (systematized, not rep-dependent)</span></li>
+              <li><span>Salesperson is notified with the new customer number</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CUSTOMER & PARTNER PORTAL + STATUS ── -->
+    <section class="req-section" id="l2c-portal">
+      <div class="section-eyebrow">Lead-to-Cash</div>
+      <h2 class="section-title">Customer &amp; Partner Portal + Status</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-progress">● In Progress</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">KL</span>Kim Lund</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">Co</span>Cody de Jong</span>
+        <a href="workflows.html" style="font-size:13px;color:var(--primary);text-decoration:none;font-weight:600;">View wireframe</a>
+      </div>
+      <div class="section-body">
+        <p>The #1 pain: no end-to-end status visibility across Zoey + SAP + Trello, so reps can't answer "what's the status?" These requirements deliver a Domino's-style tracker, self-service portals, a built-in Kanban, and auditable approvals.</p>
+        <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> The "pizza tracker" — welcome → waiting for credit → art received/in progress → production → shipped, with red-flag states. "That visibility into the life cycle was a huge pain point for your team." <strong>Decision:</strong> co-branding independent portals was <em>rejected</em> — G54 wants its own brand front and center.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-PORT-01</div><div class="us-card-title">Order Lifecycle Status Tracker ("Pizza Tracker")</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> customer or rep</div>
+              <div class="us-story-line"><strong>I want</strong> a single end-to-end status view of an order's lifecycle</div>
+              <div class="us-story-line"><strong>So that</strong> nobody has to call around for "what's the status?"</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Stages: account created → credit approval → art submitted/in progress → production → shipped</span></li>
+              <li><span>Red-flag states surface blockers ("something didn't add up — call us")</span></li>
+              <li><span>Single source of truth (not stitched across Zoey/SAP/Trello); expected time frames shown</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-PORT-02</div><div class="us-card-title">Customer Self-Service Portal</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> customer</div>
+              <div class="us-story-line"><strong>I want</strong> to log in and see my orders, status, and outstanding items myself</div>
+              <div class="us-story-line"><strong>So that</strong> I don't have to email or call for updates</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Customer sees live order status, tracking, and any items awaiting their action (e.g. credit app)</span></li>
+              <li><span>Notifications/emails are secondary to in-portal visibility</span></li>
+              <li><span>Proactive self-service reduces status calls to sales</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-PORT-03</div><div class="us-card-title">Independent-Rep Deal Registration Portal</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As an</strong> independent rep</div>
+              <div class="us-story-line"><strong>I want</strong> a dead-simple deal-registration form (phone/web app)</div>
+              <div class="us-story-line"><strong>So that</strong> I can submit without email getting lost, then check status without calling</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Minimal fields (opportunity name, G54 contact, phone, email, close likelihood, details); mobile-friendly</span></li>
+              <li><span>Submissions are reportable and alertable (unlike email); land in the team queue</span></li>
+              <li><span>Independent reps get a limited status view of their own deals only; G54 branding (no co-brand)</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-PORT-04</div><div class="us-card-title">Built-In Kanban (Replace Trello) — Shared Org View</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> department owner</div>
+              <div class="us-story-line"><strong>I want</strong> a Kanban board inside the platform that drives the same status everywhere</div>
+              <div class="us-story-line"><strong>So that</strong> moving a card updates the tracker — unlike Trello, which is disconnected</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Cards move across swim lanes (art → production → staging → ship); status propagates to the Pizza Tracker</span></li>
+              <li><span>Same board/view across the org (other buildings, field); optional wall display</span></li>
+              <li><span>Replaces Trello for art requests and lifecycle tracking</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-PORT-05</div><div class="us-card-title">Auditable Art Approval (Approve / Change / Decline)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> business owner</div>
+              <div class="us-story-line"><strong>I want</strong> customers to approve artwork digitally with an auditable record</div>
+              <div class="us-story-line"><strong>So that</strong> we avoid "I never approved that" disputes and wrong-art production runs</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Customer opens a link into their portal and clicks Approve / Request Changes / Decline</span></li>
+              <li><span>Approval is stamped with IP address and timestamp for legal auditability</span></li>
+              <li><span>Change requests route back to the artist via the Kanban; release includes spelling/color disclaimer</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-PORT-06</div><div class="us-card-title">Auditable Order Confirmation</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> business owner</div>
+              <div class="us-story-line"><strong>I want</strong> a physical, auditable order confirmation from the customer</div>
+              <div class="us-story-line"><strong>So that</strong> the commitment to pay for a production run is provable, not verbal</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Customer confirms the order (size run, colors, cost, design image) with a click</span></li>
+              <li><span>Confirmation is recorded with IP + timestamp and stored on the order</span></li>
+              <li><span>Unconfirmed orders are flagged before committing to print</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── REPORTING & ROLLOUT ── -->
+    <section class="req-section" id="l2c-rollout">
+      <div class="section-eyebrow">Lead-to-Cash</div>
+      <h2 class="section-title">Reporting &amp; Rollout Strategy</h2>
+      <div class="section-meta">
+        <span class="badge-status badge-progress">● In Progress</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">LW</span>Leslie Weiler</span>
+        <span class="stakeholder-chip"><span class="stakeholder-avatar">CW</span>Chris Wall</span>
+      </div>
+      <div class="section-body">
+        <p>Reporting is powerful but sprawling — thousands of Crystal reports with unknown usage. Rollout must be modular and low-risk: replace Zoey, SAP, Trello, spreadsheets, and email with one platform, one module at a time.</p>
+        <div class="info-box"><p><strong>Source — discovery (July 22, 2026):</strong> "We have thousands of reports and who knows who's using them." And the rollout thesis: start with the intake/lead-to-cash module because if it breaks, the fallback is just email/phone — low risk.</p></div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-RPT-10</div><div class="us-card-title">Curated Report Suites vs Ad-Hoc Queries (+ Governance)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As</strong> leadership</div>
+              <div class="us-story-line"><strong>I want</strong> curated report suites plus ad-hoc query ability, with governance</div>
+              <div class="us-story-line"><strong>So that</strong> we keep flexibility without thousands of duplicate, orphaned reports</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Curated suites for common needs (e.g. top-selling design, decals/year, marketing source ROI)</span></li>
+              <li><span>Ad-hoc queries available but distinct from saved reports; leadership governs what becomes a standing report</span></li>
+              <li><span>Export to Excel/CSV/PDF</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ROLL-01</div><div class="us-card-title">Phased, Modular Rollout (Lead-to-Cash First)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> business owner</div>
+              <div class="us-story-line"><strong>I want</strong> the platform delivered module-by-module, starting with intake/lead-to-cash</div>
+              <div class="us-story-line"><strong>So that</strong> we adopt gradually with low risk and manual fallbacks</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Phase 1 = customer intake through order submission; can hand off to SAP via an export/import if needed</span></li>
+              <li><span>Modules that can't stand alone aren't deployed until they combine into a usable whole</span></li>
+              <li><span>Each phase has a manual fallback (email/phone) so a failure never halts the business</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ROLL-02</div><div class="us-card-title">Guest Checkout (In-Stock) vs Account (Custom)</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As a</strong> one-off buyer</div>
+              <div class="us-story-line"><strong>I want</strong> to buy in-stock items as a guest, while custom work requires an account</div>
+              <div class="us-story-line"><strong>So that</strong> small buyers (e.g. a family reunion) self-serve without exposing custom pricing/catalog</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Guests can buy in-stock/stock items with defined minimums; no account required</span></li>
+              <li><span>Custom items require an account; custom catalog/pricing hidden from guests and resellers</span></li>
+              <li><span>Guest storefront kept separate from the account/custom experience</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="us-card">
+          <div class="us-card-header"><div><div class="us-card-id">US-ROLL-03</div><div class="us-card-title">Unified Platform of Record</div></div><span class="badge-status badge-progress">In Progress</span></div>
+          <div class="us-card-body">
+            <div class="us-story">
+              <div class="us-story-line"><strong>As</strong> G54</div>
+              <div class="us-story-line"><strong>I want</strong> one platform replacing Zoey, SAP, Trello, spreadsheets, and email</div>
+              <div class="us-story-line"><strong>So that</strong> we have one data model and one status picture end-to-end</div>
+            </div>
+            <div class="ac-label">Acceptance Criteria</div>
+            <ul class="ac-list">
+              <li><span>Eliminates the disjointed Zoey↔SAP↔Trello↔spreadsheet↔email stack over the phased rollout</span></li>
+              <li><span>Finance/accounting cut over running parallel to SAP to reconcile the numbers before retiring it</span></li>
+              <li><span>One data model; no re-entry between systems</span></li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
