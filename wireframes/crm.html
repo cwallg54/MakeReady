@@ -106,6 +106,7 @@
         <button class="tab" data-tab="accounts">Accounts</button>
         <button class="tab" data-tab="pipeline">Pipeline</button>
         <button class="tab" data-tab="activities">Activities</button>
+        <button class="tab" data-tab="cadence">⏱ Cadence</button>
       </div>
 
       <!-- ─── CONTACTS TAB ─────────────────────────────────────── -->
@@ -670,6 +671,116 @@
         </div><!-- /.activity-timeline -->
 
       </div><!-- /#tab-activities -->
+
+      <!-- ─── CADENCE TAB ──────────────────────────────────────── -->
+      <div class="tab-panel" id="tab-cadence">
+        <style>
+          .cad-note { font-size:12.5px; color:#075985; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:11px 14px; margin-bottom:18px; }
+          .cad-wrap { display:grid; grid-template-columns:1.6fr 1fr; gap:18px; align-items:start; }
+          @media (max-width:1100px){ .cad-wrap { grid-template-columns:1fr; } }
+          .cad-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; }
+          .cad-head { padding:14px 18px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+          .cad-head b { font-size:14px; color:#0f172a; }
+          .cad-head select { padding:6px 10px; border:1px solid #d1d5db; border-radius:7px; font-size:12.5px; }
+          .cad-body { padding:6px 18px 18px; }
+          .cad-step { display:flex; gap:14px; padding:16px 0; border-bottom:1px solid #f1f5f9; }
+          .cad-step:last-child { border-bottom:none; }
+          .cad-when { flex-shrink:0; width:96px; text-align:center; }
+          .cad-day { font-size:11px; font-weight:700; color:#fff; background:#2563eb; border-radius:20px; padding:3px 10px; display:inline-block; }
+          .cad-day.wait { background:#94a3b8; }
+          .cad-when .sub { font-size:10.5px; color:#94a3b8; margin-top:4px; }
+          .cad-detail { flex:1; }
+          .cad-trigger { font-size:12px; color:#64748b; margin-bottom:5px; }
+          .cad-trigger b { color:#334155; }
+          .cad-action { display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#0f172a; background:#f8fafc; border:1px solid #eef2f7; border-radius:8px; padding:8px 12px; }
+          .cad-chan { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:2px 7px; border-radius:5px; }
+          .chan-email { background:#dbeafe; color:#1d4ed8; }
+          .chan-call { background:#fef3c7; color:#92400e; }
+          .chan-task { background:#dcfce7; color:#15803d; }
+          .cad-editor label { display:block; font-size:11.5px; font-weight:600; color:#475569; margin:10px 0 4px; }
+          .cad-editor select, .cad-editor input { width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:7px; font-size:13px; }
+          .cad-mon { font-size:12.5px; }
+          .cad-mon-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+          .cad-mon-row:last-child { border-bottom:none; }
+          .cad-mon-row .who { font-weight:600; color:#0f172a; }
+          .cad-mon-row .nxt { font-size:11.5px; color:#64748b; }
+          .cad-due { font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:12px; }
+          .due-now { background:#fee2e2; color:#b91c1c; }
+          .due-soon { background:#fef3c7; color:#92400e; }
+          .due-ok { background:#f1f5f9; color:#475569; }
+        </style>
+
+        <div class="cad-note">⏱ <strong>Event-based cadences.</strong> Define what happens when a lead reaches a state — e.g. contact info captured, then several days pass with no logged activity. Each step waits for a time or event, checks a condition, then fires an action: an automated email, or a task/notification for the rep to make a call. This is what makes sure no lead goes cold.</div>
+
+        <div class="cad-wrap">
+          <!-- LEFT: cadence sequence -->
+          <div class="cad-card">
+            <div class="cad-head">
+              <b>Cadence Sequence</b>
+              <select><option>New Lead Nurture</option><option>Post-Quote Follow-Up</option><option>Seasonal Re-Engage</option><option>Trade-Show Fast-Track</option></select>
+            </div>
+            <div class="cad-body">
+              <div class="cad-step">
+                <div class="cad-when"><span class="cad-day">Day 0</span><div class="sub">on trigger</div></div>
+                <div class="cad-detail">
+                  <div class="cad-trigger"><b>When:</b> lead captured / contact info provided</div>
+                  <div class="cad-action"><span class="cad-chan chan-email">Email</span> Send intro / "thanks for reaching out" email — auto</div>
+                </div>
+              </div>
+              <div class="cad-step">
+                <div class="cad-when"><span class="cad-day wait">Day 3</span><div class="sub">if no contact</div></div>
+                <div class="cad-detail">
+                  <div class="cad-trigger"><b>If:</b> no call, email, or meeting logged in 3 days</div>
+                  <div class="cad-action"><span class="cad-chan chan-call">Call</span> Notify assigned rep to phone the lead</div>
+                </div>
+              </div>
+              <div class="cad-step">
+                <div class="cad-when"><span class="cad-day wait">Day 5</span><div class="sub">if still cold</div></div>
+                <div class="cad-detail">
+                  <div class="cad-trigger"><b>If:</b> still no logged activity</div>
+                  <div class="cad-action"><span class="cad-chan chan-email">Email</span> Auto follow-up email + <span class="cad-chan chan-task">Task</span> flag to sales manager</div>
+                </div>
+              </div>
+              <div class="cad-step">
+                <div class="cad-when"><span class="cad-day wait">Day 10</span><div class="sub">final</div></div>
+                <div class="cad-detail">
+                  <div class="cad-trigger"><b>If:</b> no response</div>
+                  <div class="cad-action"><span class="cad-chan chan-task">Task</span> Mark lead dormant · schedule quarterly re-touch</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: rule editor + live monitor -->
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="cad-card cad-editor">
+              <div class="cad-head"><b>Add Step</b></div>
+              <div class="cad-body">
+                <label>When (trigger event)</label>
+                <select><option>Lead captured</option><option>Quote sent</option><option>Order shipped</option><option>No activity for…</option><option>Specific date reached</option></select>
+                <label>Wait</label>
+                <input type="number" value="3"> <span style="font-size:11px;color:#94a3b8;">days after previous step</span>
+                <label>Only if</label>
+                <select><option>No call/email/meeting logged</option><option>No reply received</option><option>Always (unconditional)</option></select>
+                <label>Then do</label>
+                <select><option>Send automated email</option><option>Notify rep to call</option><option>Create follow-up task</option><option>Escalate to manager</option></select>
+                <button class="btn btn-primary" style="margin-top:14px;width:100%;">+ Add Step to Cadence</button>
+                <div style="font-size:11px;color:#94a3b8;margin-top:8px;">Steps allow rep flexibility — some are enforced, others are suggested reminders.</div>
+              </div>
+            </div>
+
+            <div class="cad-card">
+              <div class="cad-head"><b>Leads in Cadence</b><span style="font-size:11.5px;color:#64748b;">next action</span></div>
+              <div class="cad-body cad-mon">
+                <div class="cad-mon-row"><div><div class="who">Grant's Farm</div><div class="nxt">Day 3 · no contact → call (Kim)</div></div><span class="cad-due due-now">DUE NOW</span></div>
+                <div class="cad-mon-row"><div><div class="who">Titan Heating &amp; Air</div><div class="nxt">Day 5 · auto follow-up email</div></div><span class="cad-due due-soon">Tomorrow</span></div>
+                <div class="cad-mon-row"><div><div class="who">Wasatch Creative</div><div class="nxt">Day 0 · intro email sent</div></div><span class="cad-due due-ok">On track</span></div>
+                <div class="cad-mon-row"><div><div class="who">Summit Healthcare</div><div class="nxt">Day 10 · quarterly re-touch</div></div><span class="cad-due due-ok">Scheduled</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /#tab-cadence -->
 
     </main>
   </div><!-- /.main-wrap -->
