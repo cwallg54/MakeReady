@@ -740,12 +740,16 @@
           .kb-tag { display:inline-block; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:1px 7px; border-radius:10px; margin-bottom:5px; }
           .t-apparel { background:#dbeafe; color:#1d4ed8; } .t-print { background:#ede9fe; color:#6d28d9; } .t-promo { background:#dcfce7; color:#15803d; } .t-rush { background:#fee2e2; color:#b91c1c; }
           .kb-card.rush { border-left-color:#dc2626; }
+          .kb-card.tradeshow { border:1.5px solid #f59e0b; border-left:3px solid #d97706; box-shadow:0 2px 7px rgba(217,119,6,.20); }
+          .kb-banner { display:flex; align-items:center; gap:6px; margin:-9px -11px 9px; padding:5px 11px; background:linear-gradient(90deg,#f59e0b,#ea580c); color:#fff; font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; border-radius:6px 6px 0 0; }
+          .kb-banner .sub { margin-left:auto; font-weight:700; opacity:.95; text-transform:none; letter-spacing:0; }
         </style>
 
         <div class="kb-note">🗂 <strong>Overall Process Board.</strong> One board for the entire lead-to-cash lifecycle — the same view across the whole org. <strong>Drag a card between stages</strong>; in the live platform this updates the order's status and the customer's Pizza Tracker automatically (replacing Trello).</div>
         <div class="kb-bar">
           <select><option>All owners</option><option>Kim Lund</option><option>Chase de Jong</option><option>Tyson Johnson</option></select>
           <select><option>All types</option><option>Apparel</option><option>Print</option><option>Promo</option></select>
+          <select><option>All sources</option><option>🎪 Trade Show only</option><option>Web</option><option>Direct / Field</option></select>
           <span style="margin-left:auto;font-size:12px;color:#94a3b8;">Drag &amp; drop enabled · WIP counts update live</span>
         </div>
 
@@ -766,21 +770,21 @@
           <div class="kb-col" data-col="quote">
             <header>✏️ Quote / Order <span class="kb-count">2</span></header>
             <div class="kb-list">
-              <div class="kb-card" draggable="true"><span class="kb-tag t-apparel">Apparel</span><b>#Q-0885 · Wasatch Creative</b><div class="kb-meta">Quote sent · $6,200 · 1d</div><div class="kb-foot"><span class="kb-av">CJ</span> Chase</div></div>
+              <div class="kb-card tradeshow" draggable="true"><div class="kb-banner">🎪 Trade Show <span class="sub">Vegas 2026</span></div><span class="kb-tag t-apparel">Apparel</span><b>#Q-0885 · Wasatch Creative</b><div class="kb-meta">Quote sent · $6,200 · 1d</div><div class="kb-foot"><span class="kb-av">CJ</span> Chase</div></div>
               <div class="kb-card rush" draggable="true"><span class="kb-tag t-rush">Rush</span><b>#SO-1150 · Summit Health</b><div class="kb-meta">Order placed · $28,500 · 0d</div><div class="kb-foot"><span class="kb-av">KL</span> Kim</div></div>
             </div>
           </div>
           <div class="kb-col" data-col="art">
             <header>🎨 Art &amp; Approval <span class="kb-count">2</span></header>
             <div class="kb-list">
-              <div class="kb-card" draggable="true"><span class="kb-tag t-apparel">Apparel</span><b>#J-4820 · Blue Ridge</b><div class="kb-meta">Awaiting customer approval · 2d</div><div class="kb-foot"><span class="kb-av">Co</span> Cody</div></div>
+              <div class="kb-card tradeshow" draggable="true"><div class="kb-banner">🎪 Trade Show <span class="sub">Vegas 2026</span></div><span class="kb-tag t-apparel">Apparel</span><b>#J-4820 · Blue Ridge</b><div class="kb-meta">Awaiting customer approval · 2d</div><div class="kb-foot"><span class="kb-av">Co</span> Cody</div></div>
               <div class="kb-card" draggable="true"><span class="kb-tag t-print">Print</span><b>#J-4816 · Frontier Title</b><div class="kb-meta">Revision requested · 1d</div><div class="kb-foot"><span class="kb-av">Co</span> Cody</div></div>
             </div>
           </div>
           <div class="kb-col" data-col="production">
             <header>🏭 Production <span class="kb-count">2</span></header>
             <div class="kb-list">
-              <div class="kb-card" draggable="true"><span class="kb-tag t-apparel">Apparel</span><b>#SO-1147 · Apex Marketing</b><div class="kb-meta">Silk screen · $14,200 · 1d</div><div class="kb-foot"><span class="kb-av">TJ</span> Tyson</div></div>
+              <div class="kb-card tradeshow" draggable="true"><div class="kb-banner">🎪 Trade Show <span class="sub">Vegas 2026</span></div><span class="kb-tag t-apparel">Apparel</span><b>#SO-1147 · Apex Marketing</b><div class="kb-meta">Silk screen · $14,200 · 1d</div><div class="kb-foot"><span class="kb-av">TJ</span> Tyson</div></div>
               <div class="kb-card" draggable="true"><span class="kb-tag t-promo">Promo</span><b>#J-4805 · Pikes Peak HVAC</b><div class="kb-meta">Embroidery · 3d</div><div class="kb-foot"><span class="kb-av">TJ</span> Tyson</div></div>
             </div>
           </div>
