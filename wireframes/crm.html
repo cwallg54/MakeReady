@@ -701,16 +701,17 @@
         </style>
 
         <div class="calx-bar">
-          <div class="calx-view"><button>Day</button><button class="on">Week</button><button>Month</button></div>
-          <b style="font-size:14px;color:#0f172a;">Jul 13 – 17, 2026</b>
+          <div class="calx-view"><button onclick="setCalView('day',this)">Day</button><button class="on" onclick="setCalView('week',this)">Week</button><button onclick="setCalView('month',this)">Month</button></div>
+          <b style="font-size:14px;color:#0f172a;" id="calRange">Jul 13 – 17, 2026</b>
           <div class="spacer"></div>
           <div class="calx-sync"><span class="dot"></span> Google Calendar (Kim) &amp; Outlook (Chase) — two-way synced · 2 min ago</div>
           <button class="btn btn-secondary btn-sm">+ Connect Calendar</button>
-          <button class="btn btn-primary btn-sm">+ Schedule Meeting</button>
+          <button class="btn btn-primary btn-sm" onclick="openMeetingModal()">+ Schedule Meeting</button>
         </div>
 
         <div class="calx-mgr">👑 <strong>Sales Manager view.</strong> You have 100% visibility of every rep's schedule and can edit, move, or reassign <em>any</em> item regardless of who owns it. Changes sync back to the owner's personal calendar.</div>
 
+        <div id="calWeekWrap">
         <div class="calx-head">
           <div></div>
           <div class="calx-dh">Mon <span>Jul 13</span></div>
@@ -756,6 +757,140 @@
           <span><i style="background:#d97706;"></i>Contact reminder</span>
           <span style="margin-left:auto;color:#94a3b8;">✎ = editable by Sales Manager regardless of owner</span>
         </div>
+        </div><!-- /#calWeekWrap -->
+
+        <!-- MONTH VIEW -->
+        <div id="calMonthWrap" style="display:none;">
+          <style>
+            .calm { display:grid; grid-template-columns:repeat(7,1fr); border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; }
+            .calm-dow { background:#f8fafc; font-size:11px; font-weight:700; color:#64748b; text-align:center; padding:8px 0; border-bottom:1px solid #e2e8f0; letter-spacing:.03em; }
+            .calm-cell { min-height:96px; border-left:1px solid #f1f5f9; border-top:1px solid #f1f5f9; padding:5px 6px; }
+            .calm-cell.out { background:#fafbfc; }
+            .calm-cell.out .calm-date { color:#cbd5e1; }
+            .calm-date { font-size:11.5px; font-weight:600; color:#334155; }
+            .calm-cell.today .calm-date { background:#2563eb; color:#fff; border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; }
+            .calm-chip { font-size:10px; color:#fff; border-radius:4px; padding:1px 6px; margin-top:3px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+            .calm-more { font-size:10px; color:#64748b; margin-top:2px; }
+          </style>
+          <div class="calm">
+            <div class="calm-dow">SUN</div><div class="calm-dow">MON</div><div class="calm-dow">TUE</div><div class="calm-dow">WED</div><div class="calm-dow">THU</div><div class="calm-dow">FRI</div><div class="calm-dow">SAT</div>
+            <!-- Week 1 -->
+            <div class="calm-cell out"><div class="calm-date">28</div></div>
+            <div class="calm-cell out"><div class="calm-date">29</div></div>
+            <div class="calm-cell out"><div class="calm-date">30</div></div>
+            <div class="calm-cell"><div class="calm-date">1</div></div>
+            <div class="calm-cell"><div class="calm-date">2</div><div class="calm-chip ev-chase">Apex kickoff</div></div>
+            <div class="calm-cell"><div class="calm-date">3</div></div>
+            <div class="calm-cell"><div class="calm-date">4</div></div>
+            <!-- Week 2 -->
+            <div class="calm-cell"><div class="calm-date">5</div></div>
+            <div class="calm-cell"><div class="calm-date">6</div><div class="calm-chip ev-team">Team Sync</div></div>
+            <div class="calm-cell"><div class="calm-date">7</div><div class="calm-chip ev-kim">Summit call</div></div>
+            <div class="calm-cell"><div class="calm-date">8</div></div>
+            <div class="calm-cell"><div class="calm-date">9</div><div class="calm-chip ev-rem">Reminder: Titan</div></div>
+            <div class="calm-cell"><div class="calm-date">10</div></div>
+            <div class="calm-cell"><div class="calm-date">11</div></div>
+            <!-- Week 3 (this week) -->
+            <div class="calm-cell"><div class="calm-date">12</div></div>
+            <div class="calm-cell today"><div class="calm-date">13</div><div class="calm-chip ev-team">Team Sync</div><div class="calm-chip ev-kim">Discovery · Grant's</div></div>
+            <div class="calm-cell"><div class="calm-date">14</div><div class="calm-chip ev-chase">Apex Mktg</div><div class="calm-chip ev-rem">Call Titan</div></div>
+            <div class="calm-cell"><div class="calm-date">15</div><div class="calm-chip ev-kim">Trade-show prep</div><div class="calm-more">+1 more</div></div>
+            <div class="calm-cell"><div class="calm-date">16</div><div class="calm-chip ev-kim">Onsite · Blue Ridge</div><div class="calm-more">+1 more</div></div>
+            <div class="calm-cell"><div class="calm-date">17</div><div class="calm-chip ev-team">Pipeline review</div></div>
+            <div class="calm-cell"><div class="calm-date">18</div></div>
+            <!-- Week 4 -->
+            <div class="calm-cell"><div class="calm-date">19</div></div>
+            <div class="calm-cell"><div class="calm-date">20</div><div class="calm-chip ev-chase">Wasatch demo</div></div>
+            <div class="calm-cell"><div class="calm-date">21</div></div>
+            <div class="calm-cell"><div class="calm-date">22</div><div class="calm-chip ev-kim">Quote review</div></div>
+            <div class="calm-cell"><div class="calm-date">23</div></div>
+            <div class="calm-cell"><div class="calm-date">24</div></div>
+            <div class="calm-cell"><div class="calm-date">25</div></div>
+            <!-- Week 5 -->
+            <div class="calm-cell"><div class="calm-date">26</div></div>
+            <div class="calm-cell"><div class="calm-date">27</div></div>
+            <div class="calm-cell"><div class="calm-date">28</div><div class="calm-chip ev-team">Team Sync</div></div>
+            <div class="calm-cell"><div class="calm-date">29</div></div>
+            <div class="calm-cell"><div class="calm-date">30</div></div>
+            <div class="calm-cell"><div class="calm-date">31</div></div>
+            <div class="calm-cell out"><div class="calm-date">1</div></div>
+          </div>
+          <div class="calx-legend">
+            <span><i class="ev-kim" style="background:#2563eb;"></i>Kim Lund</span>
+            <span><i style="background:#7c3aed;"></i>Chase de Jong</span>
+            <span><i style="background:#0d9488;"></i>Team event</span>
+            <span><i style="background:#d97706;"></i>Contact reminder</span>
+          </div>
+        </div>
+
+        <!-- SCHEDULE MEETING MODAL -->
+        <style>
+          .mm-overlay { position:fixed; inset:0; background:rgba(15,23,42,.5); display:none; align-items:center; justify-content:center; z-index:1000; }
+          .mm-overlay.open { display:flex; }
+          .mm { background:#fff; border-radius:12px; width:560px; max-width:94vw; max-height:92vh; overflow:auto; }
+          .mm-head { padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; }
+          .mm-head b { font-size:15px; color:#0f172a; }
+          .mm-close { cursor:pointer; border:none; background:none; font-size:18px; color:#94a3b8; }
+          .mm-body { padding:20px; }
+          .mm-foot { padding:14px 20px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:10px; }
+          .mm-l { display:block; font-size:11.5px; font-weight:600; color:#475569; margin:12px 0 4px; }
+          .mm-type { display:flex; gap:8px; }
+          .mm-type button { flex:1; border:1px solid #d1d5db; background:#fff; border-radius:8px; padding:8px; font-size:12.5px; cursor:pointer; color:#475569; }
+          .mm-type button.on { border-color:#2563eb; background:#eff6ff; color:#1d4ed8; font-weight:600; }
+          .mm-chips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+          .mm-chip { font-size:11.5px; background:#eef2ff; color:#4338ca; border-radius:14px; padding:3px 10px; }
+          .mm-sync { display:flex; align-items:center; gap:8px; font-size:12px; color:#334155; margin-top:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:9px 12px; }
+        </style>
+        <div class="mm-overlay" id="mmOverlay" onclick="if(event.target===this)closeMeetingModal()">
+          <div class="mm">
+            <div class="mm-head"><b>📅 Schedule Meeting</b><button class="mm-close" onclick="closeMeetingModal()">✕</button></div>
+            <div class="mm-body">
+              <span class="mm-l">Title</span>
+              <input class="form-control" value="Discovery Meeting — Grant's Farm">
+              <div class="form-row">
+                <div><span class="mm-l">Customer / Lead</span><select class="form-control"><option>Grant's Farm</option><option>Apex Marketing Group</option><option>Summit Healthcare</option><option>+ New…</option></select></div>
+                <div><span class="mm-l">Owner</span><select class="form-control"><option>Kim Lund</option><option>Chase de Jong</option><option>— assign later —</option></select></div>
+              </div>
+              <span class="mm-l">Meeting Type</span>
+              <div class="mm-type">
+                <button class="on" onclick="mmType(this)">🏢 In-person</button>
+                <button onclick="mmType(this)">🎥 Video call</button>
+                <button onclick="mmType(this)">📞 Phone</button>
+              </div>
+              <div class="form-row-3">
+                <div><span class="mm-l">Date</span><input class="form-control" type="date" value="2026-07-20"></div>
+                <div><span class="mm-l">Start</span><input class="form-control" type="time" value="09:00"></div>
+                <div><span class="mm-l">End</span><input class="form-control" type="time" value="10:00"></div>
+              </div>
+              <span class="mm-l">Attendees</span>
+              <div class="mm-chips"><span class="mm-chip">Kim Lund (owner)</span><span class="mm-chip">dana@grantsfarm.com</span><input class="form-control" style="flex:1;min-width:140px;" placeholder="Add attendee email…"></div>
+              <span class="mm-l">Location / Link</span>
+              <input class="form-control" placeholder="Address, or auto-generate a video link">
+              <span class="mm-l">Reminder</span>
+              <select class="form-control"><option>15 minutes before</option><option>1 hour before</option><option>1 day before</option><option>None</option></select>
+              <div class="mm-sync"><input type="checkbox" checked> Sync to my personal calendar (Google/Outlook) and the team calendar</div>
+            </div>
+            <div class="mm-foot">
+              <button class="btn btn-secondary" onclick="closeMeetingModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="closeMeetingModal()">Schedule &amp; Send Invites</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function setCalView(v, btn){
+            document.querySelectorAll('.calx-view button').forEach(b=>b.classList.remove('on'));
+            if(btn) btn.classList.add('on');
+            const month = v === 'month';
+            document.getElementById('calMonthWrap').style.display = month ? 'block' : 'none';
+            document.getElementById('calWeekWrap').style.display = month ? 'none' : 'block';
+            const r = document.getElementById('calRange');
+            r.textContent = month ? 'July 2026' : (v === 'day' ? 'Monday, Jul 13, 2026' : 'Jul 13 – 17, 2026');
+          }
+          function openMeetingModal(){ document.getElementById('mmOverlay').classList.add('open'); }
+          function closeMeetingModal(){ document.getElementById('mmOverlay').classList.remove('open'); }
+          function mmType(b){ b.parentNode.querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); }
+        </script>
       </div><!-- /#tab-calendar -->
 
       <!-- ─── CADENCE TAB ──────────────────────────────────────── -->
