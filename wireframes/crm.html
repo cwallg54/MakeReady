@@ -106,6 +106,7 @@
         <button class="tab" data-tab="accounts">Accounts</button>
         <button class="tab" data-tab="pipeline">Pipeline</button>
         <button class="tab" data-tab="activities">Activities</button>
+        <button class="tab" data-tab="calendar">📅 Team Calendar</button>
         <button class="tab" data-tab="cadence">⏱ Cadence</button>
       </div>
 
@@ -671,6 +672,91 @@
         </div><!-- /.activity-timeline -->
 
       </div><!-- /#tab-activities -->
+
+      <!-- ─── TEAM CALENDAR TAB ────────────────────────────────── -->
+      <div class="tab-panel" id="tab-calendar">
+        <style>
+          .calx-bar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+          .calx-bar .spacer { margin-left:auto; }
+          .calx-view { display:flex; border:1px solid #d1d5db; border-radius:8px; overflow:hidden; }
+          .calx-view button { border:none; background:#fff; padding:6px 14px; font-size:12.5px; cursor:pointer; color:#475569; }
+          .calx-view button.on { background:#2563eb; color:#fff; font-weight:600; }
+          .calx-sync { display:flex; align-items:center; gap:8px; font-size:12px; color:#15803d; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:6px 11px; }
+          .calx-sync .dot { width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 4px rgba(34,197,94,.6); }
+          .calx-mgr { font-size:12px; color:#92400e; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 12px; margin-bottom:14px; }
+          .calx-legend { display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; color:#475569; margin:12px 0 0; }
+          .calx-legend i { width:11px; height:11px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:middle; }
+          .calx-head { display:grid; grid-template-columns:56px repeat(5,1fr); }
+          .calx-dh { text-align:center; font-size:12px; font-weight:700; color:#334155; padding:8px 0; border-left:1px solid #f1f5f9; }
+          .calx-dh span { display:block; font-size:11px; font-weight:500; color:#94a3b8; }
+          .calx-body { display:grid; grid-template-columns:56px repeat(5,1fr); border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; }
+          .calx-times { display:flex; flex-direction:column; }
+          .calx-t { height:52px; font-size:10.5px; color:#94a3b8; text-align:right; padding:2px 6px 0 0; border-top:1px solid #f1f5f9; }
+          .calx-col { position:relative; height:520px; border-left:1px solid #f1f5f9; background:repeating-linear-gradient(#fff 0 51px,#f1f5f9 51px 52px); }
+          .calx-ev { position:absolute; left:4px; right:4px; border-radius:7px; padding:5px 8px; font-size:11px; color:#fff; overflow:hidden; box-shadow:0 1px 2px rgba(15,23,42,.15); cursor:pointer; }
+          .calx-ev b { display:block; font-size:11px; font-weight:700; }
+          .calx-ev .who { font-size:10px; opacity:.9; }
+          .calx-ev .pen { position:absolute; top:3px; right:5px; font-size:10px; opacity:.75; }
+          .ev-kim { background:#2563eb; } .ev-chase { background:#7c3aed; } .ev-team { background:#0d9488; } .ev-rem { background:#d97706; }
+        </style>
+
+        <div class="calx-bar">
+          <div class="calx-view"><button>Day</button><button class="on">Week</button><button>Month</button></div>
+          <b style="font-size:14px;color:#0f172a;">Jul 13 – 17, 2026</b>
+          <div class="spacer"></div>
+          <div class="calx-sync"><span class="dot"></span> Google Calendar (Kim) &amp; Outlook (Chase) — two-way synced · 2 min ago</div>
+          <button class="btn btn-secondary btn-sm">+ Connect Calendar</button>
+          <button class="btn btn-primary btn-sm">+ Schedule Meeting</button>
+        </div>
+
+        <div class="calx-mgr">👑 <strong>Sales Manager view.</strong> You have 100% visibility of every rep's schedule and can edit, move, or reassign <em>any</em> item regardless of who owns it. Changes sync back to the owner's personal calendar.</div>
+
+        <div class="calx-head">
+          <div></div>
+          <div class="calx-dh">Mon <span>Jul 13</span></div>
+          <div class="calx-dh">Tue <span>Jul 14</span></div>
+          <div class="calx-dh">Wed <span>Jul 15</span></div>
+          <div class="calx-dh">Thu <span>Jul 16</span></div>
+          <div class="calx-dh">Fri <span>Jul 17</span></div>
+        </div>
+        <div class="calx-body">
+          <div class="calx-times">
+            <div class="calx-t">8 AM</div><div class="calx-t">9 AM</div><div class="calx-t">10 AM</div><div class="calx-t">11 AM</div><div class="calx-t">12 PM</div><div class="calx-t">1 PM</div><div class="calx-t">2 PM</div><div class="calx-t">3 PM</div><div class="calx-t">4 PM</div><div class="calx-t">5 PM</div>
+          </div>
+          <!-- Mon -->
+          <div class="calx-col">
+            <div class="calx-ev ev-team" style="top:0;height:52px;"><span class="pen">✎</span><b>Team Sales Sync</b><span class="who">All reps</span></div>
+            <div class="calx-ev ev-kim" style="top:52px;height:52px;"><span class="pen">✎</span><b>Discovery · Grant's Farm</b><span class="who">Kim</span></div>
+          </div>
+          <!-- Tue -->
+          <div class="calx-col">
+            <div class="calx-ev ev-chase" style="top:130px;height:78px;"><span class="pen">✎</span><b>Client Mtg · Apex Mktg</b><span class="who">Chase</span></div>
+            <div class="calx-ev ev-rem" style="top:312px;height:26px;"><b>Reminder: call Titan H&amp;A</b></div>
+          </div>
+          <!-- Wed -->
+          <div class="calx-col">
+            <div class="calx-ev ev-kim" style="top:156px;height:52px;"><span class="pen">✎</span><b>Trade-show prep</b><span class="who">Kim</span></div>
+            <div class="calx-ev ev-chase" style="top:260px;height:52px;"><span class="pen">✎</span><b>Art review · Summit</b><span class="who">Chase</span></div>
+          </div>
+          <!-- Thu -->
+          <div class="calx-col">
+            <div class="calx-ev ev-chase" style="top:78px;height:26px;"><b>Follow-up call · Wasatch</b></div>
+            <div class="calx-ev ev-kim" style="top:286px;height:78px;"><span class="pen">✎</span><b>Onsite · Blue Ridge</b><span class="who">Kim</span></div>
+          </div>
+          <!-- Fri -->
+          <div class="calx-col">
+            <div class="calx-ev ev-rem" style="top:52px;height:26px;"><b>Reminder: quote follow-up</b></div>
+            <div class="calx-ev ev-team" style="top:416px;height:52px;"><span class="pen">✎</span><b>Pipeline review</b><span class="who">All reps</span></div>
+          </div>
+        </div>
+        <div class="calx-legend">
+          <span><i class="ev-kim" style="background:#2563eb;"></i>Kim Lund</span>
+          <span><i style="background:#7c3aed;"></i>Chase de Jong</span>
+          <span><i style="background:#0d9488;"></i>Team event</span>
+          <span><i style="background:#d97706;"></i>Contact reminder</span>
+          <span style="margin-left:auto;color:#94a3b8;">✎ = editable by Sales Manager regardless of owner</span>
+        </div>
+      </div><!-- /#tab-calendar -->
 
       <!-- ─── CADENCE TAB ──────────────────────────────────────── -->
       <div class="tab-panel" id="tab-cadence">
