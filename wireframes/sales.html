@@ -123,13 +123,14 @@
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab active" data-tab="quotes">Quotations</button>
+        <button class="tab active" data-tab="builder">⚡ Quote Builder</button>
+        <button class="tab" data-tab="quotes">Quotations</button>
         <button class="tab" data-tab="orders">Sales Orders</button>
         <button class="tab" data-tab="deliveries">Deliveries</button>
       </div>
 
       <!-- ─── QUOTES TAB ────────────────────────────────────────── -->
-      <div class="tab-panel active" id="tab-quotes">
+      <div class="tab-panel" id="tab-quotes">
 
         <div class="toolbar">
           <input class="search-input" type="search" placeholder="Search quotes…" />
@@ -348,6 +349,54 @@
 
       <!-- ─── ORDERS TAB ─────────────────────────────────────────── -->
       <div class="tab-panel" id="tab-orders">
+
+        <!-- ── Order Lifecycle "Pizza Tracker" ── -->
+        <style>
+          .pt-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; margin-bottom:18px; }
+          .pt-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+          .pt-head b { font-size:14px; color:#0f172a; }
+          .pt-head .sub { font-size:12px; color:#64748b; }
+          .pt-track { display:flex; align-items:flex-start; }
+          .pt-step { flex:1; text-align:center; position:relative; }
+          .pt-dot { width:30px; height:30px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:14px; background:#e2e8f0; color:#94a3b8; position:relative; z-index:1; }
+          .pt-step.done .pt-dot { background:#16a34a; color:#fff; }
+          .pt-step.current .pt-dot { background:#2563eb; color:#fff; box-shadow:0 0 0 4px #dbeafe; }
+          .pt-step.flag .pt-dot { background:#dc2626; color:#fff; box-shadow:0 0 0 4px #fee2e2; }
+          .pt-step:not(:last-child)::after { content:''; position:absolute; top:15px; left:50%; width:100%; height:3px; background:#e2e8f0; z-index:0; }
+          .pt-step.done:not(:last-child)::after { background:#16a34a; }
+          .pt-label { font-size:11.5px; font-weight:600; color:#334155; }
+          .pt-time { font-size:10.5px; color:#94a3b8; margin-top:2px; }
+          .pt-flagmsg { margin-top:14px; font-size:12.5px; color:#b91c1c; background:#fff7f7; border:1px solid #fecaca; border-radius:8px; padding:9px 13px; }
+        </style>
+        <div class="pt-card">
+          <div class="pt-head">
+            <div><b>Order SO-2026-1147 · Apex Marketing Group</b> <span class="sub">— live lifecycle status, one source of truth (customer &amp; rep both see this)</span></div>
+            <span class="badge badge-blue">In Production</span>
+          </div>
+          <div class="pt-track">
+            <div class="pt-step done"><div class="pt-dot">✓</div><div class="pt-label">Account &amp; Credit</div><div class="pt-time">Jul 6</div></div>
+            <div class="pt-step done"><div class="pt-dot">✓</div><div class="pt-label">Quote / Order</div><div class="pt-time">Jul 8</div></div>
+            <div class="pt-step done"><div class="pt-dot">✓</div><div class="pt-label">Art Approved</div><div class="pt-time">Jul 9</div></div>
+            <div class="pt-step current"><div class="pt-dot">🏭</div><div class="pt-label">In Production</div><div class="pt-time">since Jul 10</div></div>
+            <div class="pt-step"><div class="pt-dot">🚚</div><div class="pt-label">Delivery</div><div class="pt-time">est. Jul 15</div></div>
+            <div class="pt-step"><div class="pt-dot">💰</div><div class="pt-label">Invoice &amp; Payment</div><div class="pt-time">—</div></div>
+          </div>
+        </div>
+        <div class="pt-card" style="margin-bottom:22px;">
+          <div class="pt-head">
+            <div><b>Order SO-2026-1149 · Summit Healthcare</b> <span class="sub">— red-flag state surfaces blockers instead of a status phone call</span></div>
+            <span class="badge badge-red">Action Needed</span>
+          </div>
+          <div class="pt-track">
+            <div class="pt-step done"><div class="pt-dot">✓</div><div class="pt-label">Account &amp; Credit</div><div class="pt-time">Jul 7</div></div>
+            <div class="pt-step done"><div class="pt-dot">✓</div><div class="pt-label">Quote / Order</div><div class="pt-time">Jul 9</div></div>
+            <div class="pt-step flag"><div class="pt-dot">!</div><div class="pt-label">Art Approval</div><div class="pt-time">waiting</div></div>
+            <div class="pt-step"><div class="pt-dot">🏭</div><div class="pt-label">Production</div><div class="pt-time">—</div></div>
+            <div class="pt-step"><div class="pt-dot">🚚</div><div class="pt-label">Delivery</div><div class="pt-time">—</div></div>
+            <div class="pt-step"><div class="pt-dot">💰</div><div class="pt-label">Invoice &amp; Payment</div><div class="pt-time">—</div></div>
+          </div>
+          <div class="pt-flagmsg">⚠ Waiting on customer art approval (sent Jul 9). Production is held until approved — no need to call around for status.</div>
+        </div>
 
         <div class="toolbar">
           <input class="search-input" type="search" placeholder="Search orders…" />
@@ -668,6 +717,91 @@
 
       </div><!-- /#tab-deliveries -->
 
+      <!-- ─── QUOTE BUILDER TAB ─────────────────────────────────── -->
+      <div class="tab-panel active" id="tab-builder">
+        <style>
+          .qb-wrap { display:grid; grid-template-columns:1.5fr 1fr; gap:18px; align-items:start; }
+          @media (max-width:1100px){ .qb-wrap { grid-template-columns:1fr; } }
+          .qb-card { background:#fff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; }
+          .qb-head { padding:14px 18px; border-bottom:1px solid #f1f5f9; font-weight:700; color:#0f172a; font-size:14px; display:flex; align-items:center; justify-content:space-between; }
+          .qb-body { padding:18px; }
+          .qb-note { font-size:12px; color:#075985; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 13px; margin-bottom:16px; }
+          .qb-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+          .qb-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+          .qb-field label { display:block; font-size:11.5px; font-weight:600; color:#475569; margin-bottom:4px; }
+          .qb-field select, .qb-field input { width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:7px; font-size:13px; color:#1e293b; background:#fff; }
+          .qb-costline { font-size:11px; color:#94a3b8; margin-top:3px; }
+          .qb-addons { display:flex; gap:16px; flex-wrap:wrap; margin-top:6px; }
+          .qb-addon { display:flex; align-items:center; gap:7px; font-size:12.5px; color:#334155; }
+          .qb-price { text-align:center; padding:14px; background:#f8fafc; border:1px solid #eef2f7; border-radius:9px; margin-top:16px; }
+          .qb-price .u { font-size:12px; color:#64748b; }
+          .qb-price .v { font-size:26px; font-weight:800; color:#0f172a; line-height:1.1; }
+          .qb-price .l { font-size:12px; color:#64748b; margin-top:4px; }
+          .qb-lines { width:100%; border-collapse:collapse; font-size:12.5px; }
+          .qb-lines th { text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:#94a3b8; padding:8px 10px; border-bottom:1px solid #e2e8f0; }
+          .qb-lines td { padding:9px 10px; border-bottom:1px solid #f1f5f9; color:#334155; }
+          .qb-total { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:#f8fafc; border-top:1px solid #e2e8f0; }
+          .qb-total .t { font-size:13px; color:#64748b; }
+          .qb-total .a { font-size:22px; font-weight:800; color:#0f172a; }
+          .qb-empty { text-align:center; color:#94a3b8; font-size:13px; padding:24px; }
+          .qb-actions { display:flex; gap:10px; flex-wrap:wrap; padding:14px 18px; border-top:1px solid #f1f5f9; }
+        </style>
+
+        <div class="qb-note">⚡ <strong>Quoting Automation.</strong> The pricing calculator is built into the quote — pick a supplier and only that supplier's styles appear (no more 5000-vs-5001 mix-ups). Cost pulls from the catalog and markup is applied automatically by quantity tier, so there's nothing to hand-enter and no after-the-fact price-check surprise. Prices lock at quote time and are honored to the customer.</div>
+
+        <div class="qb-wrap">
+          <!-- LEFT: builder -->
+          <div class="qb-card">
+            <div class="qb-head">Build a Line <span style="font-size:12px;font-weight:500;color:#64748b;">Quote #Q-2026-0885 · draft</span></div>
+            <div class="qb-body">
+              <div class="qb-grid" style="margin-bottom:12px;">
+                <div class="qb-field"><label>Business Partner</label><select><option>Apex Marketing Group</option><option>Summit Healthcare Systems</option><option>Wasatch Creative Studio</option><option>+ New Customer…</option></select></div>
+                <div class="qb-field"><label>Decoration</label><select id="qbDecor"><option value="silk">Silk Screen</option><option value="emb">Embroidery</option></select></div>
+              </div>
+              <div class="qb-grid" style="margin-bottom:12px;">
+                <div class="qb-field"><label>Supplier</label><select id="qbSupplier"></select></div>
+                <div class="qb-field"><label>Style</label><select id="qbStyle"></select><div class="qb-costline" id="qbCost">Our cost: —</div></div>
+              </div>
+              <div class="qb-grid-3" style="margin-bottom:6px;">
+                <div class="qb-field"><label>Quantity</label><input id="qbQty" type="number" value="144" min="1"></div>
+                <div class="qb-field"><label>Print Locations</label><select id="qbLoc"><option value="1">1 location</option><option value="2">2 locations</option><option value="3">3 locations</option><option value="4">4 locations</option></select></div>
+                <div class="qb-field"><label>Color</label><input value="Assorted"></div>
+              </div>
+              <div class="qb-addons">
+                <label class="qb-addon"><input type="checkbox" id="qbBarcode"> UPC barcodes <span style="color:#94a3b8;">(+$0.15/ea)</span></label>
+                <label class="qb-addon"><input type="checkbox" id="qbFold"> Fold &amp; poly-bag <span style="color:#94a3b8;">(+$0.35/ea)</span></label>
+              </div>
+
+              <div class="qb-price">
+                <div class="u">Unit price (markup applied · customer sees this)</div>
+                <div class="v" id="qbUnit">$0.00</div>
+                <div class="l" id="qbLineTotal">Line total: $0.00 · <span id="qbMargin" style="color:#15803d;">—</span></div>
+              </div>
+
+              <div style="display:flex;gap:10px;margin-top:14px;">
+                <button class="btn btn-primary" id="qbAdd">+ Add to Quote</button>
+                <button class="btn btn-secondary" id="qbReset">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: quote summary -->
+          <div class="qb-card">
+            <div class="qb-head">Quote Lines</div>
+            <table class="qb-lines">
+              <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Total</th><th></th></tr></thead>
+              <tbody id="qbLinesBody"><tr><td colspan="5" class="qb-empty">No lines yet — build one on the left and click “Add to Quote”.</td></tr></tbody>
+            </table>
+            <div class="qb-total"><span class="t">Quote Total</span><span class="a" id="qbGrand">$0.00</span></div>
+            <div class="qb-actions">
+              <button class="btn btn-primary">📄 Generate Quote PDF</button>
+              <button class="btn btn-secondary">Save Draft</button>
+              <button class="btn btn-secondary">Convert to Order →</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /#tab-builder -->
+
     </main>
   </div><!-- /.main-wrap -->
 
@@ -683,6 +817,74 @@
         if (panel) panel.classList.add('active');
       });
     });
+
+    // ── Quote Builder ─────────────────────────────────────────────
+    // Supplier → styles catalog (note 5000 vs 5001 are different suppliers/prices)
+    const CATALOG = {
+      'SanMar':   [['PC61 — Port & Co Tee', 3.20], ['PC90H — Core Fleece Hoodie', 12.50], ['ST350 — Sport-Tek Polo', 9.80]],
+      'S&S / SNS':[['5000 — Gildan Heavy Tee', 3.10], ['18500 — Gildan Hoodie', 13.20], ['G200 — Ultra Cotton Tee', 3.60]],
+      'AS Color': [['5001 — Staple Tee', 6.40], ['5101 — Supply Hood', 22.00], ['4001 — Block Tee', 7.10]],
+      'Gildan':   [['64000 — Softstyle Tee', 3.40], ['18000 — Crewneck', 11.90]]
+    };
+    const $ = id => document.getElementById(id);
+    const money = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    function bandMultiplier(cost){ return cost <= 4 ? 2.6 : cost <= 15 ? 2.15 : 1.9; }
+    function qtyFactor(q){ return q >= 576 ? 0.80 : q >= 288 ? 0.85 : q >= 144 ? 0.92 : 1.0; }
+
+    function currentCost(){
+      const sup = $('qbSupplier').value, idx = +$('qbStyle').value;
+      const item = (CATALOG[sup] || [])[idx];
+      return item ? item[1] : 0;
+    }
+    function calcUnit(){
+      const cost = currentCost();
+      const decorFirst = $('qbDecor').value === 'emb' ? 3.50 : 1.75; // per unit, first location
+      const locs = +$('qbLoc').value;
+      const decor = decorFirst + Math.max(0, locs - 1) * 1.25; // extra locations
+      const addon = ($('qbBarcode').checked ? 0.15 : 0) + ($('qbFold').checked ? 0.35 : 0);
+      const q = Math.max(1, +$('qbQty').value || 1);
+      const garmentSell = cost * bandMultiplier(cost) * qtyFactor(q);
+      const unit = garmentSell + decor + addon;
+      return { cost, unit, q, total: unit * q };
+    }
+    function refreshStyles(){
+      const sup = $('qbSupplier').value;
+      $('qbStyle').innerHTML = (CATALOG[sup] || []).map((s,i)=>`<option value="${i}">${s[0]}</option>`).join('');
+      refresh();
+    }
+    function refresh(){
+      const r = calcUnit();
+      $('qbCost').textContent = 'Our cost: ' + money(r.cost) + ' /ea';
+      $('qbUnit').textContent = money(r.unit);
+      const margin = r.unit > 0 ? Math.round((1 - r.cost / r.unit) * 100) : 0;
+      $('qbLineTotal').innerHTML = 'Line total: ' + money(r.total) + ' · <span style="color:#15803d;">' + margin + '% margin</span>';
+    }
+
+    let lines = [];
+    function renderLines(){
+      const body = $('qbLinesBody');
+      if (!lines.length){ body.innerHTML = '<tr><td colspan="5" class="qb-empty">No lines yet — build one on the left and click “Add to Quote”.</td></tr>'; $('qbGrand').textContent = '$0.00'; return; }
+      body.innerHTML = lines.map((l,i)=>`<tr><td>${l.name}</td><td>${l.q}</td><td>${money(l.unit)}</td><td>${money(l.total)}</td><td><button class="btn-icon" data-del="${i}">✕</button></td></tr>`).join('');
+      $('qbGrand').textContent = money(lines.reduce((s,l)=>s+l.total,0));
+      body.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{ lines.splice(+b.dataset.del,1); renderLines(); }));
+    }
+
+    if ($('qbSupplier')) {
+      $('qbSupplier').innerHTML = Object.keys(CATALOG).map(s=>`<option>${s}</option>`).join('');
+      ['qbDecor','qbSupplier','qbStyle','qbQty','qbLoc','qbBarcode','qbFold'].forEach(id => {
+        const el = $(id); if (el) el.addEventListener('input', () => id==='qbSupplier' ? refreshStyles() : refresh());
+      });
+      $('qbAdd').addEventListener('click', () => {
+        const r = calcUnit();
+        const sup = $('qbSupplier').value;
+        const style = $('qbStyle').options[$('qbStyle').selectedIndex].text;
+        lines.push({ name: sup + ' · ' + style, q: r.q, unit: r.unit, total: r.total });
+        renderLines();
+      });
+      $('qbReset').addEventListener('click', () => { $('qbQty').value = 144; $('qbLoc').value = '1'; $('qbBarcode').checked = false; $('qbFold').checked = false; refresh(); });
+      refreshStyles();
+    }
   </script>
 </body>
 </html>
