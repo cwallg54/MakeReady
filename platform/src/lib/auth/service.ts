@@ -79,27 +79,13 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   };
 });
 
-/** Slide the current session's expiry forward on activity (called from the app layout). */
-export async function touchSession(): Promise<void> {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!token) return;
-  const claims = await verifySessionToken(token);
-  if (!claims) return;
-
-  const minutes = await sessionTimeoutMinutes();
-  const session = await db.query.sessions.findFirst({
-    where: eq(sessions.id, claims.sid),
-  });
-  if (!session) return;
-
-  // Only slide short (non "remember me") sessions; long-lived ones keep their expiry.
-  const remaining = session.expiresAt.getTime() - Date.now();
-  const window = minutes * 60_000;
-  if (remaining > 0 && remaining < window) {
-    const expiresAt = new Date(Date.now() + window);
-    await db.update(sessions).set({ expiresAt }).where(eq(sessions.id, session.id));
-    (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions(expiresAt));
-  }
+/**
+ * Create a fresh session + cookie for a user. Used by login and by flows that
+ * establish a session directly (e.g. auto-login after a forced password reset).
+ * Sessions use absolute expiry (timeout from creation, or 30 days for remember-me).
+ */
+export async function establishSession(userId: string, rememberMe = false): Promise<void> {
+  await createSession(userId, rememberMe);
 }
 
 async function createSession(userId: string, rememberMe: boolean): Promise<void> {

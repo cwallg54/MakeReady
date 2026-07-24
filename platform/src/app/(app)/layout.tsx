@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
-import { touchSession } from "@/lib/auth/service";
 import { visibleModules, ROLE_LABELS } from "@/lib/rbac";
 import { db } from "@/db";
 import { notifications } from "@/db/schema";
@@ -11,7 +10,6 @@ import { LogoutButton } from "@/components/logout-button";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  await touchSession();
 
   const items: NavItem[] = visibleModules(user.roles).map((m) => ({
     key: m.key,

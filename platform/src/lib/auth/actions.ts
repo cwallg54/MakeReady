@@ -8,6 +8,7 @@ import {
   createPasswordReset,
   resetPassword,
   getCurrentUser,
+  establishSession,
 } from "./service";
 import { sendPasswordResetEmail } from "@/lib/email";
 
@@ -107,5 +108,7 @@ export async function forcedResetAction(_prev: FormState, formData: FormData): P
     }
     return { error: "Unable to reset password. Try again." };
   }
-  redirect("/login?reset=1");
+  // resetPassword cleared all sessions; start a fresh one so the user goes straight in.
+  await establishSession(user.id);
+  redirect("/dashboard");
 }

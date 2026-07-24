@@ -18,12 +18,10 @@ export async function proxy(req: NextRequest) {
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const claims = token ? await verifySessionToken(token) : null;
 
-  // Authenticated users skip the auth pages.
-  if (claims && isPublic(pathname)) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
   // Unauthenticated users are sent to login for everything else.
+  // (We intentionally don't bounce token-bearing users away from /login: a valid
+  // JWT with a revoked server-side session must be able to reach the login page,
+  // otherwise it would loop against the server-side session check.)
   if (!claims && !isPublic(pathname)) {
     const url = new URL("/login", req.url);
     if (pathname !== "/") url.searchParams.set("next", pathname);
