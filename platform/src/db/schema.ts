@@ -170,6 +170,13 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "other",
 ]);
 
+// Sales lifecycle stage for a Business Partner (lead-collection → customer).
+export const lifecycleStageEnum = pgEnum("lifecycle_stage", [
+  "lead",
+  "prospect",
+  "customer",
+]);
+
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
   code: text("code").notNull().unique(),
@@ -183,6 +190,8 @@ export const businessPartners = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     bpNumber: text("bp_number").notNull().unique(),
     companyName: text("company_name").notNull(),
+    lifecycleStage: lifecycleStageEnum("lifecycle_stage").notNull().default("lead"),
+    leadSource: text("lead_source"),
     accountGroupId: uuid("account_group_id").references(() => accountGroups.id),
     phone: text("phone"),
     email: text("email"),
@@ -235,6 +244,8 @@ export const activities = pgTable(
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     type: activityTypeEnum("type").notNull().default("note"),
     content: text("content").notNull(),
+    // System-generated entries (record changes) vs. user-logged notes/calls/etc.
+    isSystem: boolean("is_system").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("activities_bp_id_idx").on(t.bpId)],

@@ -13,6 +13,8 @@ export function BpEditForm({
   bp: {
     id: string;
     companyName: string;
+    lifecycleStage: string;
+    leadSource: string | null;
     accountGroupId: string | null;
     email: string | null;
     phone: string | null;
@@ -35,10 +37,34 @@ export function BpEditForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Company name" name="companyName" required defaultValue={bp.companyName} />
         <AdminSelect
+          label="Stage"
+          name="lifecycleStage"
+          defaultValue={bp.lifecycleStage}
+          options={[
+            { value: "lead", label: "Lead" },
+            { value: "prospect", label: "Prospect" },
+            { value: "customer", label: "Customer" },
+          ]}
+        />
+        <AdminSelect
+          label="Lead source"
+          name="leadSource"
+          defaultValue={bp.leadSource ?? ""}
+          options={[
+            { value: "", label: "— Unknown —" },
+            { value: "Website", label: "Website" },
+            { value: "Referral", label: "Referral" },
+            { value: "Trade Show", label: "Trade Show" },
+            { value: "Cold Outreach", label: "Cold Outreach" },
+            { value: "Existing Relationship", label: "Existing Relationship" },
+            { value: "Other", label: "Other" },
+          ]}
+        />
+        <AdminSelect
           label="Account group"
           name="accountGroupId"
           defaultValue={bp.accountGroupId ?? ""}
-          options={groups.map((g) => ({ value: g.id, label: g.name }))}
+          options={[{ value: "", label: "— None —" }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
         />
         <AdminField label="Email" name="email" type="email" defaultValue={bp.email ?? ""} />
         <AdminField label="Phone" name="phone" defaultValue={bp.phone ?? ""} />

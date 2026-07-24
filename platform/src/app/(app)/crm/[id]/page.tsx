@@ -6,7 +6,7 @@ import { canEdit, canSeeBpFinance } from "@/lib/rbac";
 import { db } from "@/db";
 import { businessPartners, accountGroups, contacts, activities, users } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
-import { addContactAction, deleteContactAction, addActivityAction } from "@/lib/crm/actions";
+import { addContactAction, deleteContactAction, addActivityAction, setStageAction } from "@/lib/crm/actions";
 import { BpEditForm } from "./bp-edit-form";
 
 const WEB_STORE_LABEL: Record<string, string> = {
@@ -15,6 +15,12 @@ const WEB_STORE_LABEL: Record<string, string> = {
   published: "Published",
 };
 const ACTIVITY_LABEL: Record<string, string> = { note: "Note", call: "Call", email: "Email", visit: "Visit", other: "Other" };
+const STAGE_LABEL: Record<string, string> = { lead: "Lead", prospect: "Prospect", customer: "Customer" };
+const STAGE_BADGE: Record<string, string> = {
+  lead: "bg-amber-100 text-amber-700",
+  prospect: "bg-blue-100 text-blue-700",
+  customer: "bg-emerald-100 text-emerald-700",
+};
 
 export default async function BpDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireModule("crm");
@@ -35,6 +41,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
         id: activities.id,
         type: activities.type,
         content: activities.content,
+        isSystem: activities.isSystem,
         createdAt: activities.createdAt,
         author: users.name,
       })
@@ -50,8 +57,31 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
       <Link href="/crm" className="text-sm text-neutral-500 hover:text-neutral-900">← Business Partners</Link>
       <PageHeader
         title={bp.companyName}
-        description={`${bp.bpNumber} · ${group?.name ?? "No account group"} · Web Store: ${WEB_STORE_LABEL[bp.webStoreStatus]}`}
+        description={`${bp.bpNumber} · ${group?.name ?? "No account group"}${bp.leadSource ? ` · Source: ${bp.leadSource}` : ""} · Web Store: ${WEB_STORE_LABEL[bp.webStoreStatus]}`}
       />
+
+      <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3">
+        <span className="text-sm text-neutral-500">Stage:</span>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STAGE_BADGE[bp.lifecycleStage]}`}>
+          {STAGE_LABEL[bp.lifecycleStage]}
+        </span>
+        {editable && (
+          <div className="ml-auto flex items-center gap-2">
+            <span className="text-xs text-neutral-400">Convert to:</span>
+            {(["lead", "prospect", "customer"] as const)
+              .filter((s) => s !== bp.lifecycleStage)
+              .map((s) => (
+                <form key={s} action={setStageAction}>
+                  <input type="hidden" name="id" value={bp.id} />
+                  <input type="hidden" name="stage" value={s} />
+                  <button className="rounded-md border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50">
+                    {STAGE_LABEL[s]}
+                  </button>
+                </form>
+              ))}
+          </div>
+        )}
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -63,6 +93,8 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
                 bp={{
                   id: bp.id,
                   companyName: bp.companyName,
+                  lifecycleStage: bp.lifecycleStage,
+                  leadSource: bp.leadSource,
                   accountGroupId: bp.accountGroupId,
                   email: bp.email,
                   phone: bp.phone,
@@ -90,7 +122,10 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
 
           {/* Activity log */}
           <Card>
-            <h2 className="mb-3 text-sm font-semibold text-neutral-900">Activity log</h2>
+            <h2 className="mb-1 text-sm font-semibold text-neutral-900">Activity log</h2>
+            <p className="mb-3 text-xs text-neutral-400">
+              Notes and calls you log, plus automatic records of every change to this account.
+            </p>
             {editable && (
               <form action={addActivityAction} className="mb-4 space-y-2">
                 <input type="hidden" name="bpId" value={bp.id} />
@@ -104,7 +139,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
                     name="content"
                     required
                     placeholder="Log a note, call, email, or visit…"
-                    className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500"
+                    className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500"
                   />
                   <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Log</button>
                 </div>
@@ -113,10 +148,10 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
             <ul className="space-y-3">
               {activityRows.length === 0 && <li className="text-sm text-neutral-400">No activity logged yet.</li>}
               {activityRows.map((a) => (
-                <li key={a.id} className="border-l-2 border-neutral-200 pl-3">
-                  <p className="text-sm text-neutral-800">{a.content}</p>
+                <li key={a.id} className={`border-l-2 pl-3 ${a.isSystem ? "border-neutral-200" : "border-neutral-900"}`}>
+                  <p className={`text-sm ${a.isSystem ? "italic text-neutral-500" : "text-neutral-800"}`}>{a.content}</p>
                   <p className="text-xs text-neutral-400">
-                    {ACTIVITY_LABEL[a.type]} · {a.author ?? "Unknown"} · {a.createdAt.toLocaleString()}
+                    {a.isSystem ? "Change" : ACTIVITY_LABEL[a.type]} · {a.author ?? "Unknown"} · {a.createdAt.toLocaleString()}
                   </p>
                 </li>
               ))}
@@ -155,12 +190,12 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
               <form action={addContactAction} className="mt-4 space-y-2 border-t border-neutral-100 pt-4">
                 <input type="hidden" name="bpId" value={bp.id} />
                 <div className="grid grid-cols-2 gap-2">
-                  <input name="firstName" placeholder="First name" className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
-                  <input name="lastName" placeholder="Last name" className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
+                  <input name="firstName" placeholder="First name" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500" />
+                  <input name="lastName" placeholder="Last name" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500" />
                 </div>
-                <input name="title" placeholder="Title" className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
-                <input name="email" type="email" placeholder="Email" className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
-                <input name="phone" placeholder="Phone" className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm" />
+                <input name="title" placeholder="Title" className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500" />
+                <input name="email" type="email" placeholder="Email" className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500" />
+                <input name="phone" placeholder="Phone" className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500" />
                 <label className="flex items-center gap-2 text-xs text-neutral-600">
                   <input type="checkbox" name="isPrimary" className="h-4 w-4" /> Make primary contact
                 </label>

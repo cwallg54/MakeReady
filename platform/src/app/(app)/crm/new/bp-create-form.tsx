@@ -22,9 +22,34 @@ export function BpCreateForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <AdminField label="Company name" name="companyName" required />
           <AdminSelect
+            label="Stage"
+            name="lifecycleStage"
+            defaultValue="lead"
+            options={[
+              { value: "lead", label: "Lead" },
+              { value: "prospect", label: "Prospect" },
+              { value: "customer", label: "Customer" },
+            ]}
+          />
+          <AdminSelect
+            label="Lead source"
+            name="leadSource"
+            defaultValue=""
+            options={[
+              { value: "", label: "— Unknown —" },
+              { value: "Website", label: "Website" },
+              { value: "Referral", label: "Referral" },
+              { value: "Trade Show", label: "Trade Show" },
+              { value: "Cold Outreach", label: "Cold Outreach" },
+              { value: "Existing Relationship", label: "Existing Relationship" },
+              { value: "Other", label: "Other" },
+            ]}
+          />
+          <AdminSelect
             label="Account group"
             name="accountGroupId"
-            options={groups.map((g) => ({ value: g.id, label: g.name }))}
+            defaultValue=""
+            options={[{ value: "", label: "— None (assign later) —" }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
           />
         </div>
       </section>
