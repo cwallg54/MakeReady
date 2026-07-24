@@ -60,7 +60,7 @@ The wireframes at the link above are living prototypes — every feature describ
 
 | Decision | Choice | Reason |
 |---|---|---|
-| eCommerce | Native Web Store module | Remove Zoey B2B dependency; no third-party connector |
+| eCommerce | **Under review** — native Web Store module *or* integrate the existing platform | Native removes the third-party dependency; integrating the existing storefront lowers cost and scope. Decision pending — see [SOW](../SOW.md) Phase 3 (conditional). |
 | Integration middleware | None (removed) | Remove Vision33 Saltbox; direct integrations only |
 | Storefront URL | store.g54.com | Replaces greatmountainwest.zoey.com |
 | SAP B1 | Migration source | Document flows and master data migrate into MakeReady |

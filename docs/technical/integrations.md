@@ -9,7 +9,8 @@ MakeReady uses **direct integrations only** — no middleware or iPaaS layer (Vi
 | Integration | Type | Direction | Status |
 |---|---|---|---|
 | SAP Business One | Data migration (one-time) | SAP B1 → MakeReady | Required before go-live |
-| Web Store (store.g54.com) | Native module | Bidirectional | Built-in; no external system |
+| Web Store (store.g54.com) | Native module | Bidirectional | Built-in; no external system — **only if native Web Store is built (see below)** |
+| Existing eCommerce platform | Direct API integration | Bidirectional | **Alternative to the native Web Store — only if G54 retains its current storefront** |
 | Anthropic Claude API | AI service | MakeReady → Claude | Content Library NLP + tagging |
 | Email service | Transactional email | MakeReady → Email provider | Notifications, approvals, password reset |
 | Cloud file storage (S3/Azure) | Object storage | MakeReady → Storage | Content Library uploads |
@@ -76,6 +77,12 @@ All master data and open transactions migrate from SAP Business One into MakeRea
 ---
 
 ## Web Store (store.g54.com)
+
+> **Decision pending — build vs. integrate.** The eCommerce approach is an open decision (see [SOW](../../SOW.md) Phase 3). Two paths:
+> - **Build native (default below):** MakeReady includes a native Web Store module serving store.g54.com. Removes the third-party dependency.
+> - **Integrate existing:** If G54 retains its current eCommerce platform, MakeReady skips the native module and instead exposes a direct API integration — orders sync in, status/inventory sync out (same events as below). Lower scope and cost; priced separately.
+>
+> The remainder of this section describes the **native Web Store** path.
 
 The Web Store is a **native MakeReady module**, not an external system integration. However, the storefront website (store.g54.com) is a customer-facing application that communicates with MakeReady via internal API.
 

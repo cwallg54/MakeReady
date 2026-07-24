@@ -44,8 +44,10 @@ MakeReady is delivered in phases. Each phase produces working, deployable softwa
 
 ---
 
-## Phase 3 — Web Store (Native B2B eCommerce)
-*Replaces Zoey B2B. Requires Phase 2 for BP and Sales Order infrastructure.*
+## Phase 3 — Web Store (Native B2B eCommerce) *(conditional)*
+*Requires Phase 2 for BP and Sales Order infrastructure.*
+
+> **Conditional phase.** This phase applies only if G54 builds the native Web Store. If G54 retains its existing eCommerce platform and integrates MakeReady to it instead, this phase is not built — it is replaced by a smaller integration scope (see [Integrations](../technical/integrations.md)) and priced separately. See [SOW](../../SOW.md) Phase 3.
 
 **Goal:** store.g54.com is live and operational. Web Store orders become Sales Orders in MakeReady automatically.
 
