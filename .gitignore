@@ -55,3 +55,6 @@ prisma/migrations/dev/
 
 # Turbo
 .turbo
+
+.vercel
+.env*.local
