@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import {
@@ -97,7 +97,17 @@ export async function updateUserAction(_prev: AdminState, formData: FormData): P
   const roles = parseRoles(formData);
   if (roles.length === 0) return { error: "A user must have at least one role." };
 
-  // Guard against removing the last admin.
+  // Guard against removing your own Admin role or the last active Admin.
+  if (!roles.includes("admin")) {
+    if (id === admin.id) return { error: "You can't remove your own Admin role." };
+    const otherActiveAdmins = await db
+      .select({ id: users.id })
+      .from(users)
+      .innerJoin(userRoles, eq(userRoles.userId, users.id))
+      .where(and(eq(userRoles.role, "admin"), eq(users.status, "active"), ne(users.id, id)));
+    if (otherActiveAdmins.length === 0) return { error: "At least one active Admin is required." };
+  }
+
   if (target.email !== parsed.data.email) {
     const dupe = await db.query.users.findFirst({ where: eq(users.email, parsed.data.email) });
     if (dupe) return { error: "Another user already uses that email." };
@@ -125,6 +135,9 @@ export async function setUserStatusAction(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (status !== "active" && status !== "inactive") return;
+
+  // An admin can never deactivate their own account (self-lockout guard).
+  if (status === "inactive" && id === admin.id) return;
 
   // Don't allow deactivating the last active admin.
   if (status === "inactive") {

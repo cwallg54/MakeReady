@@ -6,6 +6,8 @@ import { ROLE_LABELS } from "@/lib/rbac";
 import { Card } from "@/components/ui";
 import { setUserStatusAction, forceResetAction, deleteUserAction } from "@/lib/admin/actions";
 import { ConfirmButton } from "@/components/confirm-button";
+import { getCurrentUser } from "@/lib/auth/service";
+import { fmtDateTime } from "@/lib/format";
 import { UserCreateForm } from "./user-create-form";
 
 export default async function UsersPage({
@@ -14,6 +16,7 @@ export default async function UsersPage({
   searchParams: Promise<{ created?: string }>;
 }) {
   const { created } = await searchParams;
+  const me = await getCurrentUser();
 
   const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
   const allRoles = await db.select().from(userRoles);
@@ -81,7 +84,7 @@ export default async function UsersPage({
                     )}
                   </td>
                   <td className="px-5 py-3 text-neutral-500">
-                    {u.lastLoginAt ? u.lastLoginAt.toLocaleString() : "Never"}
+                    {u.lastLoginAt ? fmtDateTime(u.lastLoginAt) : "Never"}
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center justify-end gap-3">
@@ -92,23 +95,29 @@ export default async function UsersPage({
                         <input type="hidden" name="id" value={u.id} />
                         <button className="text-neutral-600 hover:text-neutral-900">Force reset</button>
                       </form>
-                      <form action={setUserStatusAction}>
-                        <input type="hidden" name="id" value={u.id} />
-                        <input type="hidden" name="status" value={u.status === "active" ? "inactive" : "active"} />
-                        <button className={u.status === "active" ? "text-red-600 hover:text-red-800" : "text-emerald-600 hover:text-emerald-800"}>
-                          {u.status === "active" ? "Deactivate" : "Activate"}
-                        </button>
-                      </form>
-                      {u.status === "inactive" && (
-                        <form action={deleteUserAction}>
-                          <input type="hidden" name="id" value={u.id} />
-                          <ConfirmButton
-                            message={`Permanently delete ${u.email}? This cannot be undone.`}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            Delete
-                          </ConfirmButton>
-                        </form>
+                      {me && u.id === me.id ? (
+                        <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500">You</span>
+                      ) : (
+                        <>
+                          <form action={setUserStatusAction}>
+                            <input type="hidden" name="id" value={u.id} />
+                            <input type="hidden" name="status" value={u.status === "active" ? "inactive" : "active"} />
+                            <button className={u.status === "active" ? "text-red-600 hover:text-red-800" : "text-emerald-600 hover:text-emerald-800"}>
+                              {u.status === "active" ? "Deactivate" : "Activate"}
+                            </button>
+                          </form>
+                          {u.status === "inactive" && (
+                            <form action={deleteUserAction}>
+                              <input type="hidden" name="id" value={u.id} />
+                              <ConfirmButton
+                                message={`Permanently delete ${u.email}? This cannot be undone.`}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                Delete
+                              </ConfirmButton>
+                            </form>
+                          )}
+                        </>
                       )}
                     </div>
                   </td>

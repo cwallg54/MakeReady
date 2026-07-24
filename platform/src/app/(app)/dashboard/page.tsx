@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth/guards";
 import { canView, crmScopedToOwn, ROLE_LABELS } from "@/lib/rbac";
 import { PageHeader, StatCard, Card } from "@/components/ui";
+import { fmtDate } from "@/lib/format";
 import { db } from "@/db";
 import { users, auditLog, businessPartners, crmTasks } from "@/db/schema";
 import { and, asc, count, eq, gte } from "drizzle-orm";
@@ -107,7 +108,7 @@ export default async function DashboardPage() {
                         {t.title} <span className="text-neutral-400">· {t.company}</span>
                       </Link>
                       <span className={`shrink-0 text-xs ${overdue ? "font-medium text-red-600" : "text-neutral-400"}`}>
-                        {t.dueDate ? t.dueDate.toLocaleDateString() : "no due date"}{overdue ? " · overdue" : ""}
+                        {t.dueDate ? fmtDate(t.dueDate) : "no due date"}{overdue ? " · overdue" : ""}
                       </span>
                     </li>
                   );

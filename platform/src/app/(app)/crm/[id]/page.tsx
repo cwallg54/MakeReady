@@ -8,6 +8,7 @@ import { businessPartners, accountGroups, contacts, activities, users, bpAddress
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
 import { ContactsManager } from "@/components/crm/contacts-manager";
+import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
 import {
   addActivityAction,
@@ -184,7 +185,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
                       <span className={`text-sm ${t.status === "done" ? "text-neutral-400 line-through" : "text-neutral-800"}`}>{t.title}</span>
                     </div>
                     <span className={`text-xs ${overdue ? "font-medium text-red-600" : "text-neutral-400"}`}>
-                      {t.assignee ? `${t.assignee}` : ""}{t.dueDate ? ` · due ${t.dueDate.toLocaleDateString()}` : ""}{overdue ? " · overdue" : ""}
+                      {t.assignee ? `${t.assignee}` : ""}{t.dueDate ? ` · due ${fmtDate(t.dueDate)}` : ""}{overdue ? " · overdue" : ""}
                     </span>
                   </li>
                 );
@@ -213,7 +214,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
               {activityRows.map((a) => (
                 <li key={a.id} className={`border-l-2 pl-3 ${a.isSystem ? "border-neutral-200" : "border-neutral-900"}`}>
                   <p className={`text-sm ${a.isSystem ? "italic text-neutral-500" : "text-neutral-800"}`}>{a.content}</p>
-                  <p className="text-xs text-neutral-400">{a.isSystem ? "Change" : ACTIVITY_LABEL[a.type]} · {a.author ?? "Unknown"} · {a.createdAt.toLocaleString()}</p>
+                  <p className="text-xs text-neutral-400">{a.isSystem ? "Change" : ACTIVITY_LABEL[a.type]} · {a.author ?? "Unknown"} · {fmtDateTime(a.createdAt)}</p>
                 </li>
               ))}
             </ul>

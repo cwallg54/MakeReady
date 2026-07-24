@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { notifications } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { markAllReadAction } from "@/lib/admin/actions";
+import { fmtDateTime } from "@/lib/format";
 
 export default async function NotificationsPage() {
   const user = await requireUser();
@@ -41,7 +42,7 @@ export default async function NotificationsPage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-neutral-900">{n.title}</p>
                   {n.body && <p className="text-sm text-neutral-500">{n.body}</p>}
-                  <p className="mt-0.5 text-xs text-neutral-400">{n.createdAt.toLocaleString()}</p>
+                  <p className="mt-0.5 text-xs text-neutral-400">{fmtDateTime(n.createdAt)}</p>
                 </div>
               </li>
             ))}

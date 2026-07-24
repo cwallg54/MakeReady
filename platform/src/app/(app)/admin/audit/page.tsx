@@ -3,6 +3,7 @@ import { and, asc, desc, eq, gte, isNull, lt, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { auditLog, users } from "@/db/schema";
 import { Card } from "@/components/ui";
+import { fmtDateTime } from "@/lib/format";
 
 export default async function AuditPage({
   searchParams,
@@ -89,7 +90,7 @@ export default async function AuditPage({
             )}
             {rows.map((r) => (
               <tr key={r.id}>
-                <td className="whitespace-nowrap px-5 py-2 text-neutral-500">{r.createdAt.toLocaleString()}</td>
+                <td className="whitespace-nowrap px-5 py-2 text-neutral-500">{fmtDateTime(r.createdAt)}</td>
                 <td className="px-5 py-2"><code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-800">{r.action}</code></td>
                 <td className="px-5 py-2 text-neutral-600">{r.userName ?? "System"}</td>
                 <td className="px-5 py-2 text-neutral-500">{r.entityType ? `${r.entityType}${r.entityId ? ` · ${r.entityId.slice(0, 8)}` : ""}` : "—"}</td>
