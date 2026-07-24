@@ -15,6 +15,7 @@ MakeReady is delivered as a **funded roadmap of fixed-fee phases** against a **f
 Each phase fee is a **fixed allocation of the $200K budget**. At the start of each phase, its fee is confirmed against that phase's requirements in the [handoff docs](docs/README.md) and wireframes.
 
 - **Budget:** $200,000 fixed cap across Phases 1–8 (single-tenant build)
+- **Bundle:** Phase 1 combines Foundation + Customer & Sales into one engagement, with a prepay incentive (see phase table)
 - **Billing:** Fixed fee per phase, invoiced at phase kickoff and phase acceptance (50/50), unless noted
 - **Acceptance:** Each phase ships against the acceptance criteria in [docs/product/roadmap.md](docs/product/roadmap.md)
 
@@ -37,9 +38,8 @@ Requirements, wireframes, data model, and this SOW. **Complete.**
 
 | Phase | Scope | Fixed Fee |
 |---|---|---|
-| **1 — Platform Foundation** | Auth, RBAC (6 roles), user mgmt, system config, role dashboards, audit log, notifications + **all platform infrastructure** (single-tenant, design system, CI/CD, encryption, secure SDLC) + **security-documentation deliverable** | **$50K** *(less $5K Discovery credit → **net $45K**)* |
-| **2 — Customer & Sales** | BP master, account groups, contacts, activity log, quotes/estimates, sales orders, delivery, AR invoice, incoming payment (full quote-to-cash) | **$21K** |
-| **3 — Web Store (Native B2B)** | store.g54.com storefront, catalog, account-group pricing, order mgmt, Web→SO automation, approval rules, status sync. *Replaces Zoey — no third-party connector.* | **$23K** |
+| **1 — Platform Foundation + Customer & Sales** *(bundled; covers roadmap Phases 1–2)* | **Foundation:** auth, RBAC (6 roles), user mgmt, system config, role dashboards, audit log, notifications + all platform infrastructure (single-tenant, design system, CI/CD, encryption, secure SDLC) + security-documentation deliverable. **Customer & Sales:** BP master, account groups, contacts, activity log, quotes/estimates, sales orders, delivery, AR invoice, incoming payment (full quote-to-cash). | **$71K** = Foundation $50K + Sales $21K. **Prepay incentive: pay the $50K Foundation fee in full in advance → Sales discounted to $19K, bundle = $69K.** *(less $5K Discovery credit)* |
+| **3 — Web Store (Native B2B)** *(conditional — may not be needed)* | store.g54.com storefront, catalog, account-group pricing, order mgmt, Web→SO automation, approval rules, status sync. **Only required if G54 builds the native Web Store.** If G54 keeps its existing eCommerce platform and integrates MakeReady to it instead, this phase is dropped and replaced by a smaller **integration scope**, priced separately (typically well below a full build). | **$23K** *(or replaced by integration, scoped separately)* |
 | **4 — Operations** | Job creation from SO, production queue, status tracking, artwork attachment, item master, stock, inventory publishing, Quality Management, Equipment Maintenance | **$23K** |
 | **5 — Finance & Accounting** | Chart of accounts, AR, AP, bank rec, journal entries, tax, cost centers, budgets, P&L by segment, fixed assets, depreciation, **complete SAP B1 data migration** (SAP decommissioned) | **$36K** |
 | **6 — Content Library (DAM + AI)** | Asset upload, AI auto-tagging & descriptions (Claude API), natural-language + visual-similarity search, collections, usage rights/history, job linking, thumbnails | **$20K** |
@@ -47,6 +47,8 @@ Requirements, wireframes, data model, and this SOW. **Complete.**
 | **8 — Workflows, Reports & Intelligence** | Approval rules engine, sales/production/financial dashboards, asset reports, CSV/PDF export | **$16K** |
 
 **Program total (Phases 1–8):** **$200,000** fixed cap — **$195,000 net** after the $5K Discovery credit, funded phase-by-phase.
+- With the **Foundation prepay** discount: **$198,000** ($193,000 net).
+- If **Phase 3 is dropped** in favor of integrating the existing eCommerce platform: subtract $23,000 and add the separately-scoped integration fee.
 
 ### Phase 9+ — Future (not yet priced)
 Multi-entity & intercompany, EDI, customer self-service portal, native mobile app, custom report builder, drag-and-drop workflow designer, job costing, customer proof-approval portal, purchase orders & goods receipts. Priced when prioritized.
@@ -89,6 +91,8 @@ G54 intends to sell MakeReady to other commercial-print businesses. Building for
 
 - **Phase 0 (Discovery):** $5,000 due at project start; **credited against Phase 1** on award of the Foundation build
 - **Build phases:** 50% at phase kickoff, 50% at phase acceptance. Phase 1's kickoff invoice is reduced by the $5,000 Discovery credit.
+- **Foundation prepay incentive:** if the $50K Foundation fee is paid in full in advance (rather than 50/50), the bundled Customer & Sales work is discounted from $21K to $19K — a $2K saving on the Phase 1 bundle.
+- **Phase 3 is conditional:** if G54 retains its existing eCommerce platform and integrates to it, Phase 3 is not billed; a separate integration scope is quoted instead.
 - Each phase fee is confirmed against that phase's requirements at kickoff; the $200K program cap is fixed
 - Out-of-scope change requests quoted separately before work begins and fall **outside** the $200K budget
 - Third-party costs (hosting, Claude API usage, payment processor fees, domain/SSL) billed at cost or paid directly by G54
