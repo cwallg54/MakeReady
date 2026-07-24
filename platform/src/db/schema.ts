@@ -177,6 +177,9 @@ export const lifecycleStageEnum = pgEnum("lifecycle_stage", [
   "customer",
 ]);
 
+export const addressTypeEnum = pgEnum("address_type", ["billing", "shipping", "other"]);
+export const taskStatusEnum = pgEnum("task_status", ["open", "done"]);
+
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
   code: text("code").notNull().unique(),
@@ -192,6 +195,9 @@ export const businessPartners = pgTable(
     companyName: text("company_name").notNull(),
     lifecycleStage: lifecycleStageEnum("lifecycle_stage").notNull().default("lead"),
     leadSource: text("lead_source"),
+    // Sales rep who owns the account (record-level scoping for the Sales Rep role).
+    ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
+    tags: text("tags").array(),
     accountGroupId: uuid("account_group_id").references(() => accountGroups.id),
     phone: text("phone"),
     email: text("email"),
@@ -251,6 +257,46 @@ export const activities = pgTable(
   (t) => [index("activities_bp_id_idx").on(t.bpId)],
 );
 
+// Multiple addresses per BP (bill-to / ship-to), mirroring the legacy CRD1 model.
+export const bpAddresses = pgTable(
+  "bp_addresses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id")
+      .notNull()
+      .references(() => businessPartners.id, { onDelete: "cascade" }),
+    type: addressTypeEnum("type").notNull().default("shipping"),
+    label: text("label"),
+    street: text("street"),
+    city: text("city"),
+    state: text("state"),
+    zip: text("zip"),
+    country: text("country"),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("bp_addresses_bp_id_idx").on(t.bpId)],
+);
+
+// Sales follow-up tasks against a BP.
+export const crmTasks = pgTable(
+  "crm_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id")
+      .notNull()
+      .references(() => businessPartners.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    status: taskStatusEnum("status").notNull().default("open"),
+    assignedToId: uuid("assigned_to_id").references(() => users.id, { onDelete: "set null" }),
+    createdById: uuid("created_by_id").references(() => users.id, { onDelete: "set null" }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("crm_tasks_bp_id_idx").on(t.bpId), index("crm_tasks_assigned_idx").on(t.assignedToId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Role = (typeof roleEnum.enumValues)[number];
@@ -260,3 +306,5 @@ export type BusinessPartner = typeof businessPartners.$inferSelect;
 export type Contact = typeof contacts.$inferSelect;
 export type AccountGroup = typeof accountGroups.$inferSelect;
 export type Activity = typeof activities.$inferSelect;
+export type BpAddress = typeof bpAddresses.$inferSelect;
+export type CrmTask = typeof crmTasks.$inferSelect;

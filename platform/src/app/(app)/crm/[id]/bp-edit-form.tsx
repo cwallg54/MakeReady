@@ -8,6 +8,8 @@ import { FormError } from "@/components/form";
 export function BpEditForm({
   bp,
   groups,
+  owners,
+  scoped,
   showFinance,
 }: {
   bp: {
@@ -15,6 +17,8 @@ export function BpEditForm({
     companyName: string;
     lifecycleStage: string;
     leadSource: string | null;
+    ownerId: string | null;
+    tags: string[] | null;
     accountGroupId: string | null;
     email: string | null;
     phone: string | null;
@@ -27,6 +31,8 @@ export function BpEditForm({
     internalNotes: string | null;
   };
   groups: { id: string; name: string }[];
+  owners: { id: string; name: string }[];
+  scoped: boolean;
   showFinance: boolean;
 }) {
   const [state, action] = useActionState<CrmState, FormData>(updateBusinessPartnerAction, {});
@@ -66,6 +72,15 @@ export function BpEditForm({
           defaultValue={bp.accountGroupId ?? ""}
           options={[{ value: "", label: "— None —" }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
         />
+        {!scoped && (
+          <AdminSelect
+            label="Owner"
+            name="ownerId"
+            defaultValue={bp.ownerId ?? ""}
+            options={[{ value: "", label: "— Unassigned —" }, ...owners.map((o) => ({ value: o.id, label: o.name }))]}
+          />
+        )}
+        <AdminField label="Tags" name="tags" defaultValue={(bp.tags ?? []).join(", ")} hint="Comma-separated" />
         <AdminField label="Email" name="email" type="email" defaultValue={bp.email ?? ""} />
         <AdminField label="Phone" name="phone" defaultValue={bp.phone ?? ""} />
         <AdminField label="Street" name="addressStreet" defaultValue={bp.addressStreet ?? ""} />

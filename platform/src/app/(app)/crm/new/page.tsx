@@ -2,9 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { asc } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
-import { canEdit, canSeeBpFinance } from "@/lib/rbac";
+import { canEdit, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
 import { accountGroups } from "@/db/schema";
+import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
 import { BpCreateForm } from "./bp-create-form";
 
@@ -12,10 +13,11 @@ export default async function NewBpPage() {
   const user = await requireModule("crm");
   if (!canEdit(user.roles, "crm")) redirect("/403");
 
-  const groups = await db
-    .select({ id: accountGroups.id, name: accountGroups.name })
-    .from(accountGroups)
-    .orderBy(asc(accountGroups.name));
+  const scoped = crmScopedToOwn(user.roles);
+  const [groups, owners] = await Promise.all([
+    db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).orderBy(asc(accountGroups.name)),
+    scoped ? Promise.resolve([]) : getAssignableUsers(),
+  ]);
 
   return (
     <div className="max-w-3xl">
@@ -31,7 +33,7 @@ export default async function NewBpPage() {
         </Card>
       ) : (
         <Card>
-          <BpCreateForm groups={groups} showFinance={canSeeBpFinance(user.roles)} />
+          <BpCreateForm groups={groups} owners={owners} scoped={scoped} showFinance={canSeeBpFinance(user.roles)} />
         </Card>
       )}
     </div>

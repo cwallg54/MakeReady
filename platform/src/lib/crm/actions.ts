@@ -2,18 +2,20 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { and, eq, ilike } from "drizzle-orm";
 import { db } from "@/db";
 import {
   businessPartners,
   contacts,
   activities,
+  bpAddresses,
+  crmTasks,
   numberSeries,
   activityTypeEnum,
 } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
-import { canEdit, canView } from "@/lib/rbac";
+import { canEdit, canView, crmScopedToOwn } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 
 async function requireCrmEdit() {
@@ -56,12 +58,16 @@ async function logSystem(bpId: string, userId: string, content: string, tx?: Tx)
 
 export interface CrmState {
   error?: string;
+  duplicate?: boolean;
+  ok?: boolean;
 }
 
 const bpSchema = z.object({
   companyName: z.string().trim().min(1, "Company name is required"),
   lifecycleStage: z.enum(["lead", "prospect", "customer"]).optional(),
   leadSource: z.string().trim().optional(),
+  ownerId: z.string().trim().optional(),
+  tags: z.string().trim().optional(),
   accountGroupId: z.string().trim().optional(),
   primaryContactName: z.string().trim().min(1, "Primary contact name is required"),
   primaryContactEmail: z.string().trim().email("Valid primary contact email is required"),
@@ -73,7 +79,14 @@ const bpSchema = z.object({
   creditLimit: z.string().trim().optional(),
   paymentTerms: z.string().trim().optional(),
   internalNotes: z.string().trim().optional(),
+  confirmDuplicate: z.string().trim().optional(),
 });
+
+function parseTags(raw: string | undefined): string[] | null {
+  if (!raw) return null;
+  const tags = raw.split(",").map((t) => t.trim()).filter(Boolean);
+  return tags.length ? tags : null;
+}
 
 function splitName(full: string): { firstName: string; lastName: string } {
   const parts = full.trim().split(/\s+/);
@@ -86,6 +99,23 @@ export async function createBusinessPartnerAction(_prev: CrmState, formData: For
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
   const d = parsed.data;
 
+  // Soft duplicate warning (US-CRM-01): allow with confirmation, don't hard-block.
+  if (!d.confirmDuplicate) {
+    const dup = await db.query.businessPartners.findFirst({
+      where: ilike(businessPartners.companyName, d.companyName),
+    });
+    if (dup) {
+      return {
+        error: `A business partner named "${d.companyName}" already exists. Check "Create anyway" and resubmit to proceed.`,
+        duplicate: true,
+      };
+    }
+  }
+
+  // Sales Reps own the accounts they create; managers/admin may assign an owner.
+  const ownerId = crmScopedToOwn(user.roles) ? user.id : d.ownerId || null;
+  const tags = parseTags(d.tags);
+
   const bpNumber = await nextBpNumber();
   const { firstName, lastName } = splitName(d.primaryContactName);
 
@@ -97,6 +127,8 @@ export async function createBusinessPartnerAction(_prev: CrmState, formData: For
         companyName: d.companyName,
         lifecycleStage: d.lifecycleStage ?? "lead",
         leadSource: d.leadSource || null,
+        ownerId,
+        tags,
         accountGroupId: d.accountGroupId || null,
         phone: d.phone || null,
         email: d.primaryContactEmail,
@@ -159,8 +191,10 @@ export async function updateBusinessPartnerAction(_prev: CrmState, formData: For
     addressCity: d.addressCity || null,
     addressState: d.addressState || null,
     addressZip: d.addressZip || null,
+    tags: parseTags(d.tags),
     updatedAt: new Date(),
   };
+  if (!crmScopedToOwn(user.roles) && d.ownerId !== undefined) set.ownerId = d.ownerId || null;
   if (d.creditLimit !== undefined) set.creditLimit = d.creditLimit || null;
   if (d.paymentTerms !== undefined) set.paymentTerms = d.paymentTerms || null;
   if (d.internalNotes !== undefined) set.internalNotes = d.internalNotes || null;
@@ -264,4 +298,148 @@ export async function addActivityAction(formData: FormData): Promise<void> {
   await db.insert(activities).values({ bpId, userId: user.id, type, content });
   await audit({ userId: user.id, action: "activity.create", entityType: "business_partner", entityId: bpId, metadata: { type } });
   revalidatePath(`/crm/${bpId}`);
+}
+
+// ---- Owner ----------------------------------------------------------------
+
+export async function setOwnerAction(formData: FormData): Promise<void> {
+  const user = await requireCrmEdit();
+  if (crmScopedToOwn(user.roles)) return; // reps can't reassign ownership
+  const id = String(formData.get("id") ?? "");
+  const ownerId = String(formData.get("ownerId") ?? "") || null;
+  if (!id) return;
+  await db.update(businessPartners).set({ ownerId, updatedAt: new Date() }).where(eq(businessPartners.id, id));
+  await audit({ userId: user.id, action: "bp.owner_change", entityType: "business_partner", entityId: id, metadata: { ownerId } });
+  await logSystem(id, user.id, ownerId ? "Owner reassigned" : "Owner cleared");
+  revalidatePath(`/crm/${id}`);
+}
+
+// ---- Tasks ----------------------------------------------------------------
+
+export async function addTaskAction(formData: FormData): Promise<void> {
+  const user = await requireCrmEdit();
+  const bpId = String(formData.get("bpId") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  if (!bpId || !title) return;
+  const dueRaw = String(formData.get("dueDate") ?? "").trim();
+  const dueDate = dueRaw ? new Date(dueRaw) : null;
+  const assignedToId = String(formData.get("assignedToId") ?? "") || user.id;
+
+  await db.insert(crmTasks).values({ bpId, title, dueDate, assignedToId, createdById: user.id });
+  await audit({ userId: user.id, action: "task.create", entityType: "business_partner", entityId: bpId, metadata: { title } });
+  await logSystem(bpId, user.id, `Added task: ${title}`);
+  revalidatePath(`/crm/${bpId}`);
+  revalidatePath("/dashboard");
+}
+
+export async function setTaskStatusAction(formData: FormData): Promise<void> {
+  const user = await requireCrmEdit();
+  const id = String(formData.get("id") ?? "");
+  const bpId = String(formData.get("bpId") ?? "");
+  const done = String(formData.get("done") ?? "") === "true";
+  if (!id) return;
+  await db
+    .update(crmTasks)
+    .set({ status: done ? "done" : "open", completedAt: done ? new Date() : null })
+    .where(eq(crmTasks.id, id));
+  await audit({ userId: user.id, action: done ? "task.complete" : "task.reopen", entityType: "business_partner", entityId: bpId });
+  if (bpId) revalidatePath(`/crm/${bpId}`);
+  revalidatePath("/dashboard");
+}
+
+// ---- Addresses ------------------------------------------------------------
+
+export async function addAddressAction(formData: FormData): Promise<void> {
+  const user = await requireCrmEdit();
+  const bpId = String(formData.get("bpId") ?? "");
+  const typeRaw = String(formData.get("type") ?? "shipping");
+  const type = (["billing", "shipping", "other"] as const).includes(typeRaw as "billing")
+    ? (typeRaw as "billing" | "shipping" | "other")
+    : "shipping";
+  if (!bpId) return;
+  await db.insert(bpAddresses).values({
+    bpId,
+    type,
+    label: String(formData.get("label") ?? "").trim() || null,
+    street: String(formData.get("street") ?? "").trim() || null,
+    city: String(formData.get("city") ?? "").trim() || null,
+    state: String(formData.get("state") ?? "").trim() || null,
+    zip: String(formData.get("zip") ?? "").trim() || null,
+    country: String(formData.get("country") ?? "").trim() || null,
+  });
+  await audit({ userId: user.id, action: "address.create", entityType: "business_partner", entityId: bpId });
+  await logSystem(bpId, user.id, `Added ${type} address`);
+  revalidatePath(`/crm/${bpId}`);
+}
+
+export async function deleteAddressAction(formData: FormData): Promise<void> {
+  const user = await requireCrmEdit();
+  const id = String(formData.get("id") ?? "");
+  const bpId = String(formData.get("bpId") ?? "");
+  if (!id) return;
+  await db.delete(bpAddresses).where(eq(bpAddresses.id, id));
+  await audit({ userId: user.id, action: "address.delete", entityType: "business_partner", entityId: bpId });
+  await logSystem(bpId, user.id, "Removed an address");
+  revalidatePath(`/crm/${bpId}`);
+}
+
+// ---- Contact edit ---------------------------------------------------------
+
+export async function updateContactAction(formData: FormData): Promise<void> {
+  const user = await requireCrmEdit();
+  const id = String(formData.get("id") ?? "");
+  const bpId = String(formData.get("bpId") ?? "");
+  if (!id || !bpId) return;
+  const makePrimary = formData.get("isPrimary") === "on";
+  await db.transaction(async (tx) => {
+    if (makePrimary) await tx.update(contacts).set({ isPrimary: false }).where(eq(contacts.bpId, bpId));
+    await tx
+      .update(contacts)
+      .set({
+        firstName: String(formData.get("firstName") ?? "").trim() || null,
+        lastName: String(formData.get("lastName") ?? "").trim() || null,
+        title: String(formData.get("title") ?? "").trim() || null,
+        email: String(formData.get("email") ?? "").trim() || null,
+        phone: String(formData.get("phone") ?? "").trim() || null,
+        isPrimary: makePrimary,
+      })
+      .where(eq(contacts.id, id));
+    await audit({ userId: user.id, action: "contact.update", entityType: "business_partner", entityId: bpId }, tx);
+    await logSystem(bpId, user.id, "Updated a contact", tx);
+  });
+  revalidatePath(`/crm/${bpId}`);
+}
+
+// ---- Public lead capture (unauthenticated) --------------------------------
+
+export async function createPublicLeadAction(_prev: CrmState, formData: FormData): Promise<CrmState> {
+  // Honeypot: bots fill hidden fields. Silently pretend success.
+  if (String(formData.get("website") ?? "").trim()) return { ok: true };
+
+  const companyName = String(formData.get("companyName") ?? "").trim();
+  const contactName = String(formData.get("contactName") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+  const source = String(formData.get("source") ?? "Website").trim() || "Website";
+
+  if (!companyName || !contactName || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { error: "Please provide a company, your name, and a valid email." };
+  }
+
+  const bpNumber = await nextBpNumber();
+  const { firstName, lastName } = splitName(contactName);
+  await db.transaction(async (tx) => {
+    const [bp] = await tx
+      .insert(businessPartners)
+      .values({ bpNumber, companyName, lifecycleStage: "lead", leadSource: source, phone: phone || null, email })
+      .returning({ id: businessPartners.id });
+    await tx.insert(contacts).values({ bpId: bp.id, firstName, lastName, email, phone: phone || null, isPrimary: true });
+    if (message) {
+      await tx.insert(activities).values({ bpId: bp.id, type: "note", content: `Inbound lead message: ${message}` });
+    }
+    await tx.insert(activities).values({ bpId: bp.id, type: "other", isSystem: true, content: `Captured via public lead form (${source})` });
+    await audit({ action: "lead.public_create", entityType: "business_partner", entityId: bp.id, metadata: { source } }, tx);
+  });
+  return { ok: true };
 }

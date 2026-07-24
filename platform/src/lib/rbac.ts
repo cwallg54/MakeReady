@@ -132,6 +132,17 @@ export function canSeeBpFinance(roles: Role[]): boolean {
   return roles.some((r) => r === "admin" || r === "sales_manager" || r === "finance");
 }
 
+/**
+ * Whether CRM access is scoped to records the user owns (Sales Rep "own
+ * accounts only"). Admins, Sales Managers, and Finance see all accounts.
+ */
+export function crmScopedToOwn(roles: Role[]): boolean {
+  if (roles.includes("admin") || roles.includes("sales_manager") || roles.includes("finance")) {
+    return false;
+  }
+  return roles.includes("sales_rep");
+}
+
 /** Modules a user should see in the nav (any view+ access). */
 export function visibleModules(roles: Role[]) {
   return MODULES.filter((m) => canView(roles, m.key));
