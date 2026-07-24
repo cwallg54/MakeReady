@@ -4,7 +4,8 @@ import { db } from "@/db";
 import { users, userRoles } from "@/db/schema";
 import { ROLE_LABELS } from "@/lib/rbac";
 import { Card } from "@/components/ui";
-import { setUserStatusAction, forceResetAction } from "@/lib/admin/actions";
+import { setUserStatusAction, forceResetAction, deleteUserAction } from "@/lib/admin/actions";
+import { ConfirmButton } from "@/components/confirm-button";
 import { UserCreateForm } from "./user-create-form";
 
 export default async function UsersPage({
@@ -98,6 +99,17 @@ export default async function UsersPage({
                           {u.status === "active" ? "Deactivate" : "Activate"}
                         </button>
                       </form>
+                      {u.status === "inactive" && (
+                        <form action={deleteUserAction}>
+                          <input type="hidden" name="id" value={u.id} />
+                          <ConfirmButton
+                            message={`Permanently delete ${u.email}? This cannot be undone.`}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            Delete
+                          </ConfirmButton>
+                        </form>
+                      )}
                     </div>
                   </td>
                 </tr>

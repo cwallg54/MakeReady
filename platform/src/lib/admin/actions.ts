@@ -13,12 +13,13 @@ import {
   SYSTEM_SETTINGS_ID,
   notifications,
   accountGroups,
+  businessPartners,
   roleEnum,
   type Role,
 } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { createPasswordReset } from "@/lib/auth/service";
-import { sendPasswordResetEmail } from "@/lib/email";
+import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email";
 import { audit } from "@/lib/audit";
 
 async function assertAdmin() {
@@ -75,9 +76,10 @@ export async function createUserAction(_prev: AdminState, formData: FormData): P
     return created.id;
   });
 
-  // Send the new user an invite / set-password link.
+  // Send the new user a welcome email with set-password + sign-in instructions.
   const link = await createPasswordReset(parsed.data.email);
-  if (link) await sendPasswordResetEmail(link.email, link.url);
+  const loginUrl = `${process.env.APP_URL ?? ""}/login`;
+  if (link) await sendWelcomeEmail(link.email, parsed.data.name, link.url, loginUrl);
 
   revalidatePath("/admin/users");
   redirect(`/admin/users?created=${encodeURIComponent(parsed.data.email)}&id=${newUserId}`);
@@ -141,6 +143,31 @@ export async function setUserStatusAction(formData: FormData): Promise<void> {
     }
     await audit(
       { userId: admin.id, action: `user.${status === "active" ? "activate" : "deactivate"}`, entityType: "user", entityId: id },
+      tx,
+    );
+  });
+
+  revalidatePath("/admin/users");
+}
+
+export async function deleteUserAction(formData: FormData): Promise<void> {
+  const admin = await assertAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id || id === admin.id) return; // never delete yourself
+
+  const target = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!target) return;
+  // Safety: only inactive accounts can be hard-deleted.
+  if (target.status !== "inactive") return;
+
+  await db.transaction(async (tx) => {
+    // Null out no-cascade references so the delete doesn't violate FKs.
+    await tx.update(businessPartners).set({ createdBy: null }).where(eq(businessPartners.createdBy, id));
+    await tx.update(systemSettings).set({ updatedBy: null }).where(eq(systemSettings.updatedBy, id));
+    // Remaining refs cascade (roles, sessions, tokens, notifications) or set null (owner, activities, tasks, audit).
+    await tx.delete(users).where(eq(users.id, id));
+    await audit(
+      { userId: admin.id, action: "user.delete", entityType: "user", entityId: id, metadata: { email: target.email } },
       tx,
     );
   });
