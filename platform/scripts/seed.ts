@@ -10,6 +10,7 @@ import {
   userRoles,
   systemSettings,
   numberSeries,
+  accountGroups,
   SYSTEM_SETTINGS_ID,
 } from "../src/db/schema";
 import { hashPassword } from "../src/lib/auth/password";
@@ -34,6 +35,7 @@ async function main() {
 
   // Default document number series.
   const series = [
+    { documentType: "business_partner", prefix: "BP-" },
     { documentType: "quote", prefix: "QUO-" },
     { documentType: "sales_order", prefix: "SO-" },
     { documentType: "delivery", prefix: "DEL-" },
@@ -44,6 +46,18 @@ async function main() {
     await db.insert(numberSeries).values(s).onConflictDoNothing();
   }
   console.log(`✓ Number series ensured (${series.length})`);
+
+  // Default account groups (examples per requirements; adjust in Administration).
+  const groups = [
+    { code: "STANDARD", name: "Standard" },
+    { code: "WHOLESALE", name: "Wholesale" },
+    { code: "GOVERNMENT", name: "Government" },
+    { code: "VIP", name: "VIP" },
+  ];
+  for (const g of groups) {
+    await db.insert(accountGroups).values(g).onConflictDoNothing();
+  }
+  console.log(`✓ Account groups ensured (${groups.length})`);
 
   // Initial admin.
   const existing = await db.query.users.findFirst({ where: eq(users.email, email) });

@@ -61,7 +61,7 @@ export const MODULES: {
   phase1: boolean;
 }[] = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", phase1: true },
-  { key: "crm", label: "CRM", href: "/crm", phase1: false },
+  { key: "crm", label: "CRM", href: "/crm", phase1: true },
   { key: "sales", label: "Sales", href: "/sales", phase1: false },
   { key: "web_store", label: "Web Store", href: "/web-store", phase1: false },
   { key: "accounting", label: "Accounting", href: "/accounting", phase1: false },
@@ -122,6 +122,14 @@ export function canEdit(roles: Role[], module: ModuleKey): boolean {
 
 export function isAdmin(roles: Role[]): boolean {
   return roles.includes("admin");
+}
+
+/**
+ * Whether the user may see finance-sensitive BP fields (credit limit, account
+ * balance, finance notes). Hidden from Sales-Rep-only users per rbac.md.
+ */
+export function canSeeBpFinance(roles: Role[]): boolean {
+  return roles.some((r) => r === "admin" || r === "sales_manager" || r === "finance");
 }
 
 /** Modules a user should see in the nav (any view+ access). */

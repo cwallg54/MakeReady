@@ -12,6 +12,7 @@ import {
   systemSettings,
   SYSTEM_SETTINGS_ID,
   notifications,
+  accountGroups,
   roleEnum,
   type Role,
 } from "@/db/schema";
@@ -194,6 +195,23 @@ export async function updateSettingsAction(_prev: AdminState, formData: FormData
 
   await audit({ userId: admin.id, action: "config.update", entityType: "system_settings", entityId: SYSTEM_SETTINGS_ID });
   revalidatePath("/admin/config");
+  return { ok: true };
+}
+
+// ---- Account Groups -------------------------------------------------------
+
+export async function createAccountGroupAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
+  const admin = await assertAdmin();
+  const code = String(formData.get("code") ?? "").trim().toUpperCase();
+  const name = String(formData.get("name") ?? "").trim();
+  if (!code || !name) return { error: "Code and name are required." };
+
+  const existing = await db.query.accountGroups.findFirst({ where: eq(accountGroups.code, code) });
+  if (existing) return { error: "An account group with that code already exists." };
+
+  await db.insert(accountGroups).values({ code, name });
+  await audit({ userId: admin.id, action: "account_group.create", entityType: "account_group", metadata: { code, name } });
+  revalidatePath("/admin/account-groups");
   return { ok: true };
 }
 

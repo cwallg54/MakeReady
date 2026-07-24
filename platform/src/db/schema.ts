@@ -8,6 +8,7 @@ import {
   timestamp,
   jsonb,
   bigserial,
+  numeric,
   primaryKey,
   index,
 } from "drizzle-orm/pg-core";
@@ -150,8 +151,101 @@ export const notifications = pgTable(
   (t) => [index("notifications_user_id_idx").on(t.userId)],
 );
 
+// ---- CRM (Phase 2) --------------------------------------------------------
+// Mirrors the legacy ERP customer model (business partners, contacts,
+// addresses, groups) with clean names. `legacyCode` retains the source
+// system's key for migration reconciliation; it is never surfaced in the UI.
+
+export const webStoreStatusEnum = pgEnum("web_store_status", [
+  "not_published",
+  "pending",
+  "published",
+]);
+
+export const activityTypeEnum = pgEnum("activity_type", [
+  "note",
+  "call",
+  "email",
+  "visit",
+  "other",
+]);
+
+export const accountGroups = pgTable("account_groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const businessPartners = pgTable(
+  "business_partners",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpNumber: text("bp_number").notNull().unique(),
+    companyName: text("company_name").notNull(),
+    accountGroupId: uuid("account_group_id").references(() => accountGroups.id),
+    phone: text("phone"),
+    email: text("email"),
+    addressStreet: text("address_street"),
+    addressCity: text("address_city"),
+    addressState: text("address_state"),
+    addressZip: text("address_zip"),
+    addressCountry: text("address_country"),
+    // Finance-sensitive; hidden from the Sales Rep role in the UI.
+    creditLimit: numeric("credit_limit", { precision: 14, scale: 2 }),
+    accountBalance: numeric("account_balance", { precision: 14, scale: 2 }),
+    paymentTerms: text("payment_terms"),
+    internalNotes: text("internal_notes"),
+    webStoreStatus: webStoreStatusEnum("web_store_status").notNull().default("not_published"),
+    // Original key from the legacy ERP (migration reconciliation only).
+    legacyCode: text("legacy_code").unique(),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("bp_company_name_idx").on(t.companyName)],
+);
+
+export const contacts = pgTable(
+  "contacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id")
+      .notNull()
+      .references(() => businessPartners.id, { onDelete: "cascade" }),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    title: text("title"),
+    email: text("email"),
+    phone: text("phone"),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("contacts_bp_id_idx").on(t.bpId)],
+);
+
+// Immutable activity log per business partner (notes, calls, emails, visits).
+export const activities = pgTable(
+  "activities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id")
+      .notNull()
+      .references(() => businessPartners.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    type: activityTypeEnum("type").notNull().default("note"),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("activities_bp_id_idx").on(t.bpId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Role = (typeof roleEnum.enumValues)[number];
 export type Notification = typeof notifications.$inferSelect;
 export type AuditEntry = typeof auditLog.$inferSelect;
+export type BusinessPartner = typeof businessPartners.$inferSelect;
+export type Contact = typeof contacts.$inferSelect;
+export type AccountGroup = typeof accountGroups.$inferSelect;
+export type Activity = typeof activities.$inferSelect;
