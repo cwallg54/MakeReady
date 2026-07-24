@@ -39,6 +39,7 @@ data processor in the Phase 1 foundation except the hosting platform (Vercel) an
 | C-6 | Immediate revocation | Deactivation kills active sessions | `setUserStatusAction()` deletes sessions | `src/lib/admin/actions.ts` |
 | C-7 | Server-side authZ | Never trust client role claims | `guards.ts` + `rbac.ts` on every route/action | `src/lib/auth/guards.ts` |
 | C-8 | Audit logging | Every write logged, append-only | `audit()`, no update/delete paths | `src/lib/audit.ts`, `audit_log` table |
+| C-8a | Log retention | ≥ 1 yr (PCI 10.7), cover SOC 2 period | Append-only; **retain ≥ 13 months**, last 3 months hot; no purge job touches `audit_log` | Policy; searchable + CSV export at `/admin/audit` |
 | C-9 | Reset tokens | Single-use, 1-hour expiry, hashed at rest | SHA-256 token hash, `usedAt` | `src/lib/auth/service.ts` |
 | C-10 | Generic auth errors | Do not reveal account existence | Uniform "invalid" responses | `src/lib/auth/actions.ts` |
 | C-11 | Secrets management | No secrets in code | Env vars (`AUTH_SECRET`, `DATABASE_URL`) | Vercel encrypted env |
