@@ -6,6 +6,8 @@
 **Prepared:** 2026-07-24
 **Status:** Draft for client review
 
+> **This is a forecast estimate, not a fixed quote.** All figures represent a good-faith projection based on current understanding of scope. As the project evolves and discovery uncovers detailed requirements, the cost and scope **may increase, decrease, or change**. Per-phase fees are confirmed at each phase kickoff. See [§6 Estimate Basis & Acknowledgement](#6-estimate-basis--acknowledgement).
+
 ---
 
 ## 1. Engagement Model
@@ -98,5 +100,16 @@ G54 intends to sell MakeReady to other commercial-print businesses. Building for
 - Third-party costs (hosting, Claude API usage, payment processor fees, domain/SSL) billed at cost or paid directly by G54
 
 ---
+
+## 6. Estimate Basis & Acknowledgement
+
+The pricing in this document is a **forecast estimate** prepared from the requirements, wireframes, and data model available at the date above. It is intended for planning and budgeting, **not** a fixed, all-in quote for the finished platform.
+
+Both parties acknowledge:
+
+- **Estimates evolve.** As the project progresses and discovery uncovers detailed requirements, technical constraints, or new needs, the cost or scope of any phase **may increase, decrease, or change.**
+- **Fees firm up per phase.** Each phase's fee is confirmed against that phase's finalized requirements at kickoff. The $200K figure is a program budget target, not a guaranteed total for full SAP B1 parity — which is estimated separately at $335K–495K to build to depth.
+- **Change is expected and managed.** Material scope changes are documented in writing and priced before the affected work begins. Nothing here obligates either party to work or spend beyond a phase that has been mutually confirmed.
+- **Assumptions.** This estimate assumes a single-tenant build, the compliance boundary in §3, and the roadmap in [`docs/`](docs/README.md). Changes to any of these revise the estimate.
 
 *This SOW aligns to the delivery roadmap and requirements in [`docs/`](docs/README.md). All figures are planning estimates pending phase-level confirmation.*
