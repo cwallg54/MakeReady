@@ -10,13 +10,15 @@
 
 ## 1. Engagement Model
 
-MakeReady is delivered as a **funded roadmap of fixed-fee phases**, not a single lump-sum build. Each phase produces working, deployable software and is independently useful. G54 funds one phase at a time; the total-program figure below is planning guidance, not a single invoice.
+MakeReady is delivered as a **funded roadmap of fixed-fee phases** against a **fixed program budget of $200,000** (Phases 1–8). Each phase produces working, deployable software and is independently useful. G54 funds one phase at a time; the per-phase fees below sum to the $200K cap.
 
-Phase fees are stated as **ranges** here. At the start of each phase, the range converts to a **firm fixed quote** once that phase's requirements are confirmed against the [handoff docs](docs/README.md) and wireframes.
+Each phase fee is a **fixed allocation of the $200K budget**. At the start of each phase, its fee is confirmed against that phase's requirements in the [handoff docs](docs/README.md) and wireframes.
 
-- **Rate basis:** $150–175/hr (fixed-fee; hourly shown only to explain how ranges are derived)
+- **Budget:** $200,000 fixed cap across Phases 1–8 (single-tenant build)
 - **Billing:** Fixed fee per phase, invoiced at phase kickoff and phase acceptance (50/50), unless noted
 - **Acceptance:** Each phase ships against the acceptance criteria in [docs/product/roadmap.md](docs/product/roadmap.md)
+
+> **Scope note — fixed-budget tradeoff.** The full 8-phase scope (SAP B1 parity) is estimated at $335K–495K to build to depth. Delivering it within a $200K cap requires prioritizing core functionality per phase and deferring lower-value depth to later change requests. Any scope added beyond each phase's confirmed requirements is quoted separately and is **outside** the $200K budget.
 
 ---
 
@@ -33,18 +35,18 @@ Requirements, wireframes, data model, and this SOW. **Complete.**
 
 ### Build Phases (aligned to [Delivery Roadmap](docs/product/roadmap.md))
 
-| Phase | Scope | Fixed-Fee Range |
+| Phase | Scope | Fixed Fee |
 |---|---|---|
-| **1 — Platform Foundation** | Auth, RBAC (6 roles), user mgmt, system config, role dashboards, audit log, notifications + **all platform infrastructure** (multi-tenant, design system, CI/CD, encryption, secure SDLC) + **security-documentation deliverable** | **$55K – 75K** *(less $5K Discovery credit → **net $50K – 70K**)* |
-| **2 — Customer & Sales** | BP master, account groups, contacts, activity log, quotes/estimates, sales orders, delivery, AR invoice, incoming payment (full quote-to-cash) | **$40K – 60K** |
-| **3 — Web Store (Native B2B)** | store.g54.com storefront, catalog, account-group pricing, order mgmt, Web→SO automation, approval rules, status sync. *Replaces Zoey — no third-party connector.* | **$45K – 65K** |
-| **4 — Operations** | Job creation from SO, production queue, status tracking, artwork attachment, item master, stock, inventory publishing, Quality Management, Equipment Maintenance | **$45K – 65K** |
-| **5 — Finance & Accounting** | Chart of accounts, AR, AP, bank rec, journal entries, tax, cost centers, budgets, P&L by segment, fixed assets, depreciation, **complete SAP B1 data migration** (SAP decommissioned) | **$70K – 100K** |
-| **6 — Content Library (DAM + AI)** | Asset upload, AI auto-tagging & descriptions (Claude API), natural-language + visual-similarity search, collections, usage rights/history, job linking, thumbnails | **$35K – 55K** |
-| **7 — Field Sales RBAC & Mobile** | Field-sales role dashboards, mobile-responsive order upload, client artwork upload, sales-manager oversight | **$20K – 30K** |
-| **8 — Workflows, Reports & Intelligence** | Approval rules engine, sales/production/financial dashboards, asset reports, CSV/PDF export | **$28K – 45K** |
+| **1 — Platform Foundation** | Auth, RBAC (6 roles), user mgmt, system config, role dashboards, audit log, notifications + **all platform infrastructure** (single-tenant, design system, CI/CD, encryption, secure SDLC) + **security-documentation deliverable** | **$31K** *(less $5K Discovery credit → **net $26K**)* |
+| **2 — Customer & Sales** | BP master, account groups, contacts, activity log, quotes/estimates, sales orders, delivery, AR invoice, incoming payment (full quote-to-cash) | **$24K** |
+| **3 — Web Store (Native B2B)** | store.g54.com storefront, catalog, account-group pricing, order mgmt, Web→SO automation, approval rules, status sync. *Replaces Zoey — no third-party connector.* | **$26K** |
+| **4 — Operations** | Job creation from SO, production queue, status tracking, artwork attachment, item master, stock, inventory publishing, Quality Management, Equipment Maintenance | **$26K** |
+| **5 — Finance & Accounting** | Chart of accounts, AR, AP, bank rec, journal entries, tax, cost centers, budgets, P&L by segment, fixed assets, depreciation, **complete SAP B1 data migration** (SAP decommissioned) | **$41K** |
+| **6 — Content Library (DAM + AI)** | Asset upload, AI auto-tagging & descriptions (Claude API), natural-language + visual-similarity search, collections, usage rights/history, job linking, thumbnails | **$22K** |
+| **7 — Field Sales RBAC & Mobile** | Field-sales role dashboards, mobile-responsive order upload, client artwork upload, sales-manager oversight | **$12K** |
+| **8 — Workflows, Reports & Intelligence** | Approval rules engine, sales/production/financial dashboards, asset reports, CSV/PDF export | **$18K** |
 
-**Program total (Phases 1–8):** **≈ $335K – 495K** after the $5K Discovery credit, funded phase-by-phase.
+**Program total (Phases 1–8):** **$200,000** fixed cap — **$195,000 net** after the $5K Discovery credit, funded phase-by-phase.
 
 ### Phase 9+ — Future (not yet priced)
 Multi-entity & intercompany, EDI, customer self-service portal, native mobile app, custom report builder, drag-and-drop workflow designer, job costing, customer proof-approval portal, purchase orders & goods receipts. Priced when prioritized.
@@ -79,7 +81,7 @@ G54 intends to sell MakeReady to other commercial-print businesses. Building for
 1. **Single-tenant now, productize later** — build for G54 first; price a separate productization phase when resale is greenlit. *(Lowest near-term cost.)*
 2. **Multi-tenant from the start** — adds ~15–25% to Foundation and each module, in exchange for a **licensing/royalty stake** for Provider on third-party sales.
 
-*Recommendation: decide before Phase 1, as it shapes the Foundation architecture. Option 1 keeps the ranges above; Option 2 revises them upward with an offsetting royalty arrangement.*
+*The $200K budget above assumes **Option 1 (single-tenant)**. Option 2 (multi-tenant from the start) adds ~15–25% and would exceed the $200K cap; it is priced separately with an offsetting royalty arrangement. Decide before Phase 1, as it shapes the Foundation architecture.*
 
 ---
 
@@ -87,8 +89,8 @@ G54 intends to sell MakeReady to other commercial-print businesses. Building for
 
 - **Phase 0 (Discovery):** $5,000 due at project start; **credited against Phase 1** on award of the Foundation build
 - **Build phases:** 50% at phase kickoff, 50% at phase acceptance. Phase 1's kickoff invoice is reduced by the $5,000 Discovery credit.
-- Fixed-fee ranges convert to firm quotes at each phase kickoff
-- Out-of-scope change requests quoted separately before work begins
+- Each phase fee is confirmed against that phase's requirements at kickoff; the $200K program cap is fixed
+- Out-of-scope change requests quoted separately before work begins and fall **outside** the $200K budget
 - Third-party costs (hosting, Claude API usage, payment processor fees, domain/SSL) billed at cost or paid directly by G54
 
 ---
