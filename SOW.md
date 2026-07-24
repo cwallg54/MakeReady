@@ -37,14 +37,14 @@ Requirements, wireframes, data model, and this SOW. **Complete.**
 
 | Phase | Scope | Fixed Fee |
 |---|---|---|
-| **1 — Platform Foundation** | Auth, RBAC (6 roles), user mgmt, system config, role dashboards, audit log, notifications + **all platform infrastructure** (single-tenant, design system, CI/CD, encryption, secure SDLC) + **security-documentation deliverable** | **$31K** *(less $5K Discovery credit → **net $26K**)* |
-| **2 — Customer & Sales** | BP master, account groups, contacts, activity log, quotes/estimates, sales orders, delivery, AR invoice, incoming payment (full quote-to-cash) | **$24K** |
-| **3 — Web Store (Native B2B)** | store.g54.com storefront, catalog, account-group pricing, order mgmt, Web→SO automation, approval rules, status sync. *Replaces Zoey — no third-party connector.* | **$26K** |
-| **4 — Operations** | Job creation from SO, production queue, status tracking, artwork attachment, item master, stock, inventory publishing, Quality Management, Equipment Maintenance | **$26K** |
-| **5 — Finance & Accounting** | Chart of accounts, AR, AP, bank rec, journal entries, tax, cost centers, budgets, P&L by segment, fixed assets, depreciation, **complete SAP B1 data migration** (SAP decommissioned) | **$41K** |
-| **6 — Content Library (DAM + AI)** | Asset upload, AI auto-tagging & descriptions (Claude API), natural-language + visual-similarity search, collections, usage rights/history, job linking, thumbnails | **$22K** |
-| **7 — Field Sales RBAC & Mobile** | Field-sales role dashboards, mobile-responsive order upload, client artwork upload, sales-manager oversight | **$12K** |
-| **8 — Workflows, Reports & Intelligence** | Approval rules engine, sales/production/financial dashboards, asset reports, CSV/PDF export | **$18K** |
+| **1 — Platform Foundation** | Auth, RBAC (6 roles), user mgmt, system config, role dashboards, audit log, notifications + **all platform infrastructure** (single-tenant, design system, CI/CD, encryption, secure SDLC) + **security-documentation deliverable** | **$50K** *(less $5K Discovery credit → **net $45K**)* |
+| **2 — Customer & Sales** | BP master, account groups, contacts, activity log, quotes/estimates, sales orders, delivery, AR invoice, incoming payment (full quote-to-cash) | **$21K** |
+| **3 — Web Store (Native B2B)** | store.g54.com storefront, catalog, account-group pricing, order mgmt, Web→SO automation, approval rules, status sync. *Replaces Zoey — no third-party connector.* | **$23K** |
+| **4 — Operations** | Job creation from SO, production queue, status tracking, artwork attachment, item master, stock, inventory publishing, Quality Management, Equipment Maintenance | **$23K** |
+| **5 — Finance & Accounting** | Chart of accounts, AR, AP, bank rec, journal entries, tax, cost centers, budgets, P&L by segment, fixed assets, depreciation, **complete SAP B1 data migration** (SAP decommissioned) | **$36K** |
+| **6 — Content Library (DAM + AI)** | Asset upload, AI auto-tagging & descriptions (Claude API), natural-language + visual-similarity search, collections, usage rights/history, job linking, thumbnails | **$20K** |
+| **7 — Field Sales RBAC & Mobile** | Field-sales role dashboards, mobile-responsive order upload, client artwork upload, sales-manager oversight | **$11K** |
+| **8 — Workflows, Reports & Intelligence** | Approval rules engine, sales/production/financial dashboards, asset reports, CSV/PDF export | **$16K** |
 
 **Program total (Phases 1–8):** **$200,000** fixed cap — **$195,000 net** after the $5K Discovery credit, funded phase-by-phase.
 
