@@ -48,6 +48,7 @@ The wireframes at the link above are living prototypes — every feature describ
 | [Architecture](technical/architecture.md) | System design, hosting, tech stack decisions, deployment |
 | [Data Model](technical/data-model.md) | Entities, relationships, key field definitions |
 | [Integrations](technical/integrations.md) | SAP Business One migration, Web Store, external APIs |
+| [Security](technical/security.md) | Control matrix, data flow, secure SDLC — the auditable-compliance deliverable |
 
 ### Design
 | Document | Description |
