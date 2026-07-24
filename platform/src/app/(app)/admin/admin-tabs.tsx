@@ -13,7 +13,7 @@ const TABS = [
 export function AdminTabs() {
   const pathname = usePathname();
   return (
-    <div className="mb-6 flex gap-1 border-b border-neutral-200">
+    <div className="mb-6 flex gap-1 overflow-x-auto whitespace-nowrap border-b border-neutral-200">
       {TABS.map((t) => {
         const active = pathname === t.href || pathname.startsWith(t.href + "/");
         return (

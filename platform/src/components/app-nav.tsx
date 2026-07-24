@@ -10,7 +10,7 @@ export interface NavItem {
   phase1: boolean;
 }
 
-export function AppNav({ items }: { items: NavItem[] }) {
+export function AppNav({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
@@ -20,6 +20,7 @@ export function AppNav({ items }: { items: NavItem[] }) {
           <Link
             key={item.key}
             href={item.href}
+            onClick={onNavigate}
             className={`flex items-center justify-between rounded-md px-3 py-2 text-sm transition ${
               active
                 ? "bg-white/10 font-semibold text-white"
