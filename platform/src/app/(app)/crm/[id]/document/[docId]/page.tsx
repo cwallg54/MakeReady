@@ -17,7 +17,8 @@ export default async function DocumentSubmissionPage({ params }: { params: Promi
   if (!doc) notFound();
 
   const data = (doc.data as Record<string, string> | null) ?? {};
-  const entries = Object.entries(data).filter(([, v]) => v && String(v).trim());
+  // Exclude React Server-Action internals ($ACTION_*) that older submissions may contain.
+  const entries = Object.entries(data).filter(([k, v]) => v && String(v).trim() && !k.startsWith("$"));
 
   return (
     <div className="max-w-3xl">
@@ -34,7 +35,7 @@ export default async function DocumentSubmissionPage({ params }: { params: Promi
             {entries.map(([k, v]) => (
               <div key={k}>
                 <dt className="text-xs text-neutral-400">{fieldLabel(k)}</dt>
-                <dd className="text-sm text-neutral-800">{String(v)}</dd>
+                <dd className="break-words text-sm text-neutral-800">{String(v)}</dd>
               </div>
             ))}
           </dl>

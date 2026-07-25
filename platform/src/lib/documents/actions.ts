@@ -49,9 +49,13 @@ export async function submitDocumentAction(_prev: DocState, formData: FormData):
   const agree = formData.get("agree") === "on";
   if (!signedName || !agree) return { error: "Please complete the signature and agree to the terms." };
 
-  const entries = Object.fromEntries(formData) as Record<string, string>;
-  delete entries.token;
-  delete entries.agree;
+  // Build the stored data from real fields only — skip React's Server-Action
+  // internals ($ACTION_*) and control fields.
+  const entries: Record<string, string> = {};
+  for (const [k, v] of formData.entries()) {
+    if (k === "token" || k === "agree" || k.startsWith("$ACTION")) continue;
+    if (typeof v === "string" && v.trim()) entries[k] = v;
+  }
 
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   await db
