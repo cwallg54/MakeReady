@@ -153,3 +153,52 @@ export async function completeMeetingAction(formData: FormData): Promise<void> {
   revalidatePath("/calendar");
   redirect(`/calendar/${id}`);
 }
+
+export async function rescheduleMeetingAction(formData: FormData): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  const startIso = String(formData.get("slot") ?? "");
+  if (!id || !startIso) redirect(`/calendar/${id}`);
+
+  const m = await db.query.meetings.findFirst({ where: eq(meetings.id, id) });
+  if (!m) redirect("/calendar");
+
+  const profile = await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, m.hostUserId) });
+  const type = m.meetingTypeId ? await db.query.meetingTypes.findFirst({ where: eq(meetingTypes.id, m.meetingTypeId) }) : null;
+  const durationMin = type?.durationMin ?? Math.round((m.endAt.getTime() - m.startAt.getTime()) / 60000);
+
+  // Busy list for the host, excluding this meeting so its own slot doesn't block it.
+  const busy = (await db
+    .select({ id: meetings.id, start: meetings.startAt, end: meetings.endAt })
+    .from(meetings)
+    .where(and(eq(meetings.hostUserId, m.hostUserId), eq(meetings.status, "scheduled"), gte(meetings.endAt, new Date()))))
+    .filter((b) => b.id !== id)
+    .map((b) => ({ start: b.start, end: b.end }));
+
+  const availability = (await db.select().from(availabilityBlocks).where(eq(availabilityBlocks.userId, m.hostUserId))) as AvailBlock[];
+  const opts = {
+    tz: profile?.timezone ?? "America/Denver",
+    availability,
+    durationMin,
+    slotIntervalMin: profile?.slotIntervalMin ?? 30,
+    minNoticeHours: profile?.minNoticeHours ?? 0,
+    windowDays: profile?.bookingWindowDays ?? 60,
+    busy,
+  };
+  const check = slotIsValid(opts, startIso);
+  if (!check.ok || !check.endIso) redirect(`/calendar/${id}/reschedule?err=1`);
+
+  const oldStart = m.startAt;
+  await db.update(meetings).set({ startAt: new Date(startIso), endAt: new Date(check.endIso!) }).where(eq(meetings.id, id));
+  await db.insert(notifications).values({
+    userId: m.hostUserId,
+    type: "meeting",
+    title: "Meeting rescheduled",
+    body: `${m.attendeeName}'s meeting was moved by ${user.name}.`,
+    link: `/calendar/${id}`,
+  });
+  await audit({ userId: user.id, action: "meeting.rescheduled", entityType: "meeting", entityId: id, metadata: { from: oldStart.toISOString(), to: startIso } });
+  revalidatePath("/calendar");
+  redirect(`/calendar/${id}`);
+}
