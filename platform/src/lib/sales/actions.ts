@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, numberSeries } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, numberSeries, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -44,6 +44,11 @@ export async function createQuoteAction(formData: FormData): Promise<void> {
     .values({ quoteNumber, bpId, templateId, createdBy: user.id })
     .returning({ id: quotes.id });
   await audit({ userId: user.id, action: "quote.create", entityType: "quote", entityId: q.id, metadata: { quoteNumber } });
+  // Log to the customer's CRM history.
+  if (bpId) {
+    await db.insert(activities).values({ bpId, userId: user.id, type: "other", isSystem: true, content: `Quote ${quoteNumber} created` });
+    revalidatePath(`/crm/${bpId}`);
+  }
   redirect(`/sales/quotes/${q.id}`);
 }
 
@@ -120,6 +125,28 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
   revalidatePath(`/sales/quotes/${quoteId}`);
   revalidatePath("/sales");
   return { ok: true };
+}
+
+export async function logQuoteEmailedAction(quoteId: string): Promise<void> {
+  const user = await requireSalesEdit();
+  const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, quoteId) });
+  if (!quote) return;
+  if (quote.bpId) {
+    await db.insert(activities).values({
+      bpId: quote.bpId,
+      userId: user.id,
+      type: "email",
+      isSystem: true,
+      content: `Quote ${quote.quoteNumber} emailed to customer`,
+    });
+    revalidatePath(`/crm/${quote.bpId}`);
+  }
+  if (quote.status === "draft") {
+    await db.update(quotes).set({ status: "sent", updatedAt: new Date() }).where(eq(quotes.id, quoteId));
+  }
+  await audit({ userId: user.id, action: "quote.emailed", entityType: "quote", entityId: quoteId });
+  revalidatePath(`/sales/quotes/${quoteId}`);
+  revalidatePath("/sales");
 }
 
 export async function setQuoteCustomerAction(formData: FormData): Promise<void> {
