@@ -21,13 +21,13 @@ export function FinancialDocs({ bpId, docs, baseUrl, editable }: { bpId: string;
       <p className="mb-3 text-xs text-neutral-500">Send a secure link for the customer to complete. Nothing sensitive is emailed.</p>
 
       {editable && (
-        <form action={createDocumentRequestAction} className="mb-4 flex gap-2">
+        <form action={createDocumentRequestAction} className="mb-4 space-y-2">
           <input type="hidden" name="bpId" value={bpId} />
-          <select name="docType" className="flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900">
+          <select name="docType" className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900">
             <option value="terms_application">Terms / Credit Application (Net 30)</option>
             <option value="credit_card_application">Credit Card Application</option>
           </select>
-          <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Request</button>
+          <button className="w-full rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Request document</button>
         </form>
       )}
 
