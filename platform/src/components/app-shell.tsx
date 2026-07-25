@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { LogoInline } from "@/components/logo";
 import { AppNav, type NavItem } from "@/components/app-nav";
+import { HelpButton } from "@/components/help/help-button";
 
 export function AppShell({
   navItems,
@@ -78,6 +79,7 @@ export function AppShell({
                 <span className="ml-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">{unreadCount}</span>
               )}
             </Link>
+            <HelpButton />
             <Link
               href="/account/security"
               title="Account security"
