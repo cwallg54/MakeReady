@@ -49,6 +49,11 @@ export interface PricedQuote {
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+/** Sell price from supplier cost + markup %. */
+export function sellPrice(supplierCost: number, markupPct: number): number {
+  return round2((supplierCost || 0) * (1 + (markupPct || 0) / 100));
+}
+
 export function chargeApplies(rule: ChargeRule, isReorder: boolean): boolean {
   const w = rule.appliesWhen ?? "always";
   return w === "always" || (w === "new" && !isReorder) || (w === "reorder" && isReorder);

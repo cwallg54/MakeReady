@@ -6,7 +6,7 @@ import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
 import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, businessPartners } from "@/db/schema";
 import { PageHeader } from "@/components/ui";
-import { setQuoteStatusAction } from "@/lib/sales/actions";
+import { setQuoteStatusAction, setQuoteCustomerAction } from "@/lib/sales/actions";
 import type { ChargeRule } from "@/lib/sales/pricing";
 import { QuoteBuilder } from "./quote-builder";
 
@@ -42,6 +42,11 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
   const catalog = template
     ? await db.select().from(templateItems).where(eq(templateItems.templateId, template.id)).orderBy(asc(templateItems.sortOrder))
     : [];
+  const bps = await db
+    .select({ id: businessPartners.id, name: businessPartners.companyName })
+    .from(businessPartners)
+    .orderBy(asc(businessPartners.companyName))
+    .limit(500);
 
   const rules = (template?.charges as ChargeRule[] | null) ?? [];
   const canStatus = editable && quote.status !== "converted";
@@ -65,6 +70,22 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           </div>
         }
       />
+
+      {editable && quote.status !== "converted" && (
+        <div className="mb-6 rounded-lg border border-neutral-200 bg-white p-4">
+          <form action={setQuoteCustomerAction} className="flex flex-wrap items-end gap-2">
+            <input type="hidden" name="id" value={quote.id} />
+            <label className="flex flex-col text-xs text-neutral-500">
+              Customer (Business Partner)
+              <select name="bpId" defaultValue={quote.bpId ?? ""} className="mt-1 min-w-64 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500">
+                <option value="">— none / walk-in —</option>
+                {bps.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
+              </select>
+            </label>
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save customer</button>
+          </form>
+        </div>
+      )}
 
       <QuoteBuilder
         quoteId={quote.id}

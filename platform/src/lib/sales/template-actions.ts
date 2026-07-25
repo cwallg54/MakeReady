@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { orderFormTemplates, templateItems } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
-import type { ChargeRule, ChargeType } from "./pricing";
+import { sellPrice, type ChargeRule, type ChargeType } from "./pricing";
 
 async function assertAdmin() {
   const user = await getCurrentUser();
@@ -52,16 +52,27 @@ export async function updateTemplateMetaAction(_prev: TemplateState, formData: F
   const name = String(formData.get("name") ?? "").trim();
   if (!id || !name) return { error: "Name is required." };
   const sizes = String(formData.get("sizeOptions") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const defaultMarkupPct = Number(formData.get("defaultMarkupPct") ?? 0) || 0;
   await db
     .update(orderFormTemplates)
     .set({
       name,
       description: String(formData.get("description") ?? "").trim() || null,
       sizeOptions: sizes.length ? sizes : null,
+      defaultMarkupPct: String(defaultMarkupPct),
       active: formData.get("active") === "on",
       updatedAt: new Date(),
     })
     .where(eq(orderFormTemplates.id, id));
+
+  // Recompute sell price for items that inherit the template default markup.
+  const items = await db.select().from(templateItems).where(eq(templateItems.templateId, id));
+  for (const it of items) {
+    if (it.markupPct === null) {
+      const price = sellPrice(Number(it.supplierCost), defaultMarkupPct);
+      await db.update(templateItems).set({ unitPrice: String(price) }).where(eq(templateItems.id, it.id));
+    }
+  }
   await audit({ userId: admin.id, action: "template.update", entityType: "order_form_template", entityId: id });
   revalidatePath(`/admin/templates/${id}`);
   return {};
@@ -108,13 +119,45 @@ export async function addItemAction(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   if (!id || !name) return;
+  const template = await db.query.orderFormTemplates.findFirst({ where: eq(orderFormTemplates.id, id) });
+  if (!template) return;
+
+  const supplierCost = Number(formData.get("supplierCost") ?? 0) || 0;
+  const markupRaw = String(formData.get("markupPct") ?? "").trim();
+  const markupPct = markupRaw === "" ? null : Number(markupRaw) || 0;
+  const effMarkup = markupPct ?? Number(template.defaultMarkupPct);
   await db.insert(templateItems).values({
     templateId: id,
     code: String(formData.get("code") ?? "").trim() || null,
     name,
-    unitPrice: String(Number(formData.get("unitPrice") ?? 0) || 0),
+    supplierCost: String(supplierCost),
+    markupPct: markupPct === null ? null : String(markupPct),
+    unitPrice: String(sellPrice(supplierCost, effMarkup)),
   });
   await audit({ userId: admin.id, action: "template.item_add", entityType: "order_form_template", entityId: id, metadata: { name } });
+  revalidatePath(`/admin/templates/${id}`);
+}
+
+export async function updateItemAction(formData: FormData): Promise<void> {
+  const admin = await assertAdmin();
+  const id = String(formData.get("id") ?? "");
+  const itemId = String(formData.get("itemId") ?? "");
+  const template = await db.query.orderFormTemplates.findFirst({ where: eq(orderFormTemplates.id, id) });
+  if (!template || !itemId) return;
+
+  const supplierCost = Number(formData.get("supplierCost") ?? 0) || 0;
+  const markupRaw = String(formData.get("markupPct") ?? "").trim();
+  const markupPct = markupRaw === "" ? null : Number(markupRaw) || 0;
+  const effMarkup = markupPct ?? Number(template.defaultMarkupPct);
+  await db
+    .update(templateItems)
+    .set({
+      supplierCost: String(supplierCost),
+      markupPct: markupPct === null ? null : String(markupPct),
+      unitPrice: String(sellPrice(supplierCost, effMarkup)),
+    })
+    .where(and(eq(templateItems.id, itemId), eq(templateItems.templateId, id)));
+  await audit({ userId: admin.id, action: "template.item_update", entityType: "order_form_template", entityId: id });
   revalidatePath(`/admin/templates/${id}`);
 }
 

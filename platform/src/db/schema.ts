@@ -376,6 +376,8 @@ export const orderFormTemplates = pgTable("order_form_templates", {
   active: boolean("active").notNull().default(true),
   // Optional apparel size/variant labels (e.g. ["S","M","L","XL"]); null = no matrix.
   sizeOptions: text("size_options").array(),
+  // Default markup % applied over supplier cost when an item has no own markup.
+  defaultMarkupPct: numeric("default_markup_pct", { precision: 6, scale: 2 }).notNull().default("0"),
   charges: jsonb("charges"), // ChargeRule[]
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -390,6 +392,11 @@ export const templateItems = pgTable(
       .references(() => orderFormTemplates.id, { onDelete: "cascade" }),
     code: text("code"),
     name: text("name").notNull(),
+    // Supplier cost (entered manually now; vendor-integrated later).
+    supplierCost: numeric("supplier_cost", { precision: 12, scale: 2 }).notNull().default("0"),
+    // Per-item markup % override; null = use the template's default markup.
+    markupPct: numeric("markup_pct", { precision: 6, scale: 2 }),
+    // Effective sell price = supplierCost * (1 + markup/100), computed on save.
     unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull().default("0"),
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),

@@ -122,6 +122,17 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
   return { ok: true };
 }
 
+export async function setQuoteCustomerAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const id = String(formData.get("id") ?? "");
+  const bpId = String(formData.get("bpId") ?? "") || null;
+  if (!id) return;
+  await db.update(quotes).set({ bpId, updatedAt: new Date() }).where(eq(quotes.id, id));
+  await audit({ userId: user.id, action: "quote.set_customer", entityType: "quote", entityId: id, metadata: { bpId } });
+  revalidatePath(`/sales/quotes/${id}`);
+  revalidatePath("/sales");
+}
+
 export async function setQuoteStatusAction(formData: FormData): Promise<void> {
   const user = await requireSalesEdit();
   const id = String(formData.get("id") ?? "");

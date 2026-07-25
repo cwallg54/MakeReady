@@ -6,7 +6,7 @@ import { orderFormTemplates, templateItems } from "@/db/schema";
 import { Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import type { ChargeRule } from "@/lib/sales/pricing";
-import { addChargeAction, removeChargeAction, addItemAction, removeItemAction } from "@/lib/sales/template-actions";
+import { addChargeAction, removeChargeAction, addItemAction, updateItemAction, removeItemAction } from "@/lib/sales/template-actions";
 import { TemplateMetaForm } from "./template-meta-form";
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
@@ -23,7 +23,7 @@ export default async function TemplateEditPage({ params }: { params: Promise<{ i
       <Link href="/admin/templates" className="text-sm text-neutral-500 hover:text-neutral-900">← Templates</Link>
       <Card>
         <h2 className="mb-4 text-sm font-semibold text-neutral-900">{t.name}</h2>
-        <TemplateMetaForm id={t.id} name={t.name} description={t.description ?? ""} sizeOptions={(t.sizeOptions ?? []).join(", ")} active={t.active} />
+        <TemplateMetaForm id={t.id} name={t.name} description={t.description ?? ""} sizeOptions={(t.sizeOptions ?? []).join(", ")} defaultMarkupPct={Number(t.defaultMarkupPct)} active={t.active} />
       </Card>
 
       {/* Charge rules */}
@@ -63,27 +63,42 @@ export default async function TemplateEditPage({ params }: { params: Promise<{ i
         </form>
       </Card>
 
-      {/* Catalog items */}
+      {/* Catalog items — cost + markup → sell price */}
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-neutral-900">Item catalog</h2>
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Item catalog</h2>
+        <p className="mb-3 text-xs text-neutral-400">Enter supplier cost + markup % (blank markup uses the template default of {Number(t.defaultMarkupPct)}%). Sell price is computed. Vendor cost feeds can replace manual cost later.</p>
+        <div className="mb-2 hidden grid-cols-[1fr_90px_80px_80px_auto] gap-2 px-1 text-xs font-medium uppercase tracking-wide text-neutral-400 sm:grid">
+          <span>Item</span><span>Cost $</span><span>Markup %</span><span>Sell $</span><span></span>
+        </div>
         <ul className="mb-4 space-y-1">
           {items.length === 0 && <li className="text-sm text-neutral-400">No catalog items — the Quote Builder will use free-text line items.</li>}
           {items.map((it) => (
-            <li key={it.id} className="flex items-center justify-between text-sm">
-              <span className="text-neutral-800">{it.name} <span className="text-neutral-400">{it.code ? `· ${it.code} ` : ""}· ${Number(it.unitPrice).toFixed(2)}</span></span>
-              <form action={removeItemAction}>
+            <li key={it.id}>
+              <form action={updateItemAction} className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[1fr_90px_80px_80px_auto]">
                 <input type="hidden" name="id" value={t.id} />
                 <input type="hidden" name="itemId" value={it.id} />
-                <ConfirmButton message="Remove this item?" className="text-xs text-red-600 hover:text-red-800">Remove</ConfirmButton>
+                <span className="text-sm text-neutral-800">{it.name}{it.code ? <span className="text-neutral-400"> · {it.code}</span> : null}</span>
+                <input name="supplierCost" type="number" step="0.01" defaultValue={Number(it.supplierCost)} className={input} />
+                <input name="markupPct" type="number" step="0.01" defaultValue={it.markupPct === null ? "" : Number(it.markupPct)} placeholder="dflt" className={input} />
+                <span className="text-sm font-medium text-neutral-900">${Number(it.unitPrice).toFixed(2)}</span>
+                <span className="flex gap-2">
+                  <button className="text-xs text-neutral-600 hover:text-neutral-900">Save</button>
+                </span>
+              </form>
+              <form action={removeItemAction} className="px-1">
+                <input type="hidden" name="id" value={t.id} />
+                <input type="hidden" name="itemId" value={it.id} />
+                <ConfirmButton message="Remove this item?" className="text-[11px] text-red-600 hover:text-red-800">remove</ConfirmButton>
               </form>
             </li>
           ))}
         </ul>
-        <form action={addItemAction} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <form action={addItemAction} className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_90px_80px_90px]">
           <input type="hidden" name="id" value={t.id} />
-          <input name="name" required placeholder="Item name" className={`col-span-2 ${input}`} />
+          <input name="name" required placeholder="Item name" className={input} />
+          <input name="supplierCost" type="number" step="0.01" placeholder="Cost $" className={input} />
+          <input name="markupPct" type="number" step="0.01" placeholder="Markup %" className={input} />
           <input name="code" placeholder="Code (opt)" className={input} />
-          <input name="unitPrice" type="number" step="0.01" placeholder="Unit $" className={input} />
           <button className="col-span-2 rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700 sm:col-span-4">Add item</button>
         </form>
       </Card>
