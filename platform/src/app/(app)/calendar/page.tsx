@@ -101,11 +101,11 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
                     {items.map((m) => {
                       const t = DateTime.fromJSDate(m.start).setZone(TZ).toFormat("h:mm a");
                       return (
-                        <div key={m.id} className={`rounded border px-1.5 py-1 text-[11px] leading-tight ${COLOR[m.color ?? "blue"] ?? COLOR.blue}`} title={`${m.typeName} · ${m.attendee}${m.company ? " · " + m.company : ""} · Host: ${m.hostName}`}>
+                        <Link key={m.id} href={`/calendar/${m.id}`} className={`block cursor-pointer rounded border px-1.5 py-1 text-[11px] leading-tight transition hover:brightness-95 hover:shadow-sm ${COLOR[m.color ?? "blue"] ?? COLOR.blue}`} title={`${m.typeName} · ${m.attendee}${m.company ? " · " + m.company : ""} · Host: ${m.hostName}`}>
                           <div className="font-semibold">{t} {m.typeName}</div>
                           <div className="truncate">{m.attendee}{m.company ? ` · ${m.company}` : ""}</div>
                           <div className="truncate opacity-70">Host: {m.hostName ?? "—"}</div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>

@@ -122,3 +122,34 @@ export async function bookMeetingAction(_prev: BookState, formData: FormData): P
   await audit({ userId: profile.userId, action: "meeting.booked", entityType: "meeting", metadata: { type: type.name, attendeeName } });
   redirect(`/schedule/${slug}?booked=1`);
 }
+
+export async function cancelMeetingAction(formData: FormData): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const m = await db.query.meetings.findFirst({ where: eq(meetings.id, id) });
+  if (!m) return;
+  await db.update(meetings).set({ status: "canceled" }).where(eq(meetings.id, id));
+  await db.insert(notifications).values({
+    userId: m.hostUserId,
+    type: "meeting",
+    title: "Meeting canceled",
+    body: `${m.attendeeName}'s meeting was canceled by ${user.name}.`,
+    link: `/calendar/${id}`,
+  });
+  await audit({ userId: user.id, action: "meeting.canceled", entityType: "meeting", entityId: id });
+  revalidatePath("/calendar");
+  redirect(`/calendar/${id}`);
+}
+
+export async function completeMeetingAction(formData: FormData): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await db.update(meetings).set({ status: "completed" }).where(eq(meetings.id, id));
+  await audit({ userId: user.id, action: "meeting.completed", entityType: "meeting", entityId: id });
+  revalidatePath("/calendar");
+  redirect(`/calendar/${id}`);
+}
