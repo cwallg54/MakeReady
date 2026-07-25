@@ -2,7 +2,7 @@ import "server-only";
 import { asc, eq } from "drizzle-orm";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { db } from "@/db";
-import { orders, quotes, quoteLines, quoteCharges, businessPartners, contacts } from "@/db/schema";
+import { orders, quotes, quoteLines, quoteCharges, orderSpecItems, businessPartners, contacts } from "@/db/schema";
 import { and } from "drizzle-orm";
 
 const money = (n: number) => `$${n.toFixed(2)}`;
@@ -23,6 +23,7 @@ export async function generateOrderPdf(orderId: string): Promise<GeneratedPdf | 
   ]);
   const lines = quote ? await db.select().from(quoteLines).where(eq(quoteLines.quoteId, quote.id)).orderBy(asc(quoteLines.sortOrder)) : [];
   const charges = quote ? await db.select().from(quoteCharges).where(eq(quoteCharges.quoteId, quote.id)) : [];
+  const specItems = await db.select().from(orderSpecItems).where(eq(orderSpecItems.orderId, orderId)).orderBy(asc(orderSpecItems.sortOrder));
   const contact = order.bpId ? await db.query.contacts.findFirst({ where: and(eq(contacts.bpId, order.bpId), eq(contacts.isPrimary, true)) }) : undefined;
 
   const doc = await PDFDocument.create();
@@ -105,6 +106,50 @@ export async function generateOrderPdf(orderId: string): Promise<GeneratedPdf | 
     row("Charges", money(Number(quote.chargesTotal)));
     if (Number(quote.discount)) row("Discount", `-${money(Number(quote.discount))}`);
     row("Total", money(Number(quote.total)), true);
+  }
+
+  // Production details
+  const wrap = (s: string, size: number, width: number, f = font) => {
+    const words = s.split(/\s+/);
+    const out: string[] = [];
+    let cur = "";
+    for (const w of words) {
+      const t = cur ? `${cur} ${w}` : w;
+      if (f.widthOfTextAtSize(t, size) > width && cur) { out.push(cur); cur = w; } else cur = t;
+    }
+    if (cur) out.push(cur);
+    return out;
+  };
+  const para = (label: string, value: string) => {
+    const full = label ? `${label}: ${value}` : value;
+    for (const [i, ln] of wrap(full, 9, 612 - 2 * M).entries()) {
+      ensure(13);
+      text(ln, i === 0 ? M : M + 10, 9, font, i === 0 ? dark : gray);
+      y -= 12;
+    }
+  };
+
+  if (specItems.length || order.inHandsDate || order.productionNotes) {
+    y -= 16;
+    ensure(24);
+    text("PRODUCTION DETAILS", M, 11, bold);
+    y -= 16;
+    if (order.inHandsDate) para("In-hands date", order.inHandsDate.toLocaleDateString("en-US"));
+    if (order.productionNotes) para("Instructions", order.productionNotes);
+    for (const [i, s] of specItems.entries()) {
+      y -= 6;
+      ensure(14);
+      text(`${i + 1}. ${s.product}`, M, 10, bold);
+      y -= 13;
+      const bits = [
+        s.decorationMethod && `Decoration: ${s.decorationMethod}`,
+        s.placement && `Placement: ${s.placement}`,
+        s.colors && `Colors: ${s.colors}${s.colorCount ? ` (${s.colorCount})` : ""}`,
+        s.sizeBreakdown && `Sizes: ${s.sizeBreakdown}`,
+      ].filter(Boolean) as string[];
+      if (bits.length) para("", bits.join("   "));
+      if (s.notes) para("Notes", s.notes);
+    }
   }
 
   y -= 24;

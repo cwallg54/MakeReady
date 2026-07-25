@@ -540,6 +540,9 @@ export const orders = pgTable(
     // Opaque token for the public tracker link (no login required).
     publicToken: text("public_token").notNull().unique(),
     notes: text("notes"),
+    // Production detail captured by the salesperson after the order is created.
+    inHandsDate: timestamp("in_hands_date", { withTimezone: true }),
+    productionNotes: text("production_notes"),
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -583,9 +586,54 @@ export const orderArtifacts = pgTable(
   (t) => [index("order_artifacts_order_id_idx").on(t.orderId)],
 );
 
+// Line-level production spec — one entry per decorated product on the order.
+// Fields are generic so they fit apparel (tees/hats) and non-apparel (cups, promo).
+export const orderSpecItems = pgTable(
+  "order_spec_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    product: text("product").notNull().default(""), // e.g. "Navy tee", "16oz mug"
+    decorationMethod: text("decoration_method"), // screen print, embroidery, pad print…
+    placement: text("placement"), // left chest, full back, wrap…
+    colors: text("colors"), // ink/thread colors
+    colorCount: integer("color_count"),
+    sizeBreakdown: text("size_breakdown"), // "S:50 M:100 L:100" or "N/A"
+    notes: text("notes"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("order_spec_items_order_id_idx").on(t.orderId)],
+);
+
+// Customer-provided files: art, mockups, reference photos. Stored inline
+// (base64) mirroring order_artifacts; a blob store can replace this later.
+export const orderAttachments = pgTable(
+  "order_attachments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull().default("application/octet-stream"),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    kind: text("kind").notNull().default("art"), // art | mockup | reference | other
+    contentBase64: text("content_base64").notNull(),
+    notes: text("notes"),
+    uploadedBy: uuid("uploaded_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("order_attachments_order_id_idx").on(t.orderId)],
+);
+
 export type Order = typeof orders.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;
 export type OrderArtifact = typeof orderArtifacts.$inferSelect;
+export type OrderSpecItem = typeof orderSpecItems.$inferSelect;
+export type OrderAttachment = typeof orderAttachments.$inferSelect;
 
 // ---- Secure customer intake documents (terms / credit card applications) ---
 // Customer completes these via a token link — no sensitive data over email.
