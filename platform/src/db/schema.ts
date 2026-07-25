@@ -544,6 +544,10 @@ export const orders = pgTable(
     // Production detail captured by the salesperson after the order is created.
     inHandsDate: timestamp("in_hands_date", { withTimezone: true }),
     productionNotes: text("production_notes"),
+    // Voiding an order requires a reason; a voided order is cancelled but retained.
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    voidedBy: uuid("voided_by").references(() => users.id),
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

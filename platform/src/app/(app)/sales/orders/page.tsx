@@ -21,6 +21,7 @@ export default async function OrdersPage() {
       id: orders.id,
       orderNumber: orders.orderNumber,
       stage: orders.stage,
+      voidedAt: orders.voidedAt,
       updatedAt: orders.updatedAt,
       company: businessPartners.companyName,
     })
@@ -54,7 +55,11 @@ export default async function OrdersPage() {
                 <tr key={r.id} className="hover:bg-neutral-50">
                   <td className="px-5 py-3 font-mono text-xs"><Link href={`/sales/orders/${r.id}`} className="font-medium text-neutral-900 hover:underline">{r.orderNumber}</Link></td>
                   <td className="px-5 py-3 text-neutral-700">{r.company ?? "—"}</td>
-                  <td className="px-5 py-3"><span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">{stageLabel(r.stage)}</span></td>
+                  <td className="px-5 py-3">
+                    {r.voidedAt
+                      ? <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">Voided</span>
+                      : <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">{stageLabel(r.stage)}</span>}
+                  </td>
                   <td className="px-5 py-3 text-neutral-500">{fmtDate(r.updatedAt)}</td>
                 </tr>
               ))}

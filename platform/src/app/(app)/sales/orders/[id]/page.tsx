@@ -6,6 +6,7 @@ import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
 import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
+import { ConfirmButton } from "@/components/confirm-button";
 import { fmtDateTime } from "@/lib/format";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { ProductionDetails } from "@/components/orders/production-details";
@@ -13,6 +14,7 @@ import { OrderProofs } from "@/components/orders/order-proofs";
 import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
 import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
+import { voidOrderAction } from "@/lib/orders/detail-actions";
 import { desc } from "drizzle-orm";
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,6 +24,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
   if (!order) notFound();
+  const voided = !!order.voidedAt;
+  const canAct = editable && !voided;
   const [bp, events, artifacts, specItems, attachments, proofs] = await Promise.all([
     order.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : Promise.resolve(undefined),
     db.select().from(orderEvents).where(eq(orderEvents.orderId, id)).orderBy(asc(orderEvents.at)),
@@ -49,11 +53,18 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <Link href="/sales/orders" className="text-sm text-neutral-500 hover:text-neutral-900">← Orders</Link>
       <PageHeader title={order.orderNumber} description={bp ? bp.companyName : "No customer"} />
 
+      {voided && (
+        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <span className="font-semibold">Order voided.</span> {order.voidReason}
+          {order.voidedAt && <span className="text-red-600"> · {fmtDateTime(order.voidedAt)}</span>}
+        </div>
+      )}
+
       <Card className="mb-6">
         <OrderTracker currentStage={order.stage} reachedAt={reachedAt} />
       </Card>
 
-      {editable && (
+      {canAct && (
         <Card className="mb-6">
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">Update stage</h2>
           <div className="flex flex-wrap gap-2">
@@ -75,11 +86,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </Card>
       )}
 
-      <ProductionDetails order={order} specItems={specItems} attachments={attachments} editable={editable} />
+      <ProductionDetails order={order} specItems={specItems} attachments={attachments} editable={canAct} />
 
-      <OrderProofs order={order} proofs={proofs} attachments={attachments} editable={editable} baseUrl={base} toEmail={toEmail} />
+      <OrderProofs order={order} proofs={proofs} attachments={attachments} editable={canAct} baseUrl={base} toEmail={toEmail} />
 
-      {editable && (
+      {canAct && (
         <Card className="mb-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-neutral-900">Sales order PDF</h2>
@@ -129,6 +140,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </ul>
         </Card>
       </div>
+
+      {canAct && (
+        <Card className="mt-6 border-red-200">
+          <h2 className="mb-1 text-sm font-semibold text-red-800">Void order</h2>
+          <p className="mb-3 text-xs text-neutral-500">Cancels this order. It stays on record with the reason. A reason is required.</p>
+          <form action={voidOrderAction} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <label className="flex-1 text-xs text-neutral-500">
+              Reason
+              <input name="reason" required placeholder="Why is this order being voided?" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500" />
+            </label>
+            <input type="hidden" name="id" value={order.id} />
+            <ConfirmButton message="Void this order? This cancels it (kept on record with your reason)." className="rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Void order</ConfirmButton>
+          </form>
+        </Card>
+      )}
     </div>
   );
 }

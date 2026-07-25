@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, count } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderSpecItems, orderAttachments } from "@/db/schema";
+import { orders, orderSpecItems, orderAttachments, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -124,6 +124,25 @@ export async function uploadAttachmentsAction(formData: FormData): Promise<void>
   }
   await audit({ userId: user.id, action: "order.attach", entityType: "order", entityId: orderId, metadata: { saved } });
   revalidatePath(`/sales/orders/${orderId}`);
+}
+
+export async function voidOrderAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const id = String(formData.get("id") ?? "");
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!id) return;
+  if (!reason) redirect(`/sales/orders/${id}?voiderr=1`);
+
+  const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
+  if (!order || order.voidedAt) return;
+  await db.update(orders).set({ voidedAt: new Date(), voidReason: reason, voidedBy: user.id, updatedAt: new Date() }).where(eq(orders.id, id));
+  if (order.bpId) {
+    await db.insert(activities).values({ bpId: order.bpId, userId: user.id, type: "note", isSystem: true, content: `Order ${order.orderNumber} voided — ${reason}` });
+    revalidatePath(`/crm/${order.bpId}`);
+  }
+  await audit({ userId: user.id, action: "order.void", entityType: "order", entityId: id, metadata: { reason } });
+  revalidatePath(`/sales/orders/${id}`);
+  revalidatePath("/sales/orders");
 }
 
 export async function removeAttachmentAction(formData: FormData): Promise<void> {

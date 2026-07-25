@@ -1,21 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { and, asc, eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { orderFormTemplates, businessPartners } from "@/db/schema";
+import { orderFormTemplates } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
+import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { createQuoteAction } from "@/lib/sales/actions";
 
 export default async function NewQuotePage() {
   const user = await requireModule("sales");
   if (!canEdit(user.roles, "sales")) redirect("/403");
 
-  const [templates, bps] = await Promise.all([
-    db.select().from(orderFormTemplates).where(eq(orderFormTemplates.active, true)).orderBy(asc(orderFormTemplates.name)),
-    db.select({ id: businessPartners.id, name: businessPartners.companyName }).from(businessPartners).orderBy(asc(businessPartners.companyName)).limit(500),
-  ]);
+  const templates = await db.select().from(orderFormTemplates).where(eq(orderFormTemplates.active, true)).orderBy(asc(orderFormTemplates.name));
 
   const select = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500";
 
@@ -32,10 +30,7 @@ export default async function NewQuotePage() {
           <form action={createQuoteAction} className="space-y-4">
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-neutral-700">Customer (Business Partner)</span>
-              <select name="bpId" className={select}>
-                <option value="">— none / walk-in —</option>
-                {bps.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
-              </select>
+              <BpSearchSelect name="bpId" placeholder="Search customer by name or BP #… (leave blank for walk-in)" />
             </label>
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-neutral-700">Product template</span>

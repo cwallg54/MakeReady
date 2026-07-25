@@ -6,7 +6,9 @@ import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
 import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, businessPartners, contacts } from "@/db/schema";
 import { PageHeader } from "@/components/ui";
-import { setQuoteStatusAction, setQuoteCustomerAction } from "@/lib/sales/actions";
+import { ConfirmButton } from "@/components/confirm-button";
+import { BpSearchSelect } from "@/components/crm/bp-search-select";
+import { setQuoteStatusAction, setQuoteCustomerAction, deleteQuoteAction } from "@/lib/sales/actions";
 import type { ChargeRule } from "@/lib/sales/pricing";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
@@ -91,11 +93,6 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
   const catalog = template
     ? await db.select().from(templateItems).where(eq(templateItems.templateId, template.id)).orderBy(asc(templateItems.sortOrder))
     : [];
-  const bps = await db
-    .select({ id: businessPartners.id, name: businessPartners.companyName })
-    .from(businessPartners)
-    .orderBy(asc(businessPartners.companyName))
-    .limit(500);
 
   // Recipient for the mailto: primary contact email, else the BP's email.
   const primaryContact = quote.bpId
@@ -136,6 +133,12 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
                 <button className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50">{n.label}</button>
               </form>
             ))}
+            {editable && quote.status === "draft" && (
+              <form action={deleteQuoteAction}>
+                <input type="hidden" name="id" value={quote.id} />
+                <ConfirmButton message="Delete this draft quote? This cannot be undone." className="rounded-md border border-red-300 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50">Delete draft</ConfirmButton>
+              </form>
+            )}
           </div>
         }
       />
@@ -146,10 +149,9 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
             <input type="hidden" name="id" value={quote.id} />
             <label className="flex flex-col text-xs text-neutral-500">
               Customer (Business Partner)
-              <select name="bpId" defaultValue={quote.bpId ?? ""} className="mt-1 min-w-64 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500">
-                <option value="">— none / walk-in —</option>
-                {bps.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
-              </select>
+              <div className="mt-1 min-w-72">
+                <BpSearchSelect name="bpId" defaultId={quote.bpId ?? ""} defaultLabel={bp?.companyName ?? ""} />
+              </div>
             </label>
             <button className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save customer</button>
           </form>

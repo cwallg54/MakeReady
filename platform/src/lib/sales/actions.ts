@@ -53,6 +53,25 @@ export async function createQuoteAction(formData: FormData): Promise<void> {
   redirect(`/sales/quotes/${q.id}`);
 }
 
+/** Delete a quote — only permitted while it is still a draft. */
+export async function deleteQuoteAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, id) });
+  if (!quote) redirect("/sales");
+  if (quote.status !== "draft") redirect(`/sales/quotes/${id}`); // only drafts are deletable
+
+  await db.delete(quotes).where(eq(quotes.id, id)); // lines/charges cascade
+  if (quote.bpId) {
+    await db.insert(activities).values({ bpId: quote.bpId, userId: user.id, type: "other", isSystem: true, content: `Draft quote ${quote.quoteNumber} deleted` });
+    revalidatePath(`/crm/${quote.bpId}`);
+  }
+  await audit({ userId: user.id, action: "quote.delete", entityType: "quote", entityId: id, metadata: { quoteNumber: quote.quoteNumber } });
+  revalidatePath("/sales");
+  redirect("/sales");
+}
+
 export interface SaveQuotePayload {
   lines: { itemCode?: string; description: string; qty: number; unitPrice: number }[];
   applied: { key: string; inputQty?: number }[];

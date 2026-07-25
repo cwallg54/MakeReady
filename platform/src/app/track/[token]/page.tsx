@@ -22,10 +22,21 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
     );
   }
 
-  const [bp, events] = await Promise.all([
-    order.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : Promise.resolve(undefined),
-    db.select().from(orderEvents).where(eq(orderEvents.orderId, order.id)).orderBy(asc(orderEvents.at)),
-  ]);
+  const bp = order.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : undefined;
+
+  if (order.voidedAt) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-100 px-4 text-center">
+        <Logo markClassName="h-10 w-auto" className="mb-6 text-neutral-900" />
+        <p className="text-sm font-medium uppercase tracking-widest text-neutral-400">Order {order.orderNumber}</p>
+        <h1 className="mt-1 text-lg font-semibold text-neutral-900">This order has been canceled</h1>
+        <p className="mt-1 max-w-md text-sm text-neutral-500">Please contact Great Mountain West if you have any questions about this order.</p>
+        <p className="mt-6 text-center text-xs text-neutral-400">MakeReady by G54 · Commercial Print &amp; Production</p>
+      </div>
+    );
+  }
+
+  const events = await db.select().from(orderEvents).where(eq(orderEvents.orderId, order.id)).orderBy(asc(orderEvents.at));
   const reachedAt: Partial<Record<OrderStage, string>> = {};
   for (const e of events) if (!reachedAt[e.stage]) reachedAt[e.stage] = fmtDateTime(e.at);
   const current = ORDER_STAGES.find((s) => s.key === order.stage)!;
