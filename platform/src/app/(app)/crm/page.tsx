@@ -1,16 +1,11 @@
 import Link from "next/link";
-import { and, asc, ilike, eq, type SQL } from "drizzle-orm";
+import { and, or, asc, desc, ilike, eq, type SQL, type SQLWrapper } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
 import { businessPartners, accountGroups, users } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 
-const WEB_STORE_LABEL: Record<string, string> = {
-  not_published: "Not published",
-  pending: "Pending",
-  published: "Published",
-};
 const STAGE_LABEL: Record<string, string> = { lead: "Lead", prospect: "Prospect", customer: "Customer" };
 const STAGE_BADGE: Record<string, string> = {
   lead: "bg-amber-100 text-amber-700",
@@ -24,23 +19,47 @@ const STAGE_FILTERS = [
   { key: "customer", label: "Customers" },
 ];
 
+// Sortable columns → the DB expression they sort on.
+const SORT_COLS = {
+  bp: businessPartners.bpNumber,
+  company: businessPartners.companyName,
+  stage: businessPartners.lifecycleStage,
+  owner: users.name,
+  group: accountGroups.name,
+  location: businessPartners.addressCity,
+} as const;
+type SortKey = keyof typeof SORT_COLS;
+
+const inp = "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+
 export default async function CrmPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; stage?: string; mine?: string }>;
+  searchParams: Promise<{ q?: string; stage?: string; mine?: string; owner?: string; group?: string; loc?: string; sort?: string; dir?: string }>;
 }) {
   const user = await requireModule("crm");
-  const { q, stage, mine } = await searchParams;
+  const { q, stage, mine, owner, group, loc, sort: sortParam, dir: dirParam } = await searchParams;
   const editable = canEdit(user.roles, "crm");
   const scoped = crmScopedToOwn(user.roles);
+
+  const sort: SortKey = (Object.keys(SORT_COLS) as SortKey[]).includes(sortParam as SortKey) ? (sortParam as SortKey) : "company";
+  const dir = dirParam === "desc" ? "desc" : "asc";
 
   const conditions: SQL[] = [];
   if (q) conditions.push(ilike(businessPartners.companyName, `%${q}%`));
   if (stage && ["lead", "prospect", "customer"].includes(stage)) {
     conditions.push(eq(businessPartners.lifecycleStage, stage as "lead" | "prospect" | "customer"));
   }
+  if (owner) conditions.push(eq(businessPartners.ownerId, owner));
+  if (group) conditions.push(eq(businessPartners.accountGroupId, group));
+  if (loc) {
+    conditions.push(or(ilike(businessPartners.addressCity, `%${loc}%`), ilike(businessPartners.addressState, `%${loc}%`)) as SQL);
+  }
   // Sales Reps are always scoped to their own accounts; others can opt in via "mine".
   if (scoped || mine === "1") conditions.push(eq(businessPartners.ownerId, user.id));
+
+  const dirFn = dir === "desc" ? desc : asc;
+  const sortCol = SORT_COLS[sort] as SQLWrapper;
 
   const rows = await db
     .select({
@@ -51,7 +70,6 @@ export default async function CrmPage({
       tags: businessPartners.tags,
       city: businessPartners.addressCity,
       state: businessPartners.addressState,
-      webStoreStatus: businessPartners.webStoreStatus,
       groupName: accountGroups.name,
       ownerName: users.name,
     })
@@ -59,21 +77,42 @@ export default async function CrmPage({
     .leftJoin(accountGroups, eq(businessPartners.accountGroupId, accountGroups.id))
     .leftJoin(users, eq(businessPartners.ownerId, users.id))
     .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(asc(businessPartners.companyName))
+    .orderBy(dirFn(sortCol), asc(businessPartners.companyName))
     .limit(300);
 
+  // Filter option lists.
+  const [groups, owners] = await Promise.all([
+    db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).orderBy(asc(accountGroups.name)),
+    scoped
+      ? Promise.resolve([] as { id: string; name: string }[])
+      : db.selectDistinct({ id: users.id, name: users.name }).from(businessPartners).innerJoin(users, eq(businessPartners.ownerId, users.id)).orderBy(asc(users.name)),
+  ]);
+
+  const current = { q, stage, mine, owner, group, loc, sort, dir };
   const qp = (extra: Record<string, string>) => {
     const p = new URLSearchParams();
-    if (q) p.set("q", q);
-    if (stage) p.set("stage", stage);
-    if (mine === "1") p.set("mine", "1");
-    for (const [k, v] of Object.entries(extra)) {
-      if (v) p.set(k, v);
-      else p.delete(k);
-    }
+    for (const [k, v] of Object.entries(current)) if (v) p.set(k, String(v));
+    for (const [k, v] of Object.entries(extra)) { if (v) p.set(k, v); else p.delete(k); }
     const s = p.toString();
     return `/crm${s ? `?${s}` : ""}`;
   };
+
+  // Sortable column header: toggles asc/desc, shows the active arrow.
+  const Th = ({ col, label, className = "" }: { col: SortKey; label: string; className?: string }) => {
+    const activeCol = sort === col;
+    const nextDir = activeCol && dir === "asc" ? "desc" : "asc";
+    const arrow = activeCol ? (dir === "asc" ? "▲" : "▼") : "↕";
+    return (
+      <th className={`px-5 py-2 font-medium ${className}`}>
+        <Link href={qp({ sort: col, dir: nextDir })} className={`inline-flex items-center gap-1 hover:text-neutral-800 ${activeCol ? "text-neutral-900" : ""}`}>
+          {label}
+          <span className={activeCol ? "text-neutral-500" : "text-neutral-300"}>{arrow}</span>
+        </Link>
+      </th>
+    );
+  };
+
+  const hasFilters = !!(q || stage || mine || owner || group || loc);
 
   return (
     <div>
@@ -117,15 +156,28 @@ export default async function CrmPage({
         )}
       </div>
 
-      <form className="mb-4" action="/crm">
+      {/* Filter bar — preserves stage/mine/sort via hidden fields. */}
+      <form className="mb-4 flex flex-wrap items-end gap-2" action="/crm">
         {stage && <input type="hidden" name="stage" value={stage} />}
         {mine === "1" && <input type="hidden" name="mine" value="1" />}
-        <input
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Search by company name…"
-          className="w-full max-w-md rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500"
-        />
+        <input type="hidden" name="sort" value={sort} />
+        <input type="hidden" name="dir" value={dir} />
+        <input name="q" defaultValue={q ?? ""} placeholder="Search company…" className={`${inp} w-full sm:w-56`} />
+        {!scoped && (
+          <select name="owner" defaultValue={owner ?? ""} className={inp}>
+            <option value="">All owners</option>
+            {owners.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+          </select>
+        )}
+        <select name="group" defaultValue={group ?? ""} className={inp}>
+          <option value="">All account groups</option>
+          {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+        </select>
+        <input name="loc" defaultValue={loc ?? ""} placeholder="City or state…" className={`${inp} w-full sm:w-40`} />
+        <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Apply</button>
+        {hasFilters && (
+          <Link href="/crm" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-50">Clear</Link>
+        )}
       </form>
 
       <Card className="p-0">
@@ -133,19 +185,19 @@ export default async function CrmPage({
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
               <tr>
-                <th className="px-5 py-2 font-medium">BP #</th>
-                <th className="px-5 py-2 font-medium">Company</th>
-                <th className="px-5 py-2 font-medium">Stage</th>
-                <th className="px-5 py-2 font-medium">Owner</th>
-                <th className="px-5 py-2 font-medium">Account group</th>
-                <th className="px-5 py-2 font-medium">Location</th>
+                <Th col="bp" label="BP #" />
+                <Th col="company" label="Company" />
+                <Th col="stage" label="Stage" />
+                <Th col="owner" label="Owner" />
+                <Th col="group" label="Account group" />
+                <Th col="location" label="Location" />
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {rows.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-8 text-center text-neutral-400">
-                    {q || stage || mine ? "No matching business partners." : "No business partners yet. Create one to get started."}
+                    {hasFilters ? "No matching business partners." : "No business partners yet. Create one to get started."}
                   </td>
                 </tr>
               )}
@@ -177,6 +229,9 @@ export default async function CrmPage({
             </tbody>
           </table>
         </div>
+        {rows.length >= 300 && (
+          <div className="border-t border-neutral-100 px-5 py-2 text-center text-xs text-neutral-400">Showing the first 300 matches — narrow with filters above.</div>
+        )}
       </Card>
     </div>
   );
