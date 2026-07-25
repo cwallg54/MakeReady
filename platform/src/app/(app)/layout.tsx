@@ -1,14 +1,26 @@
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
 import { visibleModules, ROLE_LABELS } from "@/lib/rbac";
 import { db } from "@/db";
-import { notifications } from "@/db/schema";
+import { notifications, systemSettings } from "@/db/schema";
 import { type NavItem } from "@/components/app-nav";
 import { AppShell } from "@/components/app-shell";
 import { LogoutButton } from "@/components/logout-button";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
+
+  // Org-wide policy: if MFA is required and the user hasn't enrolled, force them
+  // to the security page until they set up a second factor.
+  if (!user.mfaEnabled) {
+    const settings = await db.query.systemSettings.findFirst();
+    if (settings?.requireMfa) {
+      const path = (await headers()).get("x-pathname") ?? "";
+      if (!path.startsWith("/account/security")) redirect("/account/security");
+    }
+  }
 
   const items: NavItem[] = visibleModules(user.roles).map((m) => ({
     key: m.key,

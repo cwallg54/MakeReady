@@ -8,6 +8,7 @@ import { SignJWT, jwtVerify } from "jose";
  */
 
 export const SESSION_COOKIE = "mr_session";
+export const MFA_PENDING_COOKIE = "mr_mfa_pending";
 
 export interface SessionClaims {
   sub: string; // user id
@@ -44,6 +45,37 @@ export async function verifySessionToken(
   } catch {
     return null;
   }
+}
+
+/** Short-lived token proving the password step passed, pending a second factor. */
+export async function signMfaPendingToken(userId: string): Promise<string> {
+  const exp = new Date(Date.now() + 10 * 60_000);
+  return new SignJWT({ purpose: "mfa" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setSubject(userId)
+    .setIssuedAt()
+    .setExpirationTime(Math.floor(exp.getTime() / 1000))
+    .sign(secretKey());
+}
+
+export async function verifyMfaPendingToken(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, secretKey());
+    if (payload.purpose !== "mfa" || typeof payload.sub !== "string") return null;
+    return payload.sub;
+  } catch {
+    return null;
+  }
+}
+
+export function pendingCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: 600,
+  };
 }
 
 export function sessionCookieOptions(expiresAt: Date) {

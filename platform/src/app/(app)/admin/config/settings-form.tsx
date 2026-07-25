@@ -16,12 +16,14 @@ export function SettingsForm({
   timezone,
   fiscalYearStartMonth,
   sessionTimeoutMinutes,
+  requireMfa,
 }: {
   companyName: string;
   legalName: string;
   timezone: string;
   fiscalYearStartMonth: number;
   sessionTimeoutMinutes: number;
+  requireMfa: boolean;
 }) {
   const [state, action] = useActionState<AdminState, FormData>(updateSettingsAction, {});
   return (
@@ -51,6 +53,13 @@ export function SettingsForm({
           hint="Idle timeout before sign-out"
         />
       </div>
+      <label className="flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+        <input type="checkbox" name="requireMfa" defaultChecked={requireMfa} className="mt-0.5 h-4 w-4" />
+        <span>
+          <span className="font-medium text-neutral-900">Require two-factor authentication</span> — every active user must enroll a
+          second factor before accessing the app.
+        </span>
+      </label>
       <AdminSubmit>Save configuration</AdminSubmit>
     </form>
   );

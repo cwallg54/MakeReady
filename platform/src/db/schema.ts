@@ -8,6 +8,7 @@ import {
   timestamp,
   jsonb,
   bigserial,
+  bigint,
   numeric,
   primaryKey,
   index,
@@ -38,6 +39,8 @@ export const users = pgTable("users", {
   // Null until the user sets a password (invited / forced reset).
   passwordHash: text("password_hash"),
   status: userStatusEnum("status").notNull().default("active"),
+  // True once the user has at least one confirmed second factor.
+  mfaEnabled: boolean("mfa_enabled").notNull().default(false),
   mustResetPassword: boolean("must_reset_password").notNull().default(false),
   failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
@@ -101,6 +104,8 @@ export const systemSettings = pgTable("system_settings", {
   timezone: text("timezone").notNull().default("America/Denver"),
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1),
   sessionTimeoutMinutes: integer("session_timeout_minutes").notNull().default(60),
+  // Org-wide policy: require every active user to enroll a second factor.
+  requireMfa: boolean("require_mfa").notNull().default(false),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });
@@ -295,6 +300,52 @@ export const crmTasks = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("crm_tasks_bp_id_idx").on(t.bpId), index("crm_tasks_assigned_idx").on(t.assignedToId)],
+);
+
+// ---- MFA ------------------------------------------------------------------
+
+// One TOTP authenticator secret per user (confirmed once a valid code is entered).
+export const mfaTotp = pgTable("mfa_totp", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  secret: text("secret").notNull(),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// FIDO2 / WebAuthn credentials (passkeys, security keys).
+export const webauthnCredentials = pgTable(
+  "webauthn_credentials",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    credentialId: text("credential_id").notNull().unique(), // base64url
+    publicKey: text("public_key").notNull(), // base64url
+    counter: bigint("counter", { mode: "number" }).notNull().default(0),
+    transports: text("transports").array(),
+    deviceName: text("device_name"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  },
+  (t) => [index("webauthn_user_id_idx").on(t.userId)],
+);
+
+// One-time recovery codes (stored hashed).
+export const recoveryCodes = pgTable(
+  "recovery_codes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    codeHash: text("code_hash").notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("recovery_codes_user_id_idx").on(t.userId)],
 );
 
 export type User = typeof users.$inferSelect;

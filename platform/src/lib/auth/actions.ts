@@ -39,6 +39,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     }
     return { error: "Invalid email or password." };
   }
+  if (result.mfaRequired) redirect("/login/mfa");
   if (result.mustReset) redirect("/reset-required");
   redirect("/dashboard");
 }

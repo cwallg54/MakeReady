@@ -17,6 +17,7 @@ export default async function ConfigPage() {
           timezone={settings?.timezone ?? "America/Denver"}
           fiscalYearStartMonth={settings?.fiscalYearStartMonth ?? 1}
           sessionTimeoutMinutes={settings?.sessionTimeoutMinutes ?? 60}
+          requireMfa={settings?.requireMfa ?? false}
         />
       </Card>
 

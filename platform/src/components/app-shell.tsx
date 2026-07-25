@@ -78,7 +78,13 @@ export function AppShell({
                 <span className="ml-1 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">{unreadCount}</span>
               )}
             </Link>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white">{initials}</span>
+            <Link
+              href="/account/security"
+              title="Account security"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-xs font-semibold text-white hover:bg-neutral-700"
+            >
+              {initials}
+            </Link>
             {logoutSlot}
           </div>
         </header>

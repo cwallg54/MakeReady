@@ -28,7 +28,10 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  // Forward the pathname so server layouts can enforce path-aware policy (MFA).
+  const fwd = new Headers(req.headers);
+  fwd.set("x-pathname", pathname);
+  return NextResponse.next({ request: { headers: fwd } });
 }
 
 export const config = {

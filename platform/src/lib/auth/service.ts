@@ -17,11 +17,16 @@ import {
 import { verifyPassword, hashPassword, validatePassword } from "./password";
 import {
   SESSION_COOKIE,
+  MFA_PENDING_COOKIE,
   signSessionToken,
   verifySessionToken,
+  signMfaPendingToken,
+  verifyMfaPendingToken,
   sessionCookieOptions,
+  pendingCookieOptions,
 } from "./session";
 import { audit } from "@/lib/audit";
+import { userHasMfa } from "@/lib/mfa/service";
 
 const LOCK_THRESHOLD = 5;
 const LOCK_MINUTES = 15;
@@ -33,6 +38,7 @@ export interface AuthUser {
   name: string;
   roles: Role[];
   mustResetPassword: boolean;
+  mfaEnabled: boolean;
 }
 
 async function requestMeta() {
@@ -76,6 +82,7 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
     name: user.name,
     roles: roleRows.map((r) => r.role),
     mustResetPassword: user.mustResetPassword,
+    mfaEnabled: user.mfaEnabled,
   };
 });
 
@@ -117,7 +124,7 @@ export async function destroyCurrentSession(): Promise<void> {
 }
 
 export type LoginResult =
-  | { ok: true; mustReset: boolean }
+  | { ok: true; mfaRequired: boolean; mustReset: boolean }
   | { ok: false; error: "invalid" | "locked" };
 
 /** Authenticate by email + password. Generic errors; never reveal whether an email exists. */
@@ -161,12 +168,43 @@ export async function login(
 
   await db
     .update(users)
-    .set({ failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: new Date(), updatedAt: new Date() })
+    .set({ failedLoginAttempts: 0, lockedUntil: null, updatedAt: new Date() })
     .where(eq(users.id, user.id));
+
+  // If the user has a second factor, hold the login pending MFA instead of
+  // creating a full session now.
+  if (await userHasMfa(user.id)) {
+    const token = await signMfaPendingToken(user.id);
+    (await cookies()).set(MFA_PENDING_COOKIE, token, pendingCookieOptions());
+    await audit({ userId: user.id, action: "auth.mfa_challenge", entityType: "user", entityId: user.id, ip });
+    return { ok: true, mfaRequired: true, mustReset: user.mustResetPassword };
+  }
+
   await createSession(user.id, rememberMe);
+  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
   await audit({ userId: user.id, action: "auth.login", entityType: "user", entityId: user.id, ip });
 
-  return { ok: true, mustReset: user.mustResetPassword };
+  return { ok: true, mfaRequired: false, mustReset: user.mustResetPassword };
+}
+
+/** The user id awaiting a second factor (from the pending cookie), or null. */
+export async function getMfaPendingUserId(): Promise<string | null> {
+  const token = (await cookies()).get(MFA_PENDING_COOKIE)?.value;
+  if (!token) return null;
+  return verifyMfaPendingToken(token);
+}
+
+/** Finish an MFA-gated login: create the full session and clear the pending cookie. */
+export async function completeMfaLogin(): Promise<boolean> {
+  const uid = await getMfaPendingUserId();
+  if (!uid) return false;
+  const user = await db.query.users.findFirst({ where: eq(users.id, uid) });
+  if (!user || user.status !== "active") return false;
+  await createSession(uid, false);
+  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, uid));
+  (await cookies()).delete(MFA_PENDING_COOKIE);
+  await audit({ userId: uid, action: "auth.login", entityType: "user", entityId: uid });
+  return true;
 }
 
 async function notifyAdminsOfLockout(lockedUserId: string, lockedEmail: string) {

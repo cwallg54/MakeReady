@@ -225,12 +225,14 @@ export async function updateSettingsAction(_prev: AdminState, formData: FormData
   });
   if (!parsed.success) return { error: "Please check the configuration values." };
 
+  const requireMfa = formData.get("requireMfa") === "on";
+
   await db
     .insert(systemSettings)
-    .values({ id: SYSTEM_SETTINGS_ID, ...parsed.data, updatedBy: admin.id, updatedAt: new Date() })
+    .values({ id: SYSTEM_SETTINGS_ID, ...parsed.data, requireMfa, updatedBy: admin.id, updatedAt: new Date() })
     .onConflictDoUpdate({
       target: systemSettings.id,
-      set: { ...parsed.data, updatedBy: admin.id, updatedAt: new Date() },
+      set: { ...parsed.data, requireMfa, updatedBy: admin.id, updatedAt: new Date() },
     });
 
   await audit({ userId: admin.id, action: "config.update", entityType: "system_settings", entityId: SYSTEM_SETTINGS_ID });
