@@ -46,6 +46,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       children,
     };
   });
+  // Help Center — available to everyone.
+  items.push({ key: "help", label: "Help", href: "/help", phase1: true });
 
   const [unread] = await db
     .select({ n: count() })
