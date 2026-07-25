@@ -188,6 +188,7 @@ export const quoteStatusEnum = pgEnum("quote_status", ["draft", "sent", "accepte
 export const automationTriggerEnum = pgEnum("automation_trigger", ["lead_created", "manual"]);
 export const automationActionEnum = pgEnum("automation_action", ["create_task", "notify_owner", "email_customer"]);
 export const enrollmentStatusEnum = pgEnum("enrollment_status", ["active", "completed", "stopped"]);
+export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "production", "quality", "shipped", "delivered"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -522,3 +523,42 @@ export type QuoteCharge = typeof quoteCharges.$inferSelect;
 export type AutomationCampaign = typeof automationCampaigns.$inferSelect;
 export type AutomationStep = typeof automationSteps.$inferSelect;
 export type AutomationEnrollment = typeof automationEnrollments.$inferSelect;
+
+// ---- Orders + customer-visible progress tracker ---------------------------
+
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderNumber: text("order_number").notNull().unique(),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    quoteId: uuid("quote_id").references(() => quotes.id, { onDelete: "set null" }),
+    stage: orderStageEnum("stage").notNull().default("received"),
+    // Opaque token for the public tracker link (no login required).
+    publicToken: text("public_token").notNull().unique(),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("orders_bp_id_idx").on(t.bpId)],
+);
+
+// Stage-change timeline (drives per-stage timestamps on the tracker).
+export const orderEvents = pgTable(
+  "order_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    stage: orderStageEnum("stage").notNull(),
+    note: text("note"),
+    byUserId: uuid("by_user_id").references(() => users.id, { onDelete: "set null" }),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("order_events_order_id_idx").on(t.orderId)],
+);
+
+export type Order = typeof orders.$inferSelect;
+export type OrderEvent = typeof orderEvents.$inferSelect;

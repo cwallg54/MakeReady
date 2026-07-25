@@ -64,6 +64,13 @@
       "when": 1784944743020,
       "tag": "0008_rapid_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784945584439,
+      "tag": "0009_chief_shiva",
+      "breakpoints": true
     }
   ]
 }

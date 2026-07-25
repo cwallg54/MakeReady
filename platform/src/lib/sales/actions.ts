@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, numberSeries, activities } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, numberSeries, activities, orders, orderEvents } from "@/db/schema";
+import { randomBytes } from "crypto";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -170,6 +171,39 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
     .set({ status: status as "draft" | "sent" | "accepted" | "rejected" | "converted", updatedAt: new Date() })
     .where(eq(quotes.id, id));
   await audit({ userId: user.id, action: "quote.status", entityType: "quote", entityId: id, metadata: { status } });
+
+  // Converting a quote spawns a trackable order (once).
+  if (status === "converted") {
+    const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, id) });
+    const existing = await db.query.orders.findFirst({ where: eq(orders.quoteId, id) });
+    if (quote && !existing) {
+      const orderNumber = await nextSalesOrderNumber();
+      const publicToken = randomBytes(16).toString("hex");
+      const [o] = await db
+        .insert(orders)
+        .values({ orderNumber, bpId: quote.bpId, quoteId: id, publicToken, stage: "received", createdBy: user.id })
+        .returning({ id: orders.id });
+      await db.insert(orderEvents).values({ orderId: o.id, stage: "received", byUserId: user.id });
+      if (quote.bpId) {
+        await db.insert(activities).values({ bpId: quote.bpId, type: "other", isSystem: true, content: `Order ${orderNumber} created from quote ${quote.quoteNumber}` });
+        revalidatePath(`/crm/${quote.bpId}`);
+      }
+      await audit({ userId: user.id, action: "order.create", entityType: "order", entityId: o.id, metadata: { orderNumber } });
+    }
+  }
+
   revalidatePath(`/sales/quotes/${id}`);
   revalidatePath("/sales");
+}
+
+async function nextSalesOrderNumber(): Promise<string> {
+  return db.transaction(async (tx) => {
+    let s = await tx.query.numberSeries.findFirst({ where: eq(numberSeries.documentType, "sales_order") });
+    if (!s) {
+      [s] = await tx.insert(numberSeries).values({ documentType: "sales_order", prefix: "SO-", nextNumber: 1, padding: 5 }).returning();
+    }
+    const n = s.nextNumber;
+    await tx.update(numberSeries).set({ nextNumber: n + 1, updatedAt: new Date() }).where(eq(numberSeries.id, s.id));
+    return `${s.prefix}${String(n).padStart(s.padding, "0")}`;
+  });
 }
