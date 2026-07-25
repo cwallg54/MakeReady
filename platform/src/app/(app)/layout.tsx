@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
-import { visibleModules, ROLE_LABELS } from "@/lib/rbac";
+import { visibleModules, canView, ROLE_LABELS } from "@/lib/rbac";
 import { db } from "@/db";
 import { notifications, systemSettings } from "@/db/schema";
 import { type NavItem } from "@/components/app-nav";
@@ -28,6 +28,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     href: m.phase1 ? m.href : `/module/${m.key}`,
     phase1: m.phase1,
   }));
+  // Team calendar isn't a module — add it to the nav for anyone who can see Sales.
+  if (canView(user.roles, "sales")) {
+    const salesIdx = items.findIndex((i) => i.key === "sales");
+    const calItem = { key: "calendar", label: "Calendar", href: "/calendar", phase1: true };
+    if (salesIdx >= 0) items.splice(salesIdx + 1, 0, calItem);
+    else items.push(calItem);
+  }
 
   const [unread] = await db
     .select({ n: count() })
