@@ -12,8 +12,11 @@ import {
   bpAddresses,
   crmTasks,
   numberSeries,
+  notifications,
+  userRoles,
   activityTypeEnum,
 } from "@/db/schema";
+import { enrollBp } from "@/lib/automation/engine";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView, crmScopedToOwn } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -157,6 +160,21 @@ export async function createBusinessPartnerAction(_prev: CrmState, formData: For
     await logSystem(bp.id, user.id, `Created as ${STAGE_LABEL[d.lifecycleStage ?? "lead"]}`, tx);
     return bp.id;
   });
+
+  // Lead automation: enroll new leads into drip campaigns + alert the owner.
+  const stage = d.lifecycleStage ?? "lead";
+  if (stage === "lead") {
+    await enrollBp(id, "lead_created");
+    if (ownerId) {
+      await db.insert(notifications).values({
+        userId: ownerId,
+        type: "lead",
+        title: `New lead: ${d.companyName}`,
+        body: "A new lead was assigned to you.",
+        link: `/crm/${id}`,
+      });
+    }
+  }
 
   revalidatePath("/crm");
   redirect(`/crm/${id}`);
@@ -429,7 +447,7 @@ export async function createPublicLeadAction(_prev: CrmState, formData: FormData
 
   const bpNumber = await nextBpNumber();
   const { firstName, lastName } = splitName(contactName);
-  await db.transaction(async (tx) => {
+  const newId = await db.transaction(async (tx) => {
     const [bp] = await tx
       .insert(businessPartners)
       .values({ bpNumber, companyName, lifecycleStage: "lead", leadSource: source, phone: phone || null, email })
@@ -440,6 +458,16 @@ export async function createPublicLeadAction(_prev: CrmState, formData: FormData
     }
     await tx.insert(activities).values({ bpId: bp.id, type: "other", isSystem: true, content: `Captured via public lead form (${source})` });
     await audit({ action: "lead.public_create", entityType: "business_partner", entityId: bp.id, metadata: { source } }, tx);
+    return bp.id;
   });
+
+  // Enroll in lead automation + alert sales managers (web leads have no owner yet).
+  await enrollBp(newId, "lead_created");
+  const managers = await db.select({ userId: userRoles.userId }).from(userRoles).where(eq(userRoles.role, "sales_manager"));
+  if (managers.length) {
+    await db.insert(notifications).values(
+      managers.map((mgr) => ({ userId: mgr.userId, type: "lead", title: `New web lead: ${companyName}`, body: `Source: ${source}. Assign an owner in CRM.`, link: `/crm/${newId}` })),
+    );
+  }
   return { ok: true };
 }

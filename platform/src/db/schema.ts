@@ -185,6 +185,9 @@ export const lifecycleStageEnum = pgEnum("lifecycle_stage", [
 export const addressTypeEnum = pgEnum("address_type", ["billing", "shipping", "other"]);
 export const taskStatusEnum = pgEnum("task_status", ["open", "done"]);
 export const quoteStatusEnum = pgEnum("quote_status", ["draft", "sent", "accepted", "rejected", "converted"]);
+export const automationTriggerEnum = pgEnum("automation_trigger", ["lead_created", "manual"]);
+export const automationActionEnum = pgEnum("automation_action", ["create_task", "notify_owner", "email_customer"]);
+export const enrollmentStatusEnum = pgEnum("enrollment_status", ["active", "completed", "stopped"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -459,8 +462,63 @@ export const quoteCharges = pgTable(
   (t) => [index("quote_charges_quote_id_idx").on(t.quoteId)],
 );
 
+// ---- Sales automation / drip campaigns ------------------------------------
+// A campaign is a timed sequence of steps. Enroll a Business Partner (lead) and
+// a daily scheduler fires each step when due (create task, notify, email).
+
+export const automationCampaigns = pgTable("automation_campaigns", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  trigger: automationTriggerEnum("trigger").notNull().default("manual"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const automationSteps = pgTable(
+  "automation_steps",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => automationCampaigns.id, { onDelete: "cascade" }),
+    dayOffset: integer("day_offset").notNull().default(0), // days after enrollment
+    actionType: automationActionEnum("action_type").notNull(),
+    taskTitle: text("task_title"),
+    dueDays: integer("due_days").notNull().default(0), // for create_task
+    notifyMessage: text("notify_message"),
+    emailSubject: text("email_subject"),
+    emailBody: text("email_body"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("automation_steps_campaign_idx").on(t.campaignId)],
+);
+
+export const automationEnrollments = pgTable(
+  "automation_enrollments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => automationCampaigns.id, { onDelete: "cascade" }),
+    bpId: uuid("bp_id")
+      .notNull()
+      .references(() => businessPartners.id, { onDelete: "cascade" }),
+    status: enrollmentStatusEnum("status").notNull().default("active"),
+    nextStepIndex: integer("next_step_index").notNull().default(0),
+    nextRunAt: timestamp("next_run_at", { withTimezone: true }),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    enrolledAt: timestamp("enrolled_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("automation_enrollments_due_idx").on(t.status, t.nextRunAt)],
+);
+
 export type OrderFormTemplate = typeof orderFormTemplates.$inferSelect;
 export type TemplateItem = typeof templateItems.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type QuoteLine = typeof quoteLines.$inferSelect;
 export type QuoteCharge = typeof quoteCharges.$inferSelect;
+export type AutomationCampaign = typeof automationCampaigns.$inferSelect;
+export type AutomationStep = typeof automationSteps.$inferSelect;
+export type AutomationEnrollment = typeof automationEnrollments.$inferSelect;

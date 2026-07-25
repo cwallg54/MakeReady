@@ -36,6 +36,14 @@ export async function sendPasswordResetEmail(to: string, url: string): Promise<v
   );
 }
 
+/** Generic reminder/notification email (used by automation). Returns true if sent. */
+export async function sendReminderEmail(to: string, subject: string, body: string): Promise<boolean> {
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:520px;white-space:pre-wrap">${body
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")}</div>`;
+  return sendEmail(to, subject, html);
+}
+
 export async function sendWelcomeEmail(
   to: string,
   name: string,
