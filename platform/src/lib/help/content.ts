@@ -300,7 +300,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Choose a Customer (optional — you can quote a walk-in) and a Product template, then click \"Create & open builder\".", img: "quote-new.png", caption: "Start a quote by picking a template." },
+          { text: "Choose a Customer and a Product template, then click \"Create & open builder\". The customer box is a search field — start typing a company name or BP number and pick from the results (leave it blank for a walk-in).", img: "quote-new.png", caption: "Start a quote by searching for the customer and picking a template." },
           { text: "In the builder, click \"+ Add line\" for each item. Pick a catalog item to auto-fill its price, or type a custom description. Set the quantity and unit price.", img: "quote-builder.png", caption: "The Quote Builder with line items, charges, and a live total." },
           { text: "Under \"Charges & setup\", tick the charges that apply (setup, decoration, rush, etc.). Some ask for a quantity, like number of colors or hours." },
           { text: "Tick \"Reorder\" if this is a repeat job — new-only setup charges drop off automatically." },
@@ -331,9 +331,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "Open any quote from Sales → Quotes to keep working on it. You can attach or change the customer, edit lines and charges, and email it out." },
       { k: "img", src: "quote-builder.png", caption: "A saved quote with status controls and the email button." },
       { k: "h", text: "Attach a customer" },
-      { k: "p", text: "If you quoted a walk-in, use the \"Customer (Business Partner)\" dropdown and \"Save customer\" to link it. Linking a customer is what lets MakeReady log the quote to their CRM history." },
+      { k: "p", text: "If you quoted a walk-in, search for the company in the \"Customer (Business Partner)\" box and click \"Save customer\" to link it. Linking a customer is what lets MakeReady log the quote to their CRM history." },
       { k: "h", text: "Statuses" },
       { k: "p", text: "Move the quote along with the status buttons: Draft → \"Mark sent\" → \"Accepted\" / \"Rejected\". An accepted quote can be converted to an order. Emailing a draft automatically marks it sent." },
+      { k: "p", text: "While a quote is still a Draft you can remove it with \"Delete draft\". Once it's been sent or converted it can no longer be deleted (it stays on record)." },
       { k: "h", text: "Email to customer" },
       {
         k: "steps",
@@ -378,8 +379,40 @@ export const HELP_ARTICLES: HelpArticle[] = [
       },
       { k: "tip", text: "Stages aren't locked to a fixed order — you can jump ahead or step back if something changes in the shop." },
       { k: "warn", text: "The PDF email is sent by MakeReady's mail provider. Until email delivery is fully configured, sends show as \"queued\" — the PDF is still saved and downloadable in the meantime." },
+      { k: "h", text: "Voiding an order" },
+      { k: "p", text: "If an order is cancelled, scroll to \"Void order\", enter a reason (required), and confirm. The order stays on record marked \"Voided\" with your reason, its stage/PDF/proof actions are locked, and the customer tracker shows the order as canceled." },
     ],
-    related: ["building-a-quote", "customer-order-tracker"],
+    related: ["building-a-quote", "proof-approvals", "customer-order-tracker"],
+  },
+  {
+    slug: "proof-approvals",
+    title: "Proof & art approvals",
+    section: "Sales",
+    summary: "Send the customer a secure link to approve artwork — recorded with a signature, timestamp, and IP address.",
+    who: "Admin, Sales Manager, Sales Rep",
+    blocks: [
+      { k: "p", text: "Before production, get the customer to sign off on the artwork. MakeReady sends a secure approval link and records their decision — so there's always proof of what was approved." },
+      { k: "h", text: "Send a proof" },
+      {
+        k: "steps",
+        items: [
+          { text: "On the order, upload the artwork under \"Attachments\" (image or PDF)." },
+          { text: "In the \"Proof approvals\" section, give the proof a title, pick the artwork file, add an optional message, and click \"Create proof link\"." },
+          { text: "Copy the link or click \"✉ Email link to customer\" to send it in a prefilled message." },
+        ],
+      },
+      { k: "h", text: "What the customer sees" },
+      {
+        k: "steps",
+        items: [
+          { text: "The customer opens the link (no login), reviews the artwork, and chooses Approve, Request changes, or Decline — with notes.", img: "proof.png", caption: "The customer proof-approval page." },
+          { text: "They type their name to sign and submit. You get a notification and the decision is logged to the customer's CRM history." },
+        ],
+      },
+      { k: "tip", text: "Every decision is stamped with the signer's name, the date/time, and their IP address, and shown back on the order — an auditable record of exactly what was approved." },
+      { k: "warn", text: "Approving confirms the artwork is correct (spelling, colors, sizes, placement). If the customer requests changes, send a new proof after the art is revised." },
+    ],
+    related: ["orders-and-production-stages", "customer-order-tracker"],
   },
   {
     slug: "customer-order-tracker",

@@ -12,7 +12,7 @@ import { chromium } from "playwright";
 import { db } from "../src/db";
 import {
   users, sessions, businessPartners, contacts, accountGroups, activities,
-  quotes, quoteLines, quoteCharges, orders, orderEvents, orderSpecItems, orderAttachments, customerDocuments,
+  quotes, quoteLines, quoteCharges, orders, orderEvents, orderSpecItems, orderAttachments, orderProofs, customerDocuments,
   meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings,
 } from "../src/db/schema";
 
@@ -87,10 +87,16 @@ async function main() {
     { orderId: order.id, product: "Premium Tee — Navy", decorationMethod: "Screen Print", placement: "Left chest + full back", colors: "White, Gold", colorCount: 2, sizeBreakdown: "S:50 M:100 L:75 XL:25", notes: "PMS 872 gold on back.", sortOrder: 0 },
     { orderId: order.id, product: "Trucker Hat — Navy/White", decorationMethod: "Embroidery", placement: "Front center", colors: "White + Gold thread", colorCount: 2, sizeBreakdown: "One size: 100", notes: "3D puff on the logo mark.", sortOrder: 1 },
   ]);
-  await db.insert(orderAttachments).values([
+  const [firstAtt] = await db.insert(orderAttachments).values([
     { orderId: order.id, filename: "front-logo-proof.png", mimeType: "image/png", sizeBytes: 70, kind: "mockup", contentBase64: DEMO_PNG, notes: "Customer-approved proof", uploadedBy: admin.id },
     { orderId: order.id, filename: "vector-art.png", mimeType: "image/png", sizeBytes: 70, kind: "art", contentBase64: DEMO_PNG, uploadedBy: admin.id },
-  ]);
+  ]).returning({ id: orderAttachments.id });
+  const proofToken = tok();
+  await db.insert(orderProofs).values({
+    orderId: order.id, attachmentId: firstAtt.id, token: proofToken,
+    title: "Front & back proof — SO-DEMO1", message: "Please confirm spelling, colors, and placement before we print.",
+    requestedBy: admin.id,
+  });
 
   const applyToken = tok();
   const [pendingDoc] = await db.insert(customerDocuments).values({
@@ -155,6 +161,7 @@ async function main() {
     ["schedule", "/schedule/cwall"],
     ["apply", `/apply/${applyToken}`],
     ["track", `/track/${orderToken}`],
+    ["proof", `/proof/${proofToken}`],
   ];
 
   const browser = await chromium.launch();
