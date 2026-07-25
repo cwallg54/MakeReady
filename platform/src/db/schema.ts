@@ -191,6 +191,7 @@ export const enrollmentStatusEnum = pgEnum("enrollment_status", ["active", "comp
 export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "production", "quality", "shipped", "delivered"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
+export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -610,3 +611,70 @@ export const customerDocuments = pgTable(
 );
 
 export type CustomerDocument = typeof customerDocuments.$inferSelect;
+
+// ---- Scheduling / calendar ------------------------------------------------
+
+export const meetingTypes = pgTable("meeting_types", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  durationMin: integer("duration_min").notNull().default(30),
+  description: text("description"),
+  color: text("color").notNull().default("blue"),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// One public scheduling profile per salesperson.
+export const schedulingProfiles = pgTable("scheduling_profiles", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  slug: text("slug").notNull().unique(),
+  timezone: text("timezone").notNull().default("America/Denver"),
+  active: boolean("active").notNull().default(true),
+  minNoticeHours: integer("min_notice_hours").notNull().default(12),
+  slotIntervalMin: integer("slot_interval_min").notNull().default(30),
+  bookingWindowDays: integer("booking_window_days").notNull().default(21),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const availabilityBlocks = pgTable(
+  "availability_blocks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    weekday: integer("weekday").notNull(), // 0=Sun .. 6=Sat
+    startMin: integer("start_min").notNull(), // minutes from local midnight
+    endMin: integer("end_min").notNull(),
+  },
+  (t) => [index("availability_user_idx").on(t.userId)],
+);
+
+export const meetings = pgTable(
+  "meetings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    meetingTypeId: uuid("meeting_type_id").references(() => meetingTypes.id),
+    hostUserId: uuid("host_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    attendeeName: text("attendee_name").notNull(),
+    attendeeEmail: text("attendee_email"),
+    attendeePhone: text("attendee_phone"),
+    startAt: timestamp("start_at", { withTimezone: true }).notNull(),
+    endAt: timestamp("end_at", { withTimezone: true }).notNull(),
+    status: meetingStatusEnum("status").notNull().default("scheduled"),
+    notes: text("notes"),
+    source: text("source").notNull().default("public"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("meetings_host_idx").on(t.hostUserId), index("meetings_start_idx").on(t.startAt)],
+);
+
+export type MeetingType = typeof meetingTypes.$inferSelect;
+export type SchedulingProfile = typeof schedulingProfiles.$inferSelect;
+export type AvailabilityBlock = typeof availabilityBlocks.$inferSelect;
+export type Meeting = typeof meetings.$inferSelect;

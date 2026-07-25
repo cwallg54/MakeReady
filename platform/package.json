@@ -19,6 +19,7 @@
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.4",
+    "luxon": "^3.7.2",
     "next": "16.2.11",
     "otpauth": "^9.5.1",
     "pdf-lib": "^1.17.1",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",
+    "@types/luxon": "^3.7.2",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",

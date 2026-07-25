@@ -47,6 +47,7 @@ export default async function SalesPage() {
         description="Build quotes from product templates with automatic pricing."
         action={
           <div className="flex gap-2">
+            <Link href="/calendar" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Calendar</Link>
             <Link href="/sales/orders" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Orders</Link>
             {editable && <Link href="/sales/quotes/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">New quote</Link>}
           </div>

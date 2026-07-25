@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/auth/guards";
 import { hasTotp, listCredentials, remainingRecoveryCodes, userHasMfa } from "@/lib/mfa/service";
 import { fmtDate } from "@/lib/format";
@@ -17,7 +18,11 @@ export default async function SecurityPage() {
 
   return (
     <div className="max-w-2xl">
-      <PageHeader title="Security" description="Protect your account with two-factor authentication." />
+      <PageHeader
+        title="Security"
+        description="Protect your account with two-factor authentication."
+        action={<Link href="/account/scheduling" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Scheduling →</Link>}
+      />
 
       <div
         className={`mb-6 rounded-lg border px-4 py-3 text-sm ${

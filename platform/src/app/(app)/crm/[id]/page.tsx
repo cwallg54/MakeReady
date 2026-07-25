@@ -4,7 +4,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
-import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments } from "@/db/schema";
+import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles } from "@/db/schema";
 import { FinancialDocs } from "@/components/crm/financial-docs";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
@@ -66,6 +66,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   ]);
   const docs = await db.select().from(customerDocuments).where(eq(customerDocuments.bpId, id)).orderBy(desc(customerDocuments.createdAt));
   const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
+  const ownerSchedule = bp.ownerId ? await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, bp.ownerId) }) : null;
 
   return (
     <div className="max-w-5xl">
@@ -107,6 +108,14 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
           )}
         </div>
       </div>
+
+      {ownerSchedule?.active && (
+        <div className="mb-6">
+          <a href={`${baseUrl}/schedule/${ownerSchedule.slug}`} target="_blank" className="inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">
+            📅 Book a meeting with {owner?.name ?? "the owner"}
+          </a>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
