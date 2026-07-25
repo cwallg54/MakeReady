@@ -17,6 +17,7 @@ import {
   activityTypeEnum,
 } from "@/db/schema";
 import { enrollBp } from "@/lib/automation/engine";
+import { requestDocumentForBp } from "@/lib/documents/actions";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView, crmScopedToOwn } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -160,6 +161,12 @@ export async function createBusinessPartnerAction(_prev: CrmState, formData: For
     await logSystem(bp.id, user.id, `Created as ${STAGE_LABEL[d.lifecycleStage ?? "lead"]}`, tx);
     return bp.id;
   });
+
+  // Optionally send a financial application as part of intake.
+  const paymentApp = String(formData.get("paymentApp") ?? "");
+  if (paymentApp === "terms_application" || paymentApp === "credit_card_application") {
+    await requestDocumentForBp(id, paymentApp, user.id);
+  }
 
   // Lead automation: enroll new leads into drip campaigns + alert the owner.
   const stage = d.lifecycleStage ?? "lead";

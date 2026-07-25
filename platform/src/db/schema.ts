@@ -189,6 +189,8 @@ export const automationTriggerEnum = pgEnum("automation_trigger", ["lead_created
 export const automationActionEnum = pgEnum("automation_action", ["create_task", "notify_owner", "email_customer"]);
 export const enrollmentStatusEnum = pgEnum("enrollment_status", ["active", "completed", "stopped"]);
 export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "production", "quality", "shipped", "delivered"]);
+export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
+export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -583,3 +585,28 @@ export const orderArtifacts = pgTable(
 export type Order = typeof orders.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;
 export type OrderArtifact = typeof orderArtifacts.$inferSelect;
+
+// ---- Secure customer intake documents (terms / credit card applications) ---
+// Customer completes these via a token link — no sensitive data over email.
+// (The credit card application intentionally does NOT capture card numbers.)
+export const customerDocuments = pgTable(
+  "customer_documents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id")
+      .notNull()
+      .references(() => businessPartners.id, { onDelete: "cascade" }),
+    docType: customerDocTypeEnum("doc_type").notNull(),
+    token: text("token").notNull().unique(),
+    status: customerDocStatusEnum("status").notNull().default("pending"),
+    data: jsonb("data"), // submitted field values
+    signedName: text("signed_name"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    ip: text("ip"),
+    requestedBy: uuid("requested_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("customer_documents_bp_id_idx").on(t.bpId)],
+);
+
+export type CustomerDocument = typeof customerDocuments.$inferSelect;

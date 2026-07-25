@@ -70,6 +70,16 @@ export function BpCreateForm({
             />
           )}
           <AdminField label="Tags" name="tags" hint="Comma-separated, e.g. VIP, screen-print" />
+          <AdminSelect
+            label="Send financial application"
+            name="paymentApp"
+            defaultValue=""
+            options={[
+              { value: "", label: "— None for now —" },
+              { value: "terms_application", label: "Terms / Credit Application (Net 30)" },
+              { value: "credit_card_application", label: "Credit Card Application" },
+            ]}
+          />
         </div>
       </section>
 

@@ -4,7 +4,8 @@ import { asc, desc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
-import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks } from "@/db/schema";
+import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments } from "@/db/schema";
+import { FinancialDocs } from "@/components/crm/financial-docs";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
 import { ContactsManager } from "@/components/crm/contacts-manager";
@@ -63,6 +64,8 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
     db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).orderBy(asc(accountGroups.name)),
     editable && !scoped ? getAssignableUsers() : Promise.resolve([]),
   ]);
+  const docs = await db.select().from(customerDocuments).where(eq(customerDocuments.bpId, id)).orderBy(desc(customerDocuments.createdAt));
+  const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
 
   return (
     <div className="max-w-5xl">
@@ -269,6 +272,13 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
               </form>
             )}
           </Card>
+
+          <FinancialDocs
+            bpId={bp.id}
+            editable={editable}
+            baseUrl={baseUrl}
+            docs={docs.map((d) => ({ id: d.id, docType: d.docType, token: d.token, status: d.status, createdAt: d.createdAt, submittedAt: d.submittedAt }))}
+          />
         </div>
       </div>
     </div>
