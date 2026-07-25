@@ -184,6 +184,7 @@ export const lifecycleStageEnum = pgEnum("lifecycle_stage", [
 
 export const addressTypeEnum = pgEnum("address_type", ["billing", "shipping", "other"]);
 export const taskStatusEnum = pgEnum("task_status", ["open", "done"]);
+export const quoteStatusEnum = pgEnum("quote_status", ["draft", "sent", "accepted", "rejected", "converted"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -359,3 +360,100 @@ export type AccountGroup = typeof accountGroups.$inferSelect;
 export type Activity = typeof activities.$inferSelect;
 export type BpAddress = typeof bpAddresses.$inferSelect;
 export type CrmTask = typeof crmTasks.$inferSelect;
+
+// ---- Order-form / Quote engine (Sales, Phase 2) ---------------------------
+// One configurable engine drives all product order forms. Each product type is
+// an order_form_template with a catalog (template_items) and typed charge rules.
+
+// A charge rule stored in template.charges (jsonb):
+// { key, label, type: "flat"|"per_unit"|"per_color"|"per_hour"|"percent",
+//   rate: number, unit?: string, appliesWhen?: "always"|"new"|"reorder" }
+export const orderFormTemplates = pgTable("order_form_templates", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  active: boolean("active").notNull().default(true),
+  // Optional apparel size/variant labels (e.g. ["S","M","L","XL"]); null = no matrix.
+  sizeOptions: text("size_options").array(),
+  charges: jsonb("charges"), // ChargeRule[]
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const templateItems = pgTable(
+  "template_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id")
+      .notNull()
+      .references(() => orderFormTemplates.id, { onDelete: "cascade" }),
+    code: text("code"),
+    name: text("name").notNull(),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull().default("0"),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("template_items_template_id_idx").on(t.templateId)],
+);
+
+export const quotes = pgTable(
+  "quotes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    quoteNumber: text("quote_number").notNull().unique(),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    templateId: uuid("template_id").references(() => orderFormTemplates.id),
+    status: quoteStatusEnum("status").notNull().default("draft"),
+    isReorder: boolean("is_reorder").notNull().default(false),
+    discount: numeric("discount", { precision: 12, scale: 2 }).notNull().default("0"),
+    subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull().default("0"),
+    chargesTotal: numeric("charges_total", { precision: 12, scale: 2 }).notNull().default("0"),
+    total: numeric("total", { precision: 12, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("quotes_bp_id_idx").on(t.bpId)],
+);
+
+export const quoteLines = pgTable(
+  "quote_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    itemCode: text("item_code"),
+    description: text("description").notNull(),
+    qty: integer("qty").notNull().default(0),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull().default("0"),
+    extended: numeric("extended", { precision: 12, scale: 2 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("quote_lines_quote_id_idx").on(t.quoteId)],
+);
+
+export const quoteCharges = pgTable(
+  "quote_charges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    type: text("type").notNull(),
+    rate: numeric("rate", { precision: 12, scale: 2 }).notNull().default("0"),
+    inputQty: numeric("input_qty", { precision: 12, scale: 2 }).notNull().default("1"),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull().default("0"),
+  },
+  (t) => [index("quote_charges_quote_id_idx").on(t.quoteId)],
+);
+
+export type OrderFormTemplate = typeof orderFormTemplates.$inferSelect;
+export type TemplateItem = typeof templateItems.$inferSelect;
+export type Quote = typeof quotes.$inferSelect;
+export type QuoteLine = typeof quoteLines.$inferSelect;
+export type QuoteCharge = typeof quoteCharges.$inferSelect;

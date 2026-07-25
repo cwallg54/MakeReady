@@ -43,6 +43,13 @@
       "when": 1784939663714,
       "tag": "0005_low_darkhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784942924195,
+      "tag": "0006_blue_morlocks",
+      "breakpoints": true
     }
   ]
 }
