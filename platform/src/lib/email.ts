@@ -5,25 +5,45 @@ import "server-only";
  * messages are logged to the server console so flows are testable in dev.
  * Returns true if actually sent via the provider.
  */
-async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+export interface EmailAttachment {
+  filename: string;
+  content: string; // base64
+}
+
+async function sendEmail(to: string, subject: string, html: string, attachments?: EmailAttachment[]): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
 
   if (!apiKey || !from) {
-    console.info(`[email:dev] To ${to} — ${subject}\n${html}`);
+    console.info(`[email:dev] To ${to} — ${subject}${attachments?.length ? ` (+${attachments.length} attachment)` : ""}`);
     return false;
   }
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject, html }),
+    body: JSON.stringify({ from, to, subject, html, ...(attachments?.length ? { attachments } : {}) }),
   });
   if (!res.ok) {
     console.error(`[email] send failed: ${res.status} ${await res.text()}`);
     return false;
   }
   return true;
+}
+
+/** Email a sales-order PDF to the customer. Returns true if actually sent. */
+export async function sendOrderEmail(to: string, orderNumber: string, pdfBase64: string, filename: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Great Mountain West — Sales Order ${orderNumber}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>Please find your sales order <strong>${orderNumber}</strong> attached as a PDF.</p>
+       <p>Thank you for your business.</p>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+    [{ filename, content: pdfBase64 }],
+  );
 }
 
 export async function sendPasswordResetEmail(to: string, url: string): Promise<void> {

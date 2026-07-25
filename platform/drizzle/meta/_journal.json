@@ -71,6 +71,13 @@
       "when": 1784945584439,
       "tag": "0009_chief_shiva",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784946104855,
+      "tag": "0010_fuzzy_speedball",
+      "breakpoints": true
     }
   ]
 }

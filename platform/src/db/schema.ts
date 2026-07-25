@@ -560,5 +560,26 @@ export const orderEvents = pgTable(
   (t) => [index("order_events_order_id_idx").on(t.orderId)],
 );
 
+// Generated documents attached to an order (e.g. the sales-order PDF).
+export const orderArtifacts = pgTable(
+  "order_artifacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull().default("application/pdf"),
+    contentBase64: text("content_base64").notNull(),
+    sentTo: text("sent_to"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    sendStatus: text("send_status").notNull().default("saved"), // saved | sent | queued | failed
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("order_artifacts_order_id_idx").on(t.orderId)],
+);
+
 export type Order = typeof orders.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;
+export type OrderArtifact = typeof orderArtifacts.$inferSelect;

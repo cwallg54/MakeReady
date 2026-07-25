@@ -4,13 +4,14 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { orders, orderEvents, businessPartners, contacts } from "@/db/schema";
+import { orders, orderEvents, orderArtifacts, businessPartners, contacts } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { fmtDateTime } from "@/lib/format";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
-import { setOrderStageAction } from "@/lib/orders/actions";
+import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
+import { desc } from "drizzle-orm";
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireModule("sales");
@@ -19,9 +20,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
   if (!order) notFound();
-  const [bp, events] = await Promise.all([
+  const [bp, events, artifacts] = await Promise.all([
     order.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : Promise.resolve(undefined),
     db.select().from(orderEvents).where(eq(orderEvents.orderId, id)).orderBy(asc(orderEvents.at)),
+    db.select().from(orderArtifacts).where(eq(orderArtifacts.orderId, id)).orderBy(desc(orderArtifacts.createdAt)),
   ]);
 
   const reachedAt: Partial<Record<OrderStage, string>> = {};
@@ -65,6 +67,35 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               </form>
             ))}
           </div>
+        </Card>
+      )}
+
+      {editable && (
+        <Card className="mb-6">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-neutral-900">Sales order PDF</h2>
+            <form action={emailOrderPdfAction}>
+              <input type="hidden" name="id" value={order.id} />
+              <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">
+                {artifacts.length ? "Regenerate & resend PDF" : "Generate & email PDF"}
+              </button>
+            </form>
+          </div>
+          <p className="mb-3 text-xs text-neutral-500">Generates a PDF sales order, saves it here, and emails it to the customer. Use “resend” if they didn&apos;t receive it.</p>
+          <ul className="space-y-1">
+            {artifacts.length === 0 && <li className="text-sm text-neutral-400">No documents generated yet.</li>}
+            {artifacts.map((a) => (
+              <li key={a.id} className="flex items-center justify-between text-sm">
+                <a href={`/sales/orders/${order.id}/artifact/${a.id}`} target="_blank" className="font-medium text-neutral-900 hover:underline">{a.filename}</a>
+                <span className="text-xs text-neutral-400">
+                  {fmtDateTime(a.createdAt)} ·{" "}
+                  <span className={a.sendStatus === "sent" ? "text-emerald-600" : a.sendStatus === "queued" ? "text-amber-600" : "text-neutral-500"}>
+                    {a.sendStatus === "sent" ? `emailed to ${a.sentTo}` : a.sendStatus === "queued" ? "queued (email not live yet)" : "saved"}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
         </Card>
       )}
 
