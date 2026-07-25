@@ -8,9 +8,9 @@ import { automationCampaigns, automationSteps } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
 
-async function assertAdmin() {
+async function assertManager() {
   const user = await getCurrentUser();
-  if (!user || !user.roles.includes("admin")) redirect("/403");
+  if (!user || !(user.roles.includes("admin") || user.roles.includes("sales_manager"))) redirect("/403");
   return user;
 }
 
@@ -19,7 +19,7 @@ export interface CampaignState {
 }
 
 export async function createCampaignAction(_prev: CampaignState, formData: FormData): Promise<CampaignState> {
-  const admin = await assertAdmin();
+  const admin = await assertManager();
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Name is required." };
   const trigger = String(formData.get("trigger") ?? "manual") === "lead_created" ? "lead_created" : "manual";
@@ -28,11 +28,11 @@ export async function createCampaignAction(_prev: CampaignState, formData: FormD
     .values({ name, description: String(formData.get("description") ?? "").trim() || null, trigger })
     .returning({ id: automationCampaigns.id });
   await audit({ userId: admin.id, action: "campaign.create", entityType: "automation_campaign", entityId: c.id, metadata: { name } });
-  redirect(`/admin/automations/${c.id}`);
+  redirect(`/sales/automations/${c.id}`);
 }
 
 export async function updateCampaignAction(_prev: CampaignState, formData: FormData): Promise<CampaignState> {
-  const admin = await assertAdmin();
+  const admin = await assertManager();
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   if (!id || !name) return { error: "Name is required." };
@@ -47,12 +47,12 @@ export async function updateCampaignAction(_prev: CampaignState, formData: FormD
     })
     .where(eq(automationCampaigns.id, id));
   await audit({ userId: admin.id, action: "campaign.update", entityType: "automation_campaign", entityId: id });
-  revalidatePath(`/admin/automations/${id}`);
+  revalidatePath(`/sales/automations/${id}`);
   return {};
 }
 
 export async function addStepAction(formData: FormData): Promise<void> {
-  const admin = await assertAdmin();
+  const admin = await assertManager();
   const campaignId = String(formData.get("campaignId") ?? "");
   const actionType = String(formData.get("actionType") ?? "");
   if (!campaignId || !["create_task", "notify_owner", "email_customer"].includes(actionType)) return;
@@ -69,14 +69,14 @@ export async function addStepAction(formData: FormData): Promise<void> {
     sortOrder: n,
   });
   await audit({ userId: admin.id, action: "campaign.step_add", entityType: "automation_campaign", entityId: campaignId });
-  revalidatePath(`/admin/automations/${campaignId}`);
+  revalidatePath(`/sales/automations/${campaignId}`);
 }
 
 export async function removeStepAction(formData: FormData): Promise<void> {
-  const admin = await assertAdmin();
+  const admin = await assertManager();
   const campaignId = String(formData.get("campaignId") ?? "");
   const stepId = String(formData.get("stepId") ?? "");
   await db.delete(automationSteps).where(and(eq(automationSteps.id, stepId), eq(automationSteps.campaignId, campaignId)));
   await audit({ userId: admin.id, action: "campaign.step_remove", entityType: "automation_campaign", entityId: campaignId });
-  revalidatePath(`/admin/automations/${campaignId}`);
+  revalidatePath(`/sales/automations/${campaignId}`);
 }

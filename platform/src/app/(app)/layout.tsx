@@ -31,6 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     sales: [
       { key: "sales-quotes", label: "Quotes", href: "/sales", phase1: true },
       { key: "sales-orders", label: "Orders", href: "/sales/orders", phase1: true },
+      { key: "sales-automations", label: "Automations", href: "/sales/automations", phase1: true },
       { key: "sales-calendar", label: "Calendar", href: "/calendar", phase1: true },
     ],
   };
