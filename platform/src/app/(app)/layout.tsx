@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
-import { visibleModules, canView, ROLE_LABELS } from "@/lib/rbac";
+import { visibleModules, ROLE_LABELS } from "@/lib/rbac";
 import { db } from "@/db";
 import { notifications, systemSettings } from "@/db/schema";
 import { type NavItem } from "@/components/app-nav";
@@ -22,19 +22,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }
   }
 
-  const items: NavItem[] = visibleModules(user.roles).map((m) => ({
-    key: m.key,
-    label: m.label,
-    href: m.phase1 ? m.href : `/module/${m.key}`,
-    phase1: m.phase1,
-  }));
-  // Team calendar isn't a module — add it to the nav for anyone who can see Sales.
-  if (canView(user.roles, "sales")) {
-    const salesIdx = items.findIndex((i) => i.key === "sales");
-    const calItem = { key: "calendar", label: "Calendar", href: "/calendar", phase1: true };
-    if (salesIdx >= 0) items.splice(salesIdx + 1, 0, calItem);
-    else items.push(calItem);
-  }
+  // Sub-menu definitions: modules that expand into collapsible children.
+  const SUBMENUS: Record<string, NavItem[]> = {
+    crm: [
+      { key: "crm-bp", label: "Business Partners", href: "/crm", phase1: true },
+      { key: "crm-pipeline", label: "Pipeline", href: "/crm/pipeline", phase1: true },
+    ],
+    sales: [
+      { key: "sales-quotes", label: "Quotes", href: "/sales", phase1: true },
+      { key: "sales-orders", label: "Orders", href: "/sales/orders", phase1: true },
+      { key: "sales-calendar", label: "Calendar", href: "/calendar", phase1: true },
+    ],
+  };
+
+  const items: NavItem[] = visibleModules(user.roles).map((m) => {
+    const children = m.phase1 ? SUBMENUS[m.key] : undefined;
+    return {
+      key: m.key,
+      label: m.label,
+      href: children ? undefined : m.phase1 ? m.href : `/module/${m.key}`,
+      phase1: m.phase1,
+      children,
+    };
+  });
 
   const [unread] = await db
     .select({ n: count() })
