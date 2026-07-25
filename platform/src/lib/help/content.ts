@@ -354,6 +354,17 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "When a quote is accepted, convert it into a trackable order. On the quote, click \"Convert to order\" — this creates the order once, with its own number and a customer tracking link." },
       { k: "img", src: "order-detail.png", caption: "An order with its progress tracker, stage controls, and PDF tools." },
+      { k: "h", text: "Production details & artwork" },
+      { k: "p", text: "After the order is created, capture exactly what the customer wants made. The \"Production details\" section works for apparel and non-apparel alike — tees, hats, cups, and promo items." },
+      {
+        k: "steps",
+        items: [
+          { text: "Set an In-hands date and any special instructions (shipping, packaging, folding, individual bagging, deadlines).", img: "order-production.png", caption: "Production details and attachments on an order." },
+          { text: "Add an item for each product. Each captures the product, decoration method (screen print, embroidery, DTG, pad print, laser engraving, and more), placement, colors and color count, and a size/quantity breakdown (e.g. \"S:50 M:100 L:75\", or \"One size: 100\" for hats/cups)." },
+          { text: "Under \"Attachments\", upload art files, mockups, and reference photos (images, PDF, AI, EPS, PSD — up to 15 MB each). Images preview inline; label each as Art, Mockup, or Reference." },
+        ],
+      },
+      { k: "tip", text: "Production details and item specs are included on the generated sales-order PDF, so the shop floor gets everything in one document." },
       { k: "h", text: "Advancing stages" },
       { k: "p", text: "Orders move through six stages: Order Received → Art & Proof → In Production → Quality Check → Shipped → Delivered. Under \"Update stage\", click the stage the order has reached. Each change is timestamped on the tracker and logged to the customer's history." },
       { k: "h", text: "The sales-order PDF" },

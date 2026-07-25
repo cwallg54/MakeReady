@@ -12,9 +12,11 @@ import { chromium } from "playwright";
 import { db } from "../src/db";
 import {
   users, sessions, businessPartners, contacts, accountGroups, activities,
-  quotes, quoteLines, quoteCharges, orders, orderEvents, customerDocuments,
+  quotes, quoteLines, quoteCharges, orders, orderEvents, orderSpecItems, orderAttachments, customerDocuments,
   meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings,
 } from "../src/db/schema";
+
+const DEMO_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
 const BASE = "https://makeready.g54.com";
 const OUT = "public/help";
@@ -72,12 +74,22 @@ async function main() {
   const orderToken = tok();
   const [order] = await db.insert(orders).values({
     orderNumber: "SO-DEMO1", bpId: bp.id, quoteId: quote.id, stage: "production",
-    publicToken: orderToken, createdBy: admin.id,
+    publicToken: orderToken, inHandsDate: new Date(Date.now() + 10 * 86400000),
+    productionNotes: "Fold and individually poly-bag. Approved proof attached. Ship 2-day for the Q3 event.",
+    createdBy: admin.id,
   }).returning({ id: orders.id });
   await db.insert(orderEvents).values([
     { orderId: order.id, stage: "received", byUserId: admin.id, at: daysAgo(2) },
     { orderId: order.id, stage: "art_proof", byUserId: admin.id, at: daysAgo(1) },
     { orderId: order.id, stage: "production", byUserId: admin.id, at: daysAgo(0) },
+  ]);
+  await db.insert(orderSpecItems).values([
+    { orderId: order.id, product: "Premium Tee — Navy", decorationMethod: "Screen Print", placement: "Left chest + full back", colors: "White, Gold", colorCount: 2, sizeBreakdown: "S:50 M:100 L:75 XL:25", notes: "PMS 872 gold on back.", sortOrder: 0 },
+    { orderId: order.id, product: "Trucker Hat — Navy/White", decorationMethod: "Embroidery", placement: "Front center", colors: "White + Gold thread", colorCount: 2, sizeBreakdown: "One size: 100", notes: "3D puff on the logo mark.", sortOrder: 1 },
+  ]);
+  await db.insert(orderAttachments).values([
+    { orderId: order.id, filename: "front-logo-proof.png", mimeType: "image/png", sizeBytes: 70, kind: "mockup", contentBase64: DEMO_PNG, notes: "Customer-approved proof", uploadedBy: admin.id },
+    { orderId: order.id, filename: "vector-art.png", mimeType: "image/png", sizeBytes: 70, kind: "art", contentBase64: DEMO_PNG, uploadedBy: admin.id },
   ]);
 
   const applyToken = tok();
@@ -163,6 +175,16 @@ async function main() {
   await authCtx.addCookies([{ name: "mr_session", value: jwt, domain: "makeready.g54.com", path: "/", httpOnly: true, secure: true, sameSite: "Lax", expires: Math.floor(exp.getTime() / 1000) }]);
   console.log("Authenticated screenshots:");
   for (const [n, p] of authed) await shoot(authCtx, n, p);
+
+  // Full-page shot of the order to show production details + attachments below the fold.
+  {
+    const pp = await authCtx.newPage();
+    await pp.goto(`${BASE}/sales/orders/${order.id}`, { waitUntil: "networkidle", timeout: 45000 }).catch(() => {});
+    await pp.waitForTimeout(1200);
+    await pp.screenshot({ path: `${OUT}/order-production.png`, fullPage: true });
+    await pp.close();
+    console.log(`  ✓ order-production.png  (/sales/orders/${order.id}, full page)`);
+  }
 
   const pubCtx = await browser.newContext({ viewport: { width: 1280, height: 1000 }, deviceScaleFactor: 2 });
   console.log("Public screenshots:");
