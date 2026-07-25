@@ -189,6 +189,7 @@ export const automationTriggerEnum = pgEnum("automation_trigger", ["lead_created
 export const automationActionEnum = pgEnum("automation_action", ["create_task", "notify_owner", "email_customer"]);
 export const enrollmentStatusEnum = pgEnum("enrollment_status", ["active", "completed", "stopped"]);
 export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "production", "quality", "shipped", "delivered"]);
+export const proofStatusEnum = pgEnum("proof_status", ["pending", "approved", "changes_requested", "declined"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
@@ -629,11 +630,37 @@ export const orderAttachments = pgTable(
   (t) => [index("order_attachments_order_id_idx").on(t.orderId)],
 );
 
+// Customer-facing art/proof approvals. A proof references an uploaded
+// attachment (the artwork) and is sent to the customer via a token link.
+// The customer's decision is captured with a typed signature + IP + timestamp.
+export const orderProofs = pgTable(
+  "order_proofs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    attachmentId: uuid("attachment_id").references(() => orderAttachments.id, { onDelete: "set null" }),
+    token: text("token").notNull().unique(),
+    title: text("title").notNull().default("Proof"),
+    message: text("message"), // optional note from the salesperson
+    status: proofStatusEnum("status").notNull().default("pending"),
+    responseNotes: text("response_notes"), // customer's notes with their decision
+    signedName: text("signed_name"),
+    respondedAt: timestamp("responded_at", { withTimezone: true }),
+    ip: text("ip"),
+    requestedBy: uuid("requested_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("order_proofs_order_id_idx").on(t.orderId)],
+);
+
 export type Order = typeof orders.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;
 export type OrderArtifact = typeof orderArtifacts.$inferSelect;
 export type OrderSpecItem = typeof orderSpecItems.$inferSelect;
 export type OrderAttachment = typeof orderAttachments.$inferSelect;
+export type OrderProof = typeof orderProofs.$inferSelect;
 
 // ---- Secure customer intake documents (terms / credit card applications) ---
 // Customer completes these via a token link — no sensitive data over email.

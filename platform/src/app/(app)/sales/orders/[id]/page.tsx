@@ -4,11 +4,12 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, businessPartners, contacts } from "@/db/schema";
+import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { fmtDateTime } from "@/lib/format";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { ProductionDetails } from "@/components/orders/production-details";
+import { OrderProofs } from "@/components/orders/order-proofs";
 import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
 import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
@@ -21,12 +22,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
   if (!order) notFound();
-  const [bp, events, artifacts, specItems, attachments] = await Promise.all([
+  const [bp, events, artifacts, specItems, attachments, proofs] = await Promise.all([
     order.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : Promise.resolve(undefined),
     db.select().from(orderEvents).where(eq(orderEvents.orderId, id)).orderBy(asc(orderEvents.at)),
     db.select().from(orderArtifacts).where(eq(orderArtifacts.orderId, id)).orderBy(desc(orderArtifacts.createdAt)),
     db.select().from(orderSpecItems).where(eq(orderSpecItems.orderId, id)).orderBy(asc(orderSpecItems.sortOrder)),
     db.select().from(orderAttachments).where(eq(orderAttachments.orderId, id)).orderBy(desc(orderAttachments.createdAt)),
+    db.select().from(orderProofs).where(eq(orderProofs.orderId, id)).orderBy(desc(orderProofs.createdAt)),
   ]);
 
   const reachedAt: Partial<Record<OrderStage, string>> = {};
@@ -74,6 +76,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       )}
 
       <ProductionDetails order={order} specItems={specItems} attachments={attachments} editable={editable} />
+
+      <OrderProofs order={order} proofs={proofs} attachments={attachments} editable={editable} baseUrl={base} toEmail={toEmail} />
 
       {editable && (
         <Card className="mb-6">
