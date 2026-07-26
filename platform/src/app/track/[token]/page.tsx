@@ -1,10 +1,11 @@
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderEvents, businessPartners } from "@/db/schema";
+import { orders, orderEvents, businessPartners, orderProofs } from "@/db/schema";
 import { Logo } from "@/components/logo";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
 import { fmtDateTime } from "@/lib/format";
+import { ProofDecisionForm } from "@/app/proof/[token]/proof-decision-form";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,11 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   for (const e of events) if (!reachedAt[e.stage]) reachedAt[e.stage] = fmtDateTime(e.at);
   const current = ORDER_STAGES.find((s) => s.key === order.stage)!;
 
+  // A pending proof (proposed artwork) is delivered right here on the tracker.
+  const proof = await db.query.orderProofs.findFirst({
+    where: and(eq(orderProofs.orderId, order.id), eq(orderProofs.status, "pending")),
+  });
+
   return (
     <div className="min-h-screen bg-neutral-100 px-4 py-10">
       <div className="mx-auto max-w-3xl">
@@ -59,6 +65,21 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
               <OrderTracker currentStage={order.stage} reachedAt={reachedAt} variant="customer" />
             </div>
           </div>
+
+          {proof && (
+            <div className="mt-8 rounded-xl border border-blue-200 bg-blue-50/60 p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Proof ready for your approval</p>
+              <h2 className="mt-1 text-base font-semibold text-neutral-900">{proof.title}</h2>
+              {proof.message && <p className="mt-1 text-sm text-neutral-600">{proof.message}</p>}
+              {proof.attachmentId && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={`/proof/${proof.token}/image`} alt={proof.title} className="mt-4 max-h-[28rem] w-full rounded-lg border border-neutral-200 bg-white object-contain" />
+              )}
+              <div className="mt-4">
+                <ProofDecisionForm token={proof.token} />
+              </div>
+            </div>
+          )}
 
           <p className="mt-8 text-xs text-neutral-400">Last updated {fmtDateTime(order.updatedAt)} · Times shown in Mountain Time.</p>
         </div>

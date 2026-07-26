@@ -6,7 +6,7 @@ import { orderFormTemplates, templateItems } from "@/db/schema";
 import { Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import type { ChargeRule, PriceBreak } from "@/lib/sales/pricing";
-import { addChargeAction, removeChargeAction, addItemAction, updateItemAction, removeItemAction } from "@/lib/sales/template-actions";
+import { addChargeAction, removeChargeAction, addItemAction, updateItemAction, removeItemAction, setItemImageAction } from "@/lib/sales/template-actions";
 import { TemplateMetaForm } from "./template-meta-form";
 import { ItemPricingEditor } from "./item-pricing-editor";
 
@@ -95,6 +95,28 @@ export default async function TemplateEditPage({ params }: { params: Promise<{ i
                 initialSizeUpcharges={(it.sizeUpcharges as Record<string, number> | null) ?? null}
                 sizeOptions={t.sizeOptions ?? []}
               />
+              <div className="mt-1 flex items-center gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
+                {it.imageBase64 ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`data:${it.imageMimeType ?? "image/png"};base64,${it.imageBase64}`} alt={it.name} className="h-12 w-12 rounded object-cover ring-1 ring-neutral-200" />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded bg-neutral-200 text-[10px] text-neutral-500">no image</div>
+                )}
+                <form action={setItemImageAction} className="flex items-center gap-2">
+                  <input type="hidden" name="id" value={t.id} />
+                  <input type="hidden" name="itemId" value={it.id} />
+                  <input type="file" name="image" accept="image/*" className="text-xs text-neutral-600 file:mr-2 file:rounded file:border-0 file:bg-neutral-900 file:px-2 file:py-1 file:text-xs file:font-semibold file:text-white" />
+                  <button className="text-xs font-medium text-neutral-700 hover:text-neutral-900">Save image</button>
+                </form>
+                {it.imageBase64 && (
+                  <form action={setItemImageAction}>
+                    <input type="hidden" name="id" value={t.id} />
+                    <input type="hidden" name="itemId" value={it.id} />
+                    <input type="hidden" name="clear" value="1" />
+                    <button className="text-[11px] text-red-600 hover:text-red-800">remove image</button>
+                  </form>
+                )}
+              </div>
               <form action={removeItemAction} className="px-1">
                 <input type="hidden" name="id" value={t.id} />
                 <input type="hidden" name="itemId" value={it.id} />

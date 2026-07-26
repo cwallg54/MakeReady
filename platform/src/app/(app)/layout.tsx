@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
 import { visibleModules, ROLE_LABELS } from "@/lib/rbac";
+import { canDoArt } from "@/lib/art/access";
 import { db } from "@/db";
 import { notifications, systemSettings } from "@/db/schema";
 import { type NavItem } from "@/components/app-nav";
@@ -46,6 +47,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       children,
     };
   });
+  // Art department board — for the art team, production, sales managers, admins.
+  if (canDoArt(user.roles)) {
+    items.push({ key: "art", label: "Art Department", href: "/art", phase1: true });
+  }
   // Help Center — available to everyone.
   items.push({ key: "help", label: "Help", href: "/help", phase1: true });
 

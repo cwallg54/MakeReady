@@ -14,6 +14,7 @@ import { OrderProofs } from "@/components/orders/order-proofs";
 import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
 import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
+import { submitToArtAction } from "@/lib/art/actions";
 import { voidOrderAction } from "@/lib/orders/detail-actions";
 import { desc } from "drizzle-orm";
 
@@ -82,6 +83,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 </button>
               </form>
             ))}
+          </div>
+        </Card>
+      )}
+
+      {canAct && !voided && (
+        <Card className="mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-neutral-900">Art department</h2>
+              <p className="text-xs text-neutral-500">Hand this order to the art team for design, customization, and proofing. The catalogue image and spec go with it.</p>
+            </div>
+            <form action={submitToArtAction}>
+              <input type="hidden" name="orderId" value={order.id} />
+              <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Submit to art →</button>
+            </form>
           </div>
         </Card>
       )}

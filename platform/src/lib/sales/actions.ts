@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents, orderAttachments } from "@/db/schema";
 import { randomBytes } from "crypto";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
@@ -228,6 +228,28 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
         .values({ orderNumber, bpId: quote.bpId, quoteId: id, publicToken, stage: "received", createdBy: user.id })
         .returning({ id: orders.id });
       await db.insert(orderEvents).values({ orderId: o.id, stage: "received", byUserId: user.id });
+
+      // Carry the catalogue images of the quoted items into the order, so the
+      // art department sees exactly what the customer picked from the catalogue.
+      const qLines = await db.select().from(quoteLines).where(eq(quoteLines.quoteId, id));
+      const codes = new Set(qLines.map((l) => l.itemCode).filter((c): c is string => !!c));
+      if (codes.size && quote.templateId) {
+        const items = await db.select().from(templateItems).where(eq(templateItems.templateId, quote.templateId));
+        const picked = items.filter((it) => it.imageBase64 && it.code && codes.has(it.code));
+        if (picked.length) {
+          await db.insert(orderAttachments).values(
+            picked.map((it) => ({
+              orderId: o.id,
+              filename: `catalog-${(it.code ?? it.name).replace(/[^a-z0-9]+/gi, "-")}.${(it.imageMimeType ?? "image/png").split("/")[1] ?? "png"}`,
+              mimeType: it.imageMimeType ?? "image/png",
+              kind: "catalog",
+              contentBase64: it.imageBase64!,
+              notes: `Catalogue image — ${it.name}`,
+              uploadedBy: user.id,
+            })),
+          );
+        }
+      }
       if (quote.bpId) {
         await db.insert(activities).values({ bpId: quote.bpId, type: "other", isSystem: true, content: `Order ${orderNumber} created from quote ${quote.quoteNumber}` });
         revalidatePath(`/crm/${quote.bpId}`);

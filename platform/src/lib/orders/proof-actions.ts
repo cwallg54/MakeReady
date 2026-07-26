@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import { and, eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
-import { orders, orderProofs, activities, notifications } from "@/db/schema";
+import { orders, orderProofs, activities, notifications, schedulingProfiles } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -53,23 +53,25 @@ export async function deleteProofAction(formData: FormData): Promise<void> {
 export interface ProofDecisionState {
   error?: string;
   done?: boolean;
+  bookingUrl?: string;
 }
 
-/** Public — the customer's Approve / Request changes / Decline decision. */
+/** Public — the customer's Approve / Request changes / Decline / Request-a-meeting decision. */
 export async function submitProofDecisionAction(_prev: ProofDecisionState, formData: FormData): Promise<ProofDecisionState> {
   const token = String(formData.get("token") ?? "");
   const decision = String(formData.get("decision") ?? "");
   const signedName = String(formData.get("signedName") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
-  const map: Record<string, "approved" | "changes_requested" | "declined"> = {
+  const map: Record<string, "approved" | "changes_requested" | "declined" | "meeting_requested"> = {
     approve: "approved",
     changes: "changes_requested",
     decline: "declined",
+    meeting: "meeting_requested",
   };
   const status = map[decision];
   if (!token || !status) return { error: "Please choose an option." };
   if (!signedName) return { error: "Please type your name to sign." };
-  if (status !== "approved" && !notes) return { error: "Please tell us what needs to change." };
+  if ((status === "changes_requested" || status === "declined") && !notes) return { error: "Please tell us what needs to change." };
 
   const proof = await db.query.orderProofs.findFirst({ where: eq(orderProofs.token, token) });
   if (!proof) return { error: "This approval link is not valid." };
@@ -83,12 +85,16 @@ export async function submitProofDecisionAction(_prev: ProofDecisionState, formD
 
   // Notify the requester + log to the customer's history.
   const order = await db.query.orders.findFirst({ where: eq(orders.id, proof.orderId) });
-  const label = status === "approved" ? "approved" : status === "changes_requested" ? "requested changes on" : "declined";
+  const label =
+    status === "approved" ? "approved"
+    : status === "changes_requested" ? "requested changes on"
+    : status === "meeting_requested" ? "requested a meeting about"
+    : "declined";
   if (proof.requestedBy) {
     await db.insert(notifications).values({
       userId: proof.requestedBy,
       type: "proof",
-      title: `Proof ${label}`,
+      title: status === "meeting_requested" ? "Meeting requested on proof" : `Proof ${label}`,
       body: `${signedName} ${label} “${proof.title}”${order ? ` on ${order.orderNumber}` : ""}.`,
       link: order ? `/sales/orders/${order.id}` : "/sales/orders",
     });
@@ -101,7 +107,19 @@ export async function submitProofDecisionAction(_prev: ProofDecisionState, formD
       content: `Customer ${label} proof “${proof.title}” (signed: ${signedName})${notes ? ` — ${notes}` : ""}`,
     });
   }
+
+  // For a meeting request, surface the order owner's self-serve booking link.
+  let bookingUrl: string | undefined;
+  if (status === "meeting_requested") {
+    const ownerId = proof.requestedBy ?? order?.createdBy ?? null;
+    if (ownerId) {
+      const prof = await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, ownerId) });
+      if (prof) bookingUrl = `/schedule/${prof.slug}`;
+    }
+  }
+
   await audit({ userId: null, action: "proof.decision", entityType: "order", entityId: proof.orderId, metadata: { status, signedName } });
   revalidatePath(`/proof/${token}`);
-  return { done: true };
+  if (order) revalidatePath(`/track/${order.publicToken}`);
+  return { done: true, bookingUrl };
 }

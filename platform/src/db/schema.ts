@@ -189,7 +189,9 @@ export const automationTriggerEnum = pgEnum("automation_trigger", ["lead_created
 export const automationActionEnum = pgEnum("automation_action", ["create_task", "notify_owner", "email_customer"]);
 export const enrollmentStatusEnum = pgEnum("enrollment_status", ["active", "completed", "stopped"]);
 export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "production", "quality", "shipped", "delivered"]);
-export const proofStatusEnum = pgEnum("proof_status", ["pending", "approved", "changes_requested", "declined"]);
+export const proofStatusEnum = pgEnum("proof_status", ["pending", "approved", "changes_requested", "declined", "meeting_requested"]);
+// Art-request pipeline stages — these are the columns of the Art department Kanban.
+export const artStatusEnum = pgEnum("art_status", ["todo", "in_progress", "proofing", "revisions", "approved", "done"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
@@ -416,6 +418,10 @@ export const templateItems = pgTable(
     // Per-size upcharge added to the unit price, keyed by size label from the
     // template's sizeOptions (e.g. { "2XL": 2, "3XL": 3 }).
     sizeUpcharges: jsonb("size_upcharges"), // Record<string, number> | null
+    // Catalogue image (base64) — shown in the Quote Builder and carried into the
+    // order so the art department sees exactly what the customer picked.
+    imageBase64: text("image_base64"),
+    imageMimeType: text("image_mime_type"),
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
   },
@@ -671,12 +677,35 @@ export const orderProofs = pgTable(
   (t) => [index("order_proofs_order_id_idx").on(t.orderId)],
 );
 
+// Art department work item for an order — one per order. Drives the Art queue
+// (list) and Kanban (board) views. Status = Kanban column; assignee = artist.
+export const artRequests = pgTable(
+  "art_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .unique()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    status: artStatusEnum("status").notNull().default("todo"),
+    assignedTo: uuid("assigned_to").references(() => users.id, { onDelete: "set null" }),
+    rush: boolean("rush").notNull().default(false),
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    brief: text("brief"), // the customization brief from the sales meeting
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("art_requests_status_idx").on(t.status), index("art_requests_assigned_to_idx").on(t.assignedTo)],
+);
+
 export type Order = typeof orders.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;
 export type OrderArtifact = typeof orderArtifacts.$inferSelect;
 export type OrderSpecItem = typeof orderSpecItems.$inferSelect;
 export type OrderAttachment = typeof orderAttachments.$inferSelect;
 export type OrderProof = typeof orderProofs.$inferSelect;
+export type ArtRequest = typeof artRequests.$inferSelect;
 
 // ---- Secure customer intake documents (terms / credit card applications) ---
 // Customer completes these via a token link — no sensitive data over email.

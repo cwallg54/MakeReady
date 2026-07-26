@@ -197,6 +197,35 @@ export async function setItemPricingAction(formData: FormData): Promise<void> {
   revalidatePath(`/admin/templates/${id}`);
 }
 
+/** Upload (or clear) a catalogue image for an item. */
+export async function setItemImageAction(formData: FormData): Promise<void> {
+  const admin = await assertAdmin();
+  const id = String(formData.get("id") ?? "");
+  const itemId = String(formData.get("itemId") ?? "");
+  if (!id || !itemId) return;
+
+  if (String(formData.get("clear") ?? "") === "1") {
+    await db.update(templateItems).set({ imageBase64: null, imageMimeType: null }).where(and(eq(templateItems.id, itemId), eq(templateItems.templateId, id)));
+    await audit({ userId: admin.id, action: "template.item_image_clear", entityType: "order_form_template", entityId: id, metadata: { itemId } });
+    revalidatePath(`/admin/templates/${id}`);
+    return;
+  }
+
+  const file = formData.get("image");
+  if (file && typeof file === "object" && "arrayBuffer" in file) {
+    const f = file as File;
+    if (f.size > 0 && f.size <= 3_000_000 && f.type.startsWith("image/")) {
+      const buf = Buffer.from(await f.arrayBuffer());
+      await db
+        .update(templateItems)
+        .set({ imageBase64: buf.toString("base64"), imageMimeType: f.type })
+        .where(and(eq(templateItems.id, itemId), eq(templateItems.templateId, id)));
+      await audit({ userId: admin.id, action: "template.item_image", entityType: "order_form_template", entityId: id, metadata: { itemId } });
+    }
+  }
+  revalidatePath(`/admin/templates/${id}`);
+}
+
 export async function removeItemAction(formData: FormData): Promise<void> {
   const admin = await assertAdmin();
   const id = String(formData.get("id") ?? "");

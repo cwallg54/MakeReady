@@ -13,6 +13,11 @@ export function ProofDecisionForm({ token }: { token: string }) {
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
         <h2 className="text-lg font-semibold text-emerald-900">Thank you — your response was recorded.</h2>
         <p className="mt-1 text-sm text-emerald-800">Great Mountain West has been notified. You can close this page.</p>
+        {state.bookingUrl && (
+          <a href={state.bookingUrl} className="mt-4 inline-block rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+            Book a time to meet →
+          </a>
+        )}
       </div>
     );
   }
@@ -31,10 +36,11 @@ export function ProofDecisionForm({ token }: { token: string }) {
         <textarea name="notes" rows={3} placeholder="Required if requesting changes or declining" className={`mt-1 ${input}`} />
       </label>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2">
         <button name="decision" value="approve" className="rounded-md bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700">✓ Approve</button>
         <button name="decision" value="changes" className="rounded-md bg-amber-500 px-4 py-3 text-sm font-semibold text-white hover:bg-amber-600">✎ Request changes</button>
         <button name="decision" value="decline" className="rounded-md border border-red-300 bg-white px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-50">✕ Decline</button>
+        <button name="decision" value="meeting" className="rounded-md border border-blue-300 bg-white px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50">📅 Request a meeting</button>
       </div>
       <p className="text-center text-xs text-neutral-400">By approving you confirm the artwork is correct — spelling, colors, sizes, and placement. Your name, the date, and your network address are recorded with this decision.</p>
     </form>
