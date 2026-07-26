@@ -38,16 +38,23 @@ export default async function ArtRequestPage({ params }: { params: Promise<{ id:
   const customer = attachments.filter((a) => a.kind === "art" || a.kind === "reference");
   const proposed = group("mockup");
 
-  const Thumb = ({ a }: { a: (typeof attachments)[number] }) =>
-    a.mimeType.startsWith("image/") ? (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={`data:${a.mimeType};base64,${a.contentBase64}`} alt={a.filename} className="h-28 w-28 rounded-lg border border-neutral-200 object-cover" />
-    ) : (
-      <div className="flex h-28 w-28 flex-col items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-center">
-        <span className="text-2xl">📄</span>
-        <span className="mt-1 line-clamp-2 text-[10px] text-neutral-500">{a.filename}</span>
-      </div>
+  const Thumb = ({ a }: { a: (typeof attachments)[number] }) => {
+    const href = `/art/attachment/${a.id}`;
+    return (
+      <a href={href} target="_blank" rel="noreferrer" title="Open / download original" className="group block">
+        {a.mimeType.startsWith("image/") ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={href} alt={a.filename} className="h-28 w-28 rounded-lg border border-neutral-200 object-cover group-hover:ring-2 group-hover:ring-neutral-400" />
+        ) : (
+          <div className="flex h-28 w-28 flex-col items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-center group-hover:ring-2 group-hover:ring-neutral-400">
+            <span className="text-2xl">📄</span>
+            <span className="mt-1 line-clamp-2 text-[10px] text-neutral-500">{a.filename}</span>
+            <span className="mt-0.5 text-[9px] font-medium text-blue-600">download</span>
+          </div>
+        )}
+      </a>
     );
+  };
 
   return (
     <div className="max-w-5xl space-y-6">
