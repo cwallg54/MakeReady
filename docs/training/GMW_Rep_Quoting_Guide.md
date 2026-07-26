@@ -61,6 +61,17 @@ Tick the ones that apply; per-color and per-hour charges ask for the count. **Ti
 5. Add **notes/discount** if needed and **Save**.
 6. **Email to customer** in one click, or **convert to an order** when accepted.
 
+## After the quote: order, art & proofing
+
+Once the quote is accepted and converted to an order:
+
+1. **Submit to art.** On the order, click **"Submit to art →."** The catalogue image the customer picked and the production spec go to the art department, and the order moves to the **Art & Proof** stage.
+2. **Art does the work.** The art team picks it up on the **Art board** (Queue or Kanban), uploads the proposed artwork, and **sends a proof**.
+3. **The customer approves on their tracking link.** The proposed image shows up on the same **/track** link the customer already uses to follow their order. They can **Approve**, **Request changes** (with notes), **Decline**, or **Request a meeting** (which offers your self-serve booking link).
+4. **You're notified** of their decision, and it's logged to the customer's history. If they request changes, art revises and sends a new proof.
+
+You don't manage the art tools yourself — just submit to art and watch the order advance. For the catalogue image to travel with the order, make sure the item has an image (your admin sets these in the Template Builder).
+
 ## FAQ
 
 **Do I still keep my own spreadsheet?** No. Prices are managed centrally by your admin in the Template Builder, so everyone quotes from the same, current numbers.

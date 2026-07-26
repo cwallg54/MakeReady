@@ -151,12 +151,23 @@ Last updated: 2026-07-24.
 ### 3.4 Customer Order Tracker (public)
 - [x] Login-free tracker page (/track/[token]), Domino's-style, Mountain time
 - [x] Email tracker link to customer
+- [x] **Pending proof shown on the tracker** — customer sees the proposed art and decides in-place
 
 ### 3.5 Proof / Art Approvals
 - [x] Send a proof link from the order (choose artwork attachment)
 - [x] Public approval page: Approve / Request changes / Decline + notes
+- [x] **Request a meeting** option — surfaces the owner's booking link + notifies
 - [x] Auditable capture: typed signature + IP + timestamp
 - [x] Notifies requester + logs decision to CRM history
+
+### 3.5a Art Department Workflow
+- [x] **Catalogue image** per template item; carried onto the order on convert
+- [x] **Submit to Art** from the order → creates art request, sets Art & Proof stage, notifies art team
+- [x] **Art board** (/art): Queue (list) + Kanban (drag by status) over art_requests
+- [x] Statuses: To do / In progress / Proofing / Revisions / Approved / Done
+- [x] Assignment (art/production), rush flag, due date
+- [x] Request detail: order + spec + catalogue/customer/proposed images; upload proposed art; send proof
+- [x] Art-role-scoped actions (no Sales access needed); migration 0017 (art_requests + art_status, meeting_requested)
 
 ### 3.6 Sales Automations (drip campaigns)
 - [x] Campaigns with triggers (lead-created / manual)
@@ -201,7 +212,7 @@ Last updated: 2026-07-24.
 - [ ] Credit-app auto-chase reminders + welcome packet + new-lead auto-reply
 - [ ] Reporting suite: marketing-source ROI, top-selling designs/products, rep activity
 - [ ] Global NLP search across records (needs an Anthropic API key)
-- [ ] Native art-request Kanban (Trello replacement)
+- [x] Native art-request Kanban (Trello replacement) — delivered (see §3.5a)
 - [ ] Independent-rep deal-registration quick form
 - [ ] Credit gates / limits enforcement + Experian integration
 - [ ] Phase 3+ modules: Web Store, Jobs & Production, Inventory/MRP, Accounting, Content Library
