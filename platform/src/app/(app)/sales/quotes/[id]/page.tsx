@@ -4,11 +4,12 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, businessPartners, contacts } from "@/db/schema";
-import { PageHeader } from "@/components/ui";
+import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, businessPartners, contacts } from "@/db/schema";
+import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { setQuoteStatusAction, setQuoteCustomerAction, deleteQuoteAction } from "@/lib/sales/actions";
+import { uploadQuoteAttachmentsAction, removeQuoteAttachmentAction } from "@/lib/sales/attachment-actions";
 import type { ChargeRule, PriceBreak } from "@/lib/sales/pricing";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
@@ -84,11 +85,12 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
   const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, id) });
   if (!quote) notFound();
 
-  const [template, lines, charges, bp] = await Promise.all([
+  const [template, lines, charges, bp, attachments] = await Promise.all([
     quote.templateId ? db.query.orderFormTemplates.findFirst({ where: eq(orderFormTemplates.id, quote.templateId) }) : Promise.resolve(undefined),
     db.select().from(quoteLines).where(eq(quoteLines.quoteId, id)).orderBy(asc(quoteLines.sortOrder)),
     db.select().from(quoteCharges).where(eq(quoteCharges.quoteId, id)),
     quote.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, quote.bpId) }) : Promise.resolve(undefined),
+    db.select().from(quoteAttachments).where(eq(quoteAttachments.quoteId, id)).orderBy(asc(quoteAttachments.createdAt)),
   ]);
   const catalog = template
     ? await db.select().from(templateItems).where(eq(templateItems.templateId, template.id)).orderBy(asc(templateItems.sortOrder))
@@ -177,6 +179,54 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
         initialDiscount={Number(quote.discount)}
         initialNotes={quote.notes ?? ""}
       />
+
+      {/* Customer intake files — carried onto the order for the art department. */}
+      <Card className="mt-6">
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Customer artwork &amp; reference images</h2>
+        <p className="mb-3 text-xs text-neutral-500">Upload what the customer provided during intake (logos, art, reference photos). These travel to the order and the art department when this quote is converted.</p>
+        {attachments.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-3">
+            {attachments.map((a) => (
+              <div key={a.id} className="w-28">
+                <a href={`/sales/quotes/${quote.id}/attachment/${a.id}`} target="_blank" rel="noreferrer" className="group block" title="Open / download">
+                  {a.mimeType.startsWith("image/") ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={`/sales/quotes/${quote.id}/attachment/${a.id}`} alt={a.filename} className="h-28 w-28 rounded-lg border border-neutral-200 object-cover group-hover:ring-2 group-hover:ring-neutral-400" />
+                  ) : (
+                    <div className="flex h-28 w-28 flex-col items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-center group-hover:ring-2 group-hover:ring-neutral-400">
+                      <span className="text-2xl">📄</span>
+                      <span className="mt-1 line-clamp-2 text-[10px] text-neutral-500">{a.filename}</span>
+                    </div>
+                  )}
+                </a>
+                <div className="mt-1 flex items-center justify-between">
+                  <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] capitalize text-neutral-500">{a.kind}</span>
+                  {editable && quote.status !== "converted" && (
+                    <form action={removeQuoteAttachmentAction}>
+                      <input type="hidden" name="quoteId" value={quote.id} />
+                      <input type="hidden" name="attachmentId" value={a.id} />
+                      <button className="text-[11px] text-red-600 hover:text-red-800">remove</button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {editable && quote.status !== "converted" && (
+          <form action={uploadQuoteAttachmentsAction} className="flex flex-wrap items-center gap-2 border-t border-neutral-100 pt-3">
+            <input type="hidden" name="quoteId" value={quote.id} />
+            <select name="kind" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-800">
+              <option value="art">Customer art</option>
+              <option value="reference">Reference</option>
+              <option value="mockup">Mockup</option>
+              <option value="other">Other</option>
+            </select>
+            <input type="file" name="files" multiple accept="image/*,.pdf,.ai,.eps,.psd" className="text-sm text-neutral-600 file:mr-2 file:rounded file:border-0 file:bg-neutral-900 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white" />
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Upload</button>
+          </form>
+        )}
+      </Card>
     </div>
   );
 }

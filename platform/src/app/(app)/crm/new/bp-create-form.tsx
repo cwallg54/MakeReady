@@ -107,7 +107,15 @@ export function BpCreateForm({
           <h3 className="text-sm font-semibold text-neutral-900">Terms</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Credit limit" name="creditLimit" type="number" />
-            <AdminField label="Payment terms" name="paymentTerms" hint="e.g. Net 30" />
+            <AdminSelect
+              label="Payment terms"
+              name="paymentTerms"
+              defaultValue="Net 30"
+              options={[
+                { value: "Net 30", label: "Net 30" },
+                { value: "Prepay (Credit Card)", label: "Prepay (Credit Card)" },
+              ]}
+            />
           </div>
           <AdminField label="Internal notes" name="internalNotes" />
         </section>

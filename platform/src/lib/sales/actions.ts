@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents, orderAttachments } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents, orderAttachments } from "@/db/schema";
 import { randomBytes } from "crypto";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
@@ -249,6 +249,23 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
             })),
           );
         }
+      }
+      // Carry the customer's intake files (art/reference) onto the order so the
+      // art department picks them up automatically.
+      const qAtt = await db.select().from(quoteAttachments).where(eq(quoteAttachments.quoteId, id));
+      if (qAtt.length) {
+        await db.insert(orderAttachments).values(
+          qAtt.map((a) => ({
+            orderId: o.id,
+            filename: a.filename,
+            mimeType: a.mimeType,
+            sizeBytes: a.sizeBytes,
+            kind: a.kind,
+            contentBase64: a.contentBase64,
+            notes: a.notes,
+            uploadedBy: a.uploadedBy,
+          })),
+        );
       }
       if (quote.bpId) {
         await db.insert(activities).values({ bpId: quote.bpId, type: "other", isSystem: true, content: `Order ${orderNumber} created from quote ${quote.quoteNumber}` });

@@ -485,6 +485,29 @@ export const quoteCharges = pgTable(
   (t) => [index("quote_charges_quote_id_idx").on(t.quoteId)],
 );
 
+// Customer-provided files captured at the quote/intake stage: art, mockups,
+// reference photos. Copied onto the order (as order_attachments) when the quote
+// is converted, so the art department picks them up automatically.
+export const quoteAttachments = pgTable(
+  "quote_attachments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    quoteId: uuid("quote_id")
+      .notNull()
+      .references(() => quotes.id, { onDelete: "cascade" }),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull().default("application/octet-stream"),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    kind: text("kind").notNull().default("art"), // art | mockup | reference | other
+    contentBase64: text("content_base64").notNull(),
+    notes: text("notes"),
+    uploadedBy: uuid("uploaded_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("quote_attachments_quote_id_idx").on(t.quoteId)],
+);
+export type QuoteAttachment = typeof quoteAttachments.$inferSelect;
+
 // ---- Sales automation / drip campaigns ------------------------------------
 // A campaign is a timed sequence of steps. Enroll a Business Partner (lead) and
 // a daily scheduler fires each step when due (create task, notify, email).
