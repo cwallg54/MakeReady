@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { orderFormTemplates, templateItems } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
-import { sellPrice, type ChargeRule, type ChargeType } from "./pricing";
+import { sellPrice, type ChargeRule, type ChargeType, type PriceBreak } from "./pricing";
 
 async function assertAdmin() {
   const user = await getCurrentUser();
@@ -158,6 +158,42 @@ export async function updateItemAction(formData: FormData): Promise<void> {
     })
     .where(and(eq(templateItems.id, itemId), eq(templateItems.templateId, id)));
   await audit({ userId: admin.id, action: "template.item_update", entityType: "order_form_template", entityId: id });
+  revalidatePath(`/admin/templates/${id}`);
+}
+
+/** Save an item's quantity price-break bands, minimum quantity, and size upcharges. */
+export async function setItemPricingAction(formData: FormData): Promise<void> {
+  const admin = await assertAdmin();
+  const id = String(formData.get("id") ?? "");
+  const itemId = String(formData.get("itemId") ?? "");
+  if (!id || !itemId) return;
+
+  const minQty = Math.max(0, Math.trunc(Number(formData.get("minQty") ?? 0) || 0));
+
+  let priceBreaks: PriceBreak[] | null = null;
+  try {
+    const raw = JSON.parse(String(formData.get("priceBreaks") ?? "[]")) as PriceBreak[];
+    const cleaned = (Array.isArray(raw) ? raw : [])
+      .map((b) => ({ minQty: Math.trunc(Number(b?.minQty) || 0), unitPrice: Number(b?.unitPrice) || 0 }))
+      .filter((b) => b.minQty > 0)
+      .sort((a, b) => a.minQty - b.minQty);
+    priceBreaks = cleaned.length ? cleaned : null;
+  } catch { /* leave null on malformed input */ }
+
+  let sizeUpcharges: Record<string, number> | null = null;
+  try {
+    const raw = JSON.parse(String(formData.get("sizeUpcharges") ?? "{}")) as Record<string, unknown>;
+    const entries = Object.entries(raw ?? {})
+      .map(([k, v]) => [k, Number(v) || 0] as const)
+      .filter(([, v]) => v !== 0);
+    sizeUpcharges = entries.length ? Object.fromEntries(entries) : null;
+  } catch { /* leave null on malformed input */ }
+
+  await db
+    .update(templateItems)
+    .set({ minQty, priceBreaks, sizeUpcharges })
+    .where(and(eq(templateItems.id, itemId), eq(templateItems.templateId, id)));
+  await audit({ userId: admin.id, action: "template.item_pricing", entityType: "order_form_template", entityId: id, metadata: { itemId } });
   revalidatePath(`/admin/templates/${id}`);
 }
 

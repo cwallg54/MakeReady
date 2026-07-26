@@ -405,7 +405,17 @@ export const templateItems = pgTable(
     // Per-item markup % override; null = use the template's default markup.
     markupPct: numeric("markup_pct", { precision: 6, scale: 2 }),
     // Effective sell price = supplierCost * (1 + markup/100), computed on save.
+    // Also serves as the base/fallback price when priceBreaks don't apply.
     unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull().default("0"),
+    // Quantity price-break bands: [{minQty, unitPrice}] ascending. When present,
+    // the effective unit price is chosen by the order quantity (e.g. caps priced
+    // 72/144/288/432/576). Overrides unitPrice for the matched band.
+    priceBreaks: jsonb("price_breaks"), // PriceBreak[] | null
+    // Minimum order quantity for this item (0 = no minimum).
+    minQty: integer("min_qty").notNull().default(0),
+    // Per-size upcharge added to the unit price, keyed by size label from the
+    // template's sizeOptions (e.g. { "2XL": 2, "3XL": 3 }).
+    sizeUpcharges: jsonb("size_upcharges"), // Record<string, number> | null
     active: boolean("active").notNull().default(true),
     sortOrder: integer("sort_order").notNull().default(0),
   },
@@ -442,6 +452,8 @@ export const quoteLines = pgTable(
       .references(() => quotes.id, { onDelete: "cascade" }),
     itemCode: text("item_code"),
     description: text("description").notNull(),
+    // Chosen size label (from the template's sizeOptions), when the item is size-priced.
+    size: text("size"),
     qty: integer("qty").notNull().default(0),
     unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull().default("0"),
     extended: numeric("extended", { precision: 12, scale: 2 }).notNull().default("0"),

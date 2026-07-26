@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { setQuoteStatusAction, setQuoteCustomerAction, deleteQuoteAction } from "@/lib/sales/actions";
-import type { ChargeRule } from "@/lib/sales/pricing";
+import type { ChargeRule, PriceBreak } from "@/lib/sales/pricing";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
 
@@ -161,9 +161,17 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
       <QuoteBuilder
         quoteId={quote.id}
         editable={editable && quote.status !== "converted"}
-        catalog={catalog.map((c) => ({ code: c.code, name: c.name, unitPrice: Number(c.unitPrice) }))}
+        sizeOptions={template?.sizeOptions ?? []}
+        catalog={catalog.map((c) => ({
+          code: c.code,
+          name: c.name,
+          unitPrice: Number(c.unitPrice),
+          priceBreaks: (c.priceBreaks as PriceBreak[] | null) ?? null,
+          minQty: c.minQty,
+          sizeUpcharges: (c.sizeUpcharges as Record<string, number> | null) ?? null,
+        }))}
         rules={rules}
-        initialLines={lines.map((l) => ({ itemCode: l.itemCode ?? undefined, description: l.description, qty: l.qty, unitPrice: Number(l.unitPrice) }))}
+        initialLines={lines.map((l) => ({ itemCode: l.itemCode ?? undefined, description: l.description, size: l.size ?? undefined, qty: l.qty, unitPrice: Number(l.unitPrice) }))}
         initialApplied={charges.map((c) => ({ key: c.key, inputQty: Number(c.inputQty) }))}
         initialReorder={quote.isReorder}
         initialDiscount={Number(quote.discount)}

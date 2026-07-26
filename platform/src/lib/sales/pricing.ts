@@ -49,9 +49,43 @@ export interface PricedQuote {
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
+/** A quantity price-break band: at `minQty` and above, the item sells for `unitPrice`. */
+export interface PriceBreak {
+  minQty: number;
+  unitPrice: number;
+}
+/** Per-size upcharge added to the unit price, keyed by size label. */
+export type SizeUpcharges = Record<string, number>;
+
 /** Sell price from supplier cost + markup %. */
 export function sellPrice(supplierCost: number, markupPct: number): number {
   return round2((supplierCost || 0) * (1 + (markupPct || 0) / 100));
+}
+
+/**
+ * Resolve a unit price for a given quantity against ascending price-break bands.
+ * Returns the price of the highest band whose minQty ≤ qty. If qty falls below
+ * the smallest band (or no bands exist), falls back to the smallest band's price
+ * — or `base` when there are no bands at all. Pure; used by both client preview
+ * and server persistence so they always agree.
+ */
+export function resolveUnitPrice(
+  breaks: PriceBreak[] | null | undefined,
+  qty: number,
+  base: number,
+): number {
+  const valid = (breaks ?? []).filter((b) => b && Number.isFinite(b.minQty) && Number.isFinite(b.unitPrice));
+  if (valid.length === 0) return round2(base || 0);
+  const sorted = [...valid].sort((a, b) => a.minQty - b.minQty);
+  let price = sorted[0].unitPrice; // below the smallest band → smallest-qty (highest) price
+  for (const b of sorted) if ((qty || 0) >= b.minQty) price = b.unitPrice;
+  return round2(price);
+}
+
+/** Upcharge for a chosen size, or 0 when none applies. */
+export function sizeUpcharge(map: SizeUpcharges | null | undefined, size: string | undefined): number {
+  if (!map || !size) return 0;
+  return round2(Number(map[size] ?? 0) || 0);
 }
 
 export function chargeApplies(rule: ChargeRule, isReorder: boolean): boolean {

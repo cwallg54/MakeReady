@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, numberSeries, activities, orders, orderEvents } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents } from "@/db/schema";
 import { randomBytes } from "crypto";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { priceQuote, type ChargeRule } from "./pricing";
+import { priceQuote, resolveUnitPrice, sizeUpcharge, type ChargeRule, type PriceBreak } from "./pricing";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -73,7 +73,7 @@ export async function deleteQuoteAction(formData: FormData): Promise<void> {
 }
 
 export interface SaveQuotePayload {
-  lines: { itemCode?: string; description: string; qty: number; unitPrice: number }[];
+  lines: { itemCode?: string; description: string; size?: string; qty: number; unitPrice: number }[];
   applied: { key: string; inputQty?: number }[];
   isReorder: boolean;
   discount: number;
@@ -89,14 +89,38 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
     : null;
   const rules = (template?.charges as ChargeRule[] | null) ?? [];
 
+  // Catalog items (keyed by code or name) are the pricing source of truth: for any
+  // line that maps to one with quantity bands or size upcharges, the server derives
+  // the unit price from the band + size — never trusting the client's figure.
+  const catalog = template
+    ? await db.select().from(templateItems).where(eq(templateItems.templateId, template.id))
+    : [];
+  const itemByKey = new Map(catalog.map((it) => [it.code ?? it.name, it]));
+
+  const resolvedLines = payload.lines
+    .filter((l) => l.description || l.qty)
+    .map((l) => {
+      const item = l.itemCode ? itemByKey.get(l.itemCode) : itemByKey.get(l.description);
+      const breaks = (item?.priceBreaks as PriceBreak[] | null) ?? null;
+      const upcharges = (item?.sizeUpcharges as Record<string, number> | null) ?? null;
+      const autoPriced = !!item && ((breaks?.length ?? 0) > 0 || (upcharges ? Object.keys(upcharges).length > 0 : false));
+      const unitPrice = autoPriced
+        ? resolveUnitPrice(breaks, l.qty, Number(item!.unitPrice)) + sizeUpcharge(upcharges, l.size)
+        : l.unitPrice;
+      return { ...l, unitPrice };
+    });
+
   // Server recomputes all money — never trust client-computed totals.
   const priced = priceQuote({
-    lines: payload.lines.filter((l) => l.description || l.qty),
+    lines: resolvedLines,
     rules,
     applied: payload.applied,
     isReorder: payload.isReorder,
     discount: payload.discount || 0,
   });
+
+  // Preserve each priced line's chosen size for persistence (priceQuote drops unknown fields).
+  const sizeByIndex = resolvedLines.map((l) => l.size ?? null);
 
   await db.transaction(async (tx) => {
     await tx.delete(quoteLines).where(eq(quoteLines.quoteId, quoteId));
@@ -107,6 +131,7 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
           quoteId,
           itemCode: l.itemCode || null,
           description: l.description || "(item)",
+          size: sizeByIndex[i],
           qty: l.qty || 0,
           unitPrice: String(l.unitPrice || 0),
           extended: String(l.extended),

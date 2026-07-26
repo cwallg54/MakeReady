@@ -1,19 +1,31 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { priceQuote, type ChargeRule } from "@/lib/sales/pricing";
+import { priceQuote, resolveUnitPrice, sizeUpcharge, type ChargeRule, type PriceBreak } from "@/lib/sales/pricing";
 import { saveQuoteAction } from "@/lib/sales/actions";
 
-interface Item { code: string | null; name: string; unitPrice: number }
-interface Line { itemCode?: string; description: string; qty: number; unitPrice: number }
+interface Item {
+  code: string | null;
+  name: string;
+  unitPrice: number;
+  priceBreaks: PriceBreak[] | null;
+  minQty: number;
+  sizeUpcharges: Record<string, number> | null;
+}
+interface Line { itemCode?: string; description: string; size?: string; qty: number; unitPrice: number }
 
 const money = (n: number) => `$${n.toFixed(2)}`;
+const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+const hasBands = (it?: Item) => !!it && !!it.priceBreaks && it.priceBreaks.length > 0;
+const hasSizeUpcharges = (it?: Item) => !!it && !!it.sizeUpcharges && Object.keys(it.sizeUpcharges).length > 0;
+const isAutoPriced = (it?: Item) => hasBands(it) || hasSizeUpcharges(it);
 const inputCls = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
 
 export function QuoteBuilder({
   quoteId,
   editable,
   catalog,
+  sizeOptions,
   rules,
   initialLines,
   initialApplied,
@@ -24,6 +36,7 @@ export function QuoteBuilder({
   quoteId: string;
   editable: boolean;
   catalog: Item[];
+  sizeOptions: string[];
   rules: ChargeRule[];
   initialLines: Line[];
   initialApplied: { key: string; inputQty: number }[];
@@ -31,6 +44,9 @@ export function QuoteBuilder({
   initialDiscount: number;
   initialNotes: string;
 }) {
+  const showSize = sizeOptions.length > 0 && catalog.some((c) => hasSizeUpcharges(c));
+  const catalogItem = (l: Line): Item | undefined =>
+    catalog.find((c) => (c.code ?? c.name) === (l.itemCode ?? l.description));
   const [lines, setLines] = useState<Line[]>(initialLines.length ? initialLines : [{ description: "", qty: 0, unitPrice: 0 }]);
   const [applied, setApplied] = useState<Record<string, { on: boolean; inputQty: number }>>(() => {
     const m: Record<string, { on: boolean; inputQty: number }> = {};
@@ -59,13 +75,36 @@ export function QuoteBuilder({
   );
 
   function updateLine(i: number, patch: Partial<Line>) {
-    setLines((prev) => prev.map((l, idx) => (idx === i ? { ...l, ...patch } : l)));
+    setLines((prev) =>
+      prev.map((l, idx) => {
+        if (idx !== i) return l;
+        const merged = { ...l, ...patch };
+        // Auto-price catalog items from their quantity band + size upcharge, unless
+        // the unit price was set explicitly in this same patch (manual override on
+        // free/custom items). Catalog band items are always server-authoritative.
+        const item = catalogItem(merged);
+        if (isAutoPriced(item) && !("unitPrice" in patch)) {
+          merged.unitPrice = round2(
+            resolveUnitPrice(item!.priceBreaks, merged.qty, item!.unitPrice) +
+              sizeUpcharge(item!.sizeUpcharges, merged.size),
+          );
+        }
+        return merged;
+      }),
+    );
     setSaved(false);
   }
   function pickItem(i: number, code: string) {
     const item = catalog.find((c) => (c.code ?? c.name) === code);
-    if (item) updateLine(i, { itemCode: item.code ?? undefined, description: item.name, unitPrice: item.unitPrice });
-    else updateLine(i, { itemCode: undefined });
+    if (!item) {
+      updateLine(i, { itemCode: undefined });
+      return;
+    }
+    const qty = lines[i]?.qty ?? 0;
+    const unitPrice = isAutoPriced(item)
+      ? round2(resolveUnitPrice(item.priceBreaks, qty, item.unitPrice))
+      : item.unitPrice;
+    updateLine(i, { itemCode: item.code ?? undefined, description: item.name, size: undefined, unitPrice });
   }
 
   function save() {
@@ -94,26 +133,54 @@ export function QuoteBuilder({
             )}
           </div>
           <div className="space-y-2">
-            {lines.map((l, i) => (
-              <div key={i} className="grid grid-cols-[1fr_70px_90px_90px_28px] items-center gap-2">
-                {catalog.length > 0 ? (
-                  <select disabled={!editable} value={l.itemCode ?? (catalog.find((c) => c.name === l.description) ? (catalog.find((c) => c.name === l.description)!.code ?? l.description) : "__custom")} onChange={(e) => pickItem(i, e.target.value)} className={inputCls}>
-                    <option value="__custom">— custom / type below —</option>
-                    {catalog.map((c) => (
-                      <option key={c.code ?? c.name} value={c.code ?? c.name}>{c.name}{c.unitPrice ? ` (${money(c.unitPrice)})` : ""}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input disabled={!editable} value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} placeholder="Description" className={inputCls} />
-                )}
-                <input disabled={!editable} type="number" value={l.qty || ""} onChange={(e) => updateLine(i, { qty: Number(e.target.value) })} placeholder="Qty" className={inputCls} />
-                <input disabled={!editable} type="number" step="0.01" value={l.unitPrice || ""} onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })} placeholder="Unit $" className={inputCls} />
-                <span className="text-right text-sm text-neutral-700">{money((l.qty || 0) * (l.unitPrice || 0))}</span>
-                {editable && <button onClick={() => { setLines((p) => p.filter((_, idx) => idx !== i)); setSaved(false); }} className="text-neutral-400 hover:text-red-600">×</button>}
-              </div>
-            ))}
+            {lines.map((l, i) => {
+              const item = catalogItem(l);
+              const auto = isAutoPriced(item);
+              const belowMin = !!item && item.minQty > 0 && (l.qty || 0) > 0 && (l.qty || 0) < item.minQty;
+              const gridCls = showSize
+                ? "grid grid-cols-[1fr_74px_60px_84px_70px_24px] items-center gap-2"
+                : "grid grid-cols-[1fr_70px_90px_90px_28px] items-center gap-2";
+              return (
+                <div key={i}>
+                  <div className={gridCls}>
+                    {catalog.length > 0 ? (
+                      <select disabled={!editable} value={l.itemCode ?? (catalog.find((c) => c.name === l.description) ? (catalog.find((c) => c.name === l.description)!.code ?? l.description) : "__custom")} onChange={(e) => pickItem(i, e.target.value)} className={inputCls}>
+                        <option value="__custom">— custom / type below —</option>
+                        {catalog.map((c) => (
+                          <option key={c.code ?? c.name} value={c.code ?? c.name}>{c.name}{c.unitPrice && !hasBands(c) ? ` (${money(c.unitPrice)})` : hasBands(c) ? " (qty-priced)" : ""}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input disabled={!editable} value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} placeholder="Description" className={inputCls} />
+                    )}
+                    {showSize && (
+                      hasSizeUpcharges(item) ? (
+                        <select disabled={!editable} value={l.size ?? ""} onChange={(e) => updateLine(i, { size: e.target.value || undefined })} className={inputCls} title="Size">
+                          <option value="">size</option>
+                          {sizeOptions.map((s) => (
+                            <option key={s} value={s}>{s}{item!.sizeUpcharges![s] ? ` (+${money(item!.sizeUpcharges![s])})` : ""}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span />
+                      )
+                    )}
+                    <input disabled={!editable} type="number" value={l.qty || ""} onChange={(e) => updateLine(i, { qty: Number(e.target.value) })} placeholder="Qty" className={inputCls} />
+                    <input disabled={!editable || auto} readOnly={auto} type="number" step="0.01" value={l.unitPrice || ""} onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })} placeholder="Unit $" className={`${inputCls}${auto ? " bg-neutral-100 text-neutral-500" : ""}`} title={auto ? "Auto-priced from quantity band / size" : "Unit price"} />
+                    <span className="text-right text-sm text-neutral-700">{money((l.qty || 0) * (l.unitPrice || 0))}</span>
+                    {editable && <button onClick={() => { setLines((p) => p.filter((_, idx) => idx !== i)); setSaved(false); }} className="text-neutral-400 hover:text-red-600">×</button>}
+                  </div>
+                  {(auto || belowMin) && (
+                    <p className="mt-0.5 pl-1 text-[11px]">
+                      {auto && <span className="text-neutral-400">auto-priced{hasBands(item) ? " by quantity band" : ""}{l.size ? ` · ${l.size}` : ""}</span>}
+                      {belowMin && <span className="ml-2 font-medium text-amber-600">below {item!.minQty} minimum</span>}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          {catalog.length > 0 && <p className="mt-2 text-xs text-neutral-400">Pick a catalog item to auto-fill its price, or choose “custom” and type your own. Unit price is editable.</p>}
+          {catalog.length > 0 && <p className="mt-2 text-xs text-neutral-400">Pick a catalog item to auto-fill its price. Quantity-priced items (e.g. caps) recalculate from the order quantity and chosen size — the unit price is set automatically. Choose “custom” to type a free line.</p>}
         </div>
 
         {/* Charges */}

@@ -5,9 +5,10 @@ import { db } from "@/db";
 import { orderFormTemplates, templateItems } from "@/db/schema";
 import { Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
-import type { ChargeRule } from "@/lib/sales/pricing";
+import type { ChargeRule, PriceBreak } from "@/lib/sales/pricing";
 import { addChargeAction, removeChargeAction, addItemAction, updateItemAction, removeItemAction } from "@/lib/sales/template-actions";
 import { TemplateMetaForm } from "./template-meta-form";
+import { ItemPricingEditor } from "./item-pricing-editor";
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
 
@@ -85,6 +86,15 @@ export default async function TemplateEditPage({ params }: { params: Promise<{ i
                   <button className="text-xs text-neutral-600 hover:text-neutral-900">Save</button>
                 </span>
               </form>
+              <ItemPricingEditor
+                templateId={t.id}
+                itemId={it.id}
+                itemName={it.name}
+                initialBreaks={(it.priceBreaks as PriceBreak[] | null) ?? null}
+                initialMinQty={it.minQty}
+                initialSizeUpcharges={(it.sizeUpcharges as Record<string, number> | null) ?? null}
+                sizeOptions={t.sizeOptions ?? []}
+              />
               <form action={removeItemAction} className="px-1">
                 <input type="hidden" name="id" value={t.id} />
                 <input type="hidden" name="itemId" value={it.id} />
