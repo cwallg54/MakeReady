@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, or, asc, desc, ilike, eq, type SQL, type SQLWrapper } from "drizzle-orm";
+import { and, or, asc, desc, ilike, eq, count, type SQL, type SQLWrapper } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
@@ -35,10 +35,12 @@ const inp = "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm tex
 export default async function CrmPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; stage?: string; mine?: string; owner?: string; group?: string; loc?: string; sort?: string; dir?: string }>;
+  searchParams: Promise<{ q?: string; stage?: string; mine?: string; owner?: string; group?: string; loc?: string; sort?: string; dir?: string; page?: string }>;
 }) {
   const user = await requireModule("crm");
-  const { q, stage, mine, owner, group, loc, sort: sortParam, dir: dirParam } = await searchParams;
+  const { q, stage, mine, owner, group, loc, sort: sortParam, dir: dirParam, page: pageParam } = await searchParams;
+  const PAGE_SIZE = 50;
+  const page = Math.max(1, Number(pageParam) || 1);
   const editable = canEdit(user.roles, "crm");
   const scoped = crmScopedToOwn(user.roles);
 
@@ -60,33 +62,37 @@ export default async function CrmPage({
 
   const dirFn = dir === "desc" ? desc : asc;
   const sortCol = SORT_COLS[sort] as SQLWrapper;
+  const where = conditions.length ? and(...conditions) : undefined;
 
-  const rows = await db
-    .select({
-      id: businessPartners.id,
-      bpNumber: businessPartners.bpNumber,
-      companyName: businessPartners.companyName,
-      lifecycleStage: businessPartners.lifecycleStage,
-      tags: businessPartners.tags,
-      city: businessPartners.addressCity,
-      state: businessPartners.addressState,
-      groupName: accountGroups.name,
-      ownerName: users.name,
-    })
-    .from(businessPartners)
-    .leftJoin(accountGroups, eq(businessPartners.accountGroupId, accountGroups.id))
-    .leftJoin(users, eq(businessPartners.ownerId, users.id))
-    .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(dirFn(sortCol), asc(businessPartners.companyName))
-    .limit(300);
-
-  // Filter option lists.
-  const [groups, owners] = await Promise.all([
+  // All four run in parallel; the list is paginated and the owner dropdown reads
+  // the (small) users table instead of a DISTINCT scan over 7k partners.
+  const [rows, [{ total }], groups, owners] = await Promise.all([
+    db
+      .select({
+        id: businessPartners.id,
+        bpNumber: businessPartners.bpNumber,
+        companyName: businessPartners.companyName,
+        lifecycleStage: businessPartners.lifecycleStage,
+        tags: businessPartners.tags,
+        city: businessPartners.addressCity,
+        state: businessPartners.addressState,
+        groupName: accountGroups.name,
+        ownerName: users.name,
+      })
+      .from(businessPartners)
+      .leftJoin(accountGroups, eq(businessPartners.accountGroupId, accountGroups.id))
+      .leftJoin(users, eq(businessPartners.ownerId, users.id))
+      .where(where)
+      .orderBy(dirFn(sortCol), asc(businessPartners.companyName))
+      .limit(PAGE_SIZE)
+      .offset((page - 1) * PAGE_SIZE),
+    db.select({ total: count() }).from(businessPartners).where(where),
     db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).orderBy(asc(accountGroups.name)),
     scoped
       ? Promise.resolve([] as { id: string; name: string }[])
-      : db.selectDistinct({ id: users.id, name: users.name }).from(businessPartners).innerJoin(users, eq(businessPartners.ownerId, users.id)).orderBy(asc(users.name)),
+      : db.select({ id: users.id, name: users.name }).from(users).orderBy(asc(users.name)),
   ]);
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const current = { q, stage, mine, owner, group, loc, sort, dir };
   const qp = (extra: Record<string, string>) => {
@@ -229,8 +235,14 @@ export default async function CrmPage({
             </tbody>
           </table>
         </div>
-        {rows.length >= 300 && (
-          <div className="border-t border-neutral-100 px-5 py-2 text-center text-xs text-neutral-400">Showing the first 300 matches — narrow with filters above.</div>
+        {(pages > 1 || total > 0) && (
+          <div className="flex items-center justify-between border-t border-neutral-100 px-5 py-3 text-sm">
+            <span className="text-neutral-400">{total.toLocaleString()} partner{total === 1 ? "" : "s"} · page {page} of {pages}</span>
+            <div className="flex gap-2">
+              {page > 1 && <Link href={qp({ page: String(page - 1) })} className="rounded-md border border-neutral-300 bg-white px-3 py-1 font-medium text-neutral-700 hover:bg-neutral-50">← Prev</Link>}
+              {page < pages && <Link href={qp({ page: String(page + 1) })} className="rounded-md border border-neutral-300 bg-white px-3 py-1 font-medium text-neutral-700 hover:bg-neutral-50">Next →</Link>}
+            </div>
+          </div>
         )}
       </Card>
     </div>
