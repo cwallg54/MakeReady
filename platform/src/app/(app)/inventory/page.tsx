@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { asc } from "drizzle-orm";
+import { and, asc, count, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { inventoryItems } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
@@ -8,20 +8,27 @@ import { Card, PageHeader } from "@/components/ui";
 import { ItemCreateForm } from "./item-create-form";
 
 export const dynamic = "force-dynamic";
+const PAGE_SIZE = 50;
 
-export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ q?: string; low?: string }> }) {
+export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ q?: string; low?: string; page?: string }> }) {
   const user = await requireModule("inventory");
   const editable = canEdit(user.roles, "inventory");
-  const { q, low } = await searchParams;
+  const { q, low, page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam) || 1);
 
-  let items = await db.select().from(inventoryItems).orderBy(asc(inventoryItems.name));
-  if (q) {
-    const needle = q.toLowerCase();
-    items = items.filter((i) => i.name.toLowerCase().includes(needle) || i.sku.toLowerCase().includes(needle) || (i.category ?? "").toLowerCase().includes(needle));
-  }
+  // Filter in SQL (indexed) and page — never pull the whole 6k+ table.
+  const conditions: SQL[] = [];
+  if (q) conditions.push(or(ilike(inventoryItems.name, `%${q}%`), ilike(inventoryItems.sku, `%${q}%`), ilike(inventoryItems.category, `%${q}%`)) as SQL);
+  if (low === "1") conditions.push(sql`${inventoryItems.reorderPoint} > 0 AND ${inventoryItems.onHand} <= ${inventoryItems.reorderPoint}`);
+  const where = conditions.length ? and(...conditions) : undefined;
+
+  const [items, [{ total }]] = await Promise.all([
+    db.select().from(inventoryItems).where(where).orderBy(asc(inventoryItems.name)).limit(PAGE_SIZE).offset((page - 1) * PAGE_SIZE),
+    db.select({ total: count() }).from(inventoryItems).where(where),
+  ]);
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const isLow = (i: (typeof items)[number]) => Number(i.onHand) <= Number(i.reorderPoint) && Number(i.reorderPoint) > 0;
-  if (low === "1") items = items.filter(isLow);
-  const lowCount = items.filter(isLow).length;
+  const qs = (p: number) => { const s = new URLSearchParams(); if (q) s.set("q", q); if (low) s.set("low", low); if (p > 1) s.set("page", String(p)); return `/inventory?${s.toString()}`; };
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -33,14 +40,13 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-neutral-900">Item master</h2>
+          <h2 className="text-sm font-semibold text-neutral-900">Item master <span className="font-normal text-neutral-400">({total.toLocaleString()})</span></h2>
           <form className="flex items-center gap-2">
             <input name="q" defaultValue={q ?? ""} placeholder="Search name / SKU / category" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500" />
             <label className="flex items-center gap-1 text-xs text-neutral-600"><input type="checkbox" name="low" value="1" defaultChecked={low === "1"} className="h-4 w-4" /> Low stock only</label>
             <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Filter</button>
           </form>
         </div>
-        {lowCount > 0 && low !== "1" && <p className="mb-2 text-xs font-medium text-amber-600">{lowCount} item{lowCount > 1 ? "s" : ""} at or below reorder point.</p>}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-400">
@@ -64,6 +70,15 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
             </tbody>
           </table>
         </div>
+        {pages > 1 && (
+          <div className="mt-3 flex items-center justify-between text-sm">
+            <span className="text-neutral-400">Page {page} of {pages}</span>
+            <div className="flex gap-2">
+              {page > 1 && <Link href={qs(page - 1)} className="rounded-md border border-neutral-300 bg-white px-3 py-1 font-medium text-neutral-700 hover:bg-neutral-50">← Prev</Link>}
+              {page < pages && <Link href={qs(page + 1)} className="rounded-md border border-neutral-300 bg-white px-3 py-1 font-medium text-neutral-700 hover:bg-neutral-50">Next →</Link>}
+            </div>
+          </div>
+        )}
       </Card>
 
       {editable && (

@@ -29,7 +29,8 @@ export default async function ArtRequestPage({ params }: { params: Promise<{ id:
   const bp = order.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : undefined;
   const [specs, attachments, proofs] = await Promise.all([
     db.select().from(orderSpecItems).where(eq(orderSpecItems.orderId, order.id)).orderBy(asc(orderSpecItems.sortOrder)),
-    db.select().from(orderAttachments).where(eq(orderAttachments.orderId, order.id)).orderBy(desc(orderAttachments.createdAt)),
+    db.select({ id: orderAttachments.id, filename: orderAttachments.filename, mimeType: orderAttachments.mimeType, kind: orderAttachments.kind })
+      .from(orderAttachments).where(eq(orderAttachments.orderId, order.id)).orderBy(desc(orderAttachments.createdAt)),
     db.select().from(orderProofs).where(eq(orderProofs.orderId, order.id)).orderBy(desc(orderProofs.createdAt)),
   ]);
 
