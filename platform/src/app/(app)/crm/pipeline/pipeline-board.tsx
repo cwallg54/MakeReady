@@ -20,7 +20,7 @@ const COLUMNS = [
   { key: "customer", label: "Customers", accent: "border-t-emerald-400" },
 ] as const;
 
-export function PipelineBoard({ cards, editable }: { cards: PipelineCard[]; editable: boolean }) {
+export function PipelineBoard({ cards, counts, editable }: { cards: PipelineCard[]; counts?: Record<string, number>; editable: boolean }) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -44,6 +44,7 @@ export function PipelineBoard({ cards, editable }: { cards: PipelineCard[]; edit
       <div className="grid gap-4 lg:grid-cols-3">
         {COLUMNS.map((col) => {
           const items = cards.filter((c) => c.stage === col.key);
+          const total = counts?.[col.key] ?? items.length;
           return (
             <div
               key={col.key}
@@ -54,7 +55,7 @@ export function PipelineBoard({ cards, editable }: { cards: PipelineCard[]; edit
             >
               <div className="flex items-center justify-between px-4 py-3">
                 <h2 className="text-sm font-semibold text-neutral-900">{col.label}</h2>
-                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-neutral-500">{items.length}</span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-neutral-500">{total.toLocaleString()}</span>
               </div>
               <div className="min-h-16 space-y-2 px-3 pb-3">
                 {items.length === 0 && <p className="px-1 py-4 text-center text-xs text-neutral-400">Nothing here yet.</p>}
@@ -75,6 +76,9 @@ export function PipelineBoard({ cards, editable }: { cards: PipelineCard[]; edit
                     )}
                   </div>
                 ))}
+                {items.length < total && (
+                  <p className="px-1 pt-1 text-center text-[11px] text-neutral-400">Showing {items.length} of {total.toLocaleString()} — use List view to filter.</p>
+                )}
               </div>
             </div>
           );

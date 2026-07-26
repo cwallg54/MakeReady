@@ -12,39 +12,30 @@ export default async function DashboardPage() {
 
   // Real foundation metrics (Admin sees the live platform state).
   const showAdminStats = user.roles.includes("admin");
-  let userCount = 0;
-  let eventsToday = 0;
-  if (showAdminStats) {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-    const [u] = await db.select({ n: count() }).from(users);
-    const [e] = await db
-      .select({ n: count() })
-      .from(auditLog)
-      .where(gte(auditLog.createdAt, startOfDay));
-    userCount = u.n;
-    eventsToday = e.n;
-  }
-
-  // CRM widgets
   const showCrm = canView(user.roles, "crm");
   const scoped = crmScopedToOwn(user.roles);
-  let stageCounts: { stage: string; n: number }[] = [];
-  let myTasks: { id: string; title: string; dueDate: Date | null; company: string; bpId: string }[] = [];
-  if (showCrm) {
-    stageCounts = await db
-      .select({ stage: businessPartners.lifecycleStage, n: count() })
-      .from(businessPartners)
-      .where(scoped ? eq(businessPartners.ownerId, user.id) : undefined)
-      .groupBy(businessPartners.lifecycleStage);
-    myTasks = await db
-      .select({ id: crmTasks.id, title: crmTasks.title, dueDate: crmTasks.dueDate, company: businessPartners.companyName, bpId: crmTasks.bpId })
-      .from(crmTasks)
-      .innerJoin(businessPartners, eq(crmTasks.bpId, businessPartners.id))
-      .where(and(eq(crmTasks.assignedToId, user.id), eq(crmTasks.status, "open")))
-      .orderBy(asc(crmTasks.dueDate))
-      .limit(8);
-  }
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  type StageCount = { stage: "lead" | "prospect" | "customer"; n: number };
+  type MyTask = { id: string; title: string; dueDate: Date | null; company: string; bpId: string };
+
+  // All dashboard widgets fetch in parallel — one batch instead of 4 sequential round-trips.
+  const [uRow, eRow, stageCounts, myTasks] = await Promise.all([
+    showAdminStats ? db.select({ n: count() }).from(users) : Promise.resolve([{ n: 0 }]),
+    showAdminStats ? db.select({ n: count() }).from(auditLog).where(gte(auditLog.createdAt, startOfDay)) : Promise.resolve([{ n: 0 }]),
+    showCrm
+      ? db.select({ stage: businessPartners.lifecycleStage, n: count() }).from(businessPartners).where(scoped ? eq(businessPartners.ownerId, user.id) : undefined).groupBy(businessPartners.lifecycleStage)
+      : Promise.resolve([] as StageCount[]),
+    showCrm
+      ? db.select({ id: crmTasks.id, title: crmTasks.title, dueDate: crmTasks.dueDate, company: businessPartners.companyName, bpId: crmTasks.bpId })
+          .from(crmTasks).innerJoin(businessPartners, eq(crmTasks.bpId, businessPartners.id))
+          .where(and(eq(crmTasks.assignedToId, user.id), eq(crmTasks.status, "open")))
+          .orderBy(asc(crmTasks.dueDate)).limit(8)
+      : Promise.resolve([] as MyTask[]),
+  ]);
+  const userCount = uRow[0]?.n ?? 0;
+  const eventsToday = eRow[0]?.n ?? 0;
   const stageCount = (s: string) => stageCounts.find((r) => r.stage === s)?.n ?? 0;
 
   const firstName = user.name.split(" ")[0];
