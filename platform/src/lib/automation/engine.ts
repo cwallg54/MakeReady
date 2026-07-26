@@ -10,11 +10,22 @@ import {
   activities,
   contacts,
   businessPartners,
+  schedulingProfiles,
   type AutomationStep,
 } from "@/db/schema";
 import { sendReminderEmail } from "@/lib/email";
 
 const DAY = 86_400_000;
+const APP_BASE = process.env.APP_URL ?? "https://makeready.g54.com";
+
+/** The account owner's self-serve booking page, or a graceful fallback. */
+async function bookingLinkFor(ownerId: string | null): Promise<string> {
+  if (ownerId) {
+    const p = await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, ownerId) });
+    if (p?.slug) return `${APP_BASE}/schedule/${p.slug}`;
+  }
+  return "just reply to this email and we'll find a time";
+}
 
 async function stepsFor(campaignId: string): Promise<AutomationStep[]> {
   return db
@@ -75,9 +86,30 @@ async function executeStep(bp: typeof businessPartners.$inferSelect, step: Autom
     }
     await db.insert(activities).values({ bpId: bp.id, type: "other", isSystem: true, content: `Automation: notified owner` });
   } else if (step.actionType === "email_customer") {
+    const link = await bookingLinkFor(bp.ownerId);
+    const fill = (s: string) =>
+      s.replace(/\{company\}/g, bp.companyName).replace(/\{booking_link\}/g, link).replace(/\[scheduling link\]/g, link);
+    const subject = fill(step.emailSubject || "A message from Great Mountain West");
+    const body = fill(step.emailBody || "");
+
+    // Safety: if the template still has manual placeholders (e.g. [date],
+    // [season], [event], specific times), don't auto-send a half-baked email —
+    // hand it to the owner to personalize and send.
+    const needsPersonalization = /\[[^\]]+\]/.test(subject) || /\[[^\]]+\]/.test(body);
+    if (needsPersonalization) {
+      await db.insert(crmTasks).values({
+        bpId: bp.id,
+        title: `Personalize & send email: “${subject}”`,
+        assignedToId: bp.ownerId ?? null,
+        dueDate: new Date(Date.now() + DAY),
+      });
+      await db.insert(activities).values({ bpId: bp.id, type: "other", isSystem: true, content: `Automation: email needs personalization → task created ("${subject}")` });
+      return;
+    }
+
     const to = await primaryEmail(bp.id, bp.email);
     if (to) {
-      const sent = await sendReminderEmail(to, step.emailSubject || "A message from Great Mountain West", (step.emailBody || "").replace(/\{company\}/g, bp.companyName));
+      const sent = await sendReminderEmail(to, subject, body);
       await db.insert(activities).values({ bpId: bp.id, type: "email", isSystem: true, content: `Automation: reminder email ${sent ? "sent" : "queued (email not yet configured)"} to ${to}` });
     }
   }
