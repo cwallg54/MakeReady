@@ -13,8 +13,29 @@ function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
+/** Per-request Content-Security-Policy. A nonce authorizes Next.js's own inline
+ *  bootstrap script; strict-dynamic lets it load its chunks. Everything else is
+ *  locked to same-origin. Blocks injected/3rd-party scripts (XSS) and framing. */
+function buildCsp(nonce: string): string {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https:`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' blob: data:",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const nonce = btoa(crypto.randomUUID());
+  const csp = buildCsp(nonce);
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const claims = token ? await verifySessionToken(token) : null;
 
@@ -25,13 +46,20 @@ export async function proxy(req: NextRequest) {
   if (!claims && !isPublic(pathname)) {
     const url = new URL("/login", req.url);
     if (pathname !== "/") url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    redirect.headers.set("Content-Security-Policy", csp);
+    return redirect;
   }
 
-  // Forward the pathname so server layouts can enforce path-aware policy (MFA).
+  // Forward the pathname (path-aware MFA policy) and the CSP/nonce so Next.js
+  // stamps the nonce onto its scripts; also set CSP on the response.
   const fwd = new Headers(req.headers);
   fwd.set("x-pathname", pathname);
-  return NextResponse.next({ request: { headers: fwd } });
+  fwd.set("x-nonce", nonce);
+  fwd.set("Content-Security-Policy", csp);
+  const res = NextResponse.next({ request: { headers: fwd } });
+  res.headers.set("Content-Security-Policy", csp);
+  return res;
 }
 
 export const config = {

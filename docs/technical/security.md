@@ -5,6 +5,33 @@
 
 ---
 
+## 0. Hardening Summary (updated 2026-07-26)
+
+Intrusion and ransomware resilience controls now in place:
+
+**Browser / transport hardening (proxy.ts + next.config.ts):**
+- **HSTS** — `max-age=63072000; includeSubDomains; preload` (forces HTTPS).
+- **Content-Security-Policy** — a per-request **nonce** authorizes only Next.js's own scripts (`strict-dynamic`); everything else is same-origin (`default-src 'self'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`). Blocks injected/third-party script (XSS) and exfiltration to other origins.
+- **Anti-framing** — `frame-ancestors 'none'` + `X-Frame-Options: DENY` (clickjacking).
+- `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` disabling camera/mic/geo/payment/usb, `Cross-Origin-Opener-Policy: same-origin`, `X-Permitted-Cross-Domain-Policies: none`, `x-powered-by` removed.
+
+**Identity & access:**
+- Per-user accounts; **bcrypt** passwords (min 10, upper/lower/number); **account lockout** after 5 failed attempts (15-min auto-clear) + admin alert.
+- **MFA**: TOTP + FIDO2/WebAuthn passkeys + single-use recovery codes; org-wide **require-MFA** policy.
+- **Single active session** per user (new login revokes others); HTTP-only, Secure, SameSite=Lax session cookie (JWT); edge signature/expiry gate + Node-layer session/active/RBAC deep checks.
+- **RBAC** (6 roles, module × access matrix, least privilege); record-level scoping for reps; admins can't self-deactivate or remove the last admin.
+- **Append-only audit log** committed atomically with every write (forensics / tamper evidence).
+
+**Data / ransomware resilience:**
+- **Neon Postgres point-in-time restore** — recover to any moment before a malicious mass-delete/encrypt (verify retention window is set to the maximum for the plan).
+- App DB role is **not a superuser** (cannot drop the database or disable logging).
+- Secrets in Vercel env only (never committed); `.bak`/exports kept off the repo.
+- **Recommended next:** enable Vercel WAF/rate-limiting rules on `/login` and the public token routes; schedule an **independent logical backup** (`pg_dump`) to write-once/offsite storage an app-level attacker can't reach; run periodic restore drills.
+
+**Dependencies:** production runtime audit clean; the only advisories are in the **eslint dev toolchain** (`brace-expansion` ReDoS), which does not ship to production.
+
+---
+
 ## 1. Architecture & Data Flow
 
 ```
