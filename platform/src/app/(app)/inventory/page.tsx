@@ -25,7 +25,11 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="max-w-5xl space-y-6">
-      <PageHeader title="Inventory" description="Item master and stock levels." />
+      <PageHeader
+        title="Inventory"
+        description="Item master and stock levels."
+        action={<Link href="/inventory/bins" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Warehouses &amp; bins</Link>}
+      />
 
       <Card>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

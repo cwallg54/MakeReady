@@ -12,6 +12,7 @@ import {
   numeric,
   primaryKey,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -195,7 +196,7 @@ export const artStatusEnum = pgEnum("art_status", ["todo", "in_progress", "proof
 // Production-job pipeline stages — the columns of the Production Kanban.
 export const productionStatusEnum = pgEnum("production_status", ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"]);
 // Stock movement reasons for the inventory ledger.
-export const stockReasonEnum = pgEnum("stock_reason", ["receive", "consume", "adjust", "count"]);
+export const stockReasonEnum = pgEnum("stock_reason", ["receive", "consume", "adjust", "count", "transfer"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
@@ -788,14 +789,58 @@ export const stockMovements = pgTable(
       .references(() => inventoryItems.id, { onDelete: "cascade" }),
     delta: numeric("delta", { precision: 14, scale: 2 }).notNull().default("0"), // + receive / - consume
     reason: stockReasonEnum("reason").notNull().default("adjust"),
+    // Bin the movement affected; toBinId is the destination for a transfer.
+    binId: uuid("bin_id").references(() => bins.id, { onDelete: "set null" }),
+    toBinId: uuid("to_bin_id").references(() => bins.id, { onDelete: "set null" }),
     note: text("note"),
     byUserId: uuid("by_user_id").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("stock_movements_item_id_idx").on(t.itemId)],
 );
+
+// ---- Bin / warehouse management -------------------------------------------
+export const warehouses = pgTable("warehouses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  active: boolean("active").notNull().default(true),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const bins = pgTable(
+  "bins",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    warehouseId: uuid("warehouse_id").notNull().references(() => warehouses.id, { onDelete: "cascade" }),
+    code: text("code").notNull(),
+    description: text("description"),
+    isReceiving: boolean("is_receiving").notNull().default(false),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("bins_whs_code_idx").on(t.warehouseId, t.code)],
+);
+
+// On-hand quantity of an item in a specific bin (the source of truth for stock).
+export const itemBinStock = pgTable(
+  "item_bin_stock",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("item_id").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+    binId: uuid("bin_id").notNull().references(() => bins.id, { onDelete: "cascade" }),
+    qty: numeric("qty", { precision: 14, scale: 2 }).notNull().default("0"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("item_bin_stock_item_bin_idx").on(t.itemId, t.binId), index("item_bin_stock_bin_idx").on(t.binId)],
+);
+
 export type InventoryItem = typeof inventoryItems.$inferSelect;
 export type StockMovement = typeof stockMovements.$inferSelect;
+export type Warehouse = typeof warehouses.$inferSelect;
+export type Bin = typeof bins.$inferSelect;
+export type ItemBinStock = typeof itemBinStock.$inferSelect;
 
 // ---- Secure customer intake documents (terms / credit card applications) ---
 // Customer completes these via a token link — no sensitive data over email.

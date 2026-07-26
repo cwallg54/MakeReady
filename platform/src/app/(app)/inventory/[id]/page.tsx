@@ -1,19 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, gt } from "drizzle-orm";
 import { db } from "@/db";
-import { inventoryItems, stockMovements } from "@/db/schema";
+import { inventoryItems, stockMovements, bins, warehouses, itemBinStock } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { Card, PageHeader } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
-import { updateItemAction, adjustStockAction, deleteItemAction } from "@/lib/inventory/actions";
+import { updateItemAction, deleteItemAction } from "@/lib/inventory/actions";
+import { binAdjustAction, binTransferAction } from "@/lib/inventory/bin-actions";
 import { fmtDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
-const REASON_LABEL: Record<string, string> = { receive: "Received", consume: "Consumed", adjust: "Adjusted", count: "Counted" };
+const REASON_LABEL: Record<string, string> = { receive: "Received", consume: "Consumed", adjust: "Adjusted", count: "Counted", transfer: "Transferred" };
 
 export default async function InventoryItemPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireModule("inventory");
@@ -22,8 +23,37 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
 
   const item = await db.query.inventoryItems.findFirst({ where: eq(inventoryItems.id, id) });
   if (!item) notFound();
-  const movements = await db.select().from(stockMovements).where(eq(stockMovements.itemId, id)).orderBy(desc(stockMovements.createdAt));
+
+  const [movements, allBins, stock] = await Promise.all([
+    db.select().from(stockMovements).where(eq(stockMovements.itemId, id)).orderBy(desc(stockMovements.createdAt)).limit(50),
+    db.select({ id: bins.id, code: bins.code, whs: warehouses.code, whsName: warehouses.name })
+      .from(bins).innerJoin(warehouses, eq(warehouses.id, bins.warehouseId))
+      .where(eq(bins.active, true)).orderBy(asc(warehouses.code), asc(bins.code)),
+    db.select({ qty: itemBinStock.qty, binId: bins.id, binCode: bins.code, whs: warehouses.code, whsName: warehouses.name })
+      .from(itemBinStock)
+      .innerJoin(bins, eq(bins.id, itemBinStock.binId))
+      .innerJoin(warehouses, eq(warehouses.id, bins.warehouseId))
+      .where(and(eq(itemBinStock.itemId, id), gt(itemBinStock.qty, "0")))
+      .orderBy(asc(warehouses.code), asc(bins.code)),
+  ]);
   const low = Number(item.onHand) <= Number(item.reorderPoint) && Number(item.reorderPoint) > 0;
+
+  // Bins grouped by warehouse for the <select> option groups.
+  const byWhs = new Map<string, { code: string; id: string }[]>();
+  for (const b of allBins) {
+    const key = `${b.whs} — ${b.whsName}`;
+    if (!byWhs.has(key)) byWhs.set(key, []);
+    byWhs.get(key)!.push({ code: b.code, id: b.id });
+  }
+  const BinOptions = () => (
+    <>
+      {[...byWhs.entries()].map(([label, bs]) => (
+        <optgroup key={label} label={label}>
+          {bs.map((b) => <option key={b.id} value={b.id}>{b.code}</option>)}
+        </optgroup>
+      ))}
+    </>
+  );
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -34,29 +64,64 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
         action={<span className={`rounded-full px-3 py-1 text-sm font-semibold ${low ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>{Number(item.onHand)} {item.unit} on hand{low ? " · low" : ""}</span>}
       />
 
-      {editable && (
-        <Card>
-          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Adjust stock</h2>
-          <form action={adjustStockAction} className="flex flex-wrap items-end gap-2">
-            <input type="hidden" name="id" value={item.id} />
-            <label className="flex flex-col text-xs text-neutral-500">Action
-              <select name="reason" className={`mt-1 ${input}`}>
-                <option value="receive">Receive (+)</option>
-                <option value="consume">Consume (−)</option>
-                <option value="count">Set count</option>
-                <option value="adjust">Adjust (±)</option>
-              </select>
-            </label>
-            <label className="flex flex-col text-xs text-neutral-500">Quantity
-              <input name="qty" type="number" step="0.01" className={`mt-1 w-28 ${input}`} />
-            </label>
-            <label className="flex flex-1 flex-col text-xs text-neutral-500">Note
-              <input name="note" placeholder="e.g. PO #, job, count basis" className={`mt-1 ${input}`} />
-            </label>
-            <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Apply</button>
-          </form>
-          <p className="mt-2 text-xs text-neutral-400">Receive adds, Consume subtracts, Set count sets the on-hand to the entered value, Adjust applies a signed change.</p>
-        </Card>
+      {/* Stock by bin */}
+      <Card>
+        <h2 className="mb-3 text-sm font-semibold text-neutral-900">Stock by bin</h2>
+        {stock.length === 0 ? (
+          <p className="text-xs text-neutral-400">Not placed in any bin yet. Use “Receive into bin” below.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase tracking-wide text-neutral-400"><tr><th className="py-1">Warehouse</th><th className="py-1">Bin</th><th className="py-1 text-right">Qty</th></tr></thead>
+            <tbody className="divide-y divide-neutral-100">
+              {stock.map((s) => (
+                <tr key={s.binId}>
+                  <td className="py-1.5 text-neutral-600">{s.whs} · {s.whsName}</td>
+                  <td className="py-1.5 font-mono text-xs text-neutral-800">{s.binCode}</td>
+                  <td className="py-1.5 text-right font-medium text-neutral-900">{Number(s.qty)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
+
+      {editable && allBins.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card>
+            <h2 className="mb-2 text-sm font-semibold text-neutral-900">Bin activity</h2>
+            <form action={binAdjustAction} className="space-y-2">
+              <input type="hidden" name="itemId" value={item.id} />
+              <div className="grid grid-cols-2 gap-2">
+                <label className="flex flex-col text-xs text-neutral-500">Bin<select name="binId" className={`mt-1 ${input}`}><BinOptions /></select></label>
+                <label className="flex flex-col text-xs text-neutral-500">Action
+                  <select name="reason" className={`mt-1 ${input}`}>
+                    <option value="receive">Receive (+)</option>
+                    <option value="consume">Consume (−)</option>
+                    <option value="count">Set count</option>
+                    <option value="adjust">Adjust (±)</option>
+                  </select>
+                </label>
+              </div>
+              <label className="flex flex-col text-xs text-neutral-500">Quantity<input name="qty" type="number" step="0.01" className={`mt-1 ${input}`} /></label>
+              <label className="flex flex-col text-xs text-neutral-500">Note<input name="note" placeholder="PO #, job, count basis" className={`mt-1 ${input}`} /></label>
+              <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Apply</button>
+            </form>
+          </Card>
+
+          <Card>
+            <h2 className="mb-2 text-sm font-semibold text-neutral-900">Transfer between bins</h2>
+            <form action={binTransferAction} className="space-y-2">
+              <input type="hidden" name="itemId" value={item.id} />
+              <div className="grid grid-cols-2 gap-2">
+                <label className="flex flex-col text-xs text-neutral-500">From<select name="fromBinId" className={`mt-1 ${input}`}>{stock.map((s) => <option key={s.binId} value={s.binId}>{s.binCode} ({Number(s.qty)})</option>)}</select></label>
+                <label className="flex flex-col text-xs text-neutral-500">To<select name="toBinId" className={`mt-1 ${input}`}><BinOptions /></select></label>
+              </div>
+              <label className="flex flex-col text-xs text-neutral-500">Quantity<input name="qty" type="number" step="0.01" className={`mt-1 ${input}`} /></label>
+              <label className="flex flex-col text-xs text-neutral-500">Note<input name="note" className={`mt-1 ${input}`} /></label>
+              <button className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50" disabled={stock.length === 0}>Transfer</button>
+            </form>
+          </Card>
+        </div>
       )}
 
       <Card>
