@@ -31,18 +31,20 @@ async function sendEmail(to: string, subject: string, html: string, attachments?
   return true;
 }
 
-/** Email a sales-order PDF to the customer. Returns true if actually sent. */
-export async function sendOrderEmail(to: string, orderNumber: string, pdfBase64: string, filename: string): Promise<boolean> {
+/** Email a sales order to the customer with attachments (PDF + item image).
+ *  Returns true if actually sent. */
+export async function sendOrderEmail(to: string, orderNumber: string, attachments: EmailAttachment[]): Promise<boolean> {
+  const hasImage = attachments.length > 1;
   return sendEmail(
     to,
     `Great Mountain West — Sales Order ${orderNumber}`,
     `<div style="font-family:system-ui,sans-serif;max-width:520px">
        <p>Hello,</p>
-       <p>Please find your sales order <strong>${orderNumber}</strong> attached as a PDF.</p>
+       <p>Please find your sales order <strong>${orderNumber}</strong> attached as a PDF${hasImage ? ", along with a preview image of your item" : ""}.</p>
        <p>Thank you for your business.</p>
        <p>— Great Mountain West (G54)</p>
      </div>`,
-    [{ filename, content: pdfBase64 }],
+    attachments,
   );
 }
 

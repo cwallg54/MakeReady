@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { and } from "drizzle-orm";
-import { orders, orderEvents, orderArtifacts, activities, businessPartners, contacts } from "@/db/schema";
+import { orders, orderEvents, orderArtifacts, orderAttachments, activities, businessPartners, contacts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -56,9 +56,19 @@ export async function emailOrderPdfAction(formData: FormData): Promise<void> {
   const contact = order.bpId ? await db.query.contacts.findFirst({ where: and(eq(contacts.bpId, order.bpId), eq(contacts.isPrimary, true)) }) : undefined;
   const to = contact?.email ?? bp?.email ?? "";
 
+  // Attach the order PDF (the quoted line items & pricing) plus a preview image
+  // of the item — prefer the catalogue image, then a proof/mockup, then customer art.
+  const attachments = [{ filename: pdf.filename, content: pdf.base64 }];
+  const atts = await db.select().from(orderAttachments).where(eq(orderAttachments.orderId, id));
+  const rank: Record<string, number> = { catalog: 0, mockup: 1, art: 2, reference: 3 };
+  const image = atts
+    .filter((a) => a.mimeType.startsWith("image/"))
+    .sort((a, b) => (rank[a.kind] ?? 9) - (rank[b.kind] ?? 9))[0];
+  if (image) attachments.push({ filename: image.filename, content: image.contentBase64 });
+
   let status: "sent" | "queued" | "saved" = "saved";
   if (to) {
-    const sent = await sendOrderEmail(to, order.orderNumber, pdf.base64, pdf.filename);
+    const sent = await sendOrderEmail(to, order.orderNumber, attachments);
     status = sent ? "sent" : "queued"; // queued = email provider not yet live
   }
 
