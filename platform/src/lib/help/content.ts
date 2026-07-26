@@ -196,7 +196,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           { text: "Pick an Account group (this drives pricing tier and Web Store catalog) and an Owner. Sales Reps automatically own what they create, so the Owner field is hidden for them." },
           { text: "Add comma-separated Tags if useful (e.g. \"VIP, screen-print\")." },
           { text: "Optionally choose a financial application to send — \"Terms / Credit Application\" or \"Credit Card Application\" — and a secure request is created automatically on save." },
-          { text: "Fill in the Primary contact (name and email are required) and an Address. Finance-capable roles also see optional Terms fields (credit limit, payment terms, internal notes)." },
+          { text: "Fill in the Primary contact (name and email are required) and an Address. Finance-capable roles also see the Terms section — a credit limit, internal notes, and Payment terms, which is a dropdown with two choices: Net 30 or Prepay (Credit Card)." },
           { text: "Click \"Create Business Partner\". A BP number is assigned and you're taken to the new record." },
         ],
       },
@@ -306,8 +306,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
           { text: "Under \"Charges & setup\", tick the charges that apply (screen prep, decoration, rush, art, etc.). Some ask for a quantity, like number of colors or hours." },
           { text: "Tick \"Reorder\" if this is a repeat job — new-only setup charges (like new screen prep) drop off automatically." },
           { text: "Add any Notes, set a Discount if needed, and click \"Save quote\"." },
+          { text: "Upload anything the customer provided during intake — logos, artwork, reference photos — under \"Customer artwork & reference images\". Pick the kind (Customer art / Reference / Mockup), choose the file, and click Upload.", img: "quote-attachments.png", caption: "Attach customer-provided art right on the quote — it carries to the order and the art department automatically." },
         ],
       },
+      { k: "tip", text: "Images you attach here at the intake stage are copied onto the order when the quote is converted, so the art department has exactly what the customer sent — no re-uploading." },
       { k: "h", text: "How pricing works" },
       {
         k: "list",
@@ -460,7 +462,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "The proposed artwork appears right on the customer's order tracking link (no login), so they see it in the same place they follow their order.", img: "proof.png", caption: "The customer reviews the proof on their tracking page." },
+          { text: "The proposed artwork appears right on the customer's order tracking link (no login), so they see it in the same place they follow their order.", img: "proof-on-tracker.png", caption: "The customer reviews the proof on their tracking page." },
           { text: "They choose Approve, Request changes, Decline (each with notes), or Request a meeting, then type their name to sign and submit." },
           { text: "You get a notification and the decision is logged to the customer's CRM history." },
         ],
@@ -490,6 +492,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "Times on the tracker display in Mountain Time, matching the shop." },
       { k: "h", text: "Approving artwork from the tracker" },
       { k: "p", text: "When the art department sends a proof, the proposed image appears on this same tracking page. The customer can approve it, request changes, decline, or request a meeting — right there, without a separate link or login. See Proof & art approvals." },
+      { k: "img", src: "proof-on-tracker.png", caption: "A pending proof shown on the customer's tracker, with the approval options." },
     ],
     related: ["art-department", "proof-approvals", "orders-and-production-stages"],
   },
@@ -504,6 +507,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "How an order reaches art" },
       { k: "p", text: "On the order page, the salesperson clicks \"Submit to art →\". That creates an art request, moves the order into the Art & Proof stage, and notifies the art team. The catalogue image the customer picked and the production spec travel with it, so art sees exactly what was ordered." },
       { k: "h", text: "The Art board — Queue and Kanban" },
+      { k: "img", src: "art-board.png", caption: "The Art Department board — toggle between Queue and Kanban." },
       {
         k: "steps",
         items: [
@@ -513,16 +517,18 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "h", text: "Do the work & send a proof" },
+      { k: "img", src: "art-request.png", caption: "An art request: order details, spec, customer + proposed images, and the send-proof panel." },
       {
         k: "steps",
         items: [
-          { text: "Open a request to see the order, the production spec, and all images — the catalogue image, any customer art/references, and your proposed art." },
-          { text: "Upload your proposed/customized artwork under Images." },
+          { text: "Open a request to see the order, the production spec, and all images — the catalogue image, any customer art/references, and your proposed art. Click any image to open or download the original to edit." },
+          { text: "Edit the customer's file in your design tool, then upload your proposed/customized artwork under Images." },
           { text: "Under \"Send a proof to the customer\", give it a title, pick the art to show, add an optional message, and click \"Send proof\". The request moves to Proofing." },
         ],
       },
       { k: "h", text: "What happens next" },
       { k: "p", text: "The proposed image appears on the customer's order tracking link. They approve it, request changes (with notes), decline, or request a meeting. You're notified of their decision, and it's logged to the customer's history. If they request changes, revise the art and send a new proof." },
+      { k: "img", src: "proof-on-tracker.png", caption: "The customer reviews and approves the proof on their tracking page." },
       { k: "tip", text: "The customer never needs a login or a separate link — the proof shows up on the same tracker they already use to follow the order." },
     ],
     related: ["proof-approvals", "customer-order-tracker", "orders-and-production-stages"],

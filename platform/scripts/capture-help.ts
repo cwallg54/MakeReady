@@ -12,7 +12,7 @@ import { chromium } from "playwright";
 import { db } from "../src/db";
 import {
   users, sessions, businessPartners, contacts, accountGroups, activities,
-  quotes, quoteLines, quoteCharges, orders, orderEvents, orderSpecItems, orderAttachments, orderProofs, customerDocuments,
+  quotes, quoteLines, quoteCharges, quoteAttachments, orders, orderEvents, orderSpecItems, orderAttachments, orderProofs, artRequests, customerDocuments,
   meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings,
 } from "../src/db/schema";
 
@@ -70,6 +70,10 @@ async function main() {
     { quoteId: quote.id, key: "setup", label: "Screen setup (2 colors)", type: "per_color", rate: "45.00", inputQty: "2", amount: "90.00" },
     { quoteId: quote.id, key: "rush", label: "Rush handling", type: "flat", rate: "55.00", inputQty: "1", amount: "55.00" },
   ]);
+  await db.insert(quoteAttachments).values([
+    { quoteId: quote.id, filename: "acme-logo.png", mimeType: "image/png", sizeBytes: 70, kind: "art", contentBase64: DEMO_PNG, notes: "Provided at intake", uploadedBy: admin.id },
+    { quoteId: quote.id, filename: "placement-reference.png", mimeType: "image/png", sizeBytes: 70, kind: "reference", contentBase64: DEMO_PNG, uploadedBy: admin.id },
+  ]);
 
   const orderToken = tok();
   const [order] = await db.insert(orders).values({
@@ -97,6 +101,12 @@ async function main() {
     title: "Front & back proof — SO-DEMO1", message: "Please confirm spelling, colors, and placement before we print.",
     requestedBy: admin.id,
   });
+  const [artReq] = await db.insert(artRequests).values({
+    orderId: order.id, status: "proofing", assignedTo: admin.id, rush: false,
+    dueDate: new Date(Date.now() + 10 * 86400000),
+    brief: "Customer's logo on navy tees — front + back, 2-color (white + PMS 872 gold).",
+    createdBy: admin.id,
+  }).returning({ id: artRequests.id });
 
   const applyToken = tok();
   const [pendingDoc] = await db.insert(customerDocuments).values({
@@ -139,6 +149,8 @@ async function main() {
     ["pipeline", "/crm/pipeline"],
     ["quote-new", "/sales/quotes/new"],
     ["quote-builder", `/sales/quotes/${quote.id}`],
+    ["art-board", "/art"],
+    ["art-request", `/art/${artReq.id}`],
     ["order-detail", `/sales/orders/${order.id}`],
     ["automations", "/sales/automations"],
     ["calendar", "/calendar"],
@@ -183,19 +195,23 @@ async function main() {
   console.log("Authenticated screenshots:");
   for (const [n, p] of authed) await shoot(authCtx, n, p);
 
-  // Full-page shot of the order to show production details + attachments below the fold.
-  {
-    const pp = await authCtx.newPage();
-    await pp.goto(`${BASE}/sales/orders/${order.id}`, { waitUntil: "networkidle", timeout: 45000 }).catch(() => {});
+  // Full-page shots that need content below the fold.
+  const fullPage = async (ctx: import("playwright").BrowserContext, name: string, path: string) => {
+    const pp = await ctx.newPage();
+    await pp.goto(`${BASE}${path}`, { waitUntil: "networkidle", timeout: 45000 }).catch(() => {});
     await pp.waitForTimeout(1200);
-    await pp.screenshot({ path: `${OUT}/order-production.png`, fullPage: true });
+    await pp.screenshot({ path: `${OUT}/${name}.png`, fullPage: true });
     await pp.close();
-    console.log(`  ✓ order-production.png  (/sales/orders/${order.id}, full page)`);
-  }
+    console.log(`  ✓ ${name}.png  (${path}, full page)`);
+  };
+  await fullPage(authCtx, "order-production", `/sales/orders/${order.id}`);
+  await fullPage(authCtx, "quote-attachments", `/sales/quotes/${quote.id}`);
 
   const pubCtx = await browser.newContext({ viewport: { width: 1280, height: 1000 }, deviceScaleFactor: 2 });
   console.log("Public screenshots:");
   for (const [n, p] of publics) await shoot(pubCtx, n, p);
+  // Full-page tracker showing the pending proof + approval options below the fold.
+  await fullPage(pubCtx, "proof-on-tracker", `/track/${orderToken}`);
 
   await browser.close();
 
