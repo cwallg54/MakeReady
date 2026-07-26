@@ -15,6 +15,7 @@ import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
 import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
 import { submitToArtAction } from "@/lib/art/actions";
+import { sendToProductionAction } from "@/lib/production/actions";
 import { voidOrderAction } from "@/lib/orders/detail-actions";
 import { desc } from "drizzle-orm";
 
@@ -94,10 +95,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               <h2 className="text-sm font-semibold text-neutral-900">Art department</h2>
               <p className="text-xs text-neutral-500">Hand this order to the art team for design, customization, and proofing. The catalogue image and spec go with it.</p>
             </div>
-            <form action={submitToArtAction}>
-              <input type="hidden" name="orderId" value={order.id} />
-              <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Submit to art →</button>
-            </form>
+            <div className="flex flex-wrap gap-2">
+              <form action={submitToArtAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50">Submit to art →</button>
+              </form>
+              <form action={sendToProductionAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Send to production →</button>
+              </form>
+            </div>
           </div>
         </Card>
       )}

@@ -192,6 +192,10 @@ export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "p
 export const proofStatusEnum = pgEnum("proof_status", ["pending", "approved", "changes_requested", "declined", "meeting_requested"]);
 // Art-request pipeline stages — these are the columns of the Art department Kanban.
 export const artStatusEnum = pgEnum("art_status", ["todo", "in_progress", "proofing", "revisions", "approved", "done"]);
+// Production-job pipeline stages — the columns of the Production Kanban.
+export const productionStatusEnum = pgEnum("production_status", ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"]);
+// Stock movement reasons for the inventory ledger.
+export const stockReasonEnum = pgEnum("stock_reason", ["receive", "consume", "adjust", "count"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
@@ -729,6 +733,69 @@ export type OrderSpecItem = typeof orderSpecItems.$inferSelect;
 export type OrderAttachment = typeof orderAttachments.$inferSelect;
 export type OrderProof = typeof orderProofs.$inferSelect;
 export type ArtRequest = typeof artRequests.$inferSelect;
+
+// Production job for an order — one per order. Drives the Production queue (list)
+// and Kanban (board). Status = Kanban column; assignee = operator.
+export const productionJobs = pgTable(
+  "production_jobs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
+      .notNull()
+      .unique()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    status: productionStatusEnum("status").notNull().default("queued"),
+    assignedTo: uuid("assigned_to").references(() => users.id, { onDelete: "set null" }),
+    rush: boolean("rush").notNull().default(false),
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("production_jobs_status_idx").on(t.status), index("production_jobs_assigned_to_idx").on(t.assignedTo)],
+);
+export type ProductionJob = typeof productionJobs.$inferSelect;
+
+// ---- Inventory (item master + stock ledger) -------------------------------
+export const inventoryItems = pgTable(
+  "inventory_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sku: text("sku").notNull().unique(),
+    name: text("name").notNull(),
+    category: text("category"),
+    unit: text("unit").notNull().default("each"),
+    supplier: text("supplier"),
+    cost: numeric("cost", { precision: 12, scale: 2 }).notNull().default("0"),
+    onHand: numeric("on_hand", { precision: 14, scale: 2 }).notNull().default("0"),
+    reorderPoint: numeric("reorder_point", { precision: 14, scale: 2 }).notNull().default("0"),
+    active: boolean("active").notNull().default(true),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("inventory_items_sku_idx").on(t.sku)],
+);
+
+// Append-only stock ledger — every change to on-hand is a signed movement.
+export const stockMovements = pgTable(
+  "stock_movements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("item_id")
+      .notNull()
+      .references(() => inventoryItems.id, { onDelete: "cascade" }),
+    delta: numeric("delta", { precision: 14, scale: 2 }).notNull().default("0"), // + receive / - consume
+    reason: stockReasonEnum("reason").notNull().default("adjust"),
+    note: text("note"),
+    byUserId: uuid("by_user_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("stock_movements_item_id_idx").on(t.itemId)],
+);
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type StockMovement = typeof stockMovements.$inferSelect;
 
 // ---- Secure customer intake documents (terms / credit card applications) ---
 // Customer completes these via a token link — no sensitive data over email.

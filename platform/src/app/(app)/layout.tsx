@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
-import { visibleModules, ROLE_LABELS } from "@/lib/rbac";
+import { visibleModules, canView, ROLE_LABELS } from "@/lib/rbac";
 import { canDoArt } from "@/lib/art/access";
 import { db } from "@/db";
 import { notifications, systemSettings } from "@/db/schema";
@@ -37,23 +37,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ],
   };
 
-  const items: NavItem[] = visibleModules(user.roles).map((m) => {
-    const children = m.phase1 ? SUBMENUS[m.key] : undefined;
-    return {
-      key: m.key,
-      label: m.label,
-      href: children ? undefined : m.phase1 ? m.href : `/module/${m.key}`,
-      phase1: m.phase1,
-      children,
-    };
-  });
-  // Art department board — for the art team, production, sales managers, admins.
-  // Placed directly below Sales in the sidebar.
-  if (canDoArt(user.roles)) {
-    const art: NavItem = { key: "art", label: "Art Department", href: "/art", phase1: true };
+  // The Operations group (Art, Production, Inventory) is rendered as a custom
+  // cluster below Sales, so exclude their base modules from the auto list.
+  const items: NavItem[] = visibleModules(user.roles)
+    .filter((m) => m.key !== "jobs" && m.key !== "inventory")
+    .map((m) => {
+      const children = m.phase1 ? SUBMENUS[m.key] : undefined;
+      return {
+        key: m.key,
+        label: m.label,
+        href: children ? undefined : m.phase1 ? m.href : `/module/${m.key}`,
+        phase1: m.phase1,
+        children,
+      };
+    });
+
+  // Operations cluster — placed directly below Sales in the sidebar.
+  const ops: NavItem[] = [];
+  if (canDoArt(user.roles)) ops.push({ key: "art", label: "Art Department", href: "/art", phase1: true });
+  if (canView(user.roles, "jobs")) ops.push({ key: "production", label: "Production", href: "/production", phase1: true });
+  if (canView(user.roles, "inventory")) ops.push({ key: "inventory", label: "Inventory", href: "/inventory", phase1: true });
+  if (ops.length) {
     const salesIdx = items.findIndex((i) => i.key === "sales");
-    if (salesIdx >= 0) items.splice(salesIdx + 1, 0, art);
-    else items.push(art);
+    items.splice(salesIdx >= 0 ? salesIdx + 1 : items.length, 0, ...ops);
   }
   // Help Center — available to everyone.
   items.push({ key: "help", label: "Help", href: "/help", phase1: true });

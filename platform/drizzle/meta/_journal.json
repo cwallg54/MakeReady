@@ -134,6 +134,13 @@
       "when": 1785099088786,
       "tag": "0018_handy_the_hand",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1785101992077,
+      "tag": "0019_numerous_thunderbolt",
+      "breakpoints": true
     }
   ]
 }
