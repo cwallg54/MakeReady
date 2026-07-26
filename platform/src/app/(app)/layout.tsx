@@ -48,8 +48,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     };
   });
   // Art department board — for the art team, production, sales managers, admins.
+  // Placed directly below Sales in the sidebar.
   if (canDoArt(user.roles)) {
-    items.push({ key: "art", label: "Art Department", href: "/art", phase1: true });
+    const art: NavItem = { key: "art", label: "Art Department", href: "/art", phase1: true };
+    const salesIdx = items.findIndex((i) => i.key === "sales");
+    if (salesIdx >= 0) items.splice(salesIdx + 1, 0, art);
+    else items.push(art);
   }
   // Help Center — available to everyone.
   items.push({ key: "help", label: "Help", href: "/help", phase1: true });
