@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { setStageAction } from "@/lib/crm/actions";
+import { useTouchKanban, DragGhost } from "@/components/kanban-touch";
 
 export interface PipelineCard {
   id: string;
@@ -38,9 +39,12 @@ export function PipelineBoard({ cards, counts, editable }: { cards: PipelineCard
     });
   }
 
+  // Touch drag support (phones/tablets); desktop keeps native mouse DnD below.
+  const touch = useTouchKanban(editable, move);
+
   return (
     <>
-      {editable && <p className="mb-3 text-xs text-neutral-400">Drag a card between columns to change its stage.{pending ? " · saving…" : ""}</p>}
+      {editable && <p className="mb-3 text-xs text-neutral-400">Drag a card between columns to change its stage — on a phone, press and hold a card, then drag.{pending ? " · saving…" : ""}</p>}
       <div className="grid gap-4 lg:grid-cols-3">
         {COLUMNS.map((col) => {
           const items = cards.filter((c) => c.stage === col.key);
@@ -48,10 +52,11 @@ export function PipelineBoard({ cards, counts, editable }: { cards: PipelineCard
           return (
             <div
               key={col.key}
+              data-kanban-col={col.key}
               onDragOver={(e) => { if (editable) { e.preventDefault(); setOverCol(col.key); } }}
               onDragLeave={() => setOverCol((c) => (c === col.key ? null : c))}
               onDrop={() => { if (editable && dragId) move(dragId, col.key); setOverCol(null); }}
-              className={`rounded-lg border border-neutral-200 border-t-4 ${col.accent} bg-neutral-50 ${overCol === col.key ? "ring-2 ring-neutral-400" : ""}`}
+              className={`rounded-lg border border-neutral-200 border-t-4 ${col.accent} bg-neutral-50 transition-shadow ${overCol === col.key || touch.overCol === col.key ? "ring-2 ring-neutral-500" : ""}`}
             >
               <div className="flex items-center justify-between px-4 py-3">
                 <h2 className="text-sm font-semibold text-neutral-900">{col.label}</h2>
@@ -65,7 +70,9 @@ export function PipelineBoard({ cards, counts, editable }: { cards: PipelineCard
                     draggable={editable}
                     onDragStart={() => setDragId(r.id)}
                     onDragEnd={() => setDragId(null)}
-                    className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${editable ? "cursor-grab active:cursor-grabbing" : ""}`}
+                    onTouchStart={(e) => touch.onCardTouchStart(e, r.id, r.companyName)}
+                    onContextMenu={(e) => { if (editable) e.preventDefault(); }}
+                    className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${editable ? "cursor-grab select-none active:cursor-grabbing" : ""} ${touch.dragId === r.id ? "opacity-40" : ""}`}
                   >
                     <Link href={`/crm/${r.id}`} className="text-sm font-medium text-neutral-900 hover:underline">{r.companyName}</Link>
                     <p className="mt-0.5 text-xs text-neutral-500">{r.ownerName ?? "Unassigned"}{r.leadSource ? ` · ${r.leadSource}` : ""}</p>
@@ -84,6 +91,7 @@ export function PipelineBoard({ cards, counts, editable }: { cards: PipelineCard
           );
         })}
       </div>
+      <DragGhost ghost={touch.ghost} />
     </>
   );
 }

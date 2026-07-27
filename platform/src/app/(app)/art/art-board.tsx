@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { setArtStatusAction, assignArtAction } from "@/lib/art/actions";
+import { useTouchKanban, DragGhost } from "@/components/kanban-touch";
 
 export interface ArtCard {
   id: string;
@@ -33,6 +34,7 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
   const [dragId, setDragId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const touch = useTouchKanban(true, move);
 
   function move(id: string, status: string) {
     const card = cards.find((c) => c.id === id);
@@ -62,6 +64,7 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
       className={inputCls}
       title="Assignee"
       onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
     >
       <option value="__none">Unassigned</option>
       <option value="__me">Me</option>
@@ -76,7 +79,9 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
       draggable={draggable}
       onDragStart={() => setDragId(c.id)}
       onDragEnd={() => setDragId(null)}
-      className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+      onTouchStart={draggable ? (e) => touch.onCardTouchStart(e, c.id, c.orderNumber) : undefined}
+      onContextMenu={(e) => { if (draggable) e.preventDefault(); }}
+      className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${draggable ? "cursor-grab select-none active:cursor-grabbing" : ""} ${touch.dragId === c.id ? "opacity-40" : ""}`}
     >
       <div className="flex items-center justify-between">
         <Link href={`/art/${c.id}`} className="text-sm font-semibold text-neutral-900 hover:underline">{c.orderNumber}</Link>
@@ -112,9 +117,10 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
             return (
               <div
                 key={col.key}
+                data-kanban-col={col.key}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => dragId && move(dragId, col.key)}
-                className="flex min-h-32 flex-col rounded-xl border border-neutral-200 bg-neutral-50 p-2"
+                className={`flex min-h-32 flex-col rounded-xl border border-neutral-200 bg-neutral-50 p-2 transition-shadow ${touch.overCol === col.key ? "ring-2 ring-neutral-500" : ""}`}
               >
                 <div className="mb-2 flex items-center justify-between px-1">
                   <span className="text-xs font-semibold text-neutral-700">{col.label}</span>
@@ -160,6 +166,7 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
           </table>
         </div>
       )}
+      <DragGhost ghost={touch.ghost} />
     </div>
   );
 }

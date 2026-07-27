@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { setJobStatusAction, assignJobAction } from "@/lib/production/actions";
+import { useTouchKanban, DragGhost } from "@/components/kanban-touch";
 
 export interface JobCard {
   id: string;
@@ -32,6 +33,7 @@ export function ProductionBoard({ cards, team, meId }: { cards: JobCard[]; team:
   const [dragId, setDragId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+  const touch = useTouchKanban(true, move);
 
   function move(id: string, status: string) {
     const card = cards.find((c) => c.id === id);
@@ -55,7 +57,7 @@ export function ProductionBoard({ cards, team, meId }: { cards: JobCard[]; team:
   }
 
   const Assignee = ({ c }: { c: JobCard }) => (
-    <select value={c.assignedTo ?? "__none"} onChange={(e) => assign(c.id, e.target.value)} className={inputCls} title="Assignee" onClick={(e) => e.stopPropagation()}>
+    <select value={c.assignedTo ?? "__none"} onChange={(e) => assign(c.id, e.target.value)} className={inputCls} title="Assignee" onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()}>
       <option value="__none">Unassigned</option>
       <option value="__me">Me</option>
       {team.map((u) => (
@@ -69,7 +71,9 @@ export function ProductionBoard({ cards, team, meId }: { cards: JobCard[]; team:
       draggable={draggable}
       onDragStart={() => setDragId(c.id)}
       onDragEnd={() => setDragId(null)}
-      className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+      onTouchStart={draggable ? (e) => touch.onCardTouchStart(e, c.id, c.orderNumber) : undefined}
+      onContextMenu={(e) => { if (draggable) e.preventDefault(); }}
+      className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${draggable ? "cursor-grab select-none active:cursor-grabbing" : ""} ${touch.dragId === c.id ? "opacity-40" : ""}`}
     >
       <div className="flex items-center justify-between">
         <Link href={`/production/${c.id}`} className="text-sm font-semibold text-neutral-900 hover:underline">{c.orderNumber}</Link>
@@ -97,7 +101,7 @@ export function ProductionBoard({ cards, team, meId }: { cards: JobCard[]; team:
           {COLUMNS.map((col) => {
             const colCards = cards.filter((c) => c.status === col.key);
             return (
-              <div key={col.key} onDragOver={(e) => e.preventDefault()} onDrop={() => dragId && move(dragId, col.key)} className="flex min-h-32 flex-col rounded-xl border border-neutral-200 bg-neutral-50 p-2">
+              <div key={col.key} data-kanban-col={col.key} onDragOver={(e) => e.preventDefault()} onDrop={() => dragId && move(dragId, col.key)} className={`flex min-h-32 flex-col rounded-xl border border-neutral-200 bg-neutral-50 p-2 transition-shadow ${touch.overCol === col.key ? "ring-2 ring-neutral-500" : ""}`}>
                 <div className="mb-2 flex items-center justify-between px-1">
                   <span className="text-xs font-semibold text-neutral-700">{col.label}</span>
                   <span className="rounded-full bg-neutral-200 px-1.5 text-[10px] text-neutral-600">{colCards.length}</span>
@@ -134,6 +138,7 @@ export function ProductionBoard({ cards, team, meId }: { cards: JobCard[]; team:
           </table>
         </div>
       )}
+      <DragGhost ghost={touch.ghost} />
     </div>
   );
 }
