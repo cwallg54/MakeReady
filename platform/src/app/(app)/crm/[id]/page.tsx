@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, count, sql } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, canView, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
-import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles, orders, quotes } from "@/db/schema";
+import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles, orders, quotes, historicalOrders } from "@/db/schema";
 import { FinancialDocs } from "@/components/crm/financial-docs";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
@@ -92,6 +92,26 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   ]);
   const orderTotal = orderRows.reduce((s, o) => s + (o.voidedAt ? 0 : Number(o.total ?? 0)), 0);
   const liveOrders = orderRows.filter((o) => !o.voidedAt).length;
+  // Historical (SAP-imported) order history for this customer.
+  const [[histAgg], histRecent] = await Promise.all([
+    db
+      .select({
+        n: count(),
+        value: sql<string>`coalesce(sum(case when not ${historicalOrders.canceled} then ${historicalOrders.docTotal} else 0 end), 0)`,
+      })
+      .from(historicalOrders)
+      .where(eq(historicalOrders.bpId, id)),
+    db
+      .select({ id: historicalOrders.id, docNum: historicalOrders.docNum, docDate: historicalOrders.docDate, docTotal: historicalOrders.docTotal, docStatus: historicalOrders.docStatus, canceled: historicalOrders.canceled })
+      .from(historicalOrders)
+      .where(eq(historicalOrders.bpId, id))
+      .orderBy(desc(historicalOrders.docDate))
+      .limit(15),
+  ]);
+  const histCount = histAgg?.n ?? 0;
+  const histValue = Number(histAgg?.value ?? 0);
+  const totalOrders = liveOrders + histCount;
+  const lifetimeValue = orderTotal + histValue;
   // Primary contact drives the mobile tap-to-call / tap-to-email actions.
   const primaryContact = contactRows[0];
   const contactPhone = primaryContact?.phone ?? null;
@@ -299,45 +319,48 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
             </ul>
           </Card>
 
-          {/* Order history */}
+          {/* Order history (live MakeReady orders + SAP-imported history) */}
           <Card>
-            <div className="mb-3 flex items-baseline justify-between">
+            <div className="mb-3 flex items-baseline justify-between gap-2">
               <h2 className="text-sm font-semibold text-neutral-900">Order history</h2>
-              {orderRows.length > 0 && (
-                <span className="text-xs text-neutral-400">{liveOrders} order{liveOrders === 1 ? "" : "s"} · ${orderTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} lifetime</span>
+              {totalOrders > 0 && (
+                <span className="text-right text-xs text-neutral-400">{totalOrders.toLocaleString()} order{totalOrders === 1 ? "" : "s"} · ${lifetimeValue.toLocaleString(undefined, { maximumFractionDigits: 0 })} lifetime</span>
               )}
             </div>
-            {orderRows.length === 0 ? (
+            {totalOrders === 0 ? (
               <p className="text-sm text-neutral-400">No orders yet.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-left text-xs uppercase tracking-wide text-neutral-400">
-                    <tr>
-                      <th className="py-1.5 pr-3 font-medium">Order</th>
-                      <th className="py-1.5 pr-3 font-medium">Stage</th>
-                      <th className="py-1.5 pr-3 font-medium">In-hands</th>
-                      <th className="py-1.5 pr-3 font-medium">Placed</th>
-                      <th className="py-1.5 pr-3 text-right font-medium">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {orderRows.map((o) => (
-                      <tr key={o.id} className={o.voidedAt ? "text-neutral-400 line-through" : "text-neutral-700"}>
-                        <td className="py-1.5 pr-3 font-medium">
-                          <Link href={`/sales/orders/${o.id}`} className="text-neutral-900 hover:underline">{o.orderNumber}</Link>
-                        </td>
-                        <td className="py-1.5 pr-3">
-                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ORDER_STAGE_BADGE[o.stage]}`}>{ORDER_STAGE_LABEL[o.stage]}</span>
-                          {o.voidedAt && <span className="ml-1 text-xs">(voided)</span>}
-                        </td>
-                        <td className="py-1.5 pr-3">{o.inHandsDate ? fmtDate(o.inHandsDate) : "—"}</td>
-                        <td className="py-1.5 pr-3">{fmtDate(o.createdAt)}</td>
-                        <td className="py-1.5 pr-3 text-right">{o.total != null ? `$${Number(o.total).toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}</td>
-                      </tr>
+              <div>
+                {/* Current MakeReady orders */}
+                {orderRows.map((o) => (
+                  <div key={o.id} className="flex items-center justify-between gap-3 border-b border-neutral-100 py-2 last:border-0">
+                    <div className="min-w-0">
+                      <Link href={`/sales/orders/${o.id}`} className={`text-sm font-medium hover:underline ${o.voidedAt ? "text-neutral-400 line-through" : "text-neutral-900"}`}>{o.orderNumber}</Link>
+                      <p className="text-xs text-neutral-400">Placed {fmtDate(o.createdAt)}{o.inHandsDate ? ` · in-hands ${fmtDate(o.inHandsDate)}` : ""}</p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ORDER_STAGE_BADGE[o.stage]}`}>{o.voidedAt ? "Voided" : ORDER_STAGE_LABEL[o.stage]}</span>
+                      <span className="text-sm text-neutral-700">{o.total != null ? `$${Number(o.total).toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}</span>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Imported SAP history */}
+                {histRecent.length > 0 && (
+                  <>
+                    {orderRows.length > 0 && <p className="pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Imported history</p>}
+                    {histRecent.map((h) => (
+                      <div key={h.id} className={`flex items-center justify-between gap-3 border-b border-neutral-100 py-2 last:border-0 ${h.canceled ? "text-neutral-400 line-through" : "text-neutral-700"}`}>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-neutral-800">#{h.docNum}</p>
+                          <p className="text-xs text-neutral-400">{fmtDate(h.docDate)}{h.docStatus === "C" ? " · closed" : h.docStatus === "O" ? " · open" : ""}{h.canceled ? " · canceled" : ""}</p>
+                        </div>
+                        <span className="shrink-0 text-sm">${Number(h.docTotal).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                    <p className="pt-2 text-xs text-neutral-400">Showing the {histRecent.length} most recent of {histCount.toLocaleString()} order{histCount === 1 ? "" : "s"} imported from the legacy system (2008–present).</p>
+                  </>
+                )}
               </div>
             )}
           </Card>

@@ -609,6 +609,25 @@ export const orders = pgTable(
   (t) => [index("orders_bp_id_idx").on(t.bpId)],
 );
 
+// Read-only sales-order history migrated from SAP Business One (ORDR). Kept
+// separate from the operational `orders` table so it doesn't feed the Orders
+// list or the production board — it only powers a customer's buying history.
+export const historicalOrders = pgTable(
+  "historical_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id").notNull().references(() => businessPartners.id, { onDelete: "cascade" }),
+    docNum: text("doc_num").notNull(), // SAP DocNum
+    docDate: timestamp("doc_date", { withTimezone: true }).notNull(),
+    docTotal: numeric("doc_total", { precision: 14, scale: 2 }).notNull().default("0"),
+    docStatus: text("doc_status"), // O = open, C = closed
+    canceled: boolean("canceled").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("historical_orders_bp_id_idx").on(t.bpId), index("historical_orders_bp_date_idx").on(t.bpId, t.docDate)],
+);
+export type HistoricalOrder = typeof historicalOrders.$inferSelect;
+
 // Stage-change timeline (drives per-stage timestamps on the tracker).
 export const orderEvents = pgTable(
   "order_events",
