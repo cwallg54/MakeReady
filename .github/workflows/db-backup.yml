@@ -18,6 +18,10 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Surfaced as env so the optional S3 step can gate on it (the `secrets`
+      # context is not allowed inside `if:` expressions).
+      BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
     steps:
       - name: Install PostgreSQL 17 client
         run: |
@@ -71,7 +75,7 @@ jobs:
       # Optional: also push to S3-compatible object storage (AWS S3 / Cloudflare
       # R2) for longer retention. Runs only when the S3 secrets are configured.
       - name: Mirror to S3-compatible storage (optional)
-        if: ${{ secrets.BACKUP_S3_BUCKET != '' }}
+        if: ${{ env.BACKUP_S3_BUCKET != '' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
