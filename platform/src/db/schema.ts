@@ -364,6 +364,14 @@ export const recoveryCodes = pgTable(
   (t) => [index("recovery_codes_user_id_idx").on(t.userId)],
 );
 
+// Fixed-window rate limiter for sensitive endpoints (login, password reset,
+// MFA verification). One row per (bucket:identifier); reset when the window rolls.
+export const rateLimits = pgTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Role = (typeof roleEnum.enumValues)[number];

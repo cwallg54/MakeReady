@@ -162,6 +162,13 @@
       "when": 1785114214256,
       "tag": "0022_thankful_night_nurse",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1785119634933,
+      "tag": "0023_supreme_pretty_boy",
+      "breakpoints": true
     }
   ]
 }

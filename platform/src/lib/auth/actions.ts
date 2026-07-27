@@ -11,6 +11,7 @@ import {
   establishSession,
 } from "./service";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 
 export interface FormState {
   error?: string;
@@ -31,6 +32,12 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     rememberMe: formData.get("rememberMe"),
   });
   if (!parsed.success) return { error: "Enter a valid email and password." };
+
+  // Per-IP throttle on top of the per-account lockout, to blunt distributed
+  // credential-stuffing across many accounts from one source.
+  const ip = await clientIp();
+  const rl = await consumeRateLimit("login", ip, 30, 300);
+  if (!rl.ok) return { error: `Too many sign-in attempts. ${retryMessage(rl.retryAfterSec)}` };
 
   const result = await login(parsed.data.email, parsed.data.password, parsed.data.rememberMe === "on");
   if (!result.ok) {
@@ -53,8 +60,11 @@ const emailSchema = z.object({ email: z.string().email() });
 
 export async function forgotPasswordAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = emailSchema.safeParse({ email: formData.get("email") });
-  // Always report success — never reveal whether the email exists.
-  if (parsed.success) {
+  // Throttle by IP to prevent reset-email bombing and enumeration probing.
+  // Still report generic success regardless — never reveal whether an email exists.
+  const ip = await clientIp();
+  const rl = await consumeRateLimit("pwreset", ip, 5, 3600);
+  if (rl.ok && parsed.success) {
     const link = await createPasswordReset(parsed.data.email);
     if (link) await sendPasswordResetEmail(link.email, link.url);
   }

@@ -8,6 +8,18 @@ import { db } from "@/db";
 import { users, mfaTotp, webauthnCredentials } from "@/db/schema";
 import { getCurrentUser, getMfaPendingUserId, completeMfaLogin } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
+import { consumeRateLimit, retryMessage } from "@/lib/security/rate-limit";
+import { MFA_PENDING_COOKIE } from "@/lib/auth/session";
+
+// A pending MFA session tolerates only a handful of code attempts before it is
+// torn down and the user must re-authenticate with their password.
+async function throttleMfa(uid: string): Promise<string | null> {
+  const rl = await consumeRateLimit("mfa", uid, 8, 600);
+  if (rl.ok) return null;
+  (await cookies()).delete(MFA_PENDING_COOKIE);
+  await audit({ userId: uid, action: "auth.mfa_throttled", entityType: "user", entityId: uid });
+  return `Too many attempts. ${retryMessage(rl.retryAfterSec)} Sign in again.`;
+}
 import {
   beginTotpEnrollment,
   confirmTotp,
@@ -55,6 +67,8 @@ export interface MfaState {
 export async function verifyTotpLoginAction(_prev: MfaState, formData: FormData): Promise<MfaState> {
   const uid = await getMfaPendingUserId();
   if (!uid) redirect("/login");
+  const throttled = await throttleMfa(uid);
+  if (throttled) return { error: throttled };
   const user = await db.query.users.findFirst({ where: eq(users.id, uid) });
   if (!user) redirect("/login");
   const code = String(formData.get("code") ?? "");
@@ -66,6 +80,8 @@ export async function verifyTotpLoginAction(_prev: MfaState, formData: FormData)
 export async function verifyRecoveryLoginAction(_prev: MfaState, formData: FormData): Promise<MfaState> {
   const uid = await getMfaPendingUserId();
   if (!uid) redirect("/login");
+  const throttled = await throttleMfa(uid);
+  if (throttled) return { error: throttled };
   const code = String(formData.get("code") ?? "");
   if (!(await verifyRecoveryCode(uid, code))) return { error: "Invalid or already-used recovery code." };
   await audit({ userId: uid, action: "auth.recovery_used", entityType: "user", entityId: uid });
