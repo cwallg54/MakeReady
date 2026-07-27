@@ -100,7 +100,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "The top bar" },
       { k: "p", text: "Top-right you'll find the Notifications bell (with an unread badge), your initials avatar (which opens Account Security), and Sign out. Your name and roles are shown at the bottom of the sidebar." },
     ],
-    related: ["signing-in", "notifications", "two-factor-authentication"],
+    related: ["signing-in", "notifications", "two-factor-authentication", "mobile-app"],
   },
   {
     slug: "notifications",
@@ -120,6 +120,57 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "The list shows your 100 most recent notifications. Many of them link straight to the relevant record — a lead, a meeting, or the users page." },
     ],
     related: ["dashboard"],
+  },
+
+  {
+    slug: "mobile-app",
+    title: "MakeReady on your phone (field sales)",
+    section: "Getting Started",
+    summary: "Install MakeReady on your phone and use the field-sales view — bottom navigation, tap-to-call accounts, and quoting on the go.",
+    who: "Field sales & everyone",
+    blocks: [
+      { k: "p", text: "MakeReady adapts to your phone with a streamlined field-sales view. Your desktop stays exactly the same — the phone just gets bigger touch targets, card lists instead of wide tables, and a bottom navigation bar." },
+      { k: "h", text: "Install it to your home screen" },
+      { k: "p", text: "Installing gives you a full-screen, app-like MakeReady you launch from your home screen (no browser bars). It's optional — everything works in the mobile browser too." },
+      {
+        k: "steps",
+        items: [
+          { text: "Open makeready.g54.com in your phone's browser and sign in." },
+          { text: "iPhone (Safari): tap the Share button, then \"Add to Home Screen\"." },
+          { text: "Android (Chrome): tap the ⋮ menu, then \"Install app\" (or \"Add to Home screen\")." },
+          { text: "Launch MakeReady from the new navy \"M\" icon — it opens full screen." },
+        ],
+      },
+      { k: "h", text: "Getting around" },
+      { k: "p", text: "A bottom bar gives you one-tap access to the things you use in the field:" },
+      {
+        k: "list",
+        items: [
+          "Home — your dashboard and open tasks",
+          "Accounts — your Business Partners (search and tap to open)",
+          "＋ New — start a quote (the first step of an order)",
+          "Quotes — your recent quotes",
+          "Orders — your orders and their stage",
+        ],
+      },
+      { k: "p", text: "You only see the tabs your role has access to." },
+      { k: "h", text: "Working an account" },
+      { k: "p", text: "Open an account and you'll see a quick-action row at the top:" },
+      {
+        k: "list",
+        items: [
+          "📞 Call — dials the primary contact",
+          "✉️ Email — opens a new email to the primary contact",
+          "📝 Log — jumps to the activity log to record a note, call, or visit",
+          "🧾 New Quote — starts a quote with this customer already filled in",
+        ],
+      },
+      { k: "tip", text: "Call and Email use your phone's own dialer and mail app, so they work even to save the number to your contacts." },
+      { k: "h", text: "Quoting on the go" },
+      { k: "p", text: "The quote builder is touch-friendly on mobile: each line item is a card where you pick the product, size, and quantity, and the price fills in automatically — the same server-checked pricing as the desktop. Tap Save when you're done." },
+      { k: "warn", text: "The pipeline board is drag-and-drop and works best on a larger screen; on a phone, use the Accounts list with the Lead / Prospect / Customer filters instead." },
+    ],
+    related: ["dashboard", "managing-an-account", "building-a-quote"],
   },
 
   // ─────────────────────────────── Account & Security ────────────────────────

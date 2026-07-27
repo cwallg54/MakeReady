@@ -119,6 +119,14 @@ CHECKLIST = {
         "Warehouses & bins admin; item detail shows stock-by-bin",
         "SAP B1 inventory reverse-engineered and seeded: 6,219 stocked items, 46 categories, 4 warehouses, 91 bins",
     ],
+    "Mobile Field-Sales Experience": [
+        "Installable PWA (add-to-home-screen): web manifest, app icons, theme color, full-screen standalone mode",
+        "Field-sales bottom navigation (Home, Accounts, +New, Quotes, Orders), role-gated, phones/tablets only",
+        "Touch-friendly card views for the CRM, quotes, and orders lists (desktop tables unchanged)",
+        "Account quick actions: tap-to-call and tap-to-email the primary contact, jump to activity log, start a pre-filled quote",
+        "Mobile-optimized quote builder (stacked line-item cards) with the same server-authoritative pricing",
+        "Desktop experience unchanged - all mobile UI is gated below the large-screen breakpoint",
+    ],
     "Reports & Analytics": [
         "Executive dashboard: headline KPIs, value-labeled charts on dense data, written breakdowns, low-stock table, CSV export",
         "Crystal Reports-style custom report builder over 6 data sources (BPs, quotes, orders, inventory, production jobs, stock movements)",
@@ -138,7 +146,7 @@ CHECKLIST = {
         "Automatic trigger detection auto-enrolls accounts into the four priority campaigns",
     ],
     "Help & Enablement": [
-        "In-app Help Center: 34+ how-to articles across Getting Started, Account & Security, CRM, Sales, Art & Production, Inventory, Reports & Analytics, Scheduling, Admin",
+        "In-app Help Center: 35+ how-to articles across Getting Started, Account & Security, CRM, Sales, Art & Production, Inventory, Reports & Analytics, Scheduling, Admin (incl. a mobile field-sales guide)",
         "Embedded screenshots auto-captured from the live app",
         "Sales-rep quoting training guide (order forms -> Quote Builder) and Zoey API setup handout",
     ],
@@ -240,6 +248,10 @@ STORIES = {
          ["Pick a source, columns, safe filters, group-by with subtotals and grand total", "Export to CSV or formatted PDF; live preview; role-gated"]),
         ("finance user", "have key reports emailed on a schedule", "the numbers arrive without anyone remembering to run them",
          ["Daily/weekly/monthly delivery of CSV or PDF to a recipient list", "Seeded KPI reports and scorecards ready to run or schedule"]),
+    ],
+    "Mobile Field Sales": [
+        ("field sales rep", "run the CRM and orders from my phone", "I can work accounts and quote from the field",
+         ["Installable app with a bottom nav (Home, Accounts, +New, Quotes, Orders)", "Card lists, tap-to-call/email, and a mobile quote builder; desktop unchanged"]),
     ],
     "Scheduling & Nurturing": [
         ("sales rep", "share a booking page and run nurturing cadences", "no interested buyer falls through the cracks",
