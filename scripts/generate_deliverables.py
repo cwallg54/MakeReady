@@ -166,9 +166,10 @@ CHECKLIST = {
 }
 
 PENDING = [
-    "Verify Neon point-in-time-restore retention is at plan maximum (requires interactive Neon login)",
+    "Neon point-in-time-restore tuning - deferred by client for now (nightly encrypted offsite backups cover recovery)",
     "Optional: mirror encrypted backups to S3/R2 for retention beyond 30 days; periodic restore drills",
-    "Optional: extend WAF rate-limiting to public token routes (/track, /proof, /apply, /schedule)",
+    "Optional: extend WAF rate-limiting to the public token routes (/track, /proof, /apply, /schedule)",
+    "Optional: mobile pipeline view and offline support (PWA installable today; offline not yet built)",
 ]
 
 
@@ -180,7 +181,7 @@ def build_checklist():
         add_heading(doc, section, 2)
         for it in items:
             check(doc, it, True)
-    add_heading(doc, "Pending / Agreed Next (security follow-ups)", 2)
+    add_heading(doc, "Optional / Deferred (agreed next steps)", 2)
     for it in PENDING:
         check(doc, it, False)
     doc.add_paragraph(); add_divider(doc)
