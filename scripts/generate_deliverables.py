@@ -125,6 +125,10 @@ CHECKLIST = {
         "Touch-friendly card views for the CRM, quotes, and orders lists (desktop tables unchanged)",
         "Account quick actions: tap-to-call and tap-to-email the primary contact, jump to activity log, start a pre-filled quote",
         "Mobile-optimized quote builder (stacked line-item cards) with the same server-authoritative pricing",
+        "Animated press-and-hold speed-dial + button (New Business Partner / New Quote) with haptic feedback and a List/Board toggle",
+        "Touch drag-and-drop on every kanban board (pipeline, art, production): press-and-hold to lift, edge auto-scroll, drop to move",
+        "Phone-fit layouts app-wide: a calendar agenda view and wide tables (inventory, users, audit, reports) reflow to tap-friendly cards",
+        "Role-aware dashboard with live tiles (open quotes/orders, jobs in production, low stock) and quick actions",
         "Desktop experience unchanged - all mobile UI is gated below the large-screen breakpoint",
     ],
     "Reports & Analytics": [
@@ -253,6 +257,8 @@ STORIES = {
     "Mobile Field Sales": [
         ("field sales rep", "run the CRM and orders from my phone", "I can work accounts and quote from the field",
          ["Installable app with a bottom nav (Home, Accounts, +New, Quotes, Orders)", "Card lists, tap-to-call/email, and a mobile quote builder; desktop unchanged"]),
+        ("field sales rep", "drag pipeline cards and read live numbers on my phone", "I can manage stages and get a status read at a glance",
+         ["Press-and-hold to drag kanban cards between lanes on touch (pipeline, art, production)", "Role-aware dashboard with live tiles and quick actions, sized for a phone"]),
     ],
     "Scheduling & Nurturing": [
         ("sales rep", "share a booking page and run nurturing cadences", "no interested buyer falls through the cracks",

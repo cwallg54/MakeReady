@@ -5,7 +5,6 @@ import { canEdit, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
 import { businessPartners, accountGroups, users } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
-import { SpeedDialFab, TAB_ICONS } from "@/components/mobile-tab-bar";
 
 const STAGE_LABEL: Record<string, string> = { lead: "Lead", prospect: "Prospect", customer: "Customer" };
 const STAGE_BADGE: Record<string, string> = {
@@ -141,6 +140,12 @@ export default async function CrmPage({
           </div>
         }
       />
+
+      {/* Mobile view toggle (desktop uses the header buttons above) */}
+      <div className="mb-4 inline-flex overflow-hidden rounded-lg border border-neutral-300 lg:hidden">
+        <span className="bg-neutral-900 px-4 py-1.5 text-sm font-semibold text-white">List</span>
+        <Link href="/crm/pipeline" className="bg-white px-4 py-1.5 text-sm font-semibold text-neutral-700 active:bg-neutral-50">Board</Link>
+      </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {STAGE_FILTERS.map((f) => {
@@ -282,14 +287,6 @@ export default async function CrmPage({
           </div>
         )}
       </Card>
-
-      <SpeedDialFab
-        ariaLabel="CRM quick actions"
-        actions={[
-          ...(editable ? [{ key: "new-bp", label: "New Business Partner", href: "/crm/new", icon: TAB_ICONS.userPlus }] : []),
-          { key: "pipeline", label: "Pipeline board", href: "/crm/pipeline", icon: TAB_ICONS.board },
-        ]}
-      />
     </div>
   );
 }

@@ -86,6 +86,18 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "After signing in you land on your dashboard. What you see is tailored to your role — the modules you can open, the stats that matter to you, and your own open tasks." },
       { k: "img", src: "dashboard.png", caption: "The dashboard greets you by name and summarizes what needs attention." },
+      { k: "h", text: "What's on your dashboard" },
+      { k: "p", text: "The dashboard shows live numbers for your role, and each tile taps through to the detail screen:" },
+      {
+        k: "list",
+        items: [
+          "Open quotes and Open orders (Sales)",
+          "Jobs in production (Production)",
+          "Low-stock items (Inventory)",
+          "Users and Audit events today (Admins)",
+        ],
+      },
+      { k: "p", text: "Below the tiles you'll find a Pipeline snapshot (Leads / Prospects / Customers), your open tasks with overdue ones flagged in red, and a Quick actions panel with shortcuts like New quote, New business partner, Pipeline, Orders, Calendar, and Reports." },
       { k: "h", text: "The sidebar" },
       { k: "p", text: "The left sidebar lists the modules you have access to. Some are collapsible groups — click a heading to expand it:" },
       {
@@ -93,6 +105,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
         items: [
           "CRM → Business Partners, Pipeline",
           "Sales → Quotes, Orders, Automations, Calendar",
+          "Operations → Art Department, Production, Inventory",
+          "Reports and Help",
           "Administration (admins only) → Users, Account Groups, Order Templates, Configuration, Audit Log",
         ],
       },
@@ -154,7 +168,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "p", text: "You only see the tabs your role has access to." },
-      { k: "tip", text: "Tap the center ＋ button — or press and hold it — to pop up quick actions: New Customer and New Quote. Press-and-hold gives a little buzz; tap either option, or tap outside to dismiss." },
+      { k: "tip", text: "Tap the center ＋ button — or press and hold it — to pop up quick actions: New Business Partner and New Quote. Press-and-hold gives a little buzz; tap either option, or tap outside to dismiss. (A \"customer\" in MakeReady is just a Business Partner, so New Business Partner is how you add a new customer, lead, or prospect.)" },
       { k: "h", text: "Working an account" },
       { k: "p", text: "Open an account and you'll see a quick-action row at the top:" },
       {
@@ -169,9 +183,15 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "Call and Email use your phone's own dialer and mail app, so they work even to save the number to your contacts." },
       { k: "h", text: "Quoting on the go" },
       { k: "p", text: "The quote builder is touch-friendly on mobile: each line item is a card where you pick the product, size, and quantity, and the price fills in automatically — the same server-checked pricing as the desktop. Tap Save when you're done." },
-      { k: "warn", text: "The pipeline board is drag-and-drop and works best on a larger screen; on a phone, use the Accounts list with the Lead / Prospect / Customer filters instead." },
+      { k: "h", text: "Drag-and-drop on a phone" },
+      { k: "p", text: "Kanban boards — the CRM pipeline, the Art board, and the Production board — support drag-and-drop by touch. Press and hold a card for a moment (you'll feel a little buzz as it lifts), then drag it over another column and let go to drop. Drag near the top or bottom of the screen and the page scrolls so you can reach columns that are off-screen. A quick tap still opens the card." },
+      { k: "h", text: "Switching between the list and the board" },
+      { k: "p", text: "On the Business Partners and Pipeline screens there's a small List / Board toggle at the top. Tap it to switch between the account list and the pipeline board. To create a new account or quote from anywhere, use the center ＋ button." },
+      { k: "h", text: "Calendar" },
+      { k: "p", text: "A month grid is hard to use on a small screen, so on a phone the Team Calendar shows an agenda instead: meetings grouped by day, with the same month arrows and host filter. Tap a meeting to open it." },
+      { k: "tip", text: "Wide tables (accounts, inventory, orders, reports, and more) automatically become tap-friendly cards on a phone, so nothing runs off the side of the screen." },
     ],
-    related: ["dashboard", "managing-an-account", "building-a-quote"],
+    related: ["dashboard", "managing-an-account", "building-a-quote", "pipeline", "team-calendar"],
   },
 
   // ─────────────────────────────── Account & Security ────────────────────────
@@ -303,10 +323,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
         k: "steps",
         items: [
           { text: "Each card shows the company, owner, lead source, and tags. Click a company to open the full record." },
-          { text: "Use the arrows on a card — e.g. \"→ Prospect\" or \"← Lead\" — to move it between stages. The move is instant and logged to the account's activity history." },
+          { text: "Drag a card into another column to change its stage. On a desktop, drag with the mouse; on a phone or tablet, press and hold the card for a moment (it lifts with a small buzz), then drag it. The move is instant and logged to the account's activity history." },
         ],
       },
-      { k: "tip", text: "Sales Reps see only their own accounts here; managers and admins see everyone's." },
+      { k: "tip", text: "On a phone, dragging near the top or bottom of the screen scrolls the board so you can reach the other columns. Sales Reps see only their own accounts here; managers and admins see everyone's." },
     ],
     related: ["business-partners", "managing-an-account"],
   },
@@ -573,7 +593,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         k: "steps",
         items: [
           { text: "Open Art Department in the sidebar. Toggle between Queue (a sortable list) and Kanban (a board)." },
-          { text: "On the Kanban, drag a card between columns — To do → In progress → Proofing → Revisions → Approved → Done — to update its status. In the Queue, use the status dropdown." },
+          { text: "On the Kanban, drag a card between columns — To do → In progress → Proofing → Revisions → Approved → Done — to update its status (on a phone or tablet, press and hold a card, then drag). In the Queue, use the status dropdown." },
           { text: "Assign a request to yourself or a teammate with the assignee dropdown. Rush jobs are flagged." },
         ],
       },
@@ -681,8 +701,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "tip", text: "Only scheduled meetings appear on the grid. Canceled and completed meetings drop off, but you can still open them from a direct link." },
+      { k: "p", text: "On a phone, the month grid is replaced by an agenda — your meetings grouped by day — with the same month arrows and host filter. Tap a meeting to open it." },
     ],
-    related: ["managing-a-meeting", "customer-booking-page"],
+    related: ["managing-a-meeting", "customer-booking-page", "mobile-app"],
   },
   {
     slug: "managing-a-meeting",
@@ -868,7 +889,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "Sending an order to production" },
       { k: "p", text: "From the order, click \"Send to production\". MakeReady creates a production job, notifies the production team, and moves the order into its production stage on the customer tracker." },
       { k: "h", text: "The production board" },
-      { k: "p", text: "Production has two views: a Queue list and a drag-and-drop Kanban board. Drag a job across the columns as work progresses:" },
+      { k: "p", text: "Production has two views: a Queue list and a drag-and-drop Kanban board. Drag a job across the columns as work progresses (on a phone, press and hold a card, then drag):" },
       {
         k: "list",
         items: [

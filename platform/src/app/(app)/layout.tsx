@@ -72,7 +72,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Center "New" button: press-and-hold reveals the create actions the rep can start.
   const newActions: SpeedDialAction[] = [];
-  if (canEdit(user.roles, "crm")) newActions.push({ key: "new-customer", label: "New Customer", href: "/crm/new", icon: TAB_ICONS.userPlus });
+  if (canEdit(user.roles, "crm")) newActions.push({ key: "new-bp", label: "New Business Partner", href: "/crm/new", icon: TAB_ICONS.userPlus });
   if (canEdit(user.roles, "sales")) newActions.push({ key: "new-quote", label: "New Quote", href: "/sales/quotes/new", icon: TAB_ICONS.quotes });
   if (newActions.length > 0) {
     mobileTabs.push({

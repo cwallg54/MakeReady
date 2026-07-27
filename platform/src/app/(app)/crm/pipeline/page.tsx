@@ -5,7 +5,6 @@ import { canEdit, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
 import { businessPartners, users } from "@/db/schema";
 import { PageHeader } from "@/components/ui";
-import { SpeedDialFab, TAB_ICONS } from "@/components/mobile-tab-bar";
 import { PipelineBoard } from "./pipeline-board";
 
 const STAGES = ["lead", "prospect", "customer"] as const;
@@ -51,15 +50,14 @@ export default async function PipelinePage() {
           </Link>
         }
       />
-      <PipelineBoard cards={cards} counts={counts} editable={editable} />
 
-      <SpeedDialFab
-        ariaLabel="Pipeline quick actions"
-        actions={[
-          ...(editable ? [{ key: "new-bp", label: "New Business Partner", href: "/crm/new", icon: TAB_ICONS.userPlus }] : []),
-          { key: "list", label: "List view", href: "/crm", icon: TAB_ICONS.list },
-        ]}
-      />
+      {/* Mobile view toggle (desktop uses the header button above) */}
+      <div className="mb-4 inline-flex overflow-hidden rounded-lg border border-neutral-300 lg:hidden">
+        <Link href="/crm" className="bg-white px-4 py-1.5 text-sm font-semibold text-neutral-700 active:bg-neutral-50">List</Link>
+        <span className="bg-neutral-900 px-4 py-1.5 text-sm font-semibold text-white">Board</span>
+      </div>
+
+      <PipelineBoard cards={cards} counts={counts} editable={editable} />
     </div>
   );
 }

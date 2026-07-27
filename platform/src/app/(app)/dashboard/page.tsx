@@ -1,29 +1,39 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/guards";
-import { canView, crmScopedToOwn, ROLE_LABELS } from "@/lib/rbac";
+import { canView, canEdit, crmScopedToOwn, ROLE_LABELS } from "@/lib/rbac";
 import { PageHeader, StatCard, Card } from "@/components/ui";
 import { fmtDate } from "@/lib/format";
 import { db } from "@/db";
-import { users, auditLog, businessPartners, crmTasks } from "@/db/schema";
-import { and, asc, count, eq, gte } from "drizzle-orm";
+import { users, auditLog, businessPartners, crmTasks, quotes, orders, productionJobs, inventoryItems } from "@/db/schema";
+import { and, asc, count, eq, gte, inArray, isNull, ne, sql, type SQL } from "drizzle-orm";
 
 export default async function DashboardPage() {
   const user = await requireUser();
 
-  // Real foundation metrics (Admin sees the live platform state).
   const showAdminStats = user.roles.includes("admin");
   const showCrm = canView(user.roles, "crm");
+  const showSales = canView(user.roles, "sales");
+  const showJobs = canView(user.roles, "jobs");
+  const showInv = canView(user.roles, "inventory");
   const scoped = crmScopedToOwn(user.roles);
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
   type StageCount = { stage: "lead" | "prospect" | "customer"; n: number };
   type MyTask = { id: string; title: string; dueDate: Date | null; company: string; bpId: string };
+  const zero = Promise.resolve([{ n: 0 }]);
 
-  // All dashboard widgets fetch in parallel — one batch instead of 4 sequential round-trips.
-  const [uRow, eRow, stageCounts, myTasks] = await Promise.all([
-    showAdminStats ? db.select({ n: count() }).from(users) : Promise.resolve([{ n: 0 }]),
-    showAdminStats ? db.select({ n: count() }).from(auditLog).where(gte(auditLog.createdAt, startOfDay)) : Promise.resolve([{ n: 0 }]),
+  // Open-quote / open-order conditions (scoped to the rep's own records).
+  const openQuoteWhere: SQL = scoped
+    ? (and(inArray(quotes.status, ["draft", "sent"]), eq(quotes.createdBy, user.id)) as SQL)
+    : inArray(quotes.status, ["draft", "sent"]);
+  const openOrderConds: SQL[] = [ne(orders.stage, "delivered"), isNull(orders.voidedAt)];
+  if (scoped) openOrderConds.push(eq(orders.createdBy, user.id));
+
+  // Everything fetches in one parallel batch.
+  const [uRow, eRow, stageCounts, myTasks, oqRow, ooRow, jobRow, lowRow] = await Promise.all([
+    showAdminStats ? db.select({ n: count() }).from(users) : zero,
+    showAdminStats ? db.select({ n: count() }).from(auditLog).where(gte(auditLog.createdAt, startOfDay)) : zero,
     showCrm
       ? db.select({ stage: businessPartners.lifecycleStage, n: count() }).from(businessPartners).where(scoped ? eq(businessPartners.ownerId, user.id) : undefined).groupBy(businessPartners.lifecycleStage)
       : Promise.resolve([] as StageCount[]),
@@ -33,12 +43,32 @@ export default async function DashboardPage() {
           .where(and(eq(crmTasks.assignedToId, user.id), eq(crmTasks.status, "open")))
           .orderBy(asc(crmTasks.dueDate)).limit(8)
       : Promise.resolve([] as MyTask[]),
+    showSales ? db.select({ n: count() }).from(quotes).where(openQuoteWhere) : zero,
+    showSales ? db.select({ n: count() }).from(orders).where(and(...openOrderConds)) : zero,
+    showJobs ? db.select({ n: count() }).from(productionJobs).where(ne(productionJobs.status, "shipped")) : zero,
+    showInv ? db.select({ n: count() }).from(inventoryItems).where(sql`${inventoryItems.onHand} <= ${inventoryItems.reorderPoint} and ${inventoryItems.reorderPoint} > 0`) : zero,
   ]);
-  const userCount = uRow[0]?.n ?? 0;
-  const eventsToday = eRow[0]?.n ?? 0;
   const stageCount = (s: string) => stageCounts.find((r) => r.stage === s)?.n ?? 0;
-
   const firstName = user.name.split(" ")[0];
+
+  // Live stat tiles that link to the relevant screen.
+  const stats: { label: string; value: number; hint: string; href: string }[] = [];
+  if (showSales) stats.push({ label: "Open quotes", value: oqRow[0]?.n ?? 0, hint: "Draft & sent", href: "/sales" });
+  if (showSales) stats.push({ label: "Open orders", value: ooRow[0]?.n ?? 0, hint: "Not yet delivered", href: "/sales/orders" });
+  if (showJobs) stats.push({ label: "Jobs in production", value: jobRow[0]?.n ?? 0, hint: "Active on the floor", href: "/production" });
+  if (showInv) stats.push({ label: "Low-stock items", value: lowRow[0]?.n ?? 0, hint: "At/below reorder point", href: "/inventory?low=1" });
+  if (showAdminStats) stats.push({ label: "Users", value: uRow[0]?.n ?? 0, hint: "Active + inactive", href: "/admin/users" });
+  if (showAdminStats) stats.push({ label: "Audit events today", value: eRow[0]?.n ?? 0, hint: "Since midnight", href: "/admin/audit" });
+
+  // Quick actions (relevant to the signed-in role); handy on mobile.
+  const isMgr = user.roles.some((r) => ["admin", "sales_manager", "finance"].includes(r));
+  const actions: { label: string; href: string }[] = [];
+  if (canEdit(user.roles, "sales")) actions.push({ label: "＋ New quote", href: "/sales/quotes/new" });
+  if (canEdit(user.roles, "crm")) actions.push({ label: "＋ New business partner", href: "/crm/new" });
+  if (showCrm) actions.push({ label: "Pipeline", href: "/crm/pipeline" });
+  if (showSales) actions.push({ label: "Orders", href: "/sales/orders" });
+  if (showSales) actions.push({ label: "Calendar", href: "/calendar" });
+  if (isMgr) actions.push({ label: "Reports", href: "/reports" });
 
   return (
     <div>
@@ -47,26 +77,15 @@ export default async function DashboardPage() {
         description={`Signed in as ${user.roles.map((r) => ROLE_LABELS[r]).join(", ")}.`}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {showAdminStats && (
-          <>
-            <StatCard label="Users" value={userCount} hint="Active + inactive accounts" />
-            <StatCard label="Audit events today" value={eventsToday} hint="Since midnight" />
-          </>
-        )}
-        {canView(user.roles, "sales") && (
-          <StatCard label="Open sales orders" value="—" hint="Available when Sales ships (Phase 2)" />
-        )}
-        {canView(user.roles, "jobs") && (
-          <StatCard label="Jobs in production" value="—" hint="Available when Production ships (Phase 4)" />
-        )}
-        {canView(user.roles, "accounting") && (
-          <StatCard label="AR outstanding" value="—" hint="Available when Finance ships (Phase 5)" />
-        )}
-        {canView(user.roles, "content_library") && (
-          <StatCard label="Library assets" value="—" hint="Available when Content Library ships (Phase 6)" />
-        )}
-      </div>
+      {stats.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {stats.map((s) => (
+            <Link key={s.label} href={s.href} className="block transition-shadow hover:shadow-md">
+              <StatCard label={s.label} value={s.value} hint={s.hint} />
+            </Link>
+          ))}
+        </div>
+      )}
 
       {showCrm && (
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -80,7 +99,7 @@ export default async function DashboardPage() {
               ].map((s) => (
                 <Link key={s.key} href={`/crm?stage=${s.key}`} className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-neutral-50">
                   <span className="text-sm text-neutral-600">{s.label}</span>
-                  <span className={`text-lg font-semibold ${s.cls}`}>{stageCount(s.key)}</span>
+                  <span className={`text-lg font-semibold ${s.cls}`}>{stageCount(s.key).toLocaleString()}</span>
                 </Link>
               ))}
             </div>
@@ -95,7 +114,7 @@ export default async function DashboardPage() {
                   const overdue = t.dueDate && t.dueDate.getTime() < Date.now();
                   return (
                     <li key={t.id} className="flex items-center justify-between gap-2">
-                      <Link href={`/crm/${t.bpId}`} className="text-sm text-neutral-800 hover:underline">
+                      <Link href={`/crm/${t.bpId}`} className="min-w-0 truncate text-sm text-neutral-800 hover:underline">
                         {t.title} <span className="text-neutral-400">· {t.company}</span>
                       </Link>
                       <span className={`shrink-0 text-xs ${overdue ? "font-medium text-red-600" : "text-neutral-400"}`}>
@@ -110,14 +129,18 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <Card className="mt-6">
-        <h2 className="text-sm font-semibold text-neutral-900">Phase 1 — Platform Foundation</h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Authentication, role-based access, user management, system configuration, audit logging,
-          and notifications are live. Business modules appear in the sidebar and unlock as later
-          phases ship.
-        </p>
-      </Card>
+      {actions.length > 0 && (
+        <Card className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Quick actions</h2>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {actions.map((a) => (
+              <Link key={a.href} href={a.href} className="rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-center text-sm font-medium text-neutral-700 hover:bg-neutral-50 active:bg-neutral-100">
+                {a.label}
+              </Link>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
