@@ -148,6 +148,13 @@
       "when": 1785104898982,
       "tag": "0020_wide_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1785113064944,
+      "tag": "0021_curvy_zarda",
+      "breakpoints": true
     }
   ]
 }

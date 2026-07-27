@@ -842,6 +842,39 @@ export type Warehouse = typeof warehouses.$inferSelect;
 export type Bin = typeof bins.$inferSelect;
 export type ItemBinStock = typeof itemBinStock.$inferSelect;
 
+// ---- Custom report builder (Crystal-style saved reports + scheduling) ------
+// A saved report is a data source + a JSON config (columns, filters, sort, limit).
+export const reportDefinitions = pgTable("report_definitions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  source: text("source").notNull(), // key into the data-source registry
+  config: jsonb("config").notNull(), // { columns: string[]; filters: {field,op,value}[]; sortField?; sortDir?; rowLimit? }
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const reportSchedules = pgTable(
+  "report_schedules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id").notNull().references(() => reportDefinitions.id, { onDelete: "cascade" }),
+    frequency: text("frequency").notNull().default("weekly"), // daily | weekly | monthly
+    dayOfWeek: integer("day_of_week"), // 0=Sun..6=Sat (weekly)
+    dayOfMonth: integer("day_of_month"), // 1..28 (monthly)
+    recipients: text("recipients").array().notNull(),
+    active: boolean("active").notNull().default(true),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("report_schedules_report_id_idx").on(t.reportId)],
+);
+
+export type ReportDefinition = typeof reportDefinitions.$inferSelect;
+export type ReportSchedule = typeof reportSchedules.$inferSelect;
+
 // ---- Secure customer intake documents (terms / credit card applications) ---
 // Customer completes these via a token link — no sensitive data over email.
 // (The credit card application intentionally does NOT capture card numbers.)

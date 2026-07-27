@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { and, asc, desc, eq, gt, isNull, sql, count } from "drizzle-orm";
 import { db } from "@/db";
-import { businessPartners, quotes, orders, productionJobs, inventoryItems } from "@/db/schema";
+import { businessPartners, quotes, orders, productionJobs, inventoryItems, reportDefinitions } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card, StatCard } from "@/components/ui";
+import { canBuildReports } from "@/lib/reports/sources";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,11 @@ const PROD_LABEL: Record<string, string> = { queued: "Queued", in_production: "I
 const QUOTE_LABEL: Record<string, string> = { draft: "Draft", sent: "Sent", accepted: "Accepted", rejected: "Rejected", converted: "Converted" };
 
 export default async function ReportsPage() {
-  await requireModule("reports");
+  const user = await requireModule("reports");
+  const canBuild = canBuildReports(user.roles);
+  const savedReports = canBuild
+    ? await db.select({ id: reportDefinitions.id, name: reportDefinitions.name, description: reportDefinitions.description, source: reportDefinitions.source }).from(reportDefinitions).orderBy(asc(reportDefinitions.name))
+    : [];
 
   const [pipeline, quotesAgg, ordersByStage, prodByStatus, invAgg, invByCategory, lowStock, topCustomers] = await Promise.all([
     db.select({ stage: businessPartners.lifecycleStage, n: count() }).from(businessPartners).groupBy(businessPartners.lifecycleStage),
@@ -57,7 +62,29 @@ export default async function ReportsPage() {
 
   return (
     <div className="max-w-5xl space-y-6">
-      <PageHeader title="Reports" description="Live snapshot across sales, operations, and inventory." />
+      <PageHeader
+        title="Reports"
+        description="Live snapshot across sales, operations, and inventory."
+        action={canBuild ? <Link href="/reports/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Build a report</Link> : undefined}
+      />
+
+      {canBuild && (
+        <Card>
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Custom reports</h2>
+          {savedReports.length === 0 ? (
+            <p className="text-sm text-neutral-500">No saved reports yet. Click <strong>Build a report</strong> to create one — pick a data source, choose columns and filters, then save it or schedule it for email delivery.</p>
+          ) : (
+            <ul className="divide-y divide-neutral-100">
+              {savedReports.map((r) => (
+                <li key={r.id} className="flex items-center justify-between py-2">
+                  <Link href={`/reports/${r.id}`} className="text-sm font-medium text-neutral-900 hover:underline">{r.name}</Link>
+                  <span className="text-xs text-neutral-400">{r.description || r.source}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Customers" value={stageN("customer").toLocaleString()} hint="Active accounts" />

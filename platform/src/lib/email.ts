@@ -10,12 +10,12 @@ export interface EmailAttachment {
   content: string; // base64
 }
 
-async function sendEmail(to: string, subject: string, html: string, attachments?: EmailAttachment[]): Promise<boolean> {
+async function sendEmail(to: string | string[], subject: string, html: string, attachments?: EmailAttachment[]): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
 
   if (!apiKey || !from) {
-    console.info(`[email:dev] To ${to} — ${subject}${attachments?.length ? ` (+${attachments.length} attachment)` : ""}`);
+    console.info(`[email:dev] To ${Array.isArray(to) ? to.join(", ") : to} — ${subject}${attachments?.length ? ` (+${attachments.length} attachment)` : ""}`);
     return false;
   }
 
@@ -45,6 +45,20 @@ export async function sendOrderEmail(to: string, orderNumber: string, attachment
        <p>— Great Mountain West (G54)</p>
      </div>`,
     attachments,
+  );
+}
+
+/** Email a scheduled report (CSV attachment) to its recipients. */
+export async function sendReportEmail(recipients: string[], reportName: string, csvBase64: string, filename: string): Promise<boolean> {
+  return sendEmail(
+    recipients,
+    `MakeReady report: ${reportName}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>Your scheduled report <strong>${reportName}</strong> is attached as a CSV.</p>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+    [{ filename, content: csvBase64 }],
   );
 }
 
