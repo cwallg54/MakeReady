@@ -13,7 +13,7 @@ from generate_sow import (
     set_cell_bg, set_run_font, add_heading, add_body, add_bullet, add_divider, add_footer, set_margins,
 )
 
-DATE_STR = "July 26, 2026"
+DATE_STR = "July 27, 2026"
 OUT_DIR = r"C:\Projects\GMW\docs\deliverables"
 
 
@@ -64,7 +64,8 @@ CHECKLIST = {
         "Email/password sign-in with bcrypt hashing and password policy (min 10, upper/lower/number)",
         "Account lockout after 5 failed attempts (15-min auto-clear) with admin alert",
         "Multi-factor authentication: TOTP authenticator, FIDO2/WebAuthn passkeys, single-use recovery codes",
-        "Org-wide require-MFA policy (toggle in Admin)",
+        "Org-wide require-MFA policy ENABLED - every user must enroll a second factor",
+        "Rate limiting on sign-in, password-reset, and MFA verification (per IP, and per user for MFA codes)",
         "Single active session per user; forced password reset; self-service forgot-password",
         "Role-based access control (6 roles, module x access matrix); record-level scoping for reps",
         "User management, system configuration, document number series, and an append-only audit log",
@@ -72,6 +73,7 @@ CHECKLIST = {
     "CRM": [
         "Business Partner master (accounts, leads, prospects) with contacts, addresses, tags, account groups",
         "Immutable activity log and CRM tasks; finance fields hidden from sales reps",
+        "Order history by customer on the account page (per-order stage/value + lifetime totals, sourced live from the database)",
         "List view with search, stage/owner/group/location filters, sortable columns, and pagination",
         "Pipeline board with drag-and-drop between Lead / Prospect / Customer and true per-column counts",
         "New Business Partner form with a two-option Payment terms dropdown (Net 30 / Prepay)",
@@ -117,6 +119,14 @@ CHECKLIST = {
         "Warehouses & bins admin; item detail shows stock-by-bin",
         "SAP B1 inventory reverse-engineered and seeded: 6,219 stocked items, 46 categories, 4 warehouses, 91 bins",
     ],
+    "Reports & Analytics": [
+        "Executive dashboard: headline KPIs, value-labeled charts on dense data, written breakdowns, low-stock table, CSV export",
+        "Crystal Reports-style custom report builder over 6 data sources (BPs, quotes, orders, inventory, production jobs, stock movements)",
+        "Column picker, safe parameterized filters, group-by with per-group subtotals and grand totals, live preview, saved reports",
+        "Export to CSV or formatted PDF (large grouped reports summarized to stay fast); role-gated to Admin / Sales Manager / Finance",
+        "Scheduled email delivery (daily / weekly / monthly, CSV or PDF) via the verified g54.com domain, run by a daily scheduler",
+        "Seeded recommended reports & KPI scorecards (pipeline, open/won quotes, open orders, production WIP, inventory valuation, receipts)",
+    ],
     "Scheduling": [
         "Calendly-style meeting types, per-user availability, and public booking pages (/schedule/[slug])",
         "Team calendar (month grid), meeting detail, reschedule, and CRM-linked bookings",
@@ -128,7 +138,7 @@ CHECKLIST = {
         "Automatic trigger detection auto-enrolls accounts into the four priority campaigns",
     ],
     "Help & Enablement": [
-        "In-app Help Center: 27+ how-to articles across Getting Started, CRM, Sales, Art & Production, Scheduling, Admin",
+        "In-app Help Center: 34+ how-to articles across Getting Started, Account & Security, CRM, Sales, Art & Production, Inventory, Reports & Analytics, Scheduling, Admin",
         "Embedded screenshots auto-captured from the live app",
         "Sales-rep quoting training guide (order forms -> Quote Builder) and Zoey API setup handout",
     ],
@@ -140,14 +150,17 @@ CHECKLIST = {
     "Security Hardening": [
         "Strict Content-Security-Policy with per-request nonce; HSTS (preload); anti-framing",
         "nosniff, Referrer-Policy, Permissions-Policy, Cross-Origin-Opener-Policy; x-powered-by removed",
+        "Application rate limiting (Postgres-backed fixed window) on sign-in, password-reset, and MFA verification",
+        "Vercel WAF rate-limiting rule on the sign-in and password-reset routes (per-IP, deny on exceed)",
+        "Nightly AES-256-encrypted database backup stored offsite (GitHub Actions), 30-day retention, integrity-checked",
         "Security posture documented for the SOC 2 / PCI audit trail",
     ],
 }
 
 PENDING = [
-    "Enable org-wide Require-MFA policy (Admin -> Configuration)",
-    "Offsite/independent pg_dump backups to write-once storage + verify Neon PITR retention (ransomware recovery)",
-    "Vercel WAF / rate-limiting on /login and public token routes",
+    "Verify Neon point-in-time-restore retention is at plan maximum (requires interactive Neon login)",
+    "Optional: mirror encrypted backups to S3/R2 for retention beyond 30 days; periodic restore drills",
+    "Optional: extend WAF rate-limiting to public token routes (/track, /proof, /apply, /schedule)",
 ]
 
 
@@ -174,9 +187,11 @@ STORIES = {
         ("user", "sign in securely with a second factor", "only I can access my account even if my password leaks",
          ["Password sign-in with lockout after repeated failures", "TOTP, passkey, or recovery code at login", "Single active session; sign-in elsewhere ends the old one"]),
         ("administrator", "require MFA org-wide and review an audit log", "I can enforce security and investigate any change",
-         ["Toggle forces all users to enroll a second factor", "Every write is recorded in an append-only audit log"]),
+         ["Require-MFA is enabled: all users must enroll a second factor", "Every write is recorded in an append-only audit log"]),
         ("security reviewer", "the app to send strict browser security headers", "the platform resists XSS, clickjacking, and downgrade attacks",
          ["CSP with per-request nonce restricts scripts to first-party", "HSTS, anti-framing, and related headers on every response"]),
+        ("administrator", "brute-force and flooding to be throttled and data to be recoverable", "the platform resists attacks and I can recover from a disaster",
+         ["Rate limiting on sign-in/reset/MFA in the app and a Vercel WAF rule at the edge", "Nightly AES-256 encrypted offsite backups (30-day retention) plus Neon point-in-time restore"]),
     ],
     "CRM": [
         ("sales rep", "find and manage my accounts quickly", "I can act on the right customer without digging",
@@ -185,6 +200,8 @@ STORIES = {
          ["Drag cards between Lead/Prospect/Customer", "Columns show true totals even when capped"]),
         ("sales rep", "create a Business Partner with standard terms", "new accounts are consistent",
          ["Payment terms is a Net 30 / Prepay dropdown", "A BP number is assigned automatically"]),
+        ("account manager", "see a customer's full order history on their account", "I know their stage, value, and lifetime spend at a glance",
+         ["Order history card lists each order (number, stage, in-hands, date, value)", "Lifetime order count and total; voided orders excluded; pulled live from the database"]),
     ],
     "Quoting & Pricing": [
         ("sales rep", "build a quote where prices fill in automatically", "I quote fast and correctly, like the old order forms",
@@ -215,6 +232,14 @@ STORIES = {
          ["Per-bin stock is the source of truth; on-hand = sum of bins", "Transfer between bins; full movement history"]),
         ("administrator", "manage warehouses and bins", "the layout matches the real warehouse",
          ["Create warehouses/bins; items show stock-by-bin"]),
+    ],
+    "Reports & Analytics": [
+        ("executive", "an at-a-glance dashboard of the business", "I can see pipeline, sales, and inventory health without digging",
+         ["Headline KPIs plus value-labeled charts on real data", "Written breakdowns with CSV export"]),
+        ("sales manager", "build, save, and export my own reports", "I get exactly the view I need, like Crystal Reports",
+         ["Pick a source, columns, safe filters, group-by with subtotals and grand total", "Export to CSV or formatted PDF; live preview; role-gated"]),
+        ("finance user", "have key reports emailed on a schedule", "the numbers arrive without anyone remembering to run them",
+         ["Daily/weekly/monthly delivery of CSV or PDF to a recipient list", "Seeded KPI reports and scorecards ready to run or schedule"]),
     ],
     "Scheduling & Nurturing": [
         ("sales rep", "share a booking page and run nurturing cadences", "no interested buyer falls through the cracks",

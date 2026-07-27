@@ -33,6 +33,8 @@ export const HELP_SECTIONS = [
   "CRM",
   "Sales",
   "Art & Production",
+  "Inventory",
+  "Reports & Analytics",
   "Scheduling",
   "Administration",
 ] as const;
@@ -70,6 +72,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       },
       { k: "h", text: "If you're locked out" },
       { k: "p", text: "After five failed sign-in attempts your account locks for 15 minutes and administrators are notified. The lock clears on its own after 15 minutes, or immediately if you reset your password. There's no self-service unlock button — wait it out or reset." },
+      { k: "p", text: "The sign-in, password-reset, and two-factor screens are also rate-limited by network address, so automated guessing is throttled before it ever reaches your account. Normal use never hits these limits; if you do see a \"too many attempts\" message, wait the stated time and try again." },
       { k: "warn", text: "For your security, MakeReady never reveals whether an email address has an account. A wrong email and a wrong password produce the same message." },
     ],
     related: ["two-factor-authentication", "dashboard"],
@@ -128,6 +131,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Everyone",
     blocks: [
       { k: "p", text: "Two-factor authentication (2FA) adds a second check at sign-in so a stolen password isn't enough to get in. Open it from your initials avatar in the top-right, or go to Account Security." },
+      { k: "warn", text: "2FA is now required for every MakeReady user. On your next sign-in you'll be taken to this page and can't use the rest of the app until you enroll at least one method — an authenticator app or a passkey. Set one up now so you're not caught out mid-task." },
       { k: "img", src: "security.png", caption: "The Security page. A banner shows whether 2FA is on." },
       { k: "h", text: "Authenticator app (TOTP)" },
       {
@@ -150,9 +154,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "Passkeys are the fastest and most phishing-resistant option — at sign-in just choose \"Use a passkey / security key\" and confirm with your device." },
       { k: "h", text: "Recovery codes" },
       { k: "p", text: "Recovery codes let you get in if you lose your authenticator and passkeys. Click \"Generate recovery codes\", then save them somewhere safe (or \"Download .txt\"). Each code works once, and they're shown only at generation time. Regenerating replaces the old set." },
-      { k: "warn", text: "If your organization requires 2FA, you'll be sent to this page and can't use the rest of the app until you enroll at least one method." },
+      { k: "warn", text: "2FA is required org-wide, so you'll be sent to this page and can't use the rest of the app until you enroll at least one method." },
+      { k: "h", text: "Too many code attempts" },
+      { k: "p", text: "For safety, MakeReady allows only a handful of code or recovery-code attempts per sign-in. If you exceed them, the pending sign-in is cancelled and you'll need to enter your password again before retrying. Repeated wrong passwords still lock the account for 15 minutes." },
     ],
-    related: ["signing-in", "setting-your-availability"],
+    related: ["signing-in", "setting-your-availability", "security-and-data-protection"],
   },
 
   // ─────────────────────────────── CRM ───────────────────────────────────────
@@ -223,11 +229,14 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "Activity log" },
       { k: "p", text: "Log notes, calls, emails, and visits. The log also records every change to the account automatically — stage moves, edits, document requests, quote and order activity — so you always have the full history." },
       { k: "warn", text: "The activity log is append-only. Entries can't be edited or deleted — it's your audit trail for the account." },
+      { k: "h", text: "Order history" },
+      { k: "p", text: "The Order history card lists every order this customer has placed, newest first — order number (click through to the order), current stage, in-hands date, when it was placed, and its value. The header shows the lifetime order count and total spend. Voided orders are shown struck through and excluded from the totals." },
+      { k: "tip", text: "Order history is pulled live from the database, so it always reflects the current state of each order — no separate report to run." },
       { k: "h", text: "Contacts & addresses" },
       { k: "p", text: "Manage multiple contacts (one marked Primary) and shipping/billing addresses in the right-hand cards. The primary contact can't be removed — reassign primary first." },
       { k: "tip", text: "If the account's owner has a booking link set up, a \"📅 Book a meeting\" link appears so you can schedule with them in one click." },
     ],
-    related: ["business-partners", "pipeline", "financial-intake-documents", "building-a-quote"],
+    related: ["business-partners", "pipeline", "financial-intake-documents", "building-a-quote", "reports-overview"],
   },
   {
     slug: "pipeline",
@@ -764,7 +773,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           "Timezone (IANA, e.g. America/Denver) — used across the app for displaying times.",
           "Fiscal year start month.",
           "Session timeout in minutes (5–1440) — how long an idle session lasts.",
-          "\"Require two-factor authentication\" — when on, every user must enroll a second factor before using the app.",
+          "\"Require two-factor authentication\" — when on, every user must enroll a second factor before using the app. This is currently ON for the whole organization.",
         ],
       },
       { k: "p", text: "Click \"Save configuration\" to apply. Changes are recorded in the audit log." },
@@ -793,6 +802,173 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "warn", text: "The log is append-only and retained at least 13 months for PCI DSS / SOC 2. Entries can't be edited or deleted — even deleting a user leaves their past events in place (the actor simply shows as \"System\")." },
     ],
     related: ["users-and-roles", "system-configuration"],
+  },
+
+  // ─────────────────────────────── Art & Production ──────────────────────────
+  {
+    slug: "production-jobs",
+    title: "The production workflow",
+    section: "Art & Production",
+    summary: "Send an approved order to the shop floor and track it on the production Kanban board.",
+    who: "Admin, Production, Sales Manager",
+    blocks: [
+      { k: "p", text: "Once art is approved (or for blank/stock orders, straight after the order is created), the order is handed to Production. Open Production from the sidebar." },
+      { k: "h", text: "Sending an order to production" },
+      { k: "p", text: "From the order, click \"Send to production\". MakeReady creates a production job, notifies the production team, and moves the order into its production stage on the customer tracker." },
+      { k: "h", text: "The production board" },
+      { k: "p", text: "Production has two views: a Queue list and a drag-and-drop Kanban board. Drag a job across the columns as work progresses:" },
+      {
+        k: "list",
+        items: [
+          "Queued — waiting to start",
+          "In production — being made",
+          "Quality check — inspection",
+          "Ready to ship — done, awaiting dispatch",
+          "Shipped — handed to the carrier",
+        ],
+      },
+      { k: "p", text: "Open any job to see the full production spec and the approved artwork, assign an operator, and set rush flags and due dates." },
+      { k: "tip", text: "Moving a job across the board automatically advances the stage the customer sees on their public order tracker — no separate update needed." },
+    ],
+    related: ["orders-and-production-stages", "art-department", "customer-order-tracker"],
+  },
+
+  // ─────────────────────────────── Inventory ─────────────────────────────────
+  {
+    slug: "inventory-overview",
+    title: "Inventory & stock levels",
+    section: "Inventory",
+    summary: "The item master, on-hand quantities, low-stock flags, and the stock ledger (receive / consume / count / adjust).",
+    who: "Admin, Production, Warehouse",
+    blocks: [
+      { k: "p", text: "Open Inventory from the sidebar to see the item master — every stocked SKU with its category, unit, supplier, cost, quantity on hand, and reorder point." },
+      { k: "h", text: "Finding items" },
+      { k: "p", text: "Search by SKU or name and page through the list. Items at or below their reorder point are flagged as low stock so you know what to reorder." },
+      { k: "h", text: "Moving stock" },
+      { k: "p", text: "Open an item to record stock movements. Every movement is one of four kinds and is written to a permanent ledger:" },
+      {
+        k: "list",
+        items: [
+          "Receive — stock coming in",
+          "Consume — stock used on a job",
+          "Count — set the quantity to a physical count",
+          "Adjust — correct by a positive or negative amount (with a reason)",
+        ],
+      },
+      { k: "p", text: "The item's on-hand quantity is always the sum of the stock in its bins (see Bin management). The item detail page shows the full movement history and the stock-by-bin breakdown." },
+      { k: "tip", text: "The MakeReady catalogue was seeded from the SAP Business One data — 6,219 stocked items across 46 categories and 4 warehouses — so you're working from real numbers on day one." },
+    ],
+    related: ["bin-management", "reports-overview"],
+  },
+  {
+    slug: "bin-management",
+    title: "Warehouses & bin management",
+    section: "Inventory",
+    summary: "Warehouses, bins, per-bin stock as the source of truth, and transferring stock between bins.",
+    who: "Admin, Warehouse",
+    blocks: [
+      { k: "p", text: "MakeReady tracks stock down to the individual shelf. A warehouse contains bins, and each bin holds a quantity of a given item. An item's total on-hand is the sum of its bin quantities — bins are the source of truth." },
+      { k: "h", text: "Managing warehouses & bins" },
+      { k: "p", text: "Open Inventory → Bins to view warehouses and their bins. Create a warehouse, then add bins (by code/label) to match your physical layout." },
+      { k: "h", text: "Stock at a bin" },
+      { k: "p", text: "When you receive, consume, count, or adjust stock, you do it at a specific bin — so the system always knows not just how many you have, but where they are." },
+      { k: "h", text: "Transferring stock" },
+      { k: "p", text: "Use a transfer to move a quantity from one bin to another (e.g. from bulk storage to a pick face). Transfers keep the item's total on hand unchanged and are recorded in the movement history." },
+      { k: "warn", text: "Because on-hand is derived from bins, always place received stock into a bin — otherwise it won't count toward the item's available quantity." },
+    ],
+    related: ["inventory-overview"],
+  },
+
+  // ─────────────────────────────── Reports & Analytics ───────────────────────
+  {
+    slug: "reports-overview",
+    title: "Reports & dashboards",
+    section: "Reports & Analytics",
+    summary: "The executive dashboard — headline KPIs, visual charts, breakdowns, low-stock, and one-click CSV export.",
+    who: "Admin, Sales Manager, Finance",
+    blocks: [
+      { k: "p", text: "Open Reports from the sidebar for an at-a-glance picture of the business. The top of the page shows headline KPIs (accounts, pipeline, open quotes and their value, open orders, inventory valuation), followed by a set of visual charts and written breakdowns." },
+      { k: "h", text: "The charts" },
+      { k: "p", text: "Charts are drawn on real, dense data and always label their values so nothing is guesswork:" },
+      {
+        k: "list",
+        items: [
+          "Accounts by lifecycle stage (leads, prospects, customers) with exact counts",
+          "Accounts by state and by account group",
+          "Inventory value and on-hand units by category",
+          "Orders by stage across the active pipeline",
+        ],
+      },
+      { k: "h", text: "Exporting" },
+      { k: "p", text: "Each breakdown has a CSV export link so you can pull the underlying numbers into a spreadsheet." },
+      { k: "tip", text: "For the sales pipeline by customer, remember the CRM account page now shows each customer's full order history and lifetime spend." },
+    ],
+    related: ["building-and-scheduling-reports", "managing-an-account"],
+  },
+  {
+    slug: "building-and-scheduling-reports",
+    title: "Building & scheduling custom reports",
+    section: "Reports & Analytics",
+    summary: "A Crystal Reports-style builder: pick a source, choose columns and filters, group with subtotals, save, export to CSV/PDF, and email on a schedule.",
+    who: "Admin, Sales Manager, Finance",
+    blocks: [
+      { k: "p", text: "Beyond the dashboard, you can build and save your own reports. Open Reports → \"New report\" (or edit a saved one)." },
+      { k: "h", text: "Building a report" },
+      {
+        k: "steps",
+        items: [
+          { text: "Pick a data source — Business Partners, Quotes, Orders, Inventory items, Production jobs, or Stock movements." },
+          { text: "Choose the columns you want as chips, in the order they should appear." },
+          { text: "Add filters (e.g. stage is one of lead, prospect; or on-hand greater than 0). Filters are safe and only ever read your data." },
+          { text: "Optionally pick a \"Group by\" field to cluster rows with per-group subtotals and a grand total." },
+          { text: "Set a sort column and direction and a row limit, watch the live preview, then \"Save report\"." },
+        ],
+      },
+      { k: "h", text: "Running & exporting" },
+      { k: "p", text: "Open a saved report to run it. Grouped reports show subtotals and a grand total. Export the results as CSV, or as a formatted PDF (large grouped reports export as a subtotal summary to stay fast — use CSV for full line detail)." },
+      { k: "h", text: "Scheduled email delivery" },
+      { k: "p", text: "On a report, set up a schedule — daily, weekly (choose the day), or monthly (choose the day of month) — pick CSV or PDF, and enter recipient email addresses. MakeReady emails the report to that list automatically from the g54.com domain." },
+      { k: "tip", text: "A set of recommended reports and KPI scorecards is already seeded — active pipeline, open/won quotes, open orders by stage, production WIP, inventory valuation by category, and recent stock receipts — ready to run or schedule." },
+      { k: "warn", text: "Report building is limited to Admin, Sales Manager, and Finance roles." },
+    ],
+    related: ["reports-overview"],
+  },
+
+  // ─────────────────────────────── Administration ────────────────────────────
+  {
+    slug: "security-and-data-protection",
+    title: "Security & data protection",
+    section: "Administration",
+    summary: "How MakeReady protects accounts and data: MFA, lockout, rate limiting, browser hardening, the WAF, audit logging, and encrypted offsite backups.",
+    who: "Admin only",
+    blocks: [
+      { k: "p", text: "This article summarizes the platform's security posture for administrators and auditors. Most of it works automatically in the background." },
+      { k: "h", text: "Accounts & sign-in" },
+      {
+        k: "list",
+        items: [
+          "Passwords are bcrypt-hashed with a strength policy (min 10 characters, upper/lower/number).",
+          "Two-factor authentication (authenticator app or passkey) is required for every user, with single-use recovery codes.",
+          "Accounts lock for 15 minutes after 5 failed attempts, and admins are notified.",
+          "One active session per user; signing in elsewhere ends the previous session.",
+        ],
+      },
+      { k: "h", text: "Rate limiting & the firewall" },
+      { k: "p", text: "Sensitive endpoints are throttled in two layers. In the application, sign-in, password-reset, and MFA-verification attempts are rate-limited (per network address, and per user for MFA codes) — tripping the MFA limit tears down the pending sign-in. At the network edge, a Vercel Web Application Firewall rule rate-limits the sign-in and password-reset pages by IP before traffic ever reaches the app." },
+      { k: "h", text: "Browser hardening" },
+      { k: "p", text: "Every response carries a strict Content-Security-Policy (with a per-request nonce), HSTS, anti-framing, and related headers to resist XSS, clickjacking, and downgrade attacks." },
+      { k: "h", text: "Audit & backups" },
+      {
+        k: "list",
+        items: [
+          "An append-only audit log records every meaningful change (retained 13+ months); see The audit log.",
+          "The database is backed up nightly as an AES-256-encrypted snapshot stored offsite, retained 30 days and integrity-checked.",
+          "Neon's point-in-time restore provides short-window recovery on top of the nightly snapshots.",
+        ],
+      },
+      { k: "warn", text: "The nightly backup is encrypted with a passphrase held outside the app. Keep that passphrase safe in your password manager — without it the backups cannot be restored." },
+    ],
+    related: ["two-factor-authentication", "audit-log", "system-configuration"],
   },
 ];
 
