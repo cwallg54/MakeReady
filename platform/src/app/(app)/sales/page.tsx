@@ -54,7 +54,7 @@ export default async function SalesPage() {
         }
       />
       <Card className="p-0">
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
               <tr>
@@ -83,6 +83,28 @@ export default async function SalesPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile card list */}
+        <ul className="divide-y divide-neutral-100 lg:hidden">
+          {rows.length === 0 && <li className="px-4 py-10 text-center text-sm text-neutral-400">No quotes yet.</li>}
+          {rows.map((r) => (
+            <li key={r.id}>
+              <Link href={`/sales/quotes/${r.id}`} className="flex items-center gap-3 px-4 py-3 active:bg-neutral-50">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-neutral-900">{r.company ?? "Walk-in"}</p>
+                  <p className="mt-0.5 truncate text-xs text-neutral-500">
+                    <span className="font-mono">{r.quoteNumber}</span>
+                    {r.template ? ` · ${r.template}` : ""} · {fmtDate(r.createdAt)}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="font-semibold text-neutral-900">${Number(r.total).toFixed(2)}</p>
+                  <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_BADGE[r.status]}`}>{r.status}</span>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </Card>
     </div>
   );

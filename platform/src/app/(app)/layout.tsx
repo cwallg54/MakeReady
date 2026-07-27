@@ -9,6 +9,7 @@ import { notifications, systemSettings } from "@/db/schema";
 import { type NavItem } from "@/components/app-nav";
 import { AppShell } from "@/components/app-shell";
 import { LogoutButton } from "@/components/logout-button";
+import { TAB_ICONS, type MobileTab } from "@/components/mobile-tab-bar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -64,6 +65,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Help Center — available to everyone.
   items.push({ key: "help", label: "Help", href: "/help", phase1: true });
 
+  // Field-sales bottom tabs (mobile only). Gated by module access; the center
+  // "New" action starts a quote, the front door to the order process.
+  const mobileTabs: MobileTab[] = [{ key: "home", label: "Home", href: "/dashboard", icon: TAB_ICONS.home }];
+  if (canView(user.roles, "crm")) mobileTabs.push({ key: "accounts", label: "Accounts", href: "/crm", icon: TAB_ICONS.accounts });
+  if (canView(user.roles, "sales")) {
+    mobileTabs.push({ key: "new", label: "New", href: "/sales/quotes/new", icon: TAB_ICONS.plus, primary: true });
+    mobileTabs.push({ key: "quotes", label: "Quotes", href: "/sales", icon: TAB_ICONS.quotes });
+    mobileTabs.push({ key: "orders", label: "Orders", href: "/sales/orders", icon: TAB_ICONS.orders });
+  }
+
   const [unread] = await db
     .select({ n: count() })
     .from(notifications)
@@ -79,6 +90,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <AppShell
       navItems={items}
+      mobileTabs={mobileTabs}
       userName={user.name}
       rolesLabel={user.roles.map((r) => ROLE_LABELS[r]).join(", ")}
       initials={initials}

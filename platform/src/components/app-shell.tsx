@@ -5,9 +5,11 @@ import Link from "next/link";
 import { LogoInline } from "@/components/logo";
 import { AppNav, type NavItem } from "@/components/app-nav";
 import { HelpButton } from "@/components/help/help-button";
+import { MobileTabBar, type MobileTab } from "@/components/mobile-tab-bar";
 
 export function AppShell({
   navItems,
+  mobileTabs,
   userName,
   rolesLabel,
   initials,
@@ -16,6 +18,7 @@ export function AppShell({
   children,
 }: {
   navItems: NavItem[];
+  mobileTabs: MobileTab[];
   userName: string;
   rolesLabel: string;
   initials: string;
@@ -90,8 +93,11 @@ export function AppShell({
             {logoutSlot}
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto px-4 pt-4 pb-24 sm:px-6 sm:pt-6 lg:pb-6">{children}</main>
       </div>
+
+      {/* Field-sales bottom navigation (mobile/tablet only) */}
+      {mobileTabs.length > 0 && <MobileTabBar tabs={mobileTabs} />}
     </div>
   );
 }

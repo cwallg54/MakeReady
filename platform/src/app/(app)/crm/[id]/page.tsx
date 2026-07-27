@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { asc, desc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
-import { canEdit, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
+import { canEdit, canView, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
 import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles, orders, quotes } from "@/db/schema";
 import { FinancialDocs } from "@/components/crm/financial-docs";
@@ -91,6 +91,11 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   ]);
   const orderTotal = orderRows.reduce((s, o) => s + (o.voidedAt ? 0 : Number(o.total ?? 0)), 0);
   const liveOrders = orderRows.filter((o) => !o.voidedAt).length;
+  // Primary contact drives the mobile tap-to-call / tap-to-email actions.
+  const primaryContact = contactRows[0];
+  const contactPhone = primaryContact?.phone ?? null;
+  const contactEmail = primaryContact?.email ?? null;
+  const canSell = canView(user.roles, "sales");
   const docs = await db.select().from(customerDocuments).where(eq(customerDocuments.bpId, id)).orderBy(desc(customerDocuments.createdAt));
   const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
   const ownerSchedule = bp.ownerId ? await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, bp.ownerId) }) : null;
@@ -134,6 +139,39 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
             <span className="text-sm font-medium text-neutral-800">{owner?.name ?? "Unassigned"}</span>
           )}
         </div>
+      </div>
+
+      {/* Mobile field-sales quick actions */}
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:hidden">
+        <a
+          href={contactPhone ? `tel:${contactPhone}` : undefined}
+          aria-disabled={!contactPhone}
+          className={`flex flex-col items-center gap-1 rounded-xl border py-3 text-xs font-semibold ${contactPhone ? "border-neutral-200 bg-white text-neutral-800 active:bg-neutral-50" : "border-neutral-100 bg-neutral-50 text-neutral-300"}`}
+        >
+          <span className="text-lg">📞</span>Call
+        </a>
+        <a
+          href={contactEmail ? `mailto:${contactEmail}` : undefined}
+          aria-disabled={!contactEmail}
+          className={`flex flex-col items-center gap-1 rounded-xl border py-3 text-xs font-semibold ${contactEmail ? "border-neutral-200 bg-white text-neutral-800 active:bg-neutral-50" : "border-neutral-100 bg-neutral-50 text-neutral-300"}`}
+        >
+          <span className="text-lg">✉️</span>Email
+        </a>
+        <a href="#activity" className="flex flex-col items-center gap-1 rounded-xl border border-neutral-200 bg-white py-3 text-xs font-semibold text-neutral-800 active:bg-neutral-50">
+          <span className="text-lg">📝</span>Log
+        </a>
+        {canSell ? (
+          <Link
+            href={`/sales/quotes/new?bp=${bp.id}&bpName=${encodeURIComponent(bp.companyName)}`}
+            className="flex flex-col items-center gap-1 rounded-xl border border-neutral-900 bg-neutral-900 py-3 text-xs font-semibold text-white active:bg-neutral-700"
+          >
+            <span className="text-lg">🧾</span>New Quote
+          </Link>
+        ) : (
+          <span className="flex flex-col items-center gap-1 rounded-xl border border-neutral-100 bg-neutral-50 py-3 text-xs font-semibold text-neutral-300">
+            <span className="text-lg">🧾</span>New Quote
+          </span>
+        )}
       </div>
 
       {ownerSchedule?.active && (
@@ -233,6 +271,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
           </Card>
 
           {/* Activity log */}
+          <div id="activity" className="scroll-mt-20" />
           <Card>
             <h2 className="mb-1 text-sm font-semibold text-neutral-900">Activity log</h2>
             <p className="mb-3 text-xs text-neutral-400">Notes and calls you log, plus automatic records of every change to this account.</p>

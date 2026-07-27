@@ -138,10 +138,41 @@ export function QuoteBuilder({
               const auto = isAutoPriced(item);
               const belowMin = !!item && item.minQty > 0 && (l.qty || 0) > 0 && (l.qty || 0) < item.minQty;
               const gridCls = showSize
-                ? "grid grid-cols-[1fr_74px_60px_84px_70px_24px] items-center gap-2"
-                : "grid grid-cols-[1fr_70px_90px_90px_28px] items-center gap-2";
+                ? "hidden items-center gap-2 lg:grid lg:grid-cols-[1fr_74px_60px_84px_70px_24px]"
+                : "hidden items-center gap-2 lg:grid lg:grid-cols-[1fr_70px_90px_90px_28px]";
               return (
                 <div key={i}>
+                  {/* Mobile stacked line */}
+                  <div className="space-y-2 rounded-lg border border-neutral-200 p-3 lg:hidden">
+                    {catalog.length > 0 ? (
+                      <select disabled={!editable} value={l.itemCode ?? (catalog.find((c) => c.name === l.description) ? (catalog.find((c) => c.name === l.description)!.code ?? l.description) : "__custom")} onChange={(e) => pickItem(i, e.target.value)} className={`w-full ${inputCls}`}>
+                        <option value="__custom">— custom / type below —</option>
+                        {catalog.map((c) => (
+                          <option key={c.code ?? c.name} value={c.code ?? c.name}>{c.name}{c.unitPrice && !hasBands(c) ? ` (${money(c.unitPrice)})` : hasBands(c) ? " (qty-priced)" : ""}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input disabled={!editable} value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} placeholder="Description" className={`w-full ${inputCls}`} />
+                    )}
+                    <div className={`grid gap-2 ${showSize && hasSizeUpcharges(item) ? "grid-cols-3" : "grid-cols-2"}`}>
+                      {showSize && hasSizeUpcharges(item) && (
+                        <select disabled={!editable} value={l.size ?? ""} onChange={(e) => updateLine(i, { size: e.target.value || undefined })} className={inputCls} title="Size">
+                          <option value="">size</option>
+                          {sizeOptions.map((s) => (
+                            <option key={s} value={s}>{s}{item!.sizeUpcharges![s] ? ` (+${money(item!.sizeUpcharges![s])})` : ""}</option>
+                          ))}
+                        </select>
+                      )}
+                      <input disabled={!editable} type="number" inputMode="numeric" value={l.qty || ""} onChange={(e) => updateLine(i, { qty: Number(e.target.value) })} placeholder="Qty" className={inputCls} />
+                      <input disabled={!editable || auto} readOnly={auto} type="number" inputMode="decimal" step="0.01" value={l.unitPrice || ""} onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })} placeholder="Unit $" className={`${inputCls}${auto ? " bg-neutral-100 text-neutral-500" : ""}`} />
+                    </div>
+                    <div className="flex items-center justify-between pt-0.5">
+                      <span className="text-sm text-neutral-500">Line total <span className="font-semibold text-neutral-800">{money((l.qty || 0) * (l.unitPrice || 0))}</span></span>
+                      {editable && <button onClick={() => { setLines((p) => p.filter((_, idx) => idx !== i)); setSaved(false); }} className="text-sm font-medium text-red-600">Remove</button>}
+                    </div>
+                  </div>
+
+                  {/* Desktop grid line */}
                   <div className={gridCls}>
                     {catalog.length > 0 ? (
                       <select disabled={!editable} value={l.itemCode ?? (catalog.find((c) => c.name === l.description) ? (catalog.find((c) => c.name === l.description)!.code ?? l.description) : "__custom")} onChange={(e) => pickItem(i, e.target.value)} className={inputCls}>

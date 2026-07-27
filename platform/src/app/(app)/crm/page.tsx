@@ -187,7 +187,8 @@ export default async function CrmPage({
       </form>
 
       <Card className="p-0">
-        <div className="overflow-x-auto">
+        {/* Desktop table (unchanged) */}
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
               <tr>
@@ -235,6 +236,39 @@ export default async function CrmPage({
             </tbody>
           </table>
         </div>
+
+        {/* Mobile card list (phones/tablets) */}
+        <ul className="divide-y divide-neutral-100 lg:hidden">
+          {rows.length === 0 && (
+            <li className="px-4 py-10 text-center text-sm text-neutral-400">
+              {hasFilters ? "No matching business partners." : "No business partners yet."}
+            </li>
+          )}
+          {rows.map((r) => (
+            <li key={r.id}>
+              <Link href={`/crm/${r.id}`} className="flex items-start gap-3 px-4 py-3 active:bg-neutral-50">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-neutral-900">{r.companyName}</p>
+                  <p className="mt-0.5 truncate text-xs text-neutral-500">
+                    {r.ownerName ?? "Unassigned"}
+                    {[r.city, r.state].filter(Boolean).length > 0 ? ` · ${[r.city, r.state].filter(Boolean).join(", ")}` : ""}
+                  </p>
+                  {r.tags && r.tags.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {r.tags.slice(0, 3).map((t) => (
+                        <span key={t} className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-600">{t}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${STAGE_BADGE[r.lifecycleStage]}`}>
+                  {STAGE_LABEL[r.lifecycleStage]}
+                </span>
+                <span className="mt-1 shrink-0 text-neutral-300">›</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
         {(pages > 1 || total > 0) && (
           <div className="flex items-center justify-between border-t border-neutral-100 px-5 py-3 text-sm">
             <span className="text-neutral-400">{total.toLocaleString()} partner{total === 1 ? "" : "s"} · page {page} of {pages}</span>
