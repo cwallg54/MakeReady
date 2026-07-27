@@ -55,7 +55,7 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
 
       <Card className="p-0">
         <div className="border-b border-neutral-100 px-4 py-2 text-xs text-neutral-400">{result.rows.length.toLocaleString()} row{result.rows.length === 1 ? "" : "s"}{result.rows.length > MAX_SHOWN ? ` (showing first ${MAX_SHOWN}; export CSV for all)` : ""}</div>
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-400"><tr>{result.columns.map((c) => <th key={c} className="px-3 py-2">{labels[c] ?? c}</th>)}</tr></thead>
             <tbody className="divide-y divide-neutral-100">
@@ -82,6 +82,22 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile: each row as a stacked card (grouping/subtotals shown on desktop or via export) */}
+        <div className="divide-y divide-neutral-100 lg:hidden">
+          {grouped && <p className="px-4 py-2 text-xs text-neutral-400">Grouped totals show on a larger screen or in the CSV/PDF export.</p>}
+          {shown.length === 0 && <p className="px-4 py-8 text-center text-sm text-neutral-400">No rows match this report.</p>}
+          {shown.map((r, i) => (
+            <div key={i} className="px-4 py-2.5">
+              {result.columns.map((c, ci) => (
+                <div key={c} className={`flex justify-between gap-3 ${ci === 0 ? "" : "mt-0.5"}`}>
+                  <span className="shrink-0 text-xs text-neutral-400">{labels[c] ?? c}</span>
+                  <span className={`truncate text-right text-sm ${ci === 0 ? "font-medium text-neutral-900" : "text-neutral-700"}`}>{numeric.has(c) ? fmtNum(r[c]) : displayValue(r[c])}</span>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </Card>
 

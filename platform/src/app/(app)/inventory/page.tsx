@@ -47,7 +47,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
             <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Filter</button>
           </form>
         </div>
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-400">
               <tr>
@@ -70,6 +70,25 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
             </tbody>
           </table>
         </div>
+
+        {/* Mobile card list */}
+        <ul className="divide-y divide-neutral-100 lg:hidden">
+          {items.length === 0 && <li className="py-6 text-center text-sm text-neutral-400">No items{q || low ? " match the filter" : " yet"}.</li>}
+          {items.map((i) => (
+            <li key={i.id}>
+              <Link href={`/inventory/${i.id}`} className="flex items-center gap-3 py-3 active:bg-neutral-50">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-neutral-900">{i.name}{!i.active && <span className="ml-1 text-[10px] text-neutral-400">(inactive)</span>}</p>
+                  <p className="mt-0.5 truncate text-xs text-neutral-500"><span className="font-mono">{i.sku}</span>{i.category ? ` · ${i.category}` : ""}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className={`text-sm font-semibold ${isLow(i) ? "text-amber-600" : "text-neutral-800"}`}>{Number(i.onHand)} {i.unit}{isLow(i) ? " ⚠" : ""}</p>
+                  <p className="text-xs text-neutral-400">${Number(i.cost).toFixed(2)}</p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
         {pages > 1 && (
           <div className="mt-3 flex items-center justify-between text-sm">
             <span className="text-neutral-400">Page {page} of {pages}</span>

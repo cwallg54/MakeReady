@@ -73,7 +73,7 @@ export default async function AuditPage({
           <a href={exportHref} className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Export CSV</a>
         </form>
       </div>
-      <div className="overflow-x-auto">
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full text-sm">
           <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
             <tr>
@@ -100,6 +100,24 @@ export default async function AuditPage({
           </tbody>
         </table>
       </div>
+
+      {/* Mobile card list */}
+      <ul className="divide-y divide-neutral-100 lg:hidden">
+        {rows.length === 0 && <li className="px-4 py-6 text-center text-sm text-neutral-400">No matching audit events.</li>}
+        {rows.map((r) => (
+          <li key={r.id} className="px-4 py-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-800">{r.action}</code>
+              <span className="shrink-0 text-xs text-neutral-400">{fmtDateTime(r.createdAt)}</span>
+            </div>
+            <p className="mt-1 text-xs text-neutral-500">
+              {r.userName ?? "System"}
+              {r.entityType ? ` · ${r.entityType}${r.entityId ? ` ${r.entityId.slice(0, 8)}` : ""}` : ""}
+              {r.ip ? ` · ${r.ip}` : ""}
+            </p>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 }

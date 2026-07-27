@@ -125,19 +125,32 @@ export default async function ReportsPage() {
           <Link href="/reports/export?d=low-stock" className="text-xs font-medium text-blue-600 hover:text-blue-800">Export CSV ↓</Link>
         </div>
         {lowStock.length === 0 ? <p className="text-xs text-neutral-400">Nothing at or below its reorder point.</p> : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-neutral-400"><tr><th className="py-1">SKU</th><th className="py-1">Item</th><th className="py-1 text-right">On hand</th><th className="py-1 text-right">Reorder</th></tr></thead>
-            <tbody className="divide-y divide-neutral-100">
+          <>
+            <table className="hidden w-full text-sm lg:table">
+              <thead className="text-left text-xs uppercase tracking-wide text-neutral-400"><tr><th className="py-1">SKU</th><th className="py-1">Item</th><th className="py-1 text-right">On hand</th><th className="py-1 text-right">Reorder</th></tr></thead>
+              <tbody className="divide-y divide-neutral-100">
+                {lowStock.map((r) => (
+                  <tr key={r.sku}>
+                    <td className="py-1.5 font-mono text-xs text-neutral-500">{r.sku}</td>
+                    <td className="py-1.5 text-neutral-800">{r.name}</td>
+                    <td className="py-1.5 text-right font-medium text-amber-600">{Number(r.onHand)} {r.unit}</td>
+                    <td className="py-1.5 text-right text-neutral-500">{Number(r.reorderPoint)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <ul className="divide-y divide-neutral-100 lg:hidden">
               {lowStock.map((r) => (
-                <tr key={r.sku}>
-                  <td className="py-1.5 font-mono text-xs text-neutral-500">{r.sku}</td>
-                  <td className="py-1.5 text-neutral-800">{r.name}</td>
-                  <td className="py-1.5 text-right font-medium text-amber-600">{Number(r.onHand)} {r.unit}</td>
-                  <td className="py-1.5 text-right text-neutral-500">{Number(r.reorderPoint)}</td>
-                </tr>
+                <li key={r.sku} className="flex items-center justify-between gap-3 py-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-neutral-800">{r.name}</p>
+                    <p className="truncate font-mono text-xs text-neutral-400">{r.sku}</p>
+                  </div>
+                  <p className="shrink-0 text-sm font-medium text-amber-600">{Number(r.onHand)} {r.unit} <span className="text-xs font-normal text-neutral-400">/ {Number(r.reorderPoint)}</span></p>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </>
         )}
       </Card>
 

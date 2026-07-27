@@ -80,7 +80,8 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         </div>
       </div>
 
-      <Card className="overflow-x-auto p-0">
+      {/* Desktop: month grid */}
+      <Card className="hidden overflow-x-auto p-0 lg:block">
         <div className="min-w-[760px]">
           <div className="grid grid-cols-7 border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-500">
             {WEEKDAYS.map((d) => <div key={d} className="px-2 py-2 text-center">{d}</div>)}
@@ -115,6 +116,37 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           </div>
         </div>
       </Card>
+
+      {/* Mobile: agenda list (a month grid is unusable on a phone) */}
+      <div className="space-y-4 lg:hidden">
+        {rows.length === 0 && (
+          <Card><p className="py-6 text-center text-sm text-neutral-400">No meetings in {monthStart.toFormat("LLLL")}.</p></Card>
+        )}
+        {[...byDay.entries()].map(([dayKey, items]) => {
+          const d = DateTime.fromISO(dayKey, { zone: TZ });
+          const isToday = dayKey === todayKey;
+          return (
+            <div key={dayKey}>
+              <div className="mb-2 flex items-center gap-2 px-0.5">
+                <span className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${isToday ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-700"}`}>{d.day}</span>
+                <span className="text-sm font-semibold text-neutral-800">{d.toFormat("cccc, LLL d")}</span>
+              </div>
+              <div className="space-y-2">
+                {items.map((m) => {
+                  const t = DateTime.fromJSDate(m.start).setZone(TZ).toFormat("h:mm a");
+                  return (
+                    <Link key={m.id} href={`/calendar/${m.id}`} className={`block rounded-lg border px-3 py-2.5 ${COLOR[m.color ?? "blue"] ?? COLOR.blue}`}>
+                      <div className="text-sm font-semibold">{t} · {m.typeName}</div>
+                      <div className="text-xs">{m.attendee}{m.company ? ` · ${m.company}` : ""}</div>
+                      <div className="text-xs opacity-70">Host: {m.hostName ?? "—"}</div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
