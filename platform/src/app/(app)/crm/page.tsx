@@ -5,6 +5,7 @@ import { canEdit, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
 import { businessPartners, accountGroups, users } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
+import { SpeedDialFab, TAB_ICONS } from "@/components/mobile-tab-bar";
 
 const STAGE_LABEL: Record<string, string> = { lead: "Lead", prospect: "Prospect", customer: "Customer" };
 const STAGE_BADGE: Record<string, string> = {
@@ -126,7 +127,9 @@ export default async function CrmPage({
         title="CRM — Business Partners"
         description="Customer accounts, leads, and prospects. The anchor for quotes, orders, invoices, and Web Store access."
         action={
-          <div className="flex gap-2">
+          // Desktop keeps the header buttons; on mobile these move into the
+          // floating speed-dial (below) so the header isn't cluttered.
+          <div className="hidden gap-2 lg:flex">
             <Link href="/crm/pipeline" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">
               Pipeline
             </Link>
@@ -279,6 +282,14 @@ export default async function CrmPage({
           </div>
         )}
       </Card>
+
+      <SpeedDialFab
+        ariaLabel="CRM quick actions"
+        actions={[
+          ...(editable ? [{ key: "new-bp", label: "New Business Partner", href: "/crm/new", icon: TAB_ICONS.userPlus }] : []),
+          { key: "pipeline", label: "Pipeline board", href: "/crm/pipeline", icon: TAB_ICONS.board },
+        ]}
+      />
     </div>
   );
 }
