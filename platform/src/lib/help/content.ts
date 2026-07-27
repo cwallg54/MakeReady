@@ -148,12 +148,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
         items: [
           "Home — your dashboard and open tasks",
           "Accounts — your Business Partners (search and tap to open)",
-          "＋ New — start a quote (the first step of an order)",
+          "＋ New — create something new (tap or press-and-hold for options)",
           "Quotes — your recent quotes",
           "Orders — your orders and their stage",
         ],
       },
       { k: "p", text: "You only see the tabs your role has access to." },
+      { k: "tip", text: "Tap the center ＋ button — or press and hold it — to pop up quick actions: New Customer and New Quote. Press-and-hold gives a little buzz; tap either option, or tap outside to dismiss." },
       { k: "h", text: "Working an account" },
       { k: "p", text: "Open an account and you'll see a quick-action row at the top:" },
       {

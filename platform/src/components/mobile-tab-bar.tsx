@@ -1,7 +1,15 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+export interface SpeedDialAction {
+  key: string;
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
 
 export interface MobileTab {
   key: string;
@@ -11,6 +19,8 @@ export interface MobileTab {
   icon: React.ReactNode;
   /** Elevated center action (e.g. New). */
   primary?: boolean;
+  /** When set (2+), the primary button becomes a press-and-hold speed dial. */
+  actions?: SpeedDialAction[];
 }
 
 // Field-sales bottom navigation. Rendered only below the `lg` breakpoint, so the
@@ -39,6 +49,9 @@ export function MobileTabBar({ tabs }: { tabs: MobileTab[] }) {
       <ul className="mx-auto flex max-w-md items-stretch justify-around">
         {tabs.map((t) => {
           const active = t.key === activeKey;
+          if (t.primary && t.actions && t.actions.length > 1) {
+            return <SpeedDialTab key={t.key} tab={t} active={active} />;
+          }
           if (t.primary) {
             return (
               <li key={t.key} className="flex flex-1 justify-center">
@@ -74,6 +87,103 @@ export function MobileTabBar({ tabs }: { tabs: MobileTab[] }) {
   );
 }
 
+// Accent color per action for a bit of graphical delight.
+const ACTION_COLOR: Record<string, string> = {
+  "new-customer": "bg-indigo-600",
+  "new-quote": "bg-neutral-900",
+};
+
+function SpeedDialTab({ tab, active }: { tab: MobileTab; active: boolean }) {
+  const [open, setOpen] = useState(false);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openedByHold = useRef(false);
+  const actions = tab.actions ?? [];
+
+  const startHold = () => {
+    openedByHold.current = false;
+    holdTimer.current = setTimeout(() => {
+      openedByHold.current = true;
+      setOpen(true);
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(18);
+    }, 280);
+  };
+  const cancelHold = () => {
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
+  };
+  const onButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // If a long-press already opened the dial, swallow the trailing click.
+    if (openedByHold.current) {
+      openedByHold.current = false;
+      return;
+    }
+    setOpen((o) => !o);
+  };
+
+  return (
+    <li className={`relative flex flex-1 justify-center ${open ? "z-50" : ""}`}>
+      {/* Dimmed, blurred backdrop */}
+      <button
+        type="button"
+        aria-hidden={!open}
+        tabIndex={-1}
+        onClick={() => setOpen(false)}
+        className={`fixed inset-0 z-40 bg-neutral-900/40 backdrop-blur-sm transition-opacity duration-300 ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      {/* Fan of actions, stacked above the + button */}
+      <div className="absolute bottom-full left-1/2 z-50 mb-4 flex -translate-x-1/2 flex-col items-end gap-3">
+        {actions.map((a, i) => (
+          <Link
+            key={a.key}
+            href={a.href}
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 rounded-full bg-white py-1.5 pl-1.5 pr-4 shadow-xl ring-1 ring-black/5 transition-all duration-300 ease-out will-change-transform"
+            style={{
+              transitionDelay: `${open ? (actions.length - 1 - i) * 55 : 0}ms`,
+              transform: open ? "translateY(0) scale(1)" : "translateY(16px) scale(0.8)",
+              opacity: open ? 1 : 0,
+              pointerEvents: open ? "auto" : "none",
+            }}
+          >
+            <span className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow ${ACTION_COLOR[a.key] ?? "bg-neutral-900"}`}>
+              <span className="h-5 w-5">{a.icon}</span>
+            </span>
+            <span className="whitespace-nowrap text-sm font-semibold text-neutral-800">{a.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* The + / × button */}
+      <button
+        type="button"
+        aria-label={tab.label}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-current={active ? "page" : undefined}
+        onClick={onButtonClick}
+        onPointerDown={startHold}
+        onPointerUp={cancelHold}
+        onPointerLeave={cancelHold}
+        onPointerCancel={cancelHold}
+        onContextMenu={(e) => e.preventDefault()}
+        className={`relative z-50 -mt-5 flex h-14 w-14 flex-col items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 active:scale-95 ${
+          open ? "bg-neutral-700 shadow-neutral-900/40" : "bg-neutral-900 shadow-neutral-900/30"
+        }`}
+        style={{ touchAction: "none" }}
+      >
+        <span className={`h-6 w-6 transition-transform duration-300 ${open ? "rotate-45" : ""}`}>{tab.icon}</span>
+        <span className="text-[10px] font-semibold leading-none">{open ? "Close" : tab.label}</span>
+      </button>
+    </li>
+  );
+}
+
 // Shared 24x24 stroke icons.
 const svg = (children: React.ReactNode) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
@@ -87,4 +197,5 @@ export const TAB_ICONS = {
   plus: svg(<><path d="M12 6v12" /><path d="M6 12h12" /></>),
   quotes: svg(<><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4" /><path d="M9 12h6" /><path d="M9 16h6" /></>),
   orders: svg(<><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" /><path d="M3 7.5 12 12l9-4.5" /><path d="M12 12v9" /></>),
+  userPlus: svg(<><circle cx="9" cy="8" r="3.2" /><path d="M3.5 20a6 6 0 0 1 11 0" /><path d="M18.5 8v6" /><path d="M15.5 11h6" /></>),
 } as const;

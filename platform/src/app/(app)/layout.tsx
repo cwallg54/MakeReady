@@ -2,14 +2,14 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
-import { visibleModules, canView, ROLE_LABELS } from "@/lib/rbac";
+import { visibleModules, canView, canEdit, ROLE_LABELS } from "@/lib/rbac";
 import { canDoArt } from "@/lib/art/access";
 import { db } from "@/db";
 import { notifications, systemSettings } from "@/db/schema";
 import { type NavItem } from "@/components/app-nav";
 import { AppShell } from "@/components/app-shell";
 import { LogoutButton } from "@/components/logout-button";
-import { TAB_ICONS, type MobileTab } from "@/components/mobile-tab-bar";
+import { TAB_ICONS, type MobileTab, type SpeedDialAction } from "@/components/mobile-tab-bar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -69,8 +69,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // "New" action starts a quote, the front door to the order process.
   const mobileTabs: MobileTab[] = [{ key: "home", label: "Home", href: "/dashboard", icon: TAB_ICONS.home }];
   if (canView(user.roles, "crm")) mobileTabs.push({ key: "accounts", label: "Accounts", href: "/crm", icon: TAB_ICONS.accounts });
+
+  // Center "New" button: press-and-hold reveals the create actions the rep can start.
+  const newActions: SpeedDialAction[] = [];
+  if (canEdit(user.roles, "crm")) newActions.push({ key: "new-customer", label: "New Customer", href: "/crm/new", icon: TAB_ICONS.userPlus });
+  if (canEdit(user.roles, "sales")) newActions.push({ key: "new-quote", label: "New Quote", href: "/sales/quotes/new", icon: TAB_ICONS.quotes });
+  if (newActions.length > 0) {
+    mobileTabs.push({
+      key: "new",
+      label: "New",
+      href: newActions[0].href,
+      icon: TAB_ICONS.plus,
+      primary: true,
+      actions: newActions.length > 1 ? newActions : undefined,
+    });
+  }
   if (canView(user.roles, "sales")) {
-    mobileTabs.push({ key: "new", label: "New", href: "/sales/quotes/new", icon: TAB_ICONS.plus, primary: true });
     mobileTabs.push({ key: "quotes", label: "Quotes", href: "/sales", icon: TAB_ICONS.quotes });
     mobileTabs.push({ key: "orders", label: "Orders", href: "/sales/orders", icon: TAB_ICONS.orders });
   }
