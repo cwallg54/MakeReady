@@ -66,22 +66,31 @@ export async function reportToPdf(result: ReportResult, opts: Opts): Promise<Uin
     drawRow(r, { band: true, bold: true });
   };
 
+  // Bound the work so large datasets don't blow the PDF up (or time out). Big
+  // grouped reports render as a subtotal summary; big flat reports are capped.
+  const MAX_DETAIL = 800;
+  const note = (t: string) => { ensure(); st.page.drawText(t, { x: MARGIN, y: st.y, size: FS, font, color: GRAY }); st.y -= ROW_H; };
+
   newPage(true);
 
   if (opts.groupField && cols.includes(opts.groupField)) {
     const { groups, grand } = groupRows(result, opts.groupField, opts.numericCols);
     const gLabel = opts.labels[opts.groupField] ?? opts.groupField;
+    const detail = result.rows.length <= MAX_DETAIL;
     for (const g of groups) {
       ensure(ROW_H * 2);
       st.page.drawText(`${gLabel}: ${trunc(g.label)} (${g.rows.length})`, { x: MARGIN, y: st.y, size: FS + 1, font: bold, color: NAVY });
       st.y -= ROW_H;
-      for (const row of g.rows) drawRow(row);
+      if (detail) for (const row of g.rows) drawRow(row);
       subtotalRow("Subtotal", g.subtotals);
       st.y -= 6;
     }
     subtotalRow("GRAND TOTAL", grand);
+    if (!detail) note(`Summary of ${result.rows.length.toLocaleString()} rows — export CSV for full line detail.`);
   } else {
-    for (const row of result.rows) drawRow(row);
+    const rows = result.rows.slice(0, MAX_DETAIL);
+    for (const row of rows) drawRow(row);
+    if (result.rows.length > MAX_DETAIL) note(`Showing first ${MAX_DETAIL} of ${result.rows.length.toLocaleString()} rows — export CSV for all.`);
   }
 
   return doc.save();
