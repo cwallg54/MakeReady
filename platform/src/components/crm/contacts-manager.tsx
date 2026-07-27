@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { addContactAction, updateContactAction, deleteContactAction } from "@/lib/crm/actions";
 import { ConfirmButton } from "@/components/confirm-button";
+import { PhoneLink, EmailLink } from "@/components/phone-link";
 
 interface Contact {
   id: string;
@@ -65,8 +66,8 @@ export function ContactsManager({
                   {c.isPrimary && <span className="ml-1 rounded bg-neutral-900 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-white">Primary</span>}
                 </p>
                 {c.title && <p className="text-xs text-neutral-500">{c.title}</p>}
-                {c.email && <p className="text-xs text-neutral-500">{c.email}</p>}
-                {c.phone && <p className="text-xs text-neutral-500">{c.phone}</p>}
+                {c.email && <p className="text-xs"><EmailLink email={c.email} /></p>}
+                {c.phone && <p className="text-xs"><PhoneLink phone={c.phone} /></p>}
               </div>
               {editable && (
                 <div className="flex shrink-0 gap-2 text-xs">

@@ -11,6 +11,7 @@ import { PageHeader, Card } from "@/components/ui";
 import { ContactsManager } from "@/components/crm/contacts-manager";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
+import { PhoneLink, EmailLink } from "@/components/phone-link";
 import {
   addActivityAction,
   setStageAction,
@@ -213,8 +214,8 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
               />
             ) : (
               <dl className="grid grid-cols-2 gap-3 text-sm">
-                <Detail label="Email" value={bp.email} />
-                <Detail label="Phone" value={bp.phone} />
+                <Detail label="Email" value={bp.email} kind="email" />
+                <Detail label="Phone" value={bp.phone} kind="tel" />
                 <Detail label="Address" value={[bp.addressStreet, bp.addressCity, bp.addressState, bp.addressZip].filter(Boolean).join(", ")} />
                 {showFinance && <Detail label="Credit limit" value={bp.creditLimit} />}
                 {showFinance && <Detail label="Payment terms" value={bp.paymentTerms} />}
@@ -403,11 +404,13 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   );
 }
 
-function Detail({ label, value }: { label: string; value: string | null }) {
+function Detail({ label, value, kind }: { label: string; value: string | null; kind?: "tel" | "email" }) {
   return (
     <div>
       <dt className="text-xs text-neutral-400">{label}</dt>
-      <dd className="text-neutral-800">{value || "—"}</dd>
+      <dd className="text-neutral-800">
+        {value ? (kind === "tel" ? <PhoneLink phone={value} /> : kind === "email" ? <EmailLink email={value} /> : value) : "—"}
+      </dd>
     </div>
   );
 }
