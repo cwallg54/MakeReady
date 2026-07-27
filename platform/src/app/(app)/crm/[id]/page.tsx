@@ -4,7 +4,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
-import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles } from "@/db/schema";
+import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles, orders, quotes } from "@/db/schema";
 import { FinancialDocs } from "@/components/crm/financial-docs";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
@@ -30,6 +30,15 @@ const STAGE_BADGE: Record<string, string> = {
   prospect: "bg-blue-100 text-blue-700",
   customer: "bg-emerald-100 text-emerald-700",
 };
+const ORDER_STAGE_LABEL: Record<string, string> = { received: "Received", art_proof: "Art proof", production: "Production", quality: "Quality", shipped: "Shipped", delivered: "Delivered" };
+const ORDER_STAGE_BADGE: Record<string, string> = {
+  received: "bg-neutral-100 text-neutral-700",
+  art_proof: "bg-purple-100 text-purple-700",
+  production: "bg-blue-100 text-blue-700",
+  quality: "bg-amber-100 text-amber-700",
+  shipped: "bg-sky-100 text-sky-700",
+  delivered: "bg-emerald-100 text-emerald-700",
+};
 const input = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
 
 export default async function BpDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -44,7 +53,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   // Sales Reps may only open their own accounts.
   if (scoped && bp.ownerId !== user.id) redirect("/403");
 
-  const [group, owner, contactRows, activityRows, addressRows, taskRows, groups, owners] = await Promise.all([
+  const [group, owner, contactRows, activityRows, addressRows, taskRows, groups, owners, orderRows] = await Promise.all([
     bp.accountGroupId ? db.query.accountGroups.findFirst({ where: eq(accountGroups.id, bp.accountGroupId) }) : Promise.resolve(undefined),
     bp.ownerId ? db.query.users.findFirst({ where: eq(users.id, bp.ownerId) }) : Promise.resolve(undefined),
     db.select().from(contacts).where(eq(contacts.bpId, id)).orderBy(desc(contacts.isPrimary)),
@@ -63,7 +72,25 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
       .orderBy(asc(crmTasks.status), asc(crmTasks.dueDate)),
     db.select({ id: accountGroups.id, name: accountGroups.name }).from(accountGroups).orderBy(asc(accountGroups.name)),
     editable && !scoped ? getAssignableUsers() : Promise.resolve([]),
+    db
+      .select({
+        id: orders.id,
+        orderNumber: orders.orderNumber,
+        stage: orders.stage,
+        publicToken: orders.publicToken,
+        inHandsDate: orders.inHandsDate,
+        voidedAt: orders.voidedAt,
+        createdAt: orders.createdAt,
+        total: quotes.total,
+        quoteNumber: quotes.quoteNumber,
+      })
+      .from(orders)
+      .leftJoin(quotes, eq(orders.quoteId, quotes.id))
+      .where(eq(orders.bpId, id))
+      .orderBy(desc(orders.createdAt)),
   ]);
+  const orderTotal = orderRows.reduce((s, o) => s + (o.voidedAt ? 0 : Number(o.total ?? 0)), 0);
+  const liveOrders = orderRows.filter((o) => !o.voidedAt).length;
   const docs = await db.select().from(customerDocuments).where(eq(customerDocuments.bpId, id)).orderBy(desc(customerDocuments.createdAt));
   const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
   const ownerSchedule = bp.ownerId ? await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, bp.ownerId) }) : null;
@@ -230,6 +257,49 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
                 </li>
               ))}
             </ul>
+          </Card>
+
+          {/* Order history */}
+          <Card>
+            <div className="mb-3 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold text-neutral-900">Order history</h2>
+              {orderRows.length > 0 && (
+                <span className="text-xs text-neutral-400">{liveOrders} order{liveOrders === 1 ? "" : "s"} · ${orderTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} lifetime</span>
+              )}
+            </div>
+            {orderRows.length === 0 ? (
+              <p className="text-sm text-neutral-400">No orders yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="text-left text-xs uppercase tracking-wide text-neutral-400">
+                    <tr>
+                      <th className="py-1.5 pr-3 font-medium">Order</th>
+                      <th className="py-1.5 pr-3 font-medium">Stage</th>
+                      <th className="py-1.5 pr-3 font-medium">In-hands</th>
+                      <th className="py-1.5 pr-3 font-medium">Placed</th>
+                      <th className="py-1.5 pr-3 text-right font-medium">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100">
+                    {orderRows.map((o) => (
+                      <tr key={o.id} className={o.voidedAt ? "text-neutral-400 line-through" : "text-neutral-700"}>
+                        <td className="py-1.5 pr-3 font-medium">
+                          <Link href={`/sales/orders/${o.id}`} className="text-neutral-900 hover:underline">{o.orderNumber}</Link>
+                        </td>
+                        <td className="py-1.5 pr-3">
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ORDER_STAGE_BADGE[o.stage]}`}>{ORDER_STAGE_LABEL[o.stage]}</span>
+                          {o.voidedAt && <span className="ml-1 text-xs">(voided)</span>}
+                        </td>
+                        <td className="py-1.5 pr-3">{o.inHandsDate ? fmtDate(o.inHandsDate) : "—"}</td>
+                        <td className="py-1.5 pr-3">{fmtDate(o.createdAt)}</td>
+                        <td className="py-1.5 pr-3 text-right">{o.total != null ? `$${Number(o.total).toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </div>
 

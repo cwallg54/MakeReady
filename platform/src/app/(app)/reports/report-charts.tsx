@@ -1,10 +1,9 @@
 "use client";
 
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LabelList, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LabelList, CartesianGrid } from "recharts";
 
 type Datum = { name: string; value: number };
 
-const PALETTE = ["#2563eb", "#0ea5e9", "#14b8a6", "#22c55e", "#f59e0b", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#6366f1", "#0891b2", "#64748b"];
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 const num = (n: number) => n.toLocaleString();
 const short = (s: string) => (s.length > 20 ? s.slice(0, 19) + "…" : s);
@@ -19,27 +18,6 @@ function Panel({ title, subtitle, children, height = 280 }: { title: string; sub
         {subtitle && <span className="text-xs text-neutral-400">{subtitle}</span>}
       </div>
       <div style={{ width: "100%", height }}>{children}</div>
-    </div>
-  );
-}
-
-function Donut({ data, fmt }: { data: Datum[]; fmt: (n: number) => string }) {
-  const total = data.reduce((s, d) => s + d.value, 0);
-  return (
-    <div className="relative h-full">
-      <ResponsiveContainer>
-        <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" innerRadius="62%" outerRadius="88%" paddingAngle={2} stroke="none">
-            {data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
-          </Pie>
-          <Tooltip formatter={(v, n) => [fmt(Number(v)), String(n)]} contentStyle={tooltipStyle} />
-          <Legend verticalAlign="bottom" height={28} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-        </PieChart>
-      </ResponsiveContainer>
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center" style={{ top: "-14%" }}>
-        <div className="text-2xl font-bold text-neutral-900">{fmt(total)}</div>
-        <div className="text-xs text-neutral-400">total</div>
-      </div>
     </div>
   );
 }
@@ -71,8 +49,8 @@ export function ReportCharts({ pipeline, byState, byGroup, categoryValue, catego
 }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Panel title="Accounts by lifecycle stage" subtitle="CRM">
-        <Donut data={pipeline} fmt={num} />
+      <Panel title="Accounts by lifecycle stage" subtitle="CRM · counts labeled">
+        <HBar data={pipeline} fmt={num} gid="g-pipe" color="#6366f1" />
       </Panel>
       <Panel title="Inventory value by category" subtitle="top 12 · $ on hand">
         <HBar data={categoryValue} fmt={money} gid="g-catval" color="#2563eb" />
