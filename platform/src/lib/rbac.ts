@@ -74,7 +74,7 @@ export const MODULES: {
   { key: "maintenance", label: "Equipment Maintenance", href: "/maintenance", phase1: false },
   { key: "content_library", label: "Content Library", href: "/content-library", phase1: false },
   { key: "workflows", label: "Workflows & Approvals", href: "/workflows", phase1: false },
-  { key: "reports", label: "Reports", href: "/reports", phase1: false },
+  { key: "reports", label: "Reports", href: "/reports", phase1: true },
   { key: "administration", label: "Administration", href: "/admin", phase1: true },
 ];
 
