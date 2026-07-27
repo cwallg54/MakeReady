@@ -87,11 +87,14 @@ export function MobileTabBar({ tabs }: { tabs: MobileTab[] }) {
   );
 }
 
-// Accent color per action for a bit of graphical delight.
+// Accent gradient per action for a bit of graphical delight.
 const ACTION_COLOR: Record<string, string> = {
-  "new-customer": "bg-indigo-600",
-  "new-quote": "bg-neutral-900",
+  "new-customer": "bg-gradient-to-br from-indigo-500 to-violet-600 ring-violet-500/30",
+  "new-quote": "bg-gradient-to-br from-neutral-700 to-neutral-900 ring-neutral-900/30",
 };
+
+// Springy overshoot so the actions "pop" as they appear.
+const SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
 
 function SpeedDialTab({ tab, active }: { tab: MobileTab; active: boolean }) {
   const [open, setOpen] = useState(false);
@@ -121,42 +124,57 @@ function SpeedDialTab({ tab, active }: { tab: MobileTab; active: boolean }) {
       return;
     }
     setOpen((o) => !o);
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
   };
 
   return (
     <li className={`relative flex flex-1 justify-center ${open ? "z-50" : ""}`}>
-      {/* Dimmed, blurred backdrop */}
+      {/* Dimmed, blurred backdrop — blur ramps in with the menu */}
       <button
         type="button"
         aria-hidden={!open}
         tabIndex={-1}
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 z-40 bg-neutral-900/40 backdrop-blur-sm transition-opacity duration-300 ${
-          open ? "opacity-100" : "pointer-events-none opacity-0"
+        className={`fixed inset-0 z-40 bg-neutral-950/45 transition-all duration-300 ${
+          open ? "opacity-100 backdrop-blur-md" : "pointer-events-none opacity-0 backdrop-blur-0"
         }`}
       />
 
       {/* Fan of actions, stacked above the + button */}
-      <div className="absolute bottom-full left-1/2 z-50 mb-4 flex -translate-x-1/2 flex-col items-end gap-3">
-        {actions.map((a, i) => (
-          <Link
-            key={a.key}
-            href={a.href}
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2.5 rounded-full bg-white py-1.5 pl-1.5 pr-4 shadow-xl ring-1 ring-black/5 transition-all duration-300 ease-out will-change-transform"
-            style={{
-              transitionDelay: `${open ? (actions.length - 1 - i) * 55 : 0}ms`,
-              transform: open ? "translateY(0) scale(1)" : "translateY(16px) scale(0.8)",
-              opacity: open ? 1 : 0,
-              pointerEvents: open ? "auto" : "none",
-            }}
-          >
-            <span className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow ${ACTION_COLOR[a.key] ?? "bg-neutral-900"}`}>
-              <span className="h-5 w-5">{a.icon}</span>
-            </span>
-            <span className="whitespace-nowrap text-sm font-semibold text-neutral-800">{a.label}</span>
-          </Link>
-        ))}
+      <div className="absolute bottom-full left-1/2 z-50 mb-4 flex -translate-x-1/2 flex-col items-end gap-3.5">
+        {actions.map((a, i) => {
+          const delay = open ? (actions.length - 1 - i) * 65 : 0;
+          return (
+            <Link
+              key={a.key}
+              href={a.href}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 will-change-transform"
+              style={{
+                transition: `transform 420ms ${SPRING} ${delay}ms, opacity 240ms ease-out ${delay}ms`,
+                transform: open ? "translateY(0) scale(1)" : "translateY(28px) scale(0.35)",
+                opacity: open ? 1 : 0,
+                pointerEvents: open ? "auto" : "none",
+              }}
+            >
+              {/* Label — slides in a beat after its icon */}
+              <span
+                className="whitespace-nowrap rounded-lg bg-white/95 px-2.5 py-1 text-sm font-semibold text-neutral-800 shadow-md ring-1 ring-black/5 backdrop-blur"
+                style={{
+                  transition: `transform 320ms ease-out ${delay + 90}ms, opacity 260ms ease-out ${delay + 90}ms`,
+                  transform: open ? "translateX(0)" : "translateX(14px)",
+                  opacity: open ? 1 : 0,
+                }}
+              >
+                {a.label}
+              </span>
+              {/* Gradient icon chip */}
+              <span className={`flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg ring-4 ${ACTION_COLOR[a.key] ?? "bg-neutral-900 ring-neutral-900/30"}`}>
+                <span className="h-5 w-5">{a.icon}</span>
+              </span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* The + / × button */}
@@ -172,12 +190,16 @@ function SpeedDialTab({ tab, active }: { tab: MobileTab; active: boolean }) {
         onPointerLeave={cancelHold}
         onPointerCancel={cancelHold}
         onContextMenu={(e) => e.preventDefault()}
-        className={`relative z-50 -mt-5 flex h-14 w-14 flex-col items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 active:scale-95 ${
-          open ? "bg-neutral-700 shadow-neutral-900/40" : "bg-neutral-900 shadow-neutral-900/30"
+        className={`relative z-50 -mt-5 flex h-14 w-14 flex-col items-center justify-center rounded-full text-white shadow-lg transition-all duration-300 active:scale-90 ${
+          open ? "scale-110 bg-neutral-700 shadow-neutral-900/40" : "bg-neutral-900 shadow-neutral-900/30"
         }`}
-        style={{ touchAction: "none" }}
+        style={{ touchAction: "none", transitionTimingFunction: SPRING }}
       >
-        <span className={`h-6 w-6 transition-transform duration-300 ${open ? "rotate-45" : ""}`}>{tab.icon}</span>
+        {/* Idle pulse ring — a gentle sonar hint that the button is interactive */}
+        {!open && (
+          <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full bg-neutral-900/25 animate-ping" style={{ animationDuration: "2.8s" }} />
+        )}
+        <span className={`h-6 w-6 transition-transform duration-300 ${open ? "rotate-[135deg]" : ""}`} style={{ transitionTimingFunction: SPRING }}>{tab.icon}</span>
         <span className="text-[10px] font-semibold leading-none">{open ? "Close" : tab.label}</span>
       </button>
     </li>
