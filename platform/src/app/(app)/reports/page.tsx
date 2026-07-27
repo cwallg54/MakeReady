@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { and, asc, desc, eq, gt, isNull, sql, count } from "drizzle-orm";
 import { db } from "@/db";
-import { businessPartners, quotes, orders, productionJobs, inventoryItems, reportDefinitions } from "@/db/schema";
+import { businessPartners, quotes, orders, productionJobs, inventoryItems, accountGroups, reportDefinitions } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { canBuildReports } from "@/lib/reports/sources";
@@ -21,15 +21,18 @@ export default async function ReportsPage() {
     ? await db.select({ id: reportDefinitions.id, name: reportDefinitions.name, description: reportDefinitions.description, source: reportDefinitions.source }).from(reportDefinitions).orderBy(asc(reportDefinitions.name))
     : [];
 
-  const [pipeline, quotesAgg, ordersByStage, prodByStatus, invAgg, invByCategory, lowStock, topCustomers] = await Promise.all([
+  const [pipeline, quotesAgg, ordersByStage, prodByStatus, invAgg, invByCategory, lowStock, topCustomers, bpByState, bpByGroup, invUnitsByCat] = await Promise.all([
     db.select({ stage: businessPartners.lifecycleStage, n: count() }).from(businessPartners).groupBy(businessPartners.lifecycleStage),
     db.select({ status: quotes.status, n: count(), total: sql<string>`COALESCE(SUM(${quotes.total}),0)` }).from(quotes).groupBy(quotes.status),
     db.select({ stage: orders.stage, n: count() }).from(orders).where(isNull(orders.voidedAt)).groupBy(orders.stage),
     db.select({ status: productionJobs.status, n: count() }).from(productionJobs).groupBy(productionJobs.status),
     db.select({ items: count(), value: sql<string>`COALESCE(SUM(${inventoryItems.cost} * ${inventoryItems.onHand}),0)`, units: sql<string>`COALESCE(SUM(${inventoryItems.onHand}),0)` }).from(inventoryItems),
-    db.select({ category: inventoryItems.category, value: sql<string>`COALESCE(SUM(${inventoryItems.cost} * ${inventoryItems.onHand}),0)`, items: count() }).from(inventoryItems).groupBy(inventoryItems.category).orderBy(desc(sql`COALESCE(SUM(${inventoryItems.cost} * ${inventoryItems.onHand}),0)`)).limit(10),
+    db.select({ category: inventoryItems.category, value: sql<string>`COALESCE(SUM(${inventoryItems.cost} * ${inventoryItems.onHand}),0)`, items: count() }).from(inventoryItems).groupBy(inventoryItems.category).orderBy(desc(sql`COALESCE(SUM(${inventoryItems.cost} * ${inventoryItems.onHand}),0)`)).limit(12),
     db.select({ sku: inventoryItems.sku, name: inventoryItems.name, onHand: inventoryItems.onHand, reorderPoint: inventoryItems.reorderPoint, unit: inventoryItems.unit }).from(inventoryItems).where(and(gt(inventoryItems.reorderPoint, "0"), sql`${inventoryItems.onHand} <= ${inventoryItems.reorderPoint}`)).orderBy(asc(inventoryItems.name)).limit(15),
     db.select({ company: businessPartners.companyName, total: sql<string>`COALESCE(SUM(${quotes.total}),0)`, quotes: count() }).from(quotes).innerJoin(businessPartners, eq(quotes.bpId, businessPartners.id)).groupBy(businessPartners.companyName).orderBy(desc(sql`COALESCE(SUM(${quotes.total}),0)`)).limit(10),
+    db.select({ name: businessPartners.addressState, n: count() }).from(businessPartners).where(sql`${businessPartners.addressState} is not null and ${businessPartners.addressState} <> ''`).groupBy(businessPartners.addressState).orderBy(desc(count())).limit(12),
+    db.select({ name: accountGroups.name, n: count() }).from(businessPartners).innerJoin(accountGroups, eq(businessPartners.accountGroupId, accountGroups.id)).groupBy(accountGroups.name).orderBy(desc(count())).limit(10),
+    db.select({ category: inventoryItems.category, units: sql<string>`COALESCE(SUM(${inventoryItems.onHand}),0)` }).from(inventoryItems).groupBy(inventoryItems.category).orderBy(desc(sql`COALESCE(SUM(${inventoryItems.onHand}),0)`)).limit(12),
   ]);
 
   const stageN = (s: string) => pipeline.find((r) => r.stage === s)?.n ?? 0;
@@ -100,8 +103,10 @@ export default async function ReportsPage() {
 
       <ReportCharts
         pipeline={[{ name: "Leads", value: stageN("lead") }, { name: "Prospects", value: stageN("prospect") }, { name: "Customers", value: stageN("customer") }]}
-        quoteValue={quotesAgg.filter((r) => Number(r.total) > 0).map((r) => ({ name: QUOTE_LABEL[r.status] ?? r.status, value: Number(r.total) }))}
+        byState={bpByState.map((r) => ({ name: r.name ?? "—", value: r.n }))}
+        byGroup={bpByGroup.map((r) => ({ name: r.name, value: r.n }))}
         categoryValue={invByCategory.map((r) => ({ name: r.category ?? "(uncategorized)", value: Number(r.value) }))}
+        categoryUnits={invUnitsByCat.map((r) => ({ name: r.category ?? "(uncategorized)", value: Number(r.units) }))}
         ordersByStage={ordersByStage.map((r) => ({ name: ORDER_STAGE_LABEL[r.stage] ?? r.stage, value: r.n }))}
       />
 
