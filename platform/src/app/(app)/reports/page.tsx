@@ -5,6 +5,7 @@ import { businessPartners, quotes, orders, productionJobs, inventoryItems, repor
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { canBuildReports } from "@/lib/reports/sources";
+import { ReportCharts } from "./report-charts";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +97,13 @@ export default async function ReportsPage() {
         <StatCard label="Jobs in production" value={jobsOpen.toLocaleString()} hint="Open production jobs" />
         <StatCard label="Inventory value" value={money(invValue)} hint={`${invItems.toLocaleString()} items · ${lowCount} low`} />
       </div>
+
+      <ReportCharts
+        pipeline={[{ name: "Leads", value: stageN("lead") }, { name: "Prospects", value: stageN("prospect") }, { name: "Customers", value: stageN("customer") }]}
+        quoteValue={quotesAgg.filter((r) => Number(r.total) > 0).map((r) => ({ name: QUOTE_LABEL[r.status] ?? r.status, value: Number(r.total) }))}
+        categoryValue={invByCategory.map((r) => ({ name: r.category ?? "(uncategorized)", value: Number(r.value) }))}
+        ordersByStage={ordersByStage.map((r) => ({ name: ORDER_STAGE_LABEL[r.stage] ?? r.stage, value: r.n }))}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Breakdown title="Pipeline" rows={[{ label: "Leads", value: String(stageN("lead")) }, { label: "Prospects", value: String(stageN("prospect")) }, { label: "Customers", value: stageN("customer").toLocaleString() }]} />

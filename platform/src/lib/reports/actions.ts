@@ -60,6 +60,7 @@ export async function saveSchedule(formData: FormData): Promise<void> {
   const reportId = String(formData.get("reportId") ?? "");
   if (!reportId) return;
   const frequency = String(formData.get("frequency") ?? "weekly");
+  const format = String(formData.get("format") ?? "csv") === "pdf" ? "pdf" : "csv";
   const recipients = String(formData.get("recipients") ?? "").split(/[,\n]/).map((s) => s.trim()).filter((s) => /.+@.+\..+/.test(s));
   if (!recipients.length) redirect(`/reports/${reportId}?err=recipients`);
   const dayOfWeek = frequency === "weekly" ? Number(formData.get("dayOfWeek") ?? 1) : null;
@@ -67,9 +68,9 @@ export async function saveSchedule(formData: FormData): Promise<void> {
 
   const existing = await db.query.reportSchedules.findFirst({ where: eq(reportSchedules.reportId, reportId) });
   if (existing) {
-    await db.update(reportSchedules).set({ frequency, dayOfWeek, dayOfMonth, recipients, active: formData.get("active") === "on" }).where(eq(reportSchedules.id, existing.id));
+    await db.update(reportSchedules).set({ frequency, format, dayOfWeek, dayOfMonth, recipients, active: formData.get("active") === "on" }).where(eq(reportSchedules.id, existing.id));
   } else {
-    await db.insert(reportSchedules).values({ reportId, frequency, dayOfWeek, dayOfMonth, recipients, active: true, createdBy: user.id });
+    await db.insert(reportSchedules).values({ reportId, frequency, format, dayOfWeek, dayOfMonth, recipients, active: true, createdBy: user.id });
   }
   await audit({ userId: user.id, action: "report.schedule", entityType: "report", entityId: reportId, metadata: { frequency } });
   revalidatePath(`/reports/${reportId}`);

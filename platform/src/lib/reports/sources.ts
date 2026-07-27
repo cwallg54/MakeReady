@@ -20,6 +20,7 @@ export interface ReportFilter { field: string; op: FilterOp; value: string }
 export interface ReportConfig {
   columns: string[];
   filters: ReportFilter[];
+  groupField?: string;
   sortField?: string;
   sortDir?: "asc" | "desc";
   rowLimit?: number;
@@ -86,6 +87,31 @@ export const SOURCE_META: ReportSourceMeta[] = [
       { key: "onHand", label: "On hand", type: "number" },
       { key: "reorderPoint", label: "Reorder point", type: "number" },
       { key: "value", label: "Stock value", type: "number", filterable: false },
+    ],
+  },
+  {
+    key: "production_jobs",
+    label: "Production jobs",
+    fields: [
+      { key: "orderNumber", label: "Order #", type: "text" },
+      { key: "customer", label: "Customer", type: "text" },
+      { key: "status", label: "Status", type: "enum", options: ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"] },
+      { key: "rush", label: "Rush", type: "text", filterable: false },
+      { key: "assignee", label: "Assignee", type: "text" },
+      { key: "dueDate", label: "Due", type: "date" },
+      { key: "createdAt", label: "Created", type: "date" },
+    ],
+  },
+  {
+    key: "stock_movements",
+    label: "Stock movements",
+    fields: [
+      { key: "sku", label: "SKU", type: "text" },
+      { key: "item", label: "Item", type: "text" },
+      { key: "delta", label: "Change", type: "number" },
+      { key: "reason", label: "Reason", type: "enum", options: ["receive", "consume", "adjust", "count", "transfer"] },
+      { key: "note", label: "Note", type: "text" },
+      { key: "createdAt", label: "When", type: "date" },
     ],
   },
 ];

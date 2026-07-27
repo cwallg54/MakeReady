@@ -17,6 +17,7 @@ export function ReportBuilder({ initial }: { initial?: BuilderInitial }) {
   const meta = useMemo(() => SOURCE_META.find((s) => s.key === source)!, [source]);
   const [columns, setColumns] = useState<string[]>(initial?.config.columns?.length ? initial.config.columns : SOURCE_META.find((s) => s.key === (initial?.source ?? SOURCE_META[0].key))!.fields.map((f) => f.key));
   const [filters, setFilters] = useState<ReportFilter[]>(initial?.config.filters ?? []);
+  const [groupField, setGroupField] = useState(initial?.config.groupField ?? "");
   const [sortField, setSortField] = useState(initial?.config.sortField ?? "");
   const [sortDir, setSortDir] = useState<"asc" | "desc">(initial?.config.sortDir ?? "asc");
   const [rowLimit, setRowLimit] = useState(initial?.config.rowLimit ?? 1000);
@@ -35,7 +36,7 @@ export function ReportBuilder({ initial }: { initial?: BuilderInitial }) {
   const label = (k: string) => meta.fields.find((f) => f.key === k)?.label ?? k;
   const filterableFields = meta.fields.filter((f) => f.filterable !== false);
 
-  const config = (): ReportConfig => ({ columns, filters: filters.filter((f) => f.field), sortField: sortField || undefined, sortDir, rowLimit: Number(rowLimit) || 1000 });
+  const config = (): ReportConfig => ({ columns, filters: filters.filter((f) => f.field), groupField: groupField || undefined, sortField: sortField || undefined, sortDir, rowLimit: Number(rowLimit) || 1000 });
 
   function runPreview() {
     setErr("");
@@ -100,6 +101,7 @@ export function ReportBuilder({ initial }: { initial?: BuilderInitial }) {
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
+        <label className="flex flex-col text-xs text-neutral-500">Group by<select value={groupField} onChange={(e) => setGroupField(e.target.value)} className={`mt-1 ${input}`}><option value="">(none)</option>{meta.fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}</select></label>
         <label className="flex flex-col text-xs text-neutral-500">Sort by<select value={sortField} onChange={(e) => setSortField(e.target.value)} className={`mt-1 ${input}`}><option value="">(none)</option>{meta.fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}</select></label>
         <label className="flex flex-col text-xs text-neutral-500">Direction<select value={sortDir} onChange={(e) => setSortDir(e.target.value as "asc" | "desc")} className={`mt-1 ${input}`}><option value="asc">Ascending</option><option value="desc">Descending</option></select></label>
         <label className="flex flex-col text-xs text-neutral-500">Row limit<input type="number" value={rowLimit} onChange={(e) => setRowLimit(Number(e.target.value))} className={`mt-1 w-28 ${input}`} /></label>

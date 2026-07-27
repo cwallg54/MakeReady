@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { reportSchedules, reportDefinitions } from "@/db/schema";
-import { runReport, reportToCsv } from "@/lib/reports/run";
+import { runReport, reportToCsv, numericColumns } from "@/lib/reports/run";
+import { reportToPdf } from "@/lib/reports/pdf";
 import { sourceMeta, type ReportConfig } from "@/lib/reports/sources";
 import { sendReportEmail } from "@/lib/email";
 
@@ -30,10 +31,17 @@ export async function GET(req: Request) {
     const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, s.reportId) });
     if (!def) continue;
     try {
-      const result = await runReport(def.source, def.config as ReportConfig);
+      const cfg = def.config as ReportConfig;
+      const result = await runReport(def.source, cfg);
       const labels = Object.fromEntries((sourceMeta(def.source)?.fields ?? []).map((f) => [f.key, f.label]));
-      const b64 = Buffer.from(reportToCsv(result, labels), "utf8").toString("base64");
-      await sendReportEmail(s.recipients, def.name, b64, `${slug(def.name)}.csv`);
+      let b64: string, ext: string;
+      if (s.format === "pdf") {
+        const bytes = await reportToPdf(result, { title: def.name, labels, groupField: cfg.groupField, numericCols: numericColumns(def.source) });
+        b64 = Buffer.from(bytes).toString("base64"); ext = "pdf";
+      } else {
+        b64 = Buffer.from(reportToCsv(result, labels), "utf8").toString("base64"); ext = "csv";
+      }
+      await sendReportEmail(s.recipients, def.name, b64, `${slug(def.name)}.${ext}`);
       await db.update(reportSchedules).set({ lastRunAt: now }).where(eq(reportSchedules.id, s.id));
       sent++;
     } catch (e) {

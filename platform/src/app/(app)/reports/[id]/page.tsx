@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -5,7 +6,7 @@ import { db } from "@/db";
 import { reportDefinitions, reportSchedules } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canBuildReports, sourceMeta, type ReportConfig } from "@/lib/reports/sources";
-import { runReport, displayValue } from "@/lib/reports/run";
+import { runReport, displayValue, groupRows, numericColumns } from "@/lib/reports/run";
 import { deleteReport, saveSchedule, deleteSchedule } from "@/lib/reports/actions";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -25,12 +26,16 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
 
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) notFound();
+  const cfg = def.config as ReportConfig;
   const [result, schedule] = await Promise.all([
-    runReport(def.source, def.config as ReportConfig),
+    runReport(def.source, cfg),
     db.query.reportSchedules.findFirst({ where: eq(reportSchedules.reportId, id) }),
   ]);
   const labels = Object.fromEntries((sourceMeta(def.source)?.fields ?? []).map((f) => [f.key, f.label]));
+  const numeric = new Set(numericColumns(def.source).filter((c) => result.columns.includes(c)));
+  const grouped = cfg.groupField && result.columns.includes(cfg.groupField) ? groupRows(result, cfg.groupField, numericColumns(def.source)) : null;
   const shown = result.rows.slice(0, MAX_SHOWN);
+  const fmtNum = (v: unknown) => { const n = Number(v); return Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: 2 }) : displayValue(v); };
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -40,7 +45,8 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
         description={def.description || sourceMeta(def.source)?.label}
         action={
           <div className="flex flex-wrap gap-2">
-            <a href={`/reports/${id}/export`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Export CSV ↓</a>
+            <a href={`/reports/${id}/export`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">CSV ↓</a>
+            <a href={`/reports/${id}/export?format=pdf`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">PDF ↓</a>
             <Link href={`/reports/${id}/edit`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Edit</Link>
             <form action={deleteReport}><input type="hidden" name="id" value={id} /><ConfirmButton message="Delete this report and its schedule?" className="rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Delete</ConfirmButton></form>
           </div>
@@ -53,10 +59,27 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-400"><tr>{result.columns.map((c) => <th key={c} className="px-3 py-2">{labels[c] ?? c}</th>)}</tr></thead>
             <tbody className="divide-y divide-neutral-100">
-              {shown.map((r, i) => (
-                <tr key={i} className="hover:bg-neutral-50">{result.columns.map((c) => <td key={c} className="px-3 py-1.5 text-neutral-700">{displayValue(r[c])}</td>)}</tr>
-              ))}
-              {shown.length === 0 && <tr><td colSpan={result.columns.length} className="px-3 py-8 text-center text-neutral-400">No rows match this report.</td></tr>}
+              {grouped ? (
+                <>
+                  {grouped.groups.map((g, gi) => (
+                    <Fragment key={gi}>
+                      <tr className="bg-neutral-100"><td colSpan={result.columns.length} className="px-3 py-1.5 text-xs font-semibold text-neutral-700">{labels[cfg.groupField!] ?? cfg.groupField}: {g.label} ({g.rows.length})</td></tr>
+                      {g.rows.map((r, i) => (
+                        <tr key={i} className="hover:bg-neutral-50">{result.columns.map((c) => <td key={c} className={`px-3 py-1.5 text-neutral-700 ${numeric.has(c) ? "text-right" : ""}`}>{numeric.has(c) ? fmtNum(r[c]) : displayValue(r[c])}</td>)}</tr>
+                      ))}
+                      <tr className="bg-neutral-50 font-medium">{result.columns.map((c, ci) => <td key={c} className={`px-3 py-1.5 text-neutral-800 ${numeric.has(c) ? "text-right" : ""}`}>{ci === 0 ? "Subtotal" : numeric.has(c) ? fmtNum(g.subtotals[c]) : ""}</td>)}</tr>
+                    </Fragment>
+                  ))}
+                  <tr className="border-t-2 border-neutral-300 bg-neutral-100 font-semibold">{result.columns.map((c, ci) => <td key={c} className={`px-3 py-2 text-neutral-900 ${numeric.has(c) ? "text-right" : ""}`}>{ci === 0 ? "Grand total" : numeric.has(c) ? fmtNum(grouped.grand[c]) : ""}</td>)}</tr>
+                </>
+              ) : (
+                <>
+                  {shown.map((r, i) => (
+                    <tr key={i} className="hover:bg-neutral-50">{result.columns.map((c) => <td key={c} className={`px-3 py-1.5 text-neutral-700 ${numeric.has(c) ? "text-right" : ""}`}>{numeric.has(c) ? fmtNum(r[c]) : displayValue(r[c])}</td>)}</tr>
+                  ))}
+                  {shown.length === 0 && <tr><td colSpan={result.columns.length} className="px-3 py-8 text-center text-neutral-400">No rows match this report.</td></tr>}
+                </>
+              )}
             </tbody>
           </table>
         </div>
@@ -71,6 +94,11 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
             <label className="flex flex-col text-xs text-neutral-500">Frequency
               <select name="frequency" defaultValue={schedule?.frequency ?? "weekly"} className={`mt-1 ${input}`}>
                 <option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option>
+              </select>
+            </label>
+            <label className="flex flex-col text-xs text-neutral-500">Format
+              <select name="format" defaultValue={schedule?.format ?? "csv"} className={`mt-1 ${input}`}>
+                <option value="csv">CSV</option><option value="pdf">PDF</option>
               </select>
             </label>
             <label className="flex flex-col text-xs text-neutral-500">Day of week (weekly)

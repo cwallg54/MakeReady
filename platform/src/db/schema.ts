@@ -863,6 +863,7 @@ export const reportSchedules = pgTable(
     frequency: text("frequency").notNull().default("weekly"), // daily | weekly | monthly
     dayOfWeek: integer("day_of_week"), // 0=Sun..6=Sat (weekly)
     dayOfMonth: integer("day_of_month"), // 1..28 (monthly)
+    format: text("format").notNull().default("csv"), // csv | pdf
     recipients: text("recipients").array().notNull(),
     active: boolean("active").notNull().default(true),
     lastRunAt: timestamp("last_run_at", { withTimezone: true }),

@@ -1,8 +1,8 @@
 import "server-only";
 import { and, asc, desc, eq, gt, gte, ilike, inArray, lt, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { businessPartners, users, accountGroups, quotes, orders, inventoryItems } from "@/db/schema";
-import type { ReportConfig, ReportFilter } from "./sources";
+import { businessPartners, users, accountGroups, quotes, orders, inventoryItems, productionJobs, stockMovements } from "@/db/schema";
+import { SOURCE_META, type ReportConfig, type ReportFilter } from "./sources";
 
 // Runtime column map + base query per source. Column refs come only from this
 // registry (never user input), and filter values are bound parameters — so a
@@ -68,6 +68,32 @@ const SOURCES: Record<string, SourceRt> = {
         value: sql<string>`(${inventoryItems.cost} * ${inventoryItems.onHand})`,
       }).from(inventoryItems).$dynamic(),
   },
+  production_jobs: {
+    columns: {
+      orderNumber: orders.orderNumber, customer: businessPartners.companyName, status: productionJobs.status,
+      rush: productionJobs.rush, assignee: users.name, dueDate: productionJobs.dueDate, createdAt: productionJobs.createdAt,
+    },
+    query: () =>
+      db.select({
+        orderNumber: orders.orderNumber, customer: businessPartners.companyName, status: productionJobs.status,
+        rush: productionJobs.rush, assignee: users.name, dueDate: productionJobs.dueDate, createdAt: productionJobs.createdAt,
+      }).from(productionJobs)
+        .leftJoin(orders, eq(orders.id, productionJobs.orderId))
+        .leftJoin(businessPartners, eq(businessPartners.id, orders.bpId))
+        .leftJoin(users, eq(users.id, productionJobs.assignedTo))
+        .$dynamic(),
+  },
+  stock_movements: {
+    columns: {
+      sku: inventoryItems.sku, item: inventoryItems.name, delta: stockMovements.delta,
+      reason: stockMovements.reason, note: stockMovements.note, createdAt: stockMovements.createdAt,
+    },
+    query: () =>
+      db.select({
+        sku: inventoryItems.sku, item: inventoryItems.name, delta: stockMovements.delta,
+        reason: stockMovements.reason, note: stockMovements.note, createdAt: stockMovements.createdAt,
+      }).from(stockMovements).leftJoin(inventoryItems, eq(inventoryItems.id, stockMovements.itemId)).$dynamic(),
+  },
 };
 
 function condition(col: unknown, f: ReportFilter): SQL | null {
@@ -96,7 +122,7 @@ export async function runReport(source: string, config: ReportConfig, previewLim
   const cfg: ReportConfig = { columns: config.columns ?? [], filters: config.filters ?? [], sortField: config.sortField, sortDir: config.sortDir, rowLimit: config.rowLimit };
 
   let q = src.query() as {
-    where: (w: SQL) => typeof q; orderBy: (o: SQL) => typeof q; limit: (n: number) => Promise<Record<string, unknown>[]>;
+    where: (w: SQL) => typeof q; orderBy: (...o: SQL[]) => typeof q; limit: (n: number) => Promise<Record<string, unknown>[]>;
   };
 
   const conds = (cfg.filters ?? [])
@@ -104,10 +130,14 @@ export async function runReport(source: string, config: ReportConfig, previewLim
     .filter((x): x is SQL => !!x);
   if (conds.length) q = q.where(and(...conds) as SQL);
 
+  // Group field sorts first (so groups are contiguous), then the chosen sort.
+  const orderExprs: SQL[] = [];
+  if (cfg.groupField && src.columns[cfg.groupField]) orderExprs.push(asc(src.columns[cfg.groupField] as never));
   if (cfg.sortField && src.columns[cfg.sortField]) {
     const col = src.columns[cfg.sortField] as never;
-    q = q.orderBy(cfg.sortDir === "desc" ? desc(col) : asc(col));
+    orderExprs.push(cfg.sortDir === "desc" ? desc(col) : asc(col));
   }
+  if (orderExprs.length) q = q.orderBy(...orderExprs);
 
   const cap = Math.min(previewLimit ?? cfg.rowLimit ?? 1000, 5000);
   const raw = await q.limit(cap);
@@ -125,6 +155,29 @@ export function displayValue(v: unknown): string {
   if (v == null) return "";
   if (v instanceof Date) return v.toISOString().slice(0, 10);
   return String(v);
+}
+
+/** Field keys that are numeric for a source (used for subtotals). */
+export function numericColumns(source: string): string[] {
+  return (SOURCE_META.find((s) => s.key === source)?.fields ?? []).filter((f) => f.type === "number").map((f) => f.key);
+}
+
+export interface GroupBlock { label: string; rows: Record<string, unknown>[]; subtotals: Record<string, number> }
+export interface Grouped { groups: GroupBlock[]; grand: Record<string, number> }
+
+/** Group flat rows by a field, summing numeric columns per group + grand total. */
+export function groupRows(result: ReportResult, groupField: string, numericCols: string[]): Grouped {
+  const cols = numericCols.filter((c) => result.columns.includes(c));
+  const map = new Map<string, GroupBlock>();
+  const grand: Record<string, number> = Object.fromEntries(cols.map((c) => [c, 0]));
+  for (const r of result.rows) {
+    const key = displayValue(r[groupField]) || "(none)";
+    let g = map.get(key);
+    if (!g) { g = { label: key, rows: [], subtotals: Object.fromEntries(cols.map((c) => [c, 0])) }; map.set(key, g); }
+    g.rows.push(r);
+    for (const c of cols) { const n = Number(r[c]); if (Number.isFinite(n)) { g.subtotals[c] += n; grand[c] += n; } }
+  }
+  return { groups: [...map.values()], grand };
 }
 
 /** Render a report result as CSV. `labels` maps field keys → column headers. */
