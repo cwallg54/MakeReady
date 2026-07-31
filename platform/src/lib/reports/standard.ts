@@ -102,6 +102,17 @@ export function money2(n: number): string {
   return `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+/**
+ * Escape a value for a CSV cell: quote when needed, and neutralise leading
+ * `= + @` so spreadsheet apps don't evaluate exported text as a formula.
+ * (Leading `-` is left alone so negative numbers stay numeric.)
+ */
+export function csvCell(v: string | number): string {
+  let s = String(v ?? "");
+  if (/^[=+@]/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 export const STANDARD_REPORTS = [
   { slug: "sales-analysis", name: "Sales Analysis by Salesperson & Customer", description: "3-year monthly sales comparison (fiscal Oct–Sep), grouped by salesperson then customer." },
   { slug: "open-orders-by-salesperson", name: "Open Orders by Salesperson", description: "Open orders grouped by salesperson, due month, territory, and customer." },

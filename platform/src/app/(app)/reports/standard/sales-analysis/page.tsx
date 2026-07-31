@@ -4,7 +4,7 @@ import { requireModule } from "@/lib/auth/guards";
 import { canBuildReports } from "@/lib/reports/sources";
 import { PageHeader, Card } from "@/components/ui";
 import { getSalesAnalysis, type SalesYearRow } from "@/lib/reports/standard-data";
-import { FISCAL_MONTHS, money0 } from "@/lib/reports/standard";
+import { FISCAL_MONTHS, money0, fiscalYearOf } from "@/lib/reports/standard";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +33,8 @@ export default async function SalesAnalysisPage({ searchParams }: { searchParams
   if (!canBuildReports(user.roles)) redirect("/reports");
   const sp = await searchParams;
 
-  // Default to the current fiscal year (Oct–Sep).
-  const now = new Date();
-  const currentFy = now.getMonth() >= 9 ? now.getFullYear() + 1 : now.getFullYear();
+  // Default to the current fiscal year (Oct–Sep), evaluated in Mountain Time.
+  const currentFy = fiscalYearOf(new Date());
   const fy = Number(sp.fy) || currentFy;
 
   const { groups } = await getSalesAnalysis(fy);

@@ -3,21 +3,14 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { canView } from "@/lib/rbac";
 import { canBuildReports } from "@/lib/reports/sources";
 import { getSalesAnalysis } from "@/lib/reports/standard-data";
-import { FISCAL_MONTHS } from "@/lib/reports/standard";
-
-function csvCell(v: string | number): string {
-  const s = String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
+import { FISCAL_MONTHS, csvCell, fiscalYearOf } from "@/lib/reports/standard";
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !canView(user.roles, "reports") || !canBuildReports(user.roles)) {
     return new NextResponse("Forbidden", { status: 403 });
   }
-  const now = new Date();
-  const currentFy = now.getMonth() >= 9 ? now.getFullYear() + 1 : now.getFullYear();
-  const fy = Number(req.nextUrl.searchParams.get("fy")) || currentFy;
+  const fy = Number(req.nextUrl.searchParams.get("fy")) || fiscalYearOf(new Date());
   const { groups } = await getSalesAnalysis(fy);
 
   const header = ["Salesperson", "Customer Code", "Customer", "Terms", "Period", ...FISCAL_MONTHS, "3 Mo Total", "Total"];

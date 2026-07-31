@@ -4,12 +4,7 @@ import { canView } from "@/lib/rbac";
 import { canBuildReports } from "@/lib/reports/sources";
 import { getOpenOrders } from "@/lib/reports/standard-data";
 import { fmtDate } from "@/lib/format";
-import { daysUntil, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
-
-function csvCell(v: string | number): string {
-  const s = String(v ?? "");
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
+import { daysUntil, ORDER_TYPE_LABEL, csvCell } from "@/lib/reports/standard";
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();

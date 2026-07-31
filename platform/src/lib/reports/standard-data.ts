@@ -2,7 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, gte, isNull, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { orders, historicalOrders, businessPartners, users, contacts, bpAddresses, activities, accountGroups } from "@/db/schema";
-import { fiscalYearOf, fiscalMonthIndex } from "./standard";
+import { fiscalYearOf, fiscalMonthIndex, ymInDenver } from "./standard";
 
 // ---------------------------------------------------------------------------
 // Sales Analysis by Salesperson & Customer
@@ -218,13 +218,20 @@ export async function getCreditData(bpId: string, now: Date) {
     db.select({ id: orders.id, orderNumber: orders.orderNumber, orderType: orders.orderType, poNumber: orders.poNumber, enteredDate: orders.createdAt, dueDate: orders.dueDate, inHands: orders.inHandsDate, dateType: orders.dateType, amount: orders.amount })
       .from(orders).where(and(eq(orders.bpId, bpId), isNull(orders.voidedAt), ne(orders.stage, "delivered"))).orderBy(asc(orders.dueDate)),
     db.select({ amount: historicalOrders.docTotal, date: historicalOrders.docDate }).from(historicalOrders).where(and(eq(historicalOrders.bpId, bpId), eq(historicalOrders.canceled, false))),
-    db.select({ amount: orders.amount, date: orders.createdAt }).from(orders).where(and(eq(orders.bpId, bpId), isNull(orders.voidedAt))),
+    // Realized live sales = delivered orders only, so trailing sales stays
+    // disjoint from the Open Orders section below (which excludes delivered).
+    db.select({ amount: orders.amount, date: orders.createdAt }).from(orders).where(and(eq(orders.bpId, bpId), isNull(orders.voidedAt), eq(orders.stage, "delivered"))),
     db.select({ id: activities.id, date: activities.createdAt, content: activities.content, author: users.name }).from(activities).leftJoin(users, eq(activities.userId, users.id)).where(eq(activities.bpId, bpId)).orderBy(desc(activities.createdAt)).limit(30),
   ]);
 
-  // Trailing-12-month sales buckets: [0-12), [12-24), [24-36) months back.
+  // Trailing-12-month sales buckets: [0-12), [12-24), [24-36) months back,
+  // measured in Mountain Time to match the rest of the feature's date math.
   const buckets = [0, 0, 0];
-  const monthsAgo = (d: Date) => (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+  const nowYm = ymInDenver(now);
+  const monthsAgo = (d: Date) => {
+    const ym = ymInDenver(d);
+    return (nowYm.year - ym.year) * 12 + (nowYm.month0 - ym.month0);
+  };
   for (const r of [...histRows, ...liveSalesRows]) {
     const m = monthsAgo(r.date);
     if (m >= 0 && m < 12) buckets[0] += Number(r.amount);

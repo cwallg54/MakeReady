@@ -8,6 +8,17 @@ import { orders, orderSpecItems, orderAttachments, activities } from "@/db/schem
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { DateTime } from "luxon";
+
+// A yyyy-MM-dd form value denotes a calendar day in the business timezone, not
+// UTC. Parsing it as `new Date("yyyy-MM-dd")` yields UTC midnight, which renders
+// as the previous day in Mountain Time — anchor it to noon Denver instead.
+function parseDenverDate(s: string): Date | null {
+  const t = s.trim();
+  if (!t) return null;
+  const dt = DateTime.fromISO(t, { zone: "America/Denver" }).set({ hour: 12 });
+  return dt.isValid ? dt.toJSDate() : null;
+}
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15 MB per file
 const ALLOWED = /^(image\/(png|jpe?g|gif|webp|svg\+xml)|application\/pdf|application\/postscript|image\/vnd\.adobe\.photoshop|application\/illustrator)$/i;
@@ -51,10 +62,8 @@ export async function saveOrderInfoAction(formData: FormData): Promise<void> {
   const user = await requireSalesEdit();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  const dueStr = String(formData.get("dueDate") ?? "").trim();
   const amt = num(formData.get("amount"));
   const dateType = String(formData.get("dateType") ?? "ASAP").trim();
-  const salesRepId = str(formData.get("salesRepId"));
   await db
     .update(orders)
     .set({
@@ -62,9 +71,11 @@ export async function saveOrderInfoAction(formData: FormData): Promise<void> {
       poNumber: str(formData.get("poNumber")),
       shipVia: str(formData.get("shipVia")),
       dateType: ["ASAP", "FIRM", "DATED", "RUSH", "EVENT"].includes(dateType) ? dateType : "ASAP",
-      dueDate: dueStr ? new Date(dueStr) : null,
-      amount: amt !== null ? String(amt) : "0",
-      salesRepId,
+      dueDate: parseDenverDate(String(formData.get("dueDate") ?? "")),
+      // Leave the amount untouched when the field is blank/non-numeric so an
+      // empty save can't wipe the value stamped from the quote at conversion.
+      ...(amt !== null ? { amount: String(amt) } : {}),
+      salesRepId: str(formData.get("salesRepId")),
       updatedAt: new Date(),
     })
     .where(eq(orders.id, id));
