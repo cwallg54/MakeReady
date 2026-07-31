@@ -4,10 +4,12 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts } from "@/db/schema";
+import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts, users, userRoles } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { fmtDateTime } from "@/lib/format";
+import { OrderInfoCard } from "@/components/orders/order-info";
+import { inArray } from "drizzle-orm";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { ProductionDetails } from "@/components/orders/production-details";
 import { OrderProofs } from "@/components/orders/order-proofs";
@@ -40,6 +42,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const reachedAt: Partial<Record<OrderStage, string>> = {};
   for (const e of events) if (!reachedAt[e.stage]) reachedAt[e.stage] = fmtDateTime(e.at);
 
+  // Sales reps for the Order info assignment dropdown.
+  const repRows = await db
+    .selectDistinct({ id: users.id, name: users.name })
+    .from(users)
+    .innerJoin(userRoles, eq(userRoles.userId, users.id))
+    .where(and(eq(users.status, "active"), inArray(userRoles.role, ["sales_rep", "sales_manager", "admin"])))
+    .orderBy(asc(users.name));
+
   const base = process.env.APP_URL ?? "https://makeready.g54.com";
   const trackUrl = `${base}/track/${order.publicToken}`;
 
@@ -65,6 +75,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <Card className="mb-6">
         <OrderTracker currentStage={order.stage} reachedAt={reachedAt} />
       </Card>
+
+      <OrderInfoCard order={order} reps={repRows} editable={canAct} />
 
       {canAct && (
         <Card className="mb-6">

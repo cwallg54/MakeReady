@@ -5,6 +5,7 @@ import { businessPartners, quotes, orders, productionJobs, inventoryItems, accou
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { canBuildReports } from "@/lib/reports/sources";
+import { STANDARD_REPORTS } from "@/lib/reports/standard";
 import { ReportCharts } from "./report-charts";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,20 @@ export default async function ReportsPage() {
         description="Live snapshot across sales, operations, and inventory."
         action={canBuild ? <Link href="/reports/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Build a report</Link> : undefined}
       />
+
+      {canBuild && (
+        <Card>
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Standard reports</h2>
+          <ul className="divide-y divide-neutral-100">
+            {STANDARD_REPORTS.map((r) => (
+              <li key={r.slug} className="py-2">
+                <Link href={`/reports/standard/${r.slug}`} className="text-sm font-medium text-neutral-900 hover:underline">{r.name}</Link>
+                <p className="text-xs text-neutral-400">{r.description}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {canBuild && (
         <Card>

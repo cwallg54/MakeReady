@@ -46,6 +46,32 @@ export async function saveOrderDetailsAction(formData: FormData): Promise<void> 
   revalidatePath(`/sales/orders/${id}`);
 }
 
+// Commercial / fulfillment fields that feed the standard Open Orders reports.
+export async function saveOrderInfoAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const dueStr = String(formData.get("dueDate") ?? "").trim();
+  const amt = num(formData.get("amount"));
+  const dateType = String(formData.get("dateType") ?? "ASAP").trim();
+  const salesRepId = str(formData.get("salesRepId"));
+  await db
+    .update(orders)
+    .set({
+      orderType: str(formData.get("orderType")),
+      poNumber: str(formData.get("poNumber")),
+      shipVia: str(formData.get("shipVia")),
+      dateType: ["ASAP", "FIRM", "DATED", "RUSH", "EVENT"].includes(dateType) ? dateType : "ASAP",
+      dueDate: dueStr ? new Date(dueStr) : null,
+      amount: amt !== null ? String(amt) : "0",
+      salesRepId,
+      updatedAt: new Date(),
+    })
+    .where(eq(orders.id, id));
+  await audit({ userId: user.id, action: "order.info", entityType: "order", entityId: id });
+  revalidatePath(`/sales/orders/${id}`);
+}
+
 export async function addSpecItemAction(formData: FormData): Promise<void> {
   const user = await requireSalesEdit();
   const orderId = String(formData.get("orderId") ?? "");

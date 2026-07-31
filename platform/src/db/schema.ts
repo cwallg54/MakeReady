@@ -231,6 +231,22 @@ export const businessPartners = pgTable(
     creditLimit: numeric("credit_limit", { precision: 14, scale: 2 }),
     accountBalance: numeric("account_balance", { precision: 14, scale: 2 }),
     paymentTerms: text("payment_terms"),
+    // Sales-territory the account belongs to (mirrors the legacy ERP territory).
+    // Used to group the Open Orders reports below the salesperson level.
+    territory: text("territory"),
+    // Credit-management fields surfaced on the Customer Credit Report (CCR).
+    creditHold: boolean("credit_hold").notNull().default(false),
+    creditHoldReason: text("credit_hold_reason"),
+    personalGuarantee: boolean("personal_guarantee").notNull().default(false),
+    priceList: text("price_list"),
+    softgoodPriceLevel: text("softgood_price_level"),
+    shippingType: text("shipping_type"),
+    customerSince: timestamp("customer_since", { withTimezone: true }),
+    // Legacy ERP "Parent Number" for grouped/child accounts (reference only).
+    parentBpNumber: text("parent_bp_number"),
+    // Average Pay Age (days) — trailing-12-month and trailing-24-month.
+    historicalApa: integer("historical_apa"),
+    twoYearApa: integer("two_year_apa"),
     internalNotes: text("internal_notes"),
     webStoreStatus: webStoreStatusEnum("web_store_status").notNull().default("not_published"),
     // Original key from the legacy ERP (migration reconciliation only).
@@ -598,6 +614,20 @@ export const orders = pgTable(
     // Production detail captured by the salesperson after the order is created.
     inHandsDate: timestamp("in_hands_date", { withTimezone: true }),
     productionNotes: text("production_notes"),
+    // Operational fields mirrored from the legacy ERP sales-order model. These
+    // drive the standard Open Orders / Sales Analysis reports.
+    // Product/decoration line code (SS, OSH, ASI, VIN, SOUV, EMBC, EMBF, IH, ...).
+    orderType: text("order_type"),
+    poNumber: text("po_number"),
+    shipVia: text("ship_via"),
+    // Fulfillment urgency: ASAP / FIRM / DATED / RUSH / EVENT.
+    dateType: text("date_type").notNull().default("ASAP"),
+    // Requested due date (distinct from the internal in-hands target).
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    // Order doc total, fixed at creation from the source quote.
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    // Sales employee credited with the order (defaults to the account owner).
+    salesRepId: uuid("sales_rep_id").references(() => users.id, { onDelete: "set null" }),
     // Voiding an order requires a reason; a voided order is cancelled but retained.
     voidedAt: timestamp("voided_at", { withTimezone: true }),
     voidReason: text("void_reason"),

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents, orderAttachments } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents, orderAttachments, businessPartners } from "@/db/schema";
 import { randomBytes } from "crypto";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
@@ -223,9 +223,23 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
     if (quote && !existing) {
       const orderNumber = await nextSalesOrderNumber();
       const publicToken = randomBytes(16).toString("hex");
+      // Credit the account owner as the sales rep, and fix the order value from
+      // the quote total, so the standard sales/open-order reports have data.
+      const bp = quote.bpId
+        ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, quote.bpId), columns: { ownerId: true } })
+        : null;
       const [o] = await db
         .insert(orders)
-        .values({ orderNumber, bpId: quote.bpId, quoteId: id, publicToken, stage: "received", createdBy: user.id })
+        .values({
+          orderNumber,
+          bpId: quote.bpId,
+          quoteId: id,
+          publicToken,
+          stage: "received",
+          createdBy: user.id,
+          amount: quote.total ?? "0",
+          salesRepId: bp?.ownerId ?? user.id,
+        })
         .returning({ id: orders.id });
       await db.insert(orderEvents).values({ orderId: o.id, stage: "received", byUserId: user.id });
 
