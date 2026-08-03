@@ -6,6 +6,8 @@ import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { canBuildReports } from "@/lib/reports/sources";
 import { STANDARD_REPORTS } from "@/lib/reports/standard";
+import { reportConfig, reportTitle, isHidden } from "@/lib/reports/report-config";
+import { getReportSettings } from "@/lib/reports/settings";
 import { ReportCharts } from "./report-charts";
 
 export const dynamic = "force-dynamic";
@@ -65,12 +67,21 @@ export default async function ReportsPage() {
     </Card>
   );
 
+  const cfgDef = reportConfig("dashboard")!;
+  const settings = await getReportSettings("dashboard");
+  const show = (k: string) => !isHidden(settings, k);
+
   return (
     <div className="max-w-5xl space-y-6">
       <PageHeader
-        title="Reports"
+        title={reportTitle(cfgDef, settings)}
         description="Live snapshot across sales, operations, and inventory."
-        action={canBuild ? <Link href="/reports/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Build a report</Link> : undefined}
+        action={canBuild ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/reports/config/dashboard" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Edit</Link>
+            <Link href="/reports/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Build a report</Link>
+          </div>
+        ) : undefined}
       />
 
       {canBuild && (
@@ -105,6 +116,7 @@ export default async function ReportsPage() {
         </Card>
       )}
 
+      {show("kpis") && (
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Customers" value={stageN("customer").toLocaleString()} hint="Active accounts" />
         <StatCard label="Active pipeline" value={(stageN("lead") + stageN("prospect")).toLocaleString()} hint="Leads + prospects" />
@@ -115,7 +127,9 @@ export default async function ReportsPage() {
         <StatCard label="Jobs in production" value={jobsOpen.toLocaleString()} hint="Open production jobs" />
         <StatCard label="Inventory value" value={money(invValue)} hint={`${invItems.toLocaleString()} items · ${lowCount} low`} />
       </div>
+      )}
 
+      {show("charts") && (
       <ReportCharts
         pipeline={[{ name: "Leads", value: stageN("lead") }, { name: "Prospects", value: stageN("prospect") }, { name: "Customers", value: stageN("customer") }]}
         byState={bpByState.map((r) => ({ name: r.name ?? "—", value: r.n }))}
@@ -124,16 +138,18 @@ export default async function ReportsPage() {
         categoryUnits={invUnitsByCat.map((r) => ({ name: r.category ?? "(uncategorized)", value: Number(r.units) }))}
         ordersByStage={ordersByStage.map((r) => ({ name: ORDER_STAGE_LABEL[r.stage] ?? r.stage, value: r.n }))}
       />
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Breakdown title="Pipeline" rows={[{ label: "Leads", value: String(stageN("lead")) }, { label: "Prospects", value: String(stageN("prospect")) }, { label: "Customers", value: stageN("customer").toLocaleString() }]} />
-        <Breakdown title="Quotes by status" rows={quotesAgg.map((r) => ({ label: QUOTE_LABEL[r.status] ?? r.status, value: `${r.n} · ${money(Number(r.total))}` }))} />
-        <Breakdown title="Orders by stage" rows={ordersByStage.map((r) => ({ label: ORDER_STAGE_LABEL[r.stage] ?? r.stage, value: String(r.n) }))} />
-        <Breakdown title="Production by status" rows={prodByStatus.map((r) => ({ label: PROD_LABEL[r.status] ?? r.status, value: String(r.n) }))} />
-        <Breakdown title="Inventory value by category" rows={invByCategory.map((r) => ({ label: r.category ?? "(uncategorized)", value: money(Number(r.value)) }))} />
-        <Breakdown title="Top customers by quoted value" rows={topCustomers.map((r) => ({ label: r.company, value: money(Number(r.total)) }))} />
+        {show("pipeline") && <Breakdown title="Pipeline" rows={[{ label: "Leads", value: String(stageN("lead")) }, { label: "Prospects", value: String(stageN("prospect")) }, { label: "Customers", value: stageN("customer").toLocaleString() }]} />}
+        {show("quotes") && <Breakdown title="Quotes by status" rows={quotesAgg.map((r) => ({ label: QUOTE_LABEL[r.status] ?? r.status, value: `${r.n} · ${money(Number(r.total))}` }))} />}
+        {show("orders") && <Breakdown title="Orders by stage" rows={ordersByStage.map((r) => ({ label: ORDER_STAGE_LABEL[r.stage] ?? r.stage, value: String(r.n) }))} />}
+        {show("production") && <Breakdown title="Production by status" rows={prodByStatus.map((r) => ({ label: PROD_LABEL[r.status] ?? r.status, value: String(r.n) }))} />}
+        {show("inventoryValue") && <Breakdown title="Inventory value by category" rows={invByCategory.map((r) => ({ label: r.category ?? "(uncategorized)", value: money(Number(r.value)) }))} />}
+        {show("topCustomers") && <Breakdown title="Top customers by quoted value" rows={topCustomers.map((r) => ({ label: r.company, value: money(Number(r.total)) }))} />}
       </div>
 
+      {show("lowStock") && (
       <Card>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900">Low stock ({lowCount})</h2>
@@ -168,6 +184,7 @@ export default async function ReportsPage() {
           </>
         )}
       </Card>
+      )}
 
       <div className="flex flex-wrap gap-3 text-sm">
         <Link href="/reports/export?d=inventory" className="rounded-md border border-neutral-300 bg-white px-4 py-2 font-medium text-neutral-700 hover:bg-neutral-50">Export inventory valuation (CSV)</Link>

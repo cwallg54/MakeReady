@@ -5,12 +5,15 @@ import { canBuildReports } from "@/lib/reports/sources";
 import { PageHeader, Card } from "@/components/ui";
 import { getSalesAnalysis, type SalesYearRow } from "@/lib/reports/standard-data";
 import { FISCAL_MONTHS, money0, fiscalYearOf } from "@/lib/reports/standard";
+import { reportConfig, reportTitle, isHidden } from "@/lib/reports/report-config";
+import { getReportSettings } from "@/lib/reports/settings";
 
 export const dynamic = "force-dynamic";
 
-const COLS = ["Oct", "Nov", "Dec", "3 Mo", "Diff", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Total"];
+// Column keys line up with the cell indices below: index 3 = 3-Mo, 4 = Diff.
+const ALL_COLS = ["Oct", "Nov", "Dec", "3 Mo", "Diff", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Total"];
 
-function YearCells({ row, prior }: { row: SalesYearRow; prior?: SalesYearRow }) {
+function YearCells({ row, prior, hide3Mo, hideDiff }: { row: SalesYearRow; prior?: SalesYearRow; hide3Mo: boolean; hideDiff: boolean }) {
   const diff = prior ? row.threeMo - prior.threeMo : 0;
   const cells: (number | null)[] = [
     row.months[0], row.months[1], row.months[2], row.threeMo, prior ? diff : null,
@@ -19,7 +22,7 @@ function YearCells({ row, prior }: { row: SalesYearRow; prior?: SalesYearRow }) 
   ];
   return (
     <>
-      {cells.map((v, i) => (
+      {cells.map((v, i) => (i === 3 && hide3Mo) || (i === 4 && hideDiff) ? null : (
         <td key={i} className={`px-1.5 py-1 text-right tabular-nums ${i === 3 || i === 14 ? "font-semibold text-neutral-900" : "text-neutral-600"} ${i === 4 && v != null ? (v < 0 ? "text-red-600" : "text-emerald-600") : ""}`}>
           {v == null ? "" : money0(v)}
         </td>
@@ -37,16 +40,30 @@ export default async function SalesAnalysisPage({ searchParams }: { searchParams
   const currentFy = fiscalYearOf(new Date());
   const fy = Number(sp.fy) || currentFy;
 
-  const { groups } = await getSalesAnalysis(fy);
+  const cfgDef = reportConfig("sales-analysis")!;
+  const settings = await getReportSettings("sales-analysis");
+  const hide3Mo = isHidden(settings, "threeMo");
+  const hideDiff = isHidden(settings, "difference");
+  const hideTwoAgo = isHidden(settings, "twoAgo");
+  const repFilter = settings.filters?.salesperson?.trim().toLowerCase();
+  const COLS = ALL_COLS.filter((c) => !(hide3Mo && c === "3 Mo") && !(hideDiff && c === "Diff"));
+
+  const { groups: allGroups } = await getSalesAnalysis(fy);
+  const groups = repFilter ? allGroups.filter((g) => g.repName.toLowerCase().includes(repFilter)) : allGroups;
   const grand = groups.reduce((a, g) => ({ current: a.current + g.totals.current, prior: a.prior + g.totals.prior, twoAgo: a.twoAgo + g.totals.twoAgo }), { current: 0, prior: 0, twoAgo: 0 });
 
   return (
     <div className="max-w-full space-y-6">
       <Link href="/reports" className="text-sm text-neutral-500 hover:text-neutral-900">← Reports</Link>
       <PageHeader
-        title="Sales Analysis by Salesperson & Customer"
-        description={`Fiscal year ${fy} (Oct ${fy - 1} – Sep ${fy}). Monthly sales vs. prior year and two years ago.`}
-        action={<Link href={`/reports/standard/sales-analysis/export?fy=${fy}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Export CSV ↓</Link>}
+        title={reportTitle(cfgDef, settings)}
+        description={`Fiscal year ${fy} (Oct ${fy - 1} – Sep ${fy}). Monthly sales vs. prior year and two years ago.${repFilter ? " · filtered by salesperson" : ""}`}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/reports/config/sales-analysis" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Edit</Link>
+            <Link href={`/reports/standard/sales-analysis/export?fy=${fy}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Export CSV ↓</Link>
+          </div>
+        }
       />
 
       <div className="flex items-center gap-2 text-sm">
@@ -72,28 +89,29 @@ export default async function SalesAnalysisPage({ searchParams }: { searchParams
             {g.customers.map((c) => (
               <tbody key={c.bpId} className="border-b border-neutral-100 align-top">
                 <tr>
-                  <td rowSpan={3} className="px-1.5 py-1 text-left align-top">
+                  <td rowSpan={hideTwoAgo ? 2 : 3} className="px-1.5 py-1 text-left align-top">
                     <div className="font-medium text-neutral-900">{c.name}</div>
                     <div className="text-[10px] text-neutral-400">{c.code}{c.terms ? ` · ${c.terms}` : ""}</div>
                   </td>
                   <td className="px-1.5 py-1 text-left text-neutral-500">Current Yr</td>
-                  <YearCells row={c.current} prior={c.prior} />
+                  <YearCells row={c.current} prior={c.prior} hide3Mo={hide3Mo} hideDiff={hideDiff} />
                 </tr>
                 <tr>
                   <td className="px-1.5 py-1 text-left text-neutral-500">Prior Yr</td>
-                  <YearCells row={c.prior} />
+                  <YearCells row={c.prior} hide3Mo={hide3Mo} hideDiff={hideDiff} />
                 </tr>
-                <tr>
-                  <td className="px-1.5 py-1 text-left text-neutral-400">2 Yrs Ago</td>
-                  <YearCells row={c.twoAgo} />
-                </tr>
+                {!hideTwoAgo && (
+                  <tr>
+                    <td className="px-1.5 py-1 text-left text-neutral-400">2 Yrs Ago</td>
+                    <YearCells row={c.twoAgo} hide3Mo={hide3Mo} hideDiff={hideDiff} />
+                  </tr>
+                )}
               </tbody>
             ))}
             <tbody>
               <tr className="border-t-2 border-neutral-300 font-semibold text-neutral-900">
                 <td className="px-1.5 py-1.5 text-left" colSpan={2}>{g.repName} — Total</td>
-                <td className="px-1.5 py-1.5 text-right tabular-nums" colSpan={13}>Cur {money0(g.totals.current)} · Prior {money0(g.totals.prior)} · 2yr {money0(g.totals.twoAgo)}</td>
-                <td />
+                <td className="px-1.5 py-1.5 text-right tabular-nums" colSpan={COLS.length}>Cur {money0(g.totals.current)} · Prior {money0(g.totals.prior)}{hideTwoAgo ? "" : ` · 2yr ${money0(g.totals.twoAgo)}`}</td>
               </tr>
             </tbody>
           </table>

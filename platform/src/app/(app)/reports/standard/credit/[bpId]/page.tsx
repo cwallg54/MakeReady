@@ -8,6 +8,8 @@ import { getCreditData, getCreditAR } from "@/lib/reports/standard-data";
 import { fmtDate } from "@/lib/format";
 import { money2, daysUntil, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
 import { updateCreditControlsAction } from "@/lib/accounting/actions";
+import { isHidden } from "@/lib/reports/report-config";
+import { getReportSettings } from "@/lib/reports/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +35,8 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
   const histApa = bp.historicalApa ?? ar.historicalApa;
   const twoApa = bp.twoYearApa ?? ar.twoYearApa;
   const canManage = canEdit(user.roles, "accounting");
+  const settings = await getReportSettings("credit");
+  const showSec = (k: string) => !isHidden(settings, k);
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -42,6 +46,7 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
         description={`${bp.legacyCode ?? bp.bpNumber} · Customer Credit Report`}
         action={
           <div className="flex flex-wrap items-center gap-2">
+            <Link href="/reports/config/credit" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Edit</Link>
             <Link href={`/accounting/statements/${bp.id}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Statement →</Link>
             <Link href={`/crm/${bp.id}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Open account →</Link>
           </div>
@@ -103,6 +108,7 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
       )}
 
       {/* Trailing sales */}
+      {showSec("trailingSales") && (
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Trailing sales</h2>
         <div className="grid grid-cols-3 gap-4 text-center">
@@ -111,8 +117,10 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           <div><div className="text-lg font-semibold text-neutral-900">{money2(salesBuckets[2])}</div><div className="text-xs text-neutral-500">Months 25–36</div></div>
         </div>
       </Card>
+      )}
 
       {/* Open orders */}
+      {showSec("openOrders") && (
       <Card className="overflow-x-auto">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900">Open Orders</h2>
@@ -146,8 +154,10 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           </table>
         )}
       </Card>
+      )}
 
       {/* Open invoices + aging */}
+      {showSec("openInvoices") && (
       <Card className="overflow-x-auto">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900">Open Invoices</h2>
@@ -178,8 +188,10 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           </>
         )}
       </Card>
+      )}
 
       {/* Payments */}
+      {showSec("payments") && (
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Recent Payments</h2>
         {ar.payments.length === 0 ? (
@@ -195,8 +207,10 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           </ul>
         )}
       </Card>
+      )}
 
       {/* Collection activity */}
+      {showSec("activity") && (
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Activity</h2>
         {activity.length === 0 ? (
@@ -212,6 +226,7 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           </ul>
         )}
       </Card>
+      )}
     </div>
   );
 }

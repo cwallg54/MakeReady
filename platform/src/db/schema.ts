@@ -843,6 +843,18 @@ export type Invoice = typeof invoices.$inferSelect;
 export type InvoiceLine = typeof invoiceLines.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
 
+// Admin/manager overrides for the built-in reports (title, hidden columns,
+// default filters, sort, hidden sections). One shared row per report key —
+// changes apply for everyone. See src/lib/reports/report-config.ts.
+export const reportSettings = pgTable("report_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reportKey: text("report_key").notNull().unique(),
+  config: jsonb("config"), // ReportSettings
+  updatedBy: uuid("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type ReportSettingsRow = typeof reportSettings.$inferSelect;
+
 // Stage-change timeline (drives per-stage timestamps on the tracker).
 export const orderEvents = pgTable(
   "order_events",
