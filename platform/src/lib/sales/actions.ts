@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, numberSeries, activities, orders, orderEvents, orderAttachments, orderSpecItems, businessPartners, catalogStyles, sizeClasses, decorationMethods, printLocations, embroideryTiers } from "@/db/schema";
-import { randomBytes } from "crypto";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { priceQuote, resolveUnitPrice, sizeUpcharge, priceGarmentLine, type ChargeRule, type PriceBreak, type GarmentLineData, type DecorationInput, type MethodRef, type EmbTierRef, type SizeEntry } from "./pricing";
+import { priceQuote, resolveUnitPrice, sizeUpcharge, priceGarmentLine, type ChargeRule, type PriceBreak, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry } from "./pricing";
+import { createOrderFromQuote } from "./order-from-quote";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -297,123 +297,11 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
 
   // Converting a quote spawns a trackable order (once).
   if (status === "converted") {
-    const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, id) });
-    const existing = await db.query.orders.findFirst({ where: eq(orders.quoteId, id) });
-    if (quote && !existing) {
-      const orderNumber = await nextSalesOrderNumber();
-      const publicToken = randomBytes(16).toString("hex");
-      // Credit the account owner as the sales rep, and fix the order value from
-      // the quote total, so the standard sales/open-order reports have data.
-      const bp = quote.bpId
-        ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, quote.bpId), columns: { ownerId: true } })
-        : null;
-      const [o] = await db
-        .insert(orders)
-        .values({
-          orderNumber,
-          bpId: quote.bpId,
-          quoteId: id,
-          publicToken,
-          stage: "received",
-          createdBy: user.id,
-          amount: quote.total ?? "0",
-          salesRepId: bp?.ownerId ?? user.id,
-        })
-        .returning({ id: orders.id });
-      await db.insert(orderEvents).values({ orderId: o.id, stage: "received", byUserId: user.id });
-
-      // Carry the catalogue images of the quoted items into the order, so the
-      // art department sees exactly what the customer picked from the catalogue.
-      const qLines = await db.select().from(quoteLines).where(eq(quoteLines.quoteId, id));
-
-      // Turn each garment line's decorations into order spec items so the art &
-      // production teams get the placements, methods, colors, and size breakdown.
-      const garmentQLines = qLines.filter((l) => l.styleId || (Array.isArray(l.decorations) && (l.decorations as unknown[]).length > 0) || (l.sizeBreakdown != null && Object.keys(l.sizeBreakdown as object).length > 0));
-      if (garmentQLines.length) {
-        const [locRows, methRows] = await Promise.all([db.select().from(printLocations), db.select().from(decorationMethods)]);
-        const locName = new Map(locRows.map((l) => [l.code, l.name]));
-        const methName = new Map(methRows.map((mm) => [mm.code, mm.name]));
-        const specRows: (typeof orderSpecItems.$inferInsert)[] = [];
-        let sort = 0;
-        for (const l of garmentQLines) {
-          const decos = (l.decorations as DecorationInput[] | null) ?? [];
-          const sb = (l.sizeBreakdown as Record<string, number> | null) ?? {};
-          const sizeStr = Object.entries(sb).filter(([, q]) => Number(q) > 0).map(([s, q]) => `${s}:${q}`).join(" ");
-          if (decos.length === 0) {
-            specRows.push({ orderId: o.id, product: l.description, sizeBreakdown: sizeStr || null, sortOrder: sort++ });
-          } else {
-            for (const d of decos) {
-              specRows.push({
-                orderId: o.id,
-                product: l.description,
-                decorationMethod: methName.get(d.method) ?? d.method,
-                placement: locName.get(d.location) ?? d.location,
-                colorCount: d.stitchTier ? null : d.colorCount ?? null,
-                colors: d.stitchTier ? `${d.stitchTier} stitch` : null,
-                sizeBreakdown: sizeStr || null,
-                sortOrder: sort++,
-              });
-            }
-          }
-        }
-        if (specRows.length) await db.insert(orderSpecItems).values(specRows);
-      }
-
-      const codes = new Set(qLines.map((l) => l.itemCode).filter((c): c is string => !!c));
-      if (codes.size && quote.templateId) {
-        const items = await db.select().from(templateItems).where(eq(templateItems.templateId, quote.templateId));
-        const picked = items.filter((it) => it.imageBase64 && it.code && codes.has(it.code));
-        if (picked.length) {
-          await db.insert(orderAttachments).values(
-            picked.map((it) => ({
-              orderId: o.id,
-              filename: `catalog-${(it.code ?? it.name).replace(/[^a-z0-9]+/gi, "-")}.${(it.imageMimeType ?? "image/png").split("/")[1] ?? "png"}`,
-              mimeType: it.imageMimeType ?? "image/png",
-              kind: "catalog",
-              contentBase64: it.imageBase64!,
-              notes: `Catalogue image — ${it.name}`,
-              uploadedBy: user.id,
-            })),
-          );
-        }
-      }
-      // Carry the customer's intake files (art/reference) onto the order so the
-      // art department picks them up automatically.
-      const qAtt = await db.select().from(quoteAttachments).where(eq(quoteAttachments.quoteId, id));
-      if (qAtt.length) {
-        await db.insert(orderAttachments).values(
-          qAtt.map((a) => ({
-            orderId: o.id,
-            filename: a.filename,
-            mimeType: a.mimeType,
-            sizeBytes: a.sizeBytes,
-            kind: a.kind,
-            contentBase64: a.contentBase64,
-            notes: a.notes,
-            uploadedBy: a.uploadedBy,
-          })),
-        );
-      }
-      if (quote.bpId) {
-        await db.insert(activities).values({ bpId: quote.bpId, type: "other", isSystem: true, content: `Order ${orderNumber} created from quote ${quote.quoteNumber}` });
-        revalidatePath(`/crm/${quote.bpId}`);
-      }
-      await audit({ userId: user.id, action: "order.create", entityType: "order", entityId: o.id, metadata: { orderNumber } });
-    }
+    await createOrderFromQuote(id, user.id);
+    const q = await db.query.quotes.findFirst({ where: eq(quotes.id, id), columns: { bpId: true } });
+    if (q?.bpId) revalidatePath(`/crm/${q.bpId}`);
   }
 
   revalidatePath(`/sales/quotes/${id}`);
   revalidatePath("/sales");
-}
-
-async function nextSalesOrderNumber(): Promise<string> {
-  return db.transaction(async (tx) => {
-    let s = await tx.query.numberSeries.findFirst({ where: eq(numberSeries.documentType, "sales_order") });
-    if (!s) {
-      [s] = await tx.insert(numberSeries).values({ documentType: "sales_order", prefix: "SO-", nextNumber: 1, padding: 5 }).returning();
-    }
-    const n = s.nextNumber;
-    await tx.update(numberSeries).set({ nextNumber: n + 1, updatedAt: new Date() }).where(eq(numberSeries.id, s.id));
-    return `${s.prefix}${String(n).padStart(s.padding, "0")}`;
-  });
 }

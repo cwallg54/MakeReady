@@ -48,6 +48,23 @@ export async function sendOrderEmail(to: string, orderNumber: string, attachment
   );
 }
 
+/** Email a quote to the customer with a link to review, approve, or decline. */
+export async function sendQuoteEmail(to: string, quoteNumber: string, total: string, approveUrl: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Great Mountain West — Quote ${quoteNumber}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>Your quote <strong>${quoteNumber}</strong> from Great Mountain West is ready — total <strong>${total}</strong>.</p>
+       <p>Please review it and let us know if it's approved:</p>
+       <p><a href="${approveUrl}" style="display:inline-block;background:#111;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Review &amp; approve your quote →</a></p>
+       <p style="color:#666;font-size:13px">Or paste this link into your browser:<br>${approveUrl}</p>
+       <p>Thank you for your business.</p>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+  );
+}
+
 /** Email an invoice (PDF attachment) to the customer. Returns true if sent. */
 export async function sendInvoiceEmail(to: string, invoiceNumber: string, dueLabel: string, balance: string, attachments: EmailAttachment[]): Promise<boolean> {
   return sendEmail(

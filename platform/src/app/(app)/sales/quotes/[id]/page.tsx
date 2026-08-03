@@ -9,6 +9,8 @@ import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { setQuoteStatusAction, setQuoteCustomerAction, deleteQuoteAction } from "@/lib/sales/actions";
+import { emailQuoteToCustomerAction } from "@/lib/sales/quote-approval-actions";
+import { fmtDateTime } from "@/lib/format";
 import { uploadQuoteAttachmentsAction, removeQuoteAttachmentAction } from "@/lib/sales/attachment-actions";
 import type { ChargeRule, PriceBreak, GarmentLineData, DecorationInput, MethodRef, SizeEntry } from "@/lib/sales/pricing";
 import type { CatalogRefs } from "./garment-lines";
@@ -154,6 +156,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
 
   const rules = (template?.charges as ChargeRule[] | null) ?? [];
   const canStatus = editable && quote.status !== "converted";
+  const base = process.env.APP_URL ?? "https://makeready.g54.com";
 
   return (
     <div className="max-w-5xl">
@@ -163,6 +166,12 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
         description={`${template?.name ?? "No template"}${bp ? ` · ${bp.companyName}` : ""}`}
         action={
           <div className="flex flex-wrap items-center gap-2">
+            {editable && quote.status !== "converted" && (
+              <form action={emailQuoteToCustomerAction} title={toEmail ? `Email an approve/decline link to ${toEmail}` : "No email on file for this customer"}>
+                <input type="hidden" name="id" value={quote.id} />
+                <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">✉ Email for approval</button>
+              </form>
+            )}
             <EmailQuoteButton quoteId={quote.id} href={mailtoHref} toEmail={toEmail} />
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_BADGE[quote.status]}`}>{quote.status}</span>
             {canStatus && (NEXT_STATUS[quote.status] ?? []).map((n) => (
@@ -187,6 +196,25 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
           <span className="font-semibold">Order blocked.</span> {holderr === "hold" ? "This customer is on credit hold — clear the hold in the customer's account before converting." : "This order would exceed the customer's credit limit. Adjust the limit, collect on open invoices, or reduce the order."}
         </div>
       )}
+
+      {/* Customer approval — the public link and the customer's response. */}
+      <Card className="mb-6">
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Customer approval</h2>
+        {quote.respondedAt ? (
+          <p className="text-sm">
+            <span className={`font-semibold ${quote.status === "rejected" ? "text-red-700" : "text-emerald-700"}`}>{quote.status === "rejected" ? "Declined" : "Approved"}</span>
+            {" "}by {quote.signedName} · {fmtDateTime(quote.respondedAt)}
+            {quote.responseNote && <span className="mt-1 block whitespace-pre-wrap text-neutral-600">“{quote.responseNote}”</span>}
+          </p>
+        ) : quote.publicToken ? (
+          <>
+            <p className="mb-2 text-xs text-neutral-500">Send the customer this link (or use “Email for approval”) to approve or decline online.</p>
+            <input readOnly value={`${base}/quote/${quote.publicToken}`} className="w-full rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-xs text-neutral-700 outline-none" />
+          </>
+        ) : (
+          <p className="text-sm text-neutral-500">Click <strong>Email for approval</strong> above to send the customer a link to approve or decline this quote online.</p>
+        )}
+      </Card>
 
       {editable && quote.status !== "converted" && (
         <div className="mb-6 rounded-lg border border-neutral-200 bg-white p-4">

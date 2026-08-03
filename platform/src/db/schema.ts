@@ -572,6 +572,13 @@ export const quotes = pgTable(
     templateId: uuid("template_id").references(() => orderFormTemplates.id),
     status: quoteStatusEnum("status").notNull().default("draft"),
     isReorder: boolean("is_reorder").notNull().default(false),
+    // Opaque token for the public customer approve/decline page (minted on send).
+    publicToken: text("public_token").unique(),
+    // The customer's approve/decline response captured on the public page.
+    respondedAt: timestamp("responded_at", { withTimezone: true }),
+    signedName: text("signed_name"),
+    responseNote: text("response_note"),
+    responseIp: text("response_ip"),
     discount: numeric("discount", { precision: 12, scale: 2 }).notNull().default("0"),
     subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull().default("0"),
     chargesTotal: numeric("charges_total", { precision: 12, scale: 2 }).notNull().default("0"),

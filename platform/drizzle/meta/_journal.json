@@ -204,6 +204,13 @@
       "when": 1785790786744,
       "tag": "0028_opposite_firebrand",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1785795641356,
+      "tag": "0029_late_archangel",
+      "breakpoints": true
     }
   ]
 }
