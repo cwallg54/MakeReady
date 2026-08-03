@@ -271,3 +271,29 @@ content_asset ── asset_collection_member ── collection
 | content_asset → job | Many-to-many | Via job_artwork join table |
 | content_asset → collection | Many-to-many | Via asset_collection_member join table |
 | user → role | Many-to-many | Users can hold multiple roles |
+
+---
+
+## Implemented tables (as built)
+
+The sections above are the conceptual model. The live Drizzle schema
+(`platform/src/db/schema.ts`) realizes them with clean names; the tables added
+for the quoting calculator and Accounts Receivable are:
+
+### Quoting calculator (migration 0026)
+
+- `catalog_styles` — blank garments (brand, style #, base sell price, size class, optional supplier cost).
+- `catalog_colors` — colors per style, tagged to a color tier (drives dark-garment underbase).
+- `decoration_methods` — Silk Screen / DTF / Foil / Softhand / Embroidery; `pricing` jsonb holds setup-per-color (new/reorder), flat setup, run-per-color, dark upcharge; `price_mode` = per_color | stitch.
+- `print_locations`, `color_tiers`, `embroidery_tiers` (stitch → price), `size_classes` (sizes + per-size upcharge).
+- `quote_lines` extended with `style_id`, `color`, `color_tier`, `size_breakdown` (jsonb), `decorations` (jsonb). Priced server-side by `priceGarmentLine`; decorations flow into `order_spec_items` on conversion.
+
+### Accounts Receivable (migration 0027)
+
+- `invoices` — realizes `ar_invoice` (invoice_number INV- series, bp_id, order_id, status draft/sent/partial/paid/void, issue/due dates, terms, subtotal/discount/total, void fields).
+- `invoice_lines` — line items on an invoice.
+- `payments` — realizes `incoming_payment` (bp_id, invoice_id nullable = on-account, method, amount, received_date). Applied payments and voids keep `business_partners.account_balance` current.
+
+### Reporting / order fields (migration 0025)
+
+- `orders` gained `order_type`, `po_number`, `ship_via`, `date_type`, `due_date`, `amount`, `sales_rep_id`; `business_partners` gained `territory` and credit fields (`credit_hold`, `credit_hold_reason`, `personal_guarantee`, `price_list`, `softgood_price_level`, `shipping_type`, `customer_since`, `parent_bp_number`, `historical_apa`, `two_year_apa`).

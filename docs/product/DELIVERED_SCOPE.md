@@ -205,14 +205,38 @@ Last updated: 2026-07-24.
 
 ---
 
+## Standard Reports (SAP-parity)
+
+- [x] Sales Analysis by Salesperson & Customer — 3-fiscal-year (Oct–Sep) monthly pivot, 3-mo & YoY subtotals, per-customer/rep/grand totals, CSV
+- [x] Open Orders by Salesperson — grouped salesperson → due month → territory → customer with subtotals; overdue highlighting; CSV
+- [x] Open Orders by Type — grouped by product/decoration type, type filter, due-date sort, group + grand totals, CSV
+- [x] Customer Credit Report — credit header, trailing 12/24/36-mo sales, open orders, live open invoices + aging, payments, activity, APA
+- [x] Order fields to support the above (type, PO#, ship-via, date type, due date, amount, sales rep) + BP territory/credit fields
+
+---
+
+## Accounting — Accounts Receivable
+
+- [x] Invoices (from a delivered order or standalone) with line editing, issue, and Net-terms due dates
+- [x] Invoice PDF + email-to-customer (Resend); logs to CRM activity
+- [x] Payments — per-invoice and on-account; partial payments; auto status (draft/sent/partial/paid/void)
+- [x] Live customer account balance maintenance
+- [x] AR Aging report (current / 1–30 / 31–60 / 61–90 / 90+) by customer with totals
+- [x] Customer statements — page + PDF + email
+- [x] Credit control — set limit / hold / terms / guarantee; enforcement blocks quote→order when on hold or over limit
+- [ ] Accounts Payable, GL posting, dunning automation (backlog)
+
+---
+
 ## Backlog (discussed, not yet built)
 
 - [x] Quoting calculator: banded/quantity pricing + per-size upcharges + minimums (delivered — see §3.1/§3.2)
-- [ ] Quoting calculator (remaining): supplier catalog import (quarterly), vendor → garment cascade, white/light/dark color tiers
+- [x] Quoting calculator (full): blank-garment catalog + vendor→garment cascade, white/light/dark color tiers, per-location decoration (silk screen/DTF/foil/softhand/embroidery), size classes, embroidery stitch tiers — admin at Catalog & Pricing
+- [ ] Quoting calculator (remaining): confirm real softgoods decoration rates from the client's order form (seed has estimates); optional supplier-cost import
 - [ ] Credit-app auto-chase reminders + welcome packet + new-lead auto-reply
 - [ ] Reporting suite: marketing-source ROI, top-selling designs/products, rep activity
 - [ ] Global NLP search across records (needs an Anthropic API key)
 - [x] Native art-request Kanban (Trello replacement) — delivered (see §3.5a)
 - [ ] Independent-rep deal-registration quick form
-- [ ] Credit gates / limits enforcement + Experian integration
-- [ ] Phase 3+ modules: Web Store, Jobs & Production, Inventory/MRP, Accounting, Content Library
+- [x] Credit gates / limits enforcement — delivered (see Accounting); [ ] Experian integration
+- [ ] Phase 3+ modules: Web Store, Jobs & Production, Inventory/MRP, Content Library ([x] Accounting AR delivered)

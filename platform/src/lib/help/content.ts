@@ -34,6 +34,7 @@ export const HELP_SECTIONS = [
   "Sales",
   "Art & Production",
   "Inventory",
+  "Accounting",
   "Reports & Analytics",
   "Scheduling",
   "Administration",
@@ -404,8 +405,30 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "tip", text: "For quantity-priced items the unit price is set automatically and is read-only — just like the grey \"Do Not Type\" formula cells on the old order forms. The server also recalculates every total when you save, so the numbers are always authoritative." },
+      { k: "h", text: "Garments & decoration (screen print & embroidery)" },
+      { k: "p", text: "Below the line items you'll find a \"Garments & decoration\" section — the full quoting calculator for decorated apparel. Instead of typing a price, you build the garment and the decoration and MakeReady prices it for you." },
+      {
+        k: "steps",
+        items: [
+          { text: "Click \"+ Add garment\" and pick a blank from the catalog (brand, style, and base price are shown). Choose a Color — its color tier (white / light / dark) is set automatically." },
+          { text: "Enter quantities on the size grid. Size upcharges (e.g. 2XL, 3XL) are shown right on each size and added automatically." },
+          { text: "Click \"+ Add decoration\" for each print or embroidery location. Choose the location (full front, left chest, sleeve…), the method (Silk Screen, DTF, Foil, Softhand, Embroidery), and the number of colors — or, for embroidery, the stitch tier." },
+          { text: "The line shows its own breakdown — blank cost, decoration, and setup — and rolls into the quote totals. Add as many garments as the job needs." },
+        ],
+      },
+      {
+        k: "list",
+        items: [
+          "The garment price is the blank's base plus any size upcharge, per piece.",
+          "Screen-print setup (screen prep) is charged per color per location, and is lower on a Reorder than a new order.",
+          "Dark garments add an underbase charge on silk screen automatically.",
+          "Embroidery is priced by stitch-count tier rather than colors.",
+          "Everything is recalculated on the server when you save, so the quote is always authoritative.",
+        ],
+      },
+      { k: "tip", text: "The blank catalog, decoration methods, print locations, color tiers, size classes, and embroidery tiers are all configured by an administrator under Admin → Catalog & Pricing — see Catalog & pricing." },
     ],
-    related: ["quoting-for-reps", "editing-and-emailing-a-quote", "order-templates", "orders-and-production-stages"],
+    related: ["quoting-for-reps", "editing-and-emailing-a-quote", "order-templates", "catalog-and-pricing", "orders-and-production-stages"],
   },
   {
     slug: "quoting-for-reps",
@@ -974,9 +997,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
       },
       { k: "h", text: "Exporting" },
       { k: "p", text: "Each breakdown has a CSV export link so you can pull the underlying numbers into a spreadsheet." },
+      { k: "h", text: "Standard reports" },
+      { k: "p", text: "Under \"Standard reports\" on the Reports page are four fixed, SAP-parity reports that mirror the legacy ERP: Sales Analysis by Salesperson & Customer, Open Orders by Salesperson, Open Orders by Type, and the Customer Credit Report. See Standard reports for what each one shows." },
       { k: "tip", text: "For the sales pipeline by customer, remember the CRM account page now shows each customer's full order history and lifetime spend." },
     ],
-    related: ["building-and-scheduling-reports", "managing-an-account"],
+    related: ["standard-reports", "building-and-scheduling-reports", "managing-an-account"],
   },
   {
     slug: "building-and-scheduling-reports",
@@ -1042,6 +1067,151 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "warn", text: "The nightly backup is encrypted with a passphrase held outside the app. Keep that passphrase safe in your password manager — without it the backups cannot be restored." },
     ],
     related: ["two-factor-authentication", "audit-log", "system-configuration"],
+  },
+
+  // ─────────────────────────────── Reports (standard) ────────────────────────
+  {
+    slug: "standard-reports",
+    title: "Standard reports (Sales Analysis, Open Orders, Credit)",
+    section: "Reports & Analytics",
+    summary: "The four fixed, SAP-parity reports: 3-year Sales Analysis, Open Orders by Salesperson and by Type, and the Customer Credit Report.",
+    who: "Admin, Sales Manager, Finance",
+    blocks: [
+      { k: "p", text: "The Reports page has a \"Standard reports\" list — four purpose-built reports that reproduce the ones GMW relied on in the legacy ERP. Each has an on-screen grouped view with subtotals and a CSV export." },
+      { k: "h", text: "Sales Analysis by Salesperson & Customer" },
+      { k: "p", text: "A three-fiscal-year monthly comparison (the fiscal year runs October–September). Grouped by salesperson, then customer, each customer shows Current Year, Prior Year, and Two Years Ago across the twelve fiscal months, with a first-quarter (Oct–Dec) subtotal, a year-over-year Difference, and a row total. Use the fiscal-year switcher at the top to move between years." },
+      { k: "list", items: [
+        "Sales are recognised on the order date and include migrated legacy order history, attributed to each account's current owner.",
+        "Per-customer, per-salesperson, and grand totals are shown.",
+      ] },
+      { k: "h", text: "Open Orders by Salesperson" },
+      { k: "p", text: "Every open order (anything not yet delivered and not voided), grouped by salesperson → due month → territory → customer, with subtotals at each level. Overdue orders show their days-past-due in red. Columns include the order type, PO number, entered and due dates, date type (ASAP/FIRM/DATED/RUSH/EVENT), ship-via, and amount." },
+      { k: "h", text: "Open Orders by Type" },
+      { k: "p", text: "The same open orders grouped by product/decoration type (SS, OSH, ASI, VIN, SOUV, embroidery, …), sorted by due date, with a per-type total and a grand total. Use the type chips to filter to a single type." },
+      { k: "h", text: "Customer Credit Report" },
+      { k: "p", text: "A full credit profile for one customer — pick them from the search box. It shows the credit header (terms, limit, AR balance, available credit, hold status, average pay age), trailing 12/24/36-month sales, open orders, real open invoices with aging, recent payments, and the collection-activity log. Finance can set the customer's credit controls right on this page — see Credit control." },
+      { k: "warn", text: "Standard reports are limited to Admin, Sales Manager, and Finance roles." },
+    ],
+    related: ["reports-overview", "credit-control", "invoicing-and-payments"],
+  },
+
+  // ─────────────────────────────── Catalog & pricing (admin) ─────────────────
+  {
+    slug: "catalog-and-pricing",
+    title: "Catalog & pricing (garments & decoration)",
+    section: "Administration",
+    summary: "Configure the blank-garment catalog and the decoration pricing that powers the Quote Builder's garment calculator.",
+    who: "Admin only",
+    blocks: [
+      { k: "p", text: "Admin → Catalog & Pricing is where the numbers behind the Quote Builder's \"Garments & decoration\" calculator live. Change them here and every new quote uses the new values — no code change or spreadsheet." },
+      { k: "h", text: "The garment catalog" },
+      {
+        k: "steps",
+        items: [
+          { text: "On the Catalog page, add a garment style — brand, style number, category, base sell price, and a size class. Optionally record the supplier cost (used only for margin, never for the sell price)." },
+          { text: "Open a style to add its colors. Tag each color with a color tier (white / light / dark) — the tier drives the dark-garment underbase on silk screen." },
+          { text: "Mark styles or colors inactive to hide them from the Quote Builder without deleting history." },
+        ],
+      },
+      { k: "h", text: "Decoration & pricing settings" },
+      { k: "p", text: "The \"Decoration & pricing settings\" page manages everything a decoration is priced from:" },
+      {
+        k: "list",
+        items: [
+          "Decoration methods — Silk Screen, DTF, Foil, Softhand, Embroidery — each with its setup-per-color (new and reorder), flat setup, run-per-color, and dark-underbase rates. Embroidery is set to \"stitch\" mode and priced from the tiers below.",
+          "Print locations — the named placements (full front, left chest, sleeve, …) reps choose from.",
+          "Color tiers — white / light / dark.",
+          "Embroidery tiers — A / B / C / LC by stitch count, each with a per-garment price.",
+          "Size classes — Youth / Adult / Ladies / … — each with its sizes and per-size upcharges (e.g. 2XL +$2, 3XL +$3).",
+        ],
+      },
+      { k: "warn", text: "Some seeded decoration rates are starting estimates. Confirm your real screen-print run rates, dark upcharge, and embroidery-stitch prices here before quoting relies on them." },
+    ],
+    related: ["building-a-quote", "order-templates"],
+  },
+
+  // ─────────────────────────────── Accounting ────────────────────────────────
+  {
+    slug: "invoicing-and-payments",
+    title: "Invoicing & payments",
+    section: "Accounting",
+    summary: "Raise invoices (from an order or standalone), issue and email them, and record customer payments.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "The Accounting area is Accounts Receivable — turning delivered work into invoices and collecting on them. Open Accounting from the sidebar for the AR overview (outstanding, overdue, collected), then Invoices, Payments, AR Aging, and Statements." },
+      { k: "h", text: "Creating an invoice" },
+      {
+        k: "steps",
+        items: [
+          { text: "From a delivered order, click \"Create invoice\" — the quoted lines are copied onto a new invoice automatically. There's one invoice per order; the button becomes \"View invoice\" afterwards." },
+          { text: "Or, from Accounting → Invoices → \"New invoice\", search for the customer and create a blank invoice, then add line items by hand." },
+          { text: "On the invoice, set the terms, due date, any discount, and notes. Add or remove line items — the subtotal, total, and balance recalculate as you go." },
+        ],
+      },
+      { k: "h", text: "Issuing & emailing" },
+      { k: "p", text: "Click \"Issue invoice\" to stamp the issue date and set the due date from the terms (e.g. Net 30). Use \"PDF\" to open a printable invoice, or \"Email invoice\" to send that PDF to the customer's primary contact — emailing also issues the invoice if you hadn't already, and logs it to the customer's activity history." },
+      { k: "h", text: "Recording payments" },
+      {
+        k: "steps",
+        items: [
+          { text: "On an invoice with a balance, use \"Record payment\" — enter the amount (it defaults to the full balance), method (check, ACH, card, cash, credit), a reference, and the date received." },
+          { text: "Partial payments are fine — the invoice moves to \"Partial\" and shows the remaining balance; it flips to \"Paid\" when the balance reaches zero." },
+          { text: "To log a payment not tied to a single invoice, use Accounting → Payments → \"Record an on-account payment\"." },
+        ],
+      },
+      { k: "p", text: "Recording a payment (or issuing/voiding an invoice) keeps the customer's account balance current automatically." },
+      { k: "h", text: "Voiding" },
+      { k: "p", text: "If an invoice was raised in error, use \"Void\" with a reason. A voided invoice is retained for the record but drops out of the balance and aging." },
+      { k: "warn", text: "Accounting is limited to Admin and Finance roles." },
+    ],
+    related: ["ar-aging-and-statements", "credit-control", "orders-and-production-stages"],
+  },
+  {
+    slug: "ar-aging-and-statements",
+    title: "AR aging & statements",
+    section: "Accounting",
+    summary: "See what's owed and how overdue by customer, and send a customer their account statement.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "Two views help you collect: the AR Aging report and customer Statements." },
+      { k: "h", text: "AR Aging" },
+      { k: "p", text: "Accounting → AR Aging lists every customer with an open balance, split into Current, 1–30, 31–60, 61–90, and 90+ days past due, with per-customer totals and a column-total footer. 90+ balances are highlighted. Click a customer to open their Credit Report." },
+      { k: "h", text: "Statements" },
+      {
+        k: "steps",
+        items: [
+          { text: "Accounting → Statements → search for the customer to open their statement — open invoices with aging, an aging summary, and the total balance due as of today." },
+          { text: "Use \"PDF\" for a printable statement, or \"Email statement\" to send it to the customer's primary contact (logged to their activity history)." },
+        ],
+      },
+      { k: "tip", text: "You can also reach a customer's statement straight from their Credit Report via the \"Statement\" button." },
+    ],
+    related: ["invoicing-and-payments", "credit-control", "standard-reports"],
+  },
+  {
+    slug: "credit-control",
+    title: "Credit control (limits & holds)",
+    section: "Accounting",
+    summary: "Set a customer's credit limit, terms, and hold — and how MakeReady blocks orders that breach them.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "MakeReady enforces credit at the point an order is created, so a rep can't accidentally take on a risky order." },
+      { k: "h", text: "Setting a customer's credit controls" },
+      { k: "p", text: "Open the customer's Credit Report (Reports → Standard reports → Customer Credit Report, or the Credit Report link on an account). Finance sees a \"Credit controls\" card there to set the credit limit, payment terms, a credit hold (with a reason), and whether a personal guarantee is on file." },
+      { k: "h", text: "How enforcement works" },
+      {
+        k: "list",
+        items: [
+          "When a quote is converted to an order, MakeReady checks the customer first.",
+          "If the customer is on credit hold, the conversion is blocked with a banner explaining why — clear the hold to proceed.",
+          "If the order would push the customer's balance over their credit limit, the conversion is blocked — raise the limit, collect on open invoices, or reduce the order.",
+          "A blocked quote stays a quote (it is never left half-converted with no order).",
+        ],
+      },
+      { k: "tip", text: "The Credit Report also shows the live AR balance, available credit, aging, and average pay age (APA) so you have the full picture before deciding." },
+      { k: "warn", text: "Credit limit and account balance are finance-sensitive and hidden from the Sales Rep role." },
+    ],
+    related: ["invoicing-and-payments", "ar-aging-and-statements", "standard-reports"],
   },
 ];
 

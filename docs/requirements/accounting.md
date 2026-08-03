@@ -4,6 +4,8 @@
 **Epic refs:** 7.1–7.11
 **Stakeholders (Finance):** Britney de Jong (Accounting, AP), Leslie Weiler (AR, Reports)
 
+> **Status (2026-08):** **Accounts Receivable is built and live** at `/accounting` — invoicing (from an order or standalone), invoice PDF + email, per-invoice and on-account payments, live account balances, AR aging, customer statements (PDF + email), and credit control (limit/hold/terms) that blocks quote→order conversion when a customer is on hold or over limit. See the in-app Help Center → Accounting. **Still to build:** Accounts Payable, bank reconciliation, GL/journal entries, Controlling, and Asset Accounting.
+
 ---
 
 ## Overview
