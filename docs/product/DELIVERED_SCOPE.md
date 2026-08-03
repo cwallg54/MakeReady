@@ -7,7 +7,7 @@ Project management scope document of features **built and deployed** to producti
 - [~] Delivered, dependent on an external step (noted)
 - [ ] Not yet built (backlog)
 
-Last updated: 2026-07-24.
+Last updated: 2026-08-03.
 
 ---
 
