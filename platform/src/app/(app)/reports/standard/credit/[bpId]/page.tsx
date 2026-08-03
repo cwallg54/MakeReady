@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
 import { canBuildReports } from "@/lib/reports/sources";
+import { canEdit } from "@/lib/rbac";
 import { PageHeader, Card } from "@/components/ui";
 import { getCreditData, getCreditAR } from "@/lib/reports/standard-data";
 import { fmtDate } from "@/lib/format";
 import { money2, daysUntil, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
+import { updateCreditControlsAction } from "@/lib/accounting/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +32,7 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
   const availableCredit = bp.creditLimit != null ? Number(bp.creditLimit) - ar.totalAR : null;
   const histApa = bp.historicalApa ?? ar.historicalApa;
   const twoApa = bp.twoYearApa ?? ar.twoYearApa;
+  const canManage = canEdit(user.roles, "accounting");
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -37,7 +40,12 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
       <PageHeader
         title={bp.companyName}
         description={`${bp.legacyCode ?? bp.bpNumber} · Customer Credit Report`}
-        action={<Link href={`/crm/${bp.id}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Open account →</Link>}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/accounting/statements/${bp.id}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Statement →</Link>
+            <Link href={`/crm/${bp.id}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Open account →</Link>
+          </div>
+        }
       />
 
       {bp.creditHold && (
@@ -76,6 +84,23 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           )}
         </div>
       </Card>
+
+      {/* Credit controls (finance) */}
+      {canManage && (
+        <Card>
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Credit controls</h2>
+          <form action={updateCreditControlsAction} className="grid gap-3 sm:grid-cols-4">
+            <input type="hidden" name="bpId" value={bp.id} />
+            <label className="text-xs text-neutral-500">Credit limit $<input name="creditLimit" type="number" step="0.01" min="0" defaultValue={bp.creditLimit ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500" /></label>
+            <label className="text-xs text-neutral-500">Terms<input name="paymentTerms" defaultValue={bp.paymentTerms ?? ""} placeholder="Net 30" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500" /></label>
+            <label className="flex items-center gap-2 pt-5 text-sm text-neutral-700"><input type="checkbox" name="creditHold" defaultChecked={bp.creditHold} className="h-4 w-4" /> Credit hold</label>
+            <label className="flex items-center gap-2 pt-5 text-sm text-neutral-700"><input type="checkbox" name="personalGuarantee" defaultChecked={bp.personalGuarantee} className="h-4 w-4" /> Personal guarantee</label>
+            <label className="text-xs text-neutral-500 sm:col-span-3">Hold reason<input name="creditHoldReason" defaultValue={bp.creditHoldReason ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500" /></label>
+            <div className="flex items-end"><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Save</button></div>
+          </form>
+          <p className="mt-2 text-xs text-neutral-400">A credit hold or exceeding the limit blocks converting quotes to orders for this customer.</p>
+        </Card>
+      )}
 
       {/* Trailing sales */}
       <Card>

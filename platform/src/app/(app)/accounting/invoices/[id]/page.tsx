@@ -12,7 +12,7 @@ import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import {
   updateInvoiceMetaAction, addInvoiceLineAction, removeInvoiceLineAction,
-  sendInvoiceAction, recordPaymentAction, voidInvoiceAction,
+  sendInvoiceAction, recordPaymentAction, voidInvoiceAction, emailInvoiceAction,
 } from "@/lib/accounting/actions";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +62,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               </form>
             )}
             {inv.issueDate && <span className="text-xs text-neutral-500">Issued {fmtDate(inv.issueDate)}{inv.dueDate ? ` · due ${fmtDate(inv.dueDate)}` : ""}</span>}
+            <Link href={`/accounting/invoices/${inv.id}/pdf`} target="_blank" className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">PDF ↓</Link>
+            <form action={emailInvoiceAction}><input type="hidden" name="id" value={inv.id} />
+              <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Email invoice</button>
+            </form>
             <form action={voidInvoiceAction} className="ml-auto flex items-center gap-2">
               <input type="hidden" name="id" value={inv.id} />
               <input name="reason" placeholder="void reason" className={`${inp} w-40`} />

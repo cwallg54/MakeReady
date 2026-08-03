@@ -4,11 +4,25 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { invoices, invoiceLines, payments, numberSeries, orders, quoteLines, businessPartners, activities } from "@/db/schema";
+import { invoices, invoiceLines, payments, numberSeries, orders, quoteLines, businessPartners, contacts, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { refreshInvoice, recomputeAccountBalance } from "./ar";
+import { generateInvoicePdf } from "./invoice-pdf";
+import { generateStatementPdf } from "./statement-pdf";
+import { sendInvoiceEmail, sendStatementEmail } from "@/lib/email";
+import { fmtDate } from "@/lib/format";
+
+/** Primary contact email for a BP, falling back to the BP's own email. */
+async function recipientFor(bpId: string | null): Promise<string> {
+  if (!bpId) return "";
+  const [bp, contact] = await Promise.all([
+    db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId), columns: { email: true } }),
+    db.query.contacts.findFirst({ where: and(eq(contacts.bpId, bpId), eq(contacts.isPrimary, true)), columns: { email: true } }),
+  ]);
+  return contact?.email ?? bp?.email ?? "";
+}
 
 async function requireAccountingEdit() {
   const user = await getCurrentUser();
@@ -190,6 +204,69 @@ export async function recordPaymentAction(formData: FormData): Promise<void> {
   if (invoiceId) revalidatePath(`/accounting/invoices/${invoiceId}`);
   revalidatePath("/accounting/payments");
   revalidatePath("/accounting");
+}
+
+export async function emailInvoiceAction(formData: FormData): Promise<void> {
+  const user = await requireAccountingEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const inv = await db.query.invoices.findFirst({ where: eq(invoices.id, id) });
+  if (!inv || inv.voidedAt) return;
+  // Issue the invoice on first email if it hasn't been issued yet.
+  if (!inv.issueDate) {
+    const due = inv.dueDate ?? new Date(Date.now() + termsDays(inv.terms) * 86_400_000);
+    await db.update(invoices).set({ issueDate: new Date(), dueDate: due, updatedAt: new Date() }).where(eq(invoices.id, id));
+    await refreshInvoice(id);
+  }
+  const to = await recipientFor(inv.bpId);
+  const pdf = await generateInvoicePdf(id);
+  if (pdf && to) {
+    const paidTo = await db.select({ s: sql<string>`COALESCE(SUM(${payments.amount}),0)` }).from(payments).where(eq(payments.invoiceId, id));
+    const balance = Number(inv.total) - Number(paidTo[0]?.s ?? 0);
+    await sendInvoiceEmail(to, inv.invoiceNumber, inv.dueDate ? fmtDate(inv.dueDate) : "", `$${balance.toFixed(2)}`, [{ filename: pdf.filename, content: pdf.base64 }]);
+  }
+  if (inv.bpId) {
+    await db.insert(activities).values({ bpId: inv.bpId, userId: user.id, type: "email", isSystem: true, content: `Invoice ${inv.invoiceNumber} emailed to ${to || "customer (no email on file)"}` });
+    revalidatePath(`/crm/${inv.bpId}`);
+  }
+  await audit({ userId: user.id, action: "invoice.email", entityType: "invoice", entityId: id, metadata: { to } });
+  revalidatePath(`/accounting/invoices/${id}`);
+}
+
+export async function emailStatementAction(formData: FormData): Promise<void> {
+  const user = await requireAccountingEdit();
+  const bpId = String(formData.get("bpId") ?? "");
+  if (!bpId) return;
+  const bp = await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId) });
+  if (!bp) return;
+  const to = await recipientFor(bpId);
+  const pdf = await generateStatementPdf(bpId, new Date());
+  if (pdf && to) {
+    await sendStatementEmail(to, bp.companyName, `$${Number(bp.accountBalance ?? 0).toFixed(2)}`, [{ filename: pdf.filename, content: pdf.base64 }]);
+  }
+  await db.insert(activities).values({ bpId, userId: user.id, type: "email", isSystem: true, content: `Account statement emailed to ${to || "customer (no email on file)"}` });
+  await audit({ userId: user.id, action: "statement.email", entityType: "business_partner", entityId: bpId, metadata: { to } });
+  revalidatePath(`/crm/${bpId}`);
+  revalidatePath(`/accounting/statements/${bpId}`);
+}
+
+/** Finance sets a customer's credit controls (limit, hold, terms). */
+export async function updateCreditControlsAction(formData: FormData): Promise<void> {
+  const user = await requireAccountingEdit();
+  const bpId = String(formData.get("bpId") ?? "");
+  if (!bpId) return;
+  const limitStr = String(formData.get("creditLimit") ?? "").trim();
+  await db.update(businessPartners).set({
+    creditLimit: limitStr ? String(num(formData.get("creditLimit")).toFixed(2)) : null,
+    creditHold: formData.get("creditHold") === "on",
+    creditHoldReason: str(formData.get("creditHoldReason")),
+    paymentTerms: str(formData.get("paymentTerms")),
+    personalGuarantee: formData.get("personalGuarantee") === "on",
+    updatedAt: new Date(),
+  }).where(eq(businessPartners.id, bpId));
+  await audit({ userId: user.id, action: "bp.credit_controls", entityType: "business_partner", entityId: bpId });
+  revalidatePath(`/reports/standard/credit/${bpId}`);
+  revalidatePath(`/crm/${bpId}`);
 }
 
 export async function voidInvoiceAction(formData: FormData): Promise<void> {

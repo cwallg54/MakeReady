@@ -48,6 +48,36 @@ export async function sendOrderEmail(to: string, orderNumber: string, attachment
   );
 }
 
+/** Email an invoice (PDF attachment) to the customer. Returns true if sent. */
+export async function sendInvoiceEmail(to: string, invoiceNumber: string, dueLabel: string, balance: string, attachments: EmailAttachment[]): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Great Mountain West — Invoice ${invoiceNumber}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>Please find invoice <strong>${invoiceNumber}</strong> attached as a PDF. Balance due: <strong>${balance}</strong>${dueLabel ? `, due ${dueLabel}` : ""}.</p>
+       <p>Thank you for your business.</p>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+    attachments,
+  );
+}
+
+/** Email an AR statement (PDF attachment) to the customer. Returns true if sent. */
+export async function sendStatementEmail(to: string, company: string, balance: string, attachments: EmailAttachment[]): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Great Mountain West — Account Statement`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>Attached is the current account statement for <strong>${company}</strong>. Total balance due: <strong>${balance}</strong>.</p>
+       <p>Please contact us with any questions.</p>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+    attachments,
+  );
+}
+
 /** Email a scheduled report (CSV attachment) to its recipients. */
 export async function sendReportEmail(recipients: string[], reportName: string, csvBase64: string, filename: string): Promise<boolean> {
   return sendEmail(

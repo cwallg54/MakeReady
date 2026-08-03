@@ -276,6 +276,19 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !["draft", "sent", "accepted", "rejected", "converted"].includes(status)) return;
+
+  // Credit enforcement: block converting to an order when the customer is on
+  // credit hold or the order would push them over their credit limit. Checked
+  // before the status change so the quote isn't left "converted" with no order.
+  if (status === "converted") {
+    const q = await db.query.quotes.findFirst({ where: eq(quotes.id, id), columns: { bpId: true, total: true } });
+    const bp = q?.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, q.bpId), columns: { creditHold: true, creditLimit: true, accountBalance: true } }) : null;
+    if (bp?.creditHold) redirect(`/sales/quotes/${id}?holderr=hold`);
+    if (bp?.creditLimit != null && Number(bp.creditLimit) > 0 && Number(bp.accountBalance ?? 0) + Number(q?.total ?? 0) > Number(bp.creditLimit)) {
+      redirect(`/sales/quotes/${id}?holderr=limit`);
+    }
+  }
+
   await db
     .update(quotes)
     .set({ status: status as "draft" | "sent" | "accepted" | "rejected" | "converted", updatedAt: new Date() })

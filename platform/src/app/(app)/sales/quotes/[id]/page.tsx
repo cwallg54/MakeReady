@@ -78,9 +78,10 @@ const NEXT_STATUS: Record<string, { to: string; label: string }[]> = {
   converted: [],
 };
 
-export default async function QuoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function QuoteDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ holderr?: string }> }) {
   const user = await requireModule("sales");
   const { id } = await params;
+  const { holderr } = await searchParams;
   const editable = canEdit(user.roles, "sales");
 
   const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, id) });
@@ -180,6 +181,12 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           </div>
         }
       />
+
+      {holderr && (
+        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <span className="font-semibold">Order blocked.</span> {holderr === "hold" ? "This customer is on credit hold — clear the hold in the customer's account before converting." : "This order would exceed the customer's credit limit. Adjust the limit, collect on open invoices, or reduce the order."}
+        </div>
+      )}
 
       {editable && quote.status !== "converted" && (
         <div className="mb-6 rounded-lg border border-neutral-200 bg-white p-4">
