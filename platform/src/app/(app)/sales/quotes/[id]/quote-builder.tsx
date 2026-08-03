@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { priceQuote, resolveUnitPrice, sizeUpcharge, type ChargeRule, type PriceBreak } from "@/lib/sales/pricing";
+import { priceQuote, resolveUnitPrice, sizeUpcharge, type ChargeRule, type PriceBreak, type GarmentLineData } from "@/lib/sales/pricing";
 import { saveQuoteAction } from "@/lib/sales/actions";
+import { GarmentLineCard, priceGarment, type CatalogRefs } from "./garment-lines";
 
 interface Item {
   code: string | null;
@@ -27,7 +28,9 @@ export function QuoteBuilder({
   catalog,
   sizeOptions,
   rules,
+  catalogRefs,
   initialLines,
+  initialGarmentLines,
   initialApplied,
   initialReorder,
   initialDiscount,
@@ -38,7 +41,9 @@ export function QuoteBuilder({
   catalog: Item[];
   sizeOptions: string[];
   rules: ChargeRule[];
+  catalogRefs?: CatalogRefs;
   initialLines: Line[];
+  initialGarmentLines?: GarmentLineData[];
   initialApplied: { key: string; inputQty: number }[];
   initialReorder: boolean;
   initialDiscount: number;
@@ -59,9 +64,14 @@ export function QuoteBuilder({
   const [isReorder, setIsReorder] = useState(initialReorder);
   const [discount, setDiscount] = useState(initialDiscount);
   const [notes, setNotes] = useState(initialNotes);
+  const [garmentLines, setGarmentLines] = useState<GarmentLineData[]>(initialGarmentLines ?? []);
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
 
+  const hasCatalog = !!catalogRefs && catalogRefs.styles.length > 0;
+
+  // priceQuote runs with discount 0; discount is applied once across simple +
+  // garment lines to match the server's authoritative math.
   const priced = useMemo(
     () =>
       priceQuote({
@@ -69,10 +79,39 @@ export function QuoteBuilder({
         rules,
         applied: Object.entries(applied).filter(([, v]) => v.on).map(([key, v]) => ({ key, inputQty: v.inputQty })),
         isReorder,
-        discount,
+        discount: 0,
       }),
-    [lines, rules, applied, isReorder, discount],
+    [lines, rules, applied, isReorder],
   );
+
+  const garmentPrice = useMemo(() => {
+    if (!catalogRefs) return { subtotal: 0, setups: 0 };
+    let subtotal = 0;
+    let setups = 0;
+    for (const g of garmentLines) {
+      const p = priceGarment(g, catalogRefs);
+      subtotal += p.extended;
+      setups += p.setups.reduce((s, x) => s + x.amount, 0);
+    }
+    return { subtotal: round2(subtotal), setups: round2(setups) };
+  }, [garmentLines, catalogRefs]);
+
+  const subtotal = round2(priced.subtotal + garmentPrice.subtotal);
+  const chargesTotal = round2(priced.chargesTotal + garmentPrice.setups);
+  const total = round2(subtotal + chargesTotal - (discount || 0));
+
+  function updateGarment(i: number, patch: Partial<GarmentLineData>) {
+    setGarmentLines((prev) => prev.map((g, idx) => (idx === i ? { ...g, ...patch } : g)));
+    setSaved(false);
+  }
+  function addGarment() {
+    setGarmentLines((prev) => [...prev, { styleId: null, description: "", color: null, colorTier: null, sizeBreakdown: {}, decorations: [] }]);
+    setSaved(false);
+  }
+  function removeGarment(i: number) {
+    setGarmentLines((prev) => prev.filter((_, idx) => idx !== i));
+    setSaved(false);
+  }
 
   function updateLine(i: number, patch: Partial<Line>) {
     setLines((prev) =>
@@ -112,6 +151,7 @@ export function QuoteBuilder({
     startTransition(async () => {
       await saveQuoteAction(quoteId, {
         lines,
+        garmentLines,
         applied: Object.entries(applied).filter(([, v]) => v.on).map(([key, v]) => ({ key, inputQty: v.inputQty })),
         isReorder,
         discount,
@@ -214,6 +254,33 @@ export function QuoteBuilder({
           {catalog.length > 0 && <p className="mt-2 text-xs text-neutral-400">Pick a catalog item to auto-fill its price. Quantity-priced items (e.g. caps) recalculate from the order quantity and chosen size — the unit price is set automatically. Choose “custom” to type a free line.</p>}
         </div>
 
+        {/* Garments (full quoting calculator) */}
+        {hasCatalog && (
+          <div className="rounded-xl border border-neutral-200 bg-white p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-neutral-900">Garments &amp; decoration</h2>
+                <p className="text-xs text-neutral-500">Pick a blank, enter sizes, and add print/embroidery — priced automatically.</p>
+              </div>
+              {editable && <button onClick={addGarment} className="text-sm font-medium text-neutral-700 hover:text-neutral-900">+ Add garment</button>}
+            </div>
+            <div className="space-y-3">
+              {garmentLines.length === 0 && <p className="text-sm text-neutral-400">No garments yet. Click “Add garment” to build a screen-print or embroidery line.</p>}
+              {garmentLines.map((g, i) => (
+                <GarmentLineCard
+                  key={i}
+                  line={g}
+                  refs={catalogRefs!}
+                  editable={editable}
+                  isReorder={isReorder}
+                  onChange={(patch) => updateGarment(i, patch)}
+                  onRemove={() => removeGarment(i)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Charges */}
         {rules.length > 0 && (
           <div className="rounded-xl border border-neutral-200 bg-white p-4">
@@ -251,14 +318,14 @@ export function QuoteBuilder({
             Reorder (affects new-only setup charges)
           </label>
           <div className="mt-4 space-y-1.5 text-sm">
-            <Row label="Subtotal" value={money(priced.subtotal)} />
-            <Row label="Charges" value={money(priced.chargesTotal)} />
+            <Row label="Subtotal" value={money(subtotal)} />
+            <Row label="Charges" value={money(chargesTotal)} />
             <div className="flex items-center justify-between">
               <span className="text-neutral-600">Discount</span>
               <input disabled={!editable} type="number" step="0.01" value={discount || ""} onChange={(e) => { setDiscount(Number(e.target.value)); setSaved(false); }} placeholder="0.00" className={`w-24 text-right ${inputCls}`} />
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-neutral-200 pt-2 text-base font-semibold text-neutral-900">
-              <span>Total</span><span>{money(priced.total)}</span>
+              <span>Total</span><span>{money(total)}</span>
             </div>
           </div>
           {editable && (

@@ -4,13 +4,14 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, businessPartners, contacts } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, businessPartners, contacts, catalogStyles, catalogColors, sizeClasses, decorationMethods, printLocations, embroideryTiers } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { setQuoteStatusAction, setQuoteCustomerAction, deleteQuoteAction } from "@/lib/sales/actions";
 import { uploadQuoteAttachmentsAction, removeQuoteAttachmentAction } from "@/lib/sales/attachment-actions";
-import type { ChargeRule, PriceBreak } from "@/lib/sales/pricing";
+import type { ChargeRule, PriceBreak, GarmentLineData, DecorationInput, MethodRef, SizeEntry } from "@/lib/sales/pricing";
+import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
 
@@ -96,6 +97,41 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
     ? await db.select().from(templateItems).where(eq(templateItems.templateId, template.id)).orderBy(asc(templateItems.sortOrder))
     : [];
 
+  // Full quoting-calculator reference data (blank catalog + decoration config).
+  const [styleRows, colorRows, classRows, methodRows, locationRows, embRows] = await Promise.all([
+    db.select().from(catalogStyles).where(eq(catalogStyles.active, true)).orderBy(asc(catalogStyles.sortOrder), asc(catalogStyles.name)),
+    db.select().from(catalogColors).where(eq(catalogColors.active, true)).orderBy(asc(catalogColors.sortOrder)),
+    db.select().from(sizeClasses).orderBy(asc(sizeClasses.sortOrder)),
+    db.select().from(decorationMethods).where(eq(decorationMethods.active, true)).orderBy(asc(decorationMethods.sortOrder)),
+    db.select().from(printLocations).where(eq(printLocations.active, true)).orderBy(asc(printLocations.sortOrder)),
+    db.select().from(embroideryTiers).where(eq(embroideryTiers.active, true)).orderBy(asc(embroideryTiers.sortOrder)),
+  ]);
+  const colorsByStyle = new Map<string, { name: string; tierCode: string | null; hex: string | null }[]>();
+  for (const c of colorRows) {
+    const arr = colorsByStyle.get(c.styleId) ?? [];
+    arr.push({ name: c.name, tierCode: c.tierCode, hex: c.hex });
+    colorsByStyle.set(c.styleId, arr);
+  }
+  const catalogRefs: CatalogRefs = {
+    styles: styleRows.map((s) => ({ id: s.id, name: s.name, brand: s.brand, styleNumber: s.styleNumber, basePrice: Number(s.basePrice), sizeClassCode: s.sizeClassCode, colors: colorsByStyle.get(s.id) ?? [] })),
+    sizeClassByCode: Object.fromEntries(classRows.map((c) => [c.code, (c.sizes as SizeEntry[] | null) ?? []])),
+    methods: methodRows.map((m) => ({ code: m.code, name: m.name, priceMode: m.priceMode, pricing: (m.pricing as MethodRef["pricing"]) ?? null })),
+    locations: locationRows.map((l) => ({ code: l.code, name: l.name })),
+    embTiers: embRows.map((e) => ({ code: e.code, name: e.name, pricePerUnit: Number(e.pricePerUnit) })),
+  };
+
+  // Split saved lines: garment lines carry a styleId or decorations; the rest are simple.
+  const isGarment = (l: typeof lines[number]) => !!l.styleId || (Array.isArray(l.decorations) && (l.decorations as unknown[]).length > 0) || (l.sizeBreakdown != null && Object.keys(l.sizeBreakdown as object).length > 0);
+  const simpleLines = lines.filter((l) => !isGarment(l));
+  const garmentLineData: GarmentLineData[] = lines.filter(isGarment).map((l) => ({
+    styleId: l.styleId,
+    description: l.description,
+    color: l.color,
+    colorTier: l.colorTier,
+    sizeBreakdown: (l.sizeBreakdown as Record<string, number> | null) ?? {},
+    decorations: (l.decorations as DecorationInput[] | null) ?? [],
+  }));
+
   // Recipient for the mailto: primary contact email, else the BP's email.
   const primaryContact = quote.bpId
     ? await db.query.contacts.findFirst({ where: and(eq(contacts.bpId, quote.bpId), eq(contacts.isPrimary, true)) })
@@ -173,8 +209,10 @@ export default async function QuoteDetailPage({ params }: { params: Promise<{ id
           sizeUpcharges: (c.sizeUpcharges as Record<string, number> | null) ?? null,
         }))}
         rules={rules}
-        initialLines={lines.map((l) => ({ itemCode: l.itemCode ?? undefined, description: l.description, size: l.size ?? undefined, qty: l.qty, unitPrice: Number(l.unitPrice) }))}
-        initialApplied={charges.map((c) => ({ key: c.key, inputQty: Number(c.inputQty) }))}
+        catalogRefs={catalogRefs}
+        initialLines={simpleLines.map((l) => ({ itemCode: l.itemCode ?? undefined, description: l.description, size: l.size ?? undefined, qty: l.qty, unitPrice: Number(l.unitPrice) }))}
+        initialGarmentLines={garmentLineData}
+        initialApplied={charges.filter((c) => !c.key.startsWith("deco-")).map((c) => ({ key: c.key, inputQty: Number(c.inputQty) }))}
         initialReorder={quote.isReorder}
         initialDiscount={Number(quote.discount)}
         initialNotes={quote.notes ?? ""}

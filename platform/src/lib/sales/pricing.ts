@@ -132,6 +132,16 @@ export interface DecorationInput {
   stitchTier?: string; // embroidery_tiers.code, for stitch methods
 }
 
+/** A full garment quote line as sent from the builder / persisted on a quote. */
+export interface GarmentLineData {
+  styleId?: string | null;
+  description: string;
+  color?: string | null;
+  colorTier?: string | null;
+  sizeBreakdown: Record<string, number>;
+  decorations: DecorationInput[];
+}
+
 /** A method resolved with its price mode + rate config. */
 export interface MethodRef {
   code: string;
