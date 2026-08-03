@@ -457,6 +457,109 @@ export const templateItems = pgTable(
   (t) => [index("template_items_template_id_idx").on(t.templateId)],
 );
 
+// ---- Product catalog & decoration pricing ---------------------------------
+// Admin-managed reference data that powers the full quoting calculator: a blank
+// garment catalog (style -> color) plus the decoration methods, print
+// locations, color tiers, size classes, and embroidery tiers that drive
+// screen-print / apparel pricing. Codes (not ids) are referenced from quote
+// lines so they stay stable and human-readable.
+
+// A decoration method (Silk Screen, DTF, Foil, Softhand, Embroidery). `pricing`
+// holds the method's rate config (see DecorationPricing in lib/sales/pricing).
+export const decorationMethods = pgTable("decoration_methods", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  // "per_color" (screen/DTF/etc.) or "stitch" (embroidery, priced by tier).
+  priceMode: text("price_mode").notNull().default("per_color"),
+  pricing: jsonb("pricing"), // DecorationPricing
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// A numbered print/decoration placement (Full Front, Left Chest, Sleeve, ...).
+export const printLocations = pgTable("print_locations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// Garment color tier (white / light / dark) — dark garments take an underbase
+// upcharge on silk-screen (see decoration_methods.pricing.darkUpchargePerUnit).
+export const colorTiers = pgTable("color_tiers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+// Embroidery price tier by stitch count (A/B/C/LC): applies when a decoration's
+// method is priced "stitch". `maxStitches` bounds the tier; `pricePerUnit` is
+// the per-garment run price.
+export const embroideryTiers = pgTable("embroidery_tiers", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  maxStitches: integer("max_stitches").notNull().default(0),
+  pricePerUnit: numeric("price_per_unit", { precision: 12, scale: 2 }).notNull().default("0"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+// A garment size class (Youth, Adult, Ladies, ...). `sizes` is an ordered list
+// of { size, upcharge } added to a style's base price for that size.
+export const sizeClasses = pgTable("size_classes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  sizes: jsonb("sizes"), // { size: string; upcharge: number }[]
+  sortOrder: integer("sort_order").notNull().default(0),
+  active: boolean("active").notNull().default(true),
+});
+
+// A blank garment style (Gildan 5000, Bella+Canvas 3001, ...). `basePrice` is
+// GMW's fixed sell base (Adult standard); size upcharges come from the size
+// class. supplierCost is optional and used only for margin display.
+export const catalogStyles = pgTable(
+  "catalog_styles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    brand: text("brand"),
+    styleNumber: text("style_number"),
+    name: text("name").notNull(),
+    description: text("description"),
+    category: text("category"),
+    sizeClassCode: text("size_class_code"), // references color/size class by code
+    basePrice: numeric("base_price", { precision: 12, scale: 2 }).notNull().default("0"),
+    supplierCost: numeric("supplier_cost", { precision: 12, scale: 2 }),
+    imageBase64: text("image_base64"),
+    imageMimeType: text("image_mime_type"),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("catalog_styles_name_idx").on(t.name)],
+);
+
+// A color offered for a style, tagged to a color tier (drives underbase).
+export const catalogColors = pgTable(
+  "catalog_colors",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    styleId: uuid("style_id")
+      .notNull()
+      .references(() => catalogStyles.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    tierCode: text("tier_code"), // references color_tiers.code
+    hex: text("hex"),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("catalog_colors_style_id_idx").on(t.styleId)],
+);
+
 export const quotes = pgTable(
   "quotes",
   {
@@ -492,6 +595,15 @@ export const quoteLines = pgTable(
     qty: integer("qty").notNull().default(0),
     unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull().default("0"),
     extended: numeric("extended", { precision: 12, scale: 2 }).notNull().default("0"),
+    // Full quoting-calculator line: chosen blank garment, its color + tier, the
+    // per-size quantity breakdown, and the decorations applied. Null on plain
+    // catalog/custom lines. `unitPrice`/`extended` remain the source of truth for
+    // totals; these carry the spec into the order/PDF.
+    styleId: uuid("style_id").references(() => catalogStyles.id, { onDelete: "set null" }),
+    color: text("color"),
+    colorTier: text("color_tier"),
+    sizeBreakdown: jsonb("size_breakdown"), // Record<size, qty>
+    decorations: jsonb("decorations"), // DecorationInput[]
     sortOrder: integer("sort_order").notNull().default(0),
   },
   (t) => [index("quote_lines_quote_id_idx").on(t.quoteId)],
@@ -591,6 +703,13 @@ export const automationEnrollments = pgTable(
 
 export type OrderFormTemplate = typeof orderFormTemplates.$inferSelect;
 export type TemplateItem = typeof templateItems.$inferSelect;
+export type DecorationMethod = typeof decorationMethods.$inferSelect;
+export type PrintLocation = typeof printLocations.$inferSelect;
+export type ColorTier = typeof colorTiers.$inferSelect;
+export type EmbroideryTier = typeof embroideryTiers.$inferSelect;
+export type SizeClass = typeof sizeClasses.$inferSelect;
+export type CatalogStyle = typeof catalogStyles.$inferSelect;
+export type CatalogColor = typeof catalogColors.$inferSelect;
 export type Quote = typeof quotes.$inferSelect;
 export type QuoteLine = typeof quoteLines.$inferSelect;
 export type QuoteCharge = typeof quoteCharges.$inferSelect;

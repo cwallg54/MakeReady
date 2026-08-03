@@ -183,6 +183,13 @@
       "when": 1785533842776,
       "tag": "0025_fine_xorn",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1785772230771,
+      "tag": "0026_loose_purifiers",
+      "breakpoints": true
     }
   ]
 }
