@@ -36,6 +36,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "sales-automations", label: "Automations", href: "/sales/automations", phase1: true },
       { key: "sales-calendar", label: "Calendar", href: "/calendar", phase1: true },
     ],
+    accounting: [
+      { key: "acct-invoices", label: "Invoices", href: "/accounting/invoices", phase1: true },
+      { key: "acct-payments", label: "Payments", href: "/accounting/payments", phase1: true },
+      { key: "acct-aging", label: "AR Aging", href: "/accounting/aging", phase1: true },
+    ],
   };
 
   // The Operations group (Art, Production, Inventory) is rendered as a custom

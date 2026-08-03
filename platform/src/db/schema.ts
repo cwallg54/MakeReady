@@ -200,6 +200,9 @@ export const stockReasonEnum = pgEnum("stock_reason", ["receive", "consume", "ad
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
+// AR invoice lifecycle: draft -> sent -> (partial ->) paid, or void.
+export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "partial", "paid", "void"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["check", "ach", "card", "cash", "credit", "other"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -776,6 +779,69 @@ export const historicalOrders = pgTable(
   (t) => [index("historical_orders_bp_id_idx").on(t.bpId), index("historical_orders_bp_date_idx").on(t.bpId, t.docDate)],
 );
 export type HistoricalOrder = typeof historicalOrders.$inferSelect;
+
+// ---- Accounting: Accounts Receivable (invoicing + payments) ----------------
+
+export const invoices = pgTable(
+  "invoices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invoiceNumber: text("invoice_number").notNull().unique(),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    // The order this invoice bills, when raised from one (else standalone).
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    status: invoiceStatusEnum("status").notNull().default("draft"),
+    issueDate: timestamp("issue_date", { withTimezone: true }),
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    terms: text("terms"), // e.g. "Net 30"
+    subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
+    discount: numeric("discount", { precision: 14, scale: 2 }).notNull().default("0"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("invoices_bp_id_idx").on(t.bpId), index("invoices_status_idx").on(t.status)],
+);
+
+export const invoiceLines = pgTable(
+  "invoice_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invoiceId: uuid("invoice_id").notNull().references(() => invoices.id, { onDelete: "cascade" }),
+    description: text("description").notNull(),
+    qty: integer("qty").notNull().default(1),
+    unitPrice: numeric("unit_price", { precision: 14, scale: 2 }).notNull().default("0"),
+    extended: numeric("extended", { precision: 14, scale: 2 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("invoice_lines_invoice_id_idx").on(t.invoiceId)],
+);
+
+// A customer payment. Applied to one invoice, or left on-account (invoiceId null).
+export const payments = pgTable(
+  "payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    invoiceId: uuid("invoice_id").references(() => invoices.id, { onDelete: "set null" }),
+    method: paymentMethodEnum("method").notNull().default("check"),
+    reference: text("reference"), // check #, ACH trace, card last4, etc.
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    receivedDate: timestamp("received_date", { withTimezone: true }).notNull().defaultNow(),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("payments_bp_id_idx").on(t.bpId), index("payments_invoice_id_idx").on(t.invoiceId)],
+);
+
+export type Invoice = typeof invoices.$inferSelect;
+export type InvoiceLine = typeof invoiceLines.$inferSelect;
+export type Payment = typeof payments.$inferSelect;
 
 // Stage-change timeline (drives per-stage timestamps on the tracker).
 export const orderEvents = pgTable(

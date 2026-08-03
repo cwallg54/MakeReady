@@ -4,7 +4,8 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts, users, userRoles } from "@/db/schema";
+import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts, users, userRoles, invoices } from "@/db/schema";
+import { createInvoiceFromOrderAction } from "@/lib/accounting/actions";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { fmtDateTime } from "@/lib/format";
@@ -50,6 +51,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     .where(and(eq(users.status, "active"), inArray(userRoles.role, ["sales_rep", "sales_manager", "admin"])))
     .orderBy(asc(users.name));
 
+  // Accounts-receivable: whether this user can invoice, and any existing invoice.
+  const canInvoice = canEdit(user.roles, "accounting");
+  const existingInvoice = canInvoice ? await db.query.invoices.findFirst({ where: eq(invoices.orderId, id), columns: { id: true, invoiceNumber: true, status: true } }) : null;
+
   const base = process.env.APP_URL ?? "https://makeready.g54.com";
   const trackUrl = `${base}/track/${order.publicToken}`;
 
@@ -77,6 +82,25 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </Card>
 
       <OrderInfoCard order={order} reps={repRows} editable={canAct} />
+
+      {canInvoice && !voided && (
+        <Card className="mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-neutral-900">Invoicing</h2>
+              <p className="text-xs text-neutral-500">{existingInvoice ? `Invoice ${existingInvoice.invoiceNumber} (${existingInvoice.status}) has been raised for this order.` : "Bill this order — the quoted lines are copied onto a new invoice."}</p>
+            </div>
+            {existingInvoice ? (
+              <Link href={`/accounting/invoices/${existingInvoice.id}`} className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50">View invoice →</Link>
+            ) : (
+              <form action={createInvoiceFromOrderAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Create invoice →</button>
+              </form>
+            )}
+          </div>
+        </Card>
+      )}
 
       {canAct && (
         <Card className="mb-6">

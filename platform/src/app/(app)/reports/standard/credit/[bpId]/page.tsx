@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
 import { canBuildReports } from "@/lib/reports/sources";
 import { PageHeader, Card } from "@/components/ui";
-import { getCreditData } from "@/lib/reports/standard-data";
+import { getCreditData, getCreditAR } from "@/lib/reports/standard-data";
 import { fmtDate } from "@/lib/format";
 import { money2, daysUntil, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
 
@@ -23,11 +23,13 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
   if (!canBuildReports(user.roles)) redirect("/reports");
   const { bpId } = await params;
   const now = new Date();
-  const data = await getCreditData(bpId, now);
+  const [data, ar] = await Promise.all([getCreditData(bpId, now), getCreditAR(bpId, now)]);
   if (!data) notFound();
   const { bp, contactName, billing, groupName, repName, salesBuckets, openOrders, openOrdersTotal, activity } = data;
 
-  const availableCredit = bp.creditLimit != null ? Number(bp.creditLimit) - Number(bp.accountBalance ?? 0) : null;
+  const availableCredit = bp.creditLimit != null ? Number(bp.creditLimit) - ar.totalAR : null;
+  const histApa = bp.historicalApa ?? ar.historicalApa;
+  const twoApa = bp.twoYearApa ?? ar.twoYearApa;
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -49,13 +51,13 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <Field label="Terms" value={bp.paymentTerms} />
           <Field label="Credit Limit" value={bp.creditLimit != null ? money2(Number(bp.creditLimit)) : null} />
-          <Field label="Account Balance" value={bp.accountBalance != null ? money2(Number(bp.accountBalance)) : null} />
+          <Field label="AR Balance" value={money2(ar.totalAR)} />
           <Field label="Available Credit" value={availableCredit != null ? money2(availableCredit) : null} />
           <Field label="On Credit Hold" value={bp.creditHold ? "Yes" : "No"} />
           <Field label="Personal Guarantee" value={bp.personalGuarantee ? "Yes" : "No"} />
           <Field label="Customer Since" value={bp.customerSince ? fmtDate(bp.customerSince) : null} />
-          <Field label="Historical APA" value={bp.historicalApa != null ? `${bp.historicalApa} days` : null} />
-          <Field label="Two-Year APA" value={bp.twoYearApa != null ? `${bp.twoYearApa} days` : null} />
+          <Field label="Historical APA" value={histApa != null ? `${histApa} days` : null} />
+          <Field label="Two-Year APA" value={twoApa != null ? `${twoApa} days` : null} />
           <Field label="Sales Rep" value={repName} />
           <Field label="Territory" value={bp.territory} />
           <Field label="Account Group" value={groupName} />
@@ -120,10 +122,53 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
         )}
       </Card>
 
-      {/* AR sections — populate once the invoicing/AR module ships */}
+      {/* Open invoices + aging */}
+      <Card className="overflow-x-auto">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-neutral-900">Open Invoices</h2>
+          <span className="text-sm font-semibold text-neutral-900 tabular-nums">{money2(ar.totalAR)}</span>
+        </div>
+        {ar.openInvoices.length === 0 ? (
+          <p className="text-sm text-neutral-400">No open invoices.</p>
+        ) : (
+          <>
+            <table className="w-full min-w-[560px] text-xs">
+              <thead><tr className="border-b border-neutral-200 text-left text-[10px] uppercase tracking-wide text-neutral-400"><th className="px-2 py-1">Invoice</th><th className="px-2 py-1">Issued</th><th className="px-2 py-1">Due</th><th className="px-2 py-1">Aging</th><th className="px-2 py-1 text-right">Total</th><th className="px-2 py-1 text-right">Balance</th></tr></thead>
+              <tbody>
+                {ar.openInvoices.map((i) => (
+                  <tr key={i.id} className="border-b border-neutral-50">
+                    <td className="px-2 py-1"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link></td>
+                    <td className="px-2 py-1 text-neutral-500">{i.issueDate ? fmtDate(i.issueDate) : "—"}</td>
+                    <td className="px-2 py-1 text-neutral-500">{i.dueDate ? fmtDate(i.dueDate) : "—"}</td>
+                    <td className={`px-2 py-1 ${i.bucket === "90+" ? "font-semibold text-red-600" : "text-neutral-500"}`}>{i.bucket}</td>
+                    <td className="px-2 py-1 text-right tabular-nums text-neutral-600">{money2(i.total)}</td>
+                    <td className="px-2 py-1 text-right tabular-nums font-medium text-neutral-900">{money2(i.balance)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-3 flex flex-wrap gap-4 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
+              {ar.agingBuckets.map((b) => <span key={b}>{b}: <span className="font-medium text-neutral-800 tabular-nums">{money2(ar.aging[b])}</span></span>)}
+            </div>
+          </>
+        )}
+      </Card>
+
+      {/* Payments */}
       <Card>
-        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Open Invoices, Deliveries &amp; Payments</h2>
-        <p className="text-sm text-neutral-400">Detailed AR aging appears here once the invoicing/AR module is live. Current account balance: <span className="font-medium text-neutral-700">{bp.accountBalance != null ? money2(Number(bp.accountBalance)) : "—"}</span>.</p>
+        <h2 className="mb-3 text-sm font-semibold text-neutral-900">Recent Payments</h2>
+        {ar.payments.length === 0 ? (
+          <p className="text-sm text-neutral-400">No payments recorded.</p>
+        ) : (
+          <ul className="space-y-1 text-sm">
+            {ar.payments.map((p) => (
+              <li key={p.id} className="flex items-center justify-between">
+                <span className="text-neutral-600">{fmtDate(p.date)} · <span className="capitalize">{p.method}</span>{p.invoiceNumber ? ` · ${p.invoiceNumber}` : " · on account"}</span>
+                <span className="font-medium tabular-nums text-emerald-700">{money2(p.amount)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
 
       {/* Collection activity */}

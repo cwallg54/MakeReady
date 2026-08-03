@@ -1,8 +1,9 @@
 import "server-only";
 import { and, asc, desc, eq, gte, isNull, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, historicalOrders, businessPartners, users, contacts, bpAddresses, activities, accountGroups } from "@/db/schema";
+import { orders, historicalOrders, businessPartners, users, contacts, bpAddresses, activities, accountGroups, invoices, payments } from "@/db/schema";
 import { fiscalYearOf, fiscalMonthIndex, ymInDenver } from "./standard";
+import { agingBucket, AGING_BUCKETS, type AgingBucket } from "@/lib/accounting/ar";
 
 // ---------------------------------------------------------------------------
 // Sales Analysis by Salesperson & Customer
@@ -205,6 +206,48 @@ export interface CreditOpenOrder {
   amount: number;
 }
 export interface CreditActivity { id: string; date: Date; author: string; content: string }
+export interface CreditOpenInvoice { id: string; invoiceNumber: string; issueDate: Date | null; dueDate: Date | null; total: number; balance: number; bucket: AgingBucket }
+export interface CreditPayment { id: string; date: Date; amount: number; method: string; reference: string | null; invoiceNumber: string | null }
+
+/**
+ * Real AR detail for the Customer Credit Report: open invoices with aging,
+ * total balance, recent payments, and average pay age (historical / two-year).
+ */
+export async function getCreditAR(bpId: string, now: Date) {
+  const [invRows, payRows] = await Promise.all([
+    db.select({ id: invoices.id, invoiceNumber: invoices.invoiceNumber, issueDate: invoices.issueDate, dueDate: invoices.dueDate, total: invoices.total }).from(invoices).where(and(eq(invoices.bpId, bpId), isNull(invoices.voidedAt))).orderBy(asc(invoices.dueDate)),
+    db.select({ id: payments.id, amount: payments.amount, date: payments.receivedDate, method: payments.method, reference: payments.reference, invoiceId: payments.invoiceId, invoiceNumber: invoices.invoiceNumber, issueDate: invoices.issueDate }).from(payments).leftJoin(invoices, eq(payments.invoiceId, invoices.id)).where(eq(payments.bpId, bpId)).orderBy(desc(payments.receivedDate)),
+  ]);
+
+  const paidByInvoice = new Map<string, number>();
+  for (const p of payRows) if (p.invoiceId) paidByInvoice.set(p.invoiceId, (paidByInvoice.get(p.invoiceId) ?? 0) + Number(p.amount));
+
+  const aging: Record<AgingBucket, number> = { current: 0, "1-30": 0, "31-60": 0, "61-90": 0, "90+": 0 };
+  const openInvoices: CreditOpenInvoice[] = [];
+  let totalAR = 0;
+  for (const inv of invRows) {
+    const balance = Number(inv.total) - (paidByInvoice.get(inv.id) ?? 0);
+    if (balance <= 0.005) continue;
+    const bucket = agingBucket(inv.dueDate, now);
+    aging[bucket] += balance;
+    totalAR += balance;
+    openInvoices.push({ id: inv.id, invoiceNumber: inv.invoiceNumber, issueDate: inv.issueDate, dueDate: inv.dueDate, total: Number(inv.total), balance, bucket });
+  }
+
+  // Average pay age = days from invoice issue to payment, over trailing windows.
+  const payAges = payRows
+    .filter((p) => p.issueDate)
+    .map((p) => ({ age: Math.max(0, Math.round((p.date.getTime() - p.issueDate!.getTime()) / 86_400_000)), date: p.date }));
+  const avg = (days: number) => {
+    const cutoff = now.getTime() - days * 86_400_000;
+    const xs = payAges.filter((p) => p.date.getTime() >= cutoff).map((p) => p.age);
+    return xs.length ? Math.round(xs.reduce((s, x) => s + x, 0) / xs.length) : null;
+  };
+
+  const paymentList: CreditPayment[] = payRows.slice(0, 12).map((p) => ({ id: p.id, date: p.date, amount: Number(p.amount), method: p.method, reference: p.reference, invoiceNumber: p.invoiceNumber ?? null }));
+
+  return { openInvoices, totalAR, aging, agingBuckets: AGING_BUCKETS, payments: paymentList, historicalApa: avg(365), twoYearApa: avg(730) };
+}
 
 export async function getCreditData(bpId: string, now: Date) {
   const bp = await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId) });
