@@ -230,20 +230,26 @@ function hashToken(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
 }
 
+/** Minutes an invite (new-user set-password) link stays valid — 7 days. */
+export const INVITE_TTL_MINUTES = 7 * 24 * 60;
+
 /**
  * Create a password-reset token for the email if a matching active user exists.
  * Always returns without revealing existence. Returns the raw token+url when a
  * link was created (so the caller can send/deliver it); null otherwise.
+ * `ttlMinutes` defaults to 1 hour for security resets; new-user invites pass
+ * INVITE_TTL_MINUTES so the set-password link lasts a week.
  */
 export async function createPasswordReset(
   email: string,
+  ttlMinutes = 60,
 ): Promise<{ url: string; email: string } | null> {
   const normalized = email.trim().toLowerCase();
   const user = await db.query.users.findFirst({ where: eq(users.email, normalized) });
   if (!user || user.status !== "active") return null;
 
   const raw = randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 60 * 60_000); // 1 hour
+  const expiresAt = new Date(Date.now() + ttlMinutes * 60_000);
   await db.insert(passwordResetTokens).values({
     userId: user.id,
     tokenHash: hashToken(raw),

@@ -18,7 +18,7 @@ import {
   type Role,
 } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
-import { createPasswordReset } from "@/lib/auth/service";
+import { createPasswordReset, INVITE_TTL_MINUTES } from "@/lib/auth/service";
 import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/email";
 import { audit } from "@/lib/audit";
 
@@ -77,7 +77,8 @@ export async function createUserAction(_prev: AdminState, formData: FormData): P
   });
 
   // Send the new user a welcome email with set-password + sign-in instructions.
-  const link = await createPasswordReset(parsed.data.email);
+  // Invite links last 7 days (INVITE_TTL_MINUTES), not the 1-hour reset default.
+  const link = await createPasswordReset(parsed.data.email, INVITE_TTL_MINUTES);
   const loginUrl = `${process.env.APP_URL ?? ""}/login`;
   if (link) await sendWelcomeEmail(link.email, parsed.data.name, link.url, loginUrl);
 

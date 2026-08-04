@@ -61,7 +61,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       },
       { k: "tip", text: "Only one device stays signed in at a time. Signing in somewhere new automatically signs you out everywhere else." },
       { k: "h", text: "Your first login" },
-      { k: "p", text: "New accounts are created without a password. You'll receive a welcome email with a secure link to set one — the link expires in one hour. After you set it, and any time an administrator requires it, you'll land on the \"Update your password\" screen and must choose a new password before continuing. Passwords need at least 10 characters, with an uppercase letter, a lowercase letter, and a number." },
+      { k: "p", text: "New accounts are created without a password. You'll receive a welcome email with a secure link to set one — the link is good for seven days. After you set it, and any time an administrator requires it, you'll land on the \"Update your password\" screen and must choose a new password before continuing. Passwords need at least 10 characters, with an uppercase letter, a lowercase letter, and a number." },
       { k: "h", text: "Forgot your password" },
       {
         k: "steps",
@@ -788,7 +788,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         k: "steps",
         items: [
           { text: "Under \"Add a user\", enter the person's full name and email, and tick at least one role.", img: "admin-user-edit.png", caption: "Editing a user's roles." },
-          { text: "Click \"Create user & send invite\". They receive an email link to set their password (valid one hour) and must choose one on first sign-in." },
+          { text: "Click \"Create user & send invite\". They receive an email link to set their password (valid seven days) and must choose one on first sign-in." },
         ],
       },
       { k: "h", text: "The six roles" },

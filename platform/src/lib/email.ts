@@ -176,7 +176,7 @@ export async function sendWelcomeEmail(
     `<div style="font-family:system-ui,sans-serif;max-width:520px">
        <h2>Welcome to MakeReady${name ? `, ${name}` : ""}</h2>
        <p>An account has been created for you on <strong>MakeReady by G54</strong>, the production platform for commercial print &amp; production.</p>
-       <p><strong>1.</strong> Set your password using the secure link below (expires in 1 hour):</p>
+       <p><strong>1.</strong> Set your password using the secure link below (expires in 7 days):</p>
        <p><a href="${setPasswordUrl}" style="display:inline-block;background:#111;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Set your password</a></p>
        <p><strong>2.</strong> Then sign in any time at <a href="${loginUrl}">${loginUrl}</a> with your email (<strong>${to}</strong>) and the password you chose.</p>
        <p style="color:#666;font-size:13px">If the button link expires, use “Forgot password?” on the sign-in page to get a new one.</p>
