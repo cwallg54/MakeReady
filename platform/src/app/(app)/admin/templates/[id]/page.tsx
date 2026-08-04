@@ -78,12 +78,12 @@ export default async function TemplateEditPage({ params }: { params: Promise<{ i
               <form action={updateItemAction} className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[1fr_90px_80px_80px_auto]">
                 <input type="hidden" name="id" value={t.id} />
                 <input type="hidden" name="itemId" value={it.id} />
-                <span className="text-sm text-neutral-800">{it.name}{it.code ? <span className="text-neutral-400"> · {it.code}</span> : null}</span>
-                <input name="supplierCost" type="number" step="0.01" defaultValue={Number(it.supplierCost)} className={input} />
-                <input name="markupPct" type="number" step="0.01" defaultValue={it.markupPct === null ? "" : Number(it.markupPct)} placeholder="dflt" className={input} />
-                <span className="text-sm font-medium text-neutral-900">${Number(it.unitPrice).toFixed(2)}</span>
-                <span className="flex gap-2">
-                  <button className="text-xs text-neutral-600 hover:text-neutral-900">Save</button>
+                <span className="col-span-2 text-sm font-medium text-neutral-800 sm:col-span-1 sm:font-normal">{it.name}{it.code ? <span className="text-neutral-400"> · {it.code}</span> : null}</span>
+                <input name="supplierCost" type="number" step="0.01" defaultValue={Number(it.supplierCost)} placeholder="Cost $" className={input} />
+                <input name="markupPct" type="number" step="0.01" defaultValue={it.markupPct === null ? "" : Number(it.markupPct)} placeholder="Markup %" className={input} />
+                <span className="text-sm font-medium text-neutral-900"><span className="text-xs text-neutral-400 sm:hidden">Sell </span>${Number(it.unitPrice).toFixed(2)}</span>
+                <span className="flex justify-end gap-2">
+                  <button className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 sm:border-0 sm:px-0 sm:py-0 sm:text-neutral-600 sm:hover:bg-transparent sm:hover:text-neutral-900">Save</button>
                 </span>
               </form>
               <ItemPricingEditor
