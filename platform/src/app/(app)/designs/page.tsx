@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/guards";
 import { canDoArt } from "@/lib/art/access";
@@ -28,12 +28,13 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
   if (q) cond.push(or(ilike(designItems.itemNumber, `%${q}%`), ilike(designItems.description, `%${q}%`), ilike(designItems.custNumber, `%${q}%`), ilike(designItems.designBase, `%${q}%`)) as SQL);
   const where = cond.length ? and(...cond) : undefined;
 
-  const [items, [{ total }], [{ exN }]] = await Promise.all([
+  const [items, [{ total }], [{ exN }], [{ unmatchedN }]] = await Promise.all([
     db.select({ id: designItems.id, itemNumber: designItems.itemNumber, catalog: designItems.catalog, custNumber: designItems.custNumber, description: designItems.description, status: designItems.status, isException: designItems.isException, archived: designItems.archived, company: businessPartners.companyName })
       .from(designItems).leftJoin(businessPartners, eq(designItems.bpId, businessPartners.id))
       .where(where).orderBy(desc(designItems.createdAt)).limit(PAGE).offset((page - 1) * PAGE),
     db.select({ total: count() }).from(designItems).where(where),
     db.select({ exN: count() }).from(designItems).where(and(eq(designItems.isException, true), eq(designItems.archived, false))),
+    db.select({ unmatchedN: sql<number>`count(distinct ${designItems.custNumber})::int` }).from(designItems).where(and(sql`${designItems.bpId} is null`, sql`${designItems.custNumber} is not null and ${designItems.custNumber} <> '' and ${designItems.custNumber} <> 'NEW'`, eq(designItems.archived, false))),
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE));
   const qs = (p: number) => { const s = new URLSearchParams(); if (q) s.set("q", q); if (catalog) s.set("catalog", catalog); if (showArchived) s.set("archived", "1"); if (p > 1) s.set("page", String(p)); return `/designs?${s.toString()}`; };
@@ -46,6 +47,7 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/designs/barcodes" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Barcodes</Link>
+            <Link href="/designs/reconcile" className={`rounded-md border px-3 py-2 text-sm font-medium ${unmatchedN > 0 ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100" : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"}`}>Reconcile{unmatchedN > 0 ? ` (${unmatchedN.toLocaleString()})` : ""}</Link>
             <Link href="/designs/exceptions" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Exceptions{exN > 0 ? ` (${exN})` : ""}</Link>
             <Link href="/designs/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">+ New design</Link>
           </div>

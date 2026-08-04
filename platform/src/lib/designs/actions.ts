@@ -2,9 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { baseDesigns, designItems, designBrands, designSuffixes, inventoryItems, numberSeries } from "@/db/schema";
+import { baseDesigns, designItems, designBrands, designSuffixes, inventoryItems, numberSeries, businessPartners } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { isAdmin } from "@/lib/rbac";
@@ -186,6 +186,29 @@ export async function activateDesignItemAction(formData: FormData): Promise<void
 }
 
 // ---- Reference config (brands + suffixes) ---------------------------------
+
+/**
+ * Reconcile an unmatched customer number: link every design (and its barcodes)
+ * carrying that CustNum to a chosen customer. Optionally backfill the customer's
+ * legacy code so future imports match automatically.
+ */
+export async function linkCustomerNumberAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const custNumber = str(formData.get("custNumber"))?.toUpperCase();
+  const bpId = str(formData.get("bpId"));
+  if (!custNumber || !bpId) return;
+
+  await db.update(designItems).set({ bpId, updatedAt: new Date() }).where(and(eq(designItems.custNumber, custNumber), isNull(designItems.bpId)));
+
+  // Backfill the legacy code (C + custNumber) if the account has none, so a
+  // re-import of the book matches this customer without manual linking.
+  const bp = await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId), columns: { legacyCode: true } });
+  if (bp && !bp.legacyCode) {
+    await db.update(businessPartners).set({ legacyCode: `C${custNumber}`, updatedAt: new Date() }).where(eq(businessPartners.id, bpId)).catch(() => {});
+  }
+  await audit({ userId: user.id, action: "design.link_customer", entityType: "business_partner", entityId: bpId, metadata: { custNumber } });
+  revalidatePath("/designs/reconcile");
+}
 
 export async function addSuffixAction(formData: FormData): Promise<void> {
   const user = await getCurrentUser();
