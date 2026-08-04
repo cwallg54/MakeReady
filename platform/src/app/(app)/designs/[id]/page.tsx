@@ -3,10 +3,10 @@ import { eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/guards";
 import { canDoArt } from "@/lib/art/access";
+import { or } from "drizzle-orm";
 import { db } from "@/db";
-import { designItems, baseDesigns, businessPartners } from "@/db/schema";
+import { designItems, baseDesigns, businessPartners, designBarcodes } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
-import { fmtDateTime } from "@/lib/format";
 import { activateDesignItemAction } from "@/lib/designs/actions";
 
 export const dynamic = "force-dynamic";
@@ -20,9 +20,10 @@ export default async function DesignItemPage({ params, searchParams }: { params:
   const { err } = await searchParams;
   const item = await db.query.designItems.findFirst({ where: eq(designItems.id, id) });
   if (!item) notFound();
-  const [base, bp] = await Promise.all([
+  const [base, bp, barcodes] = await Promise.all([
     item.baseDesignId ? db.query.baseDesigns.findFirst({ where: eq(baseDesigns.id, item.baseDesignId) }) : Promise.resolve(undefined),
     item.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, item.bpId) }) : Promise.resolve(undefined),
+    db.select().from(designBarcodes).where(or(eq(designBarcodes.designItemId, id), eq(designBarcodes.designNumber, item.itemNumber))).limit(50),
   ]);
   const isDraft = item.status !== "active";
 
@@ -52,16 +53,40 @@ export default async function DesignItemPage({ params, searchParams }: { params:
           )}
         </Card>
         <Card className="sm:col-span-2">
-          <dl className="grid grid-cols-2 gap-3 text-sm">
+          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+            <div><dt className="text-xs text-neutral-400">Catalog</dt><dd className="uppercase text-neutral-900">{item.catalog}</dd></div>
             <div><dt className="text-xs text-neutral-400">Brand</dt><dd className="text-neutral-900">{item.brandCode}</dd></div>
-            <div><dt className="text-xs text-neutral-400">Customer</dt><dd className="text-neutral-900">{bp?.companyName ?? "—"}</dd></div>
-            <div><dt className="text-xs text-neutral-400">Barcode</dt><dd className="font-mono text-neutral-900">{item.barcodeNumber ?? "—"} <span className="text-xs text-neutral-400">({item.barcodeSource})</span></dd></div>
-            <div><dt className="text-xs text-neutral-400">Base #</dt><dd className="font-mono text-neutral-900">{base?.baseNumber ?? "—"}</dd></div>
-            <div><dt className="text-xs text-neutral-400">Created</dt><dd className="text-neutral-900">{fmtDateTime(item.createdAt)}</dd></div>
-            <div><dt className="text-xs text-neutral-400">Inventory item</dt><dd>{item.inventoryItemId ? <Link href={`/inventory/${item.inventoryItemId}`} className="text-blue-600 hover:underline">Open in inventory →</Link> : <span className="text-neutral-400">not created</span>}</dd></div>
+            <div><dt className="text-xs text-neutral-400">Customer</dt><dd className="text-neutral-900">{bp?.companyName ?? item.custNumber ?? "—"}</dd></div>
+            <div><dt className="text-xs text-neutral-400">Design base</dt><dd className="font-mono text-neutral-900">{item.designBase ?? base?.baseNumber ?? "—"}</dd></div>
+            <div><dt className="text-xs text-neutral-400">Location</dt><dd className="text-neutral-900">{item.location ?? "—"}</dd></div>
+            <div><dt className="text-xs text-neutral-400">Printing</dt><dd className="text-neutral-900">{item.printing ?? "—"}</dd></div>
+            <div><dt className="text-xs text-neutral-400">Royalty</dt><dd className="text-neutral-900">{item.royalty ?? "—"}</dd></div>
+            {item.stitchCount != null && <div><dt className="text-xs text-neutral-400">Stitch count</dt><dd className="text-neutral-900">{item.stitchCount.toLocaleString()}</dd></div>}
+            <div><dt className="text-xs text-neutral-400">Salesperson</dt><dd className="text-neutral-900">{item.salesperson ?? "—"}</dd></div>
+            <div><dt className="text-xs text-neutral-400">Assignee</dt><dd className="text-neutral-900">{item.assigneeInitials ?? "—"}</dd></div>
+            <div className="sm:col-span-2"><dt className="text-xs text-neutral-400">Inventory item</dt><dd>{item.inventoryItemId ? <Link href={`/inventory/${item.inventoryItemId}`} className="text-blue-600 hover:underline">Open in inventory →</Link> : <span className="text-neutral-400">not created</span>}</dd></div>
           </dl>
         </Card>
       </div>
+
+      {barcodes.length > 0 && (
+        <Card className="overflow-x-auto">
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Barcodes ({barcodes.length})</h2>
+          <table className="w-full min-w-[560px] text-xs">
+            <thead className="text-left text-[10px] uppercase tracking-wide text-neutral-400"><tr><th className="py-1">12-digit</th><th className="py-1">10-digit</th><th className="py-1">Description</th><th className="py-1">Customer bc</th></tr></thead>
+            <tbody className="divide-y divide-neutral-100">
+              {barcodes.map((b) => (
+                <tr key={b.id}>
+                  <td className="py-1 font-mono text-neutral-700">{b.barcode12 ?? "—"}</td>
+                  <td className="py-1 font-mono text-neutral-500">{b.barcode10 ?? "—"}</td>
+                  <td className="py-1 text-neutral-600">{b.description ?? "—"}</td>
+                  <td className="py-1 font-mono text-neutral-500">{b.customerBarcode ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
 
       {isDraft && (
         <Card>

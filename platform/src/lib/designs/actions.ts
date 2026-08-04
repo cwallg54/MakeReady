@@ -66,7 +66,15 @@ export async function createBaseDesignAction(formData: FormData): Promise<void> 
 export async function createDesignItemAction(formData: FormData): Promise<void> {
   const user = await requireArt();
   const brandCode = String(formData.get("brandCode") ?? "G54").trim() || "G54";
-  const itemNumber = str(formData.get("itemNumber"));
+  const custNumber = str(formData.get("custNumber"))?.toUpperCase() ?? null;
+  const designBase = str(formData.get("designBase"));
+  const suffixEarly = str(formData.get("suffix"));
+  const variantEarly = str(formData.get("colorVariant"));
+  // Compose the full number if art didn't type one: CustNum-DesignBase[-suffix][variant].
+  let itemNumber = str(formData.get("itemNumber"));
+  if (!itemNumber && custNumber && designBase) {
+    itemNumber = `${custNumber}-${designBase}${suffixEarly ? `-${suffixEarly}` : ""}${variantEarly ?? ""}`;
+  }
   const barcodeSource = formData.get("barcodeSource") === "customer" ? "customer" : "gmw";
   let barcodeNumber = str(formData.get("barcodeNumber"));
 
@@ -77,9 +85,9 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
   const exceptionReason = str(formData.get("exceptionReason"));
   if (isException && !exceptionReason) redirect("/designs/new?err=exception");
 
-  // Barcode: auto-assign a 12-digit GMW number, or take the customer's.
+  // Barcode: auto-assign a GMW 12-digit (052774 prefix), or take the customer's.
   if (barcodeSource === "gmw" && !barcodeNumber && itemNumber) {
-    barcodeNumber = await nextNumber("gmw_barcode", "", 12, 100_000_000_000);
+    barcodeNumber = await nextNumber("gmw_barcode", "052774", 6, 200_000);
   }
 
   // Art image.
@@ -91,10 +99,9 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
     imageMimeType = file.type;
   }
 
-  const baseDesignId = str(formData.get("baseDesignId"));
-  const base = baseDesignId ? await db.query.baseDesigns.findFirst({ where: eq(baseDesigns.id, baseDesignId) }) : null;
-  const suffix = str(formData.get("suffix"));
-  const colorVariant = str(formData.get("colorVariant"));
+  const suffix = suffixEarly;
+  const colorVariant = variantEarly;
+  const description = str(formData.get("description"));
 
   // Orderable only when both the item number and barcode are present.
   const orderable = !!itemNumber && !!barcodeNumber;
@@ -107,7 +114,7 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
       inventoryItemId = existing.id;
       if (imageBase64) await db.update(inventoryItems).set({ imageBase64, imageMimeType, updatedAt: new Date() }).where(eq(inventoryItems.id, existing.id));
     } else {
-      const name = [base?.name, colorVariant, suffix].filter(Boolean).join(" ") || itemNumber!;
+      const name = description || [designBase, colorVariant, suffix].filter(Boolean).join(" ") || itemNumber!;
       const [inv] = await db.insert(inventoryItems).values({
         sku: itemNumber!,
         name,
@@ -121,11 +128,16 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
 
   const [row] = await db.insert(designItems).values({
     itemNumber: itemNumber ?? `DRAFT-${await nextNumber("design_draft", "", 5, 1)}`,
-    baseDesignId: baseDesignId ?? null,
+    custNumber,
+    designBase,
+    description,
+    catalog: brandCode === "ESM" ? "esm" : "g54",
     brandCode,
     bpId: str(formData.get("bpId")),
     suffix,
     colorVariant,
+    printing: str(formData.get("printing")),
+    location: str(formData.get("location")),
     barcodeNumber,
     barcodeSource,
     imageBase64,

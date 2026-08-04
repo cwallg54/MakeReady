@@ -628,32 +628,81 @@ export const designItems = pgTable(
   "design_items",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    itemNumber: text("item_number").notNull().unique(),
+    // Full Design # = {custNumber}-{designBase}[-suffix][-variant]. Not unique:
+    // imported historical rows (esp. archives) can repeat.
+    itemNumber: text("item_number").notNull(),
     baseDesignId: uuid("base_design_id").references(() => baseDesigns.id, { onDelete: "set null" }),
+    // Real barcode-book fields.
+    custNumber: text("cust_number"), // customer number without leading "C" (or NEW)
+    designBase: text("design_base"), // artwork base id (4015, AR118237, SS4008, ESM100, OSH2600)
+    description: text("description"),
+    catalog: text("catalog").notNull().default("g54"), // g54|esm|emb|patch|osh|wood|stain|royalty|archive
     brandCode: text("brand_code").notNull().default("G54"),
-    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }), // customer, if customized
-    suffix: text("suffix"), // product/location suffix code
-    colorVariant: text("color_variant"), // e.g. -1, -P
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    suffix: text("suffix"),
+    colorVariant: text("color_variant"),
+    printing: text("printing"),
+    royalty: text("royalty"),
+    location: text("location"),
+    salesperson: text("salesperson"),
+    assigneeInitials: text("assignee_initials"),
+    stitchCount: integer("stitch_count"),
+    source: text("source"),
+    setup: text("setup"), // "Set Up in SAP" status from the book
     barcodeNumber: text("barcode_number"),
     barcodeSource: text("barcode_source").notNull().default("gmw"), // gmw | customer
     imageBase64: text("image_base64"),
     imageMimeType: text("image_mime_type"),
     status: designItemStatusEnum("status").notNull().default("draft"),
-    // ESM / manual overrides are exceptions that surface on the exceptions report.
     isException: boolean("is_exception").notNull().default(false),
     exceptionReason: text("exception_reason"),
+    // Imported archive rows are flagged so they can be filtered out of the live view.
+    archived: boolean("archived").notNull().default(false),
+    archiveTag: text("archive_tag"),
     inventoryItemId: uuid("inventory_item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("design_items_base_idx").on(t.baseDesignId), index("design_items_bp_idx").on(t.bpId)],
+  (t) => [
+    index("design_items_base_idx").on(t.baseDesignId),
+    index("design_items_bp_idx").on(t.bpId),
+    index("design_items_number_idx").on(t.itemNumber),
+    index("design_items_catalog_idx").on(t.catalog),
+  ],
+);
+
+// Barcodes from the book's barcode tabs — 12/10-digit UPC or customer-provided,
+// at garment/color/size granularity, linked to a design number.
+export const designBarcodes = pgTable(
+  "design_barcodes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    designItemId: uuid("design_item_id").references(() => designItems.id, { onDelete: "set null" }),
+    designNumber: text("design_number"), // the design # this barcode is for (match key)
+    barcode12: text("barcode_12"),
+    barcode10: text("barcode_10"),
+    description: text("description"),
+    custNumber: text("cust_number"),
+    custItemNumber: text("cust_item_number"),
+    customerBarcode: text("customer_barcode"),
+    cost: numeric("cost", { precision: 12, scale: 2 }),
+    garmentType: text("garment_type"),
+    color: text("color"),
+    size: text("size"),
+    retail: text("retail"),
+    catalog: text("catalog").notNull().default("g54"),
+    archived: boolean("archived").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("design_barcodes_design_idx").on(t.designNumber), index("design_barcodes_item_idx").on(t.designItemId)],
 );
 
 export type DesignBrand = typeof designBrands.$inferSelect;
 export type DesignSuffix = typeof designSuffixes.$inferSelect;
 export type BaseDesign = typeof baseDesigns.$inferSelect;
 export type DesignItem = typeof designItems.$inferSelect;
+export type DesignBarcode = typeof designBarcodes.$inferSelect;
 
 export const quotes = pgTable(
   "quotes",
