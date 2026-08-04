@@ -63,6 +63,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Operations cluster — placed directly below Sales in the sidebar.
   const ops: NavItem[] = [];
   if (canDoArt(user.roles)) ops.push({ key: "art", label: "Art Department", href: "/art", phase1: true });
+  if (canDoArt(user.roles)) ops.push({ key: "designs", label: "Design Library", href: "/designs", phase1: true });
   if (canView(user.roles, "jobs")) ops.push({ key: "production", label: "Production", href: "/production", phase1: true });
   if (canView(user.roles, "inventory")) ops.push({ key: "inventory", label: "Inventory", href: "/inventory", phase1: true });
   if (ops.length) {

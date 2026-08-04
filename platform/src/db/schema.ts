@@ -217,6 +217,9 @@ export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "par
 export const paymentMethodEnum = pgEnum("payment_method", ["check", "ach", "card", "cash", "credit", "other"]);
 export const creditRequestReasonEnum = pgEnum("credit_request_reason", ["hold", "over_limit"]);
 export const creditRequestStatusEnum = pgEnum("credit_request_status", ["pending", "approved", "denied"]);
+// Design-library (barcode book) statuses. A design item isn't orderable until
+// it's active (which requires an item number + barcode and creates the item).
+export const designItemStatusEnum = pgEnum("design_item_status", ["draft", "active", "retired"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -576,6 +579,81 @@ export const catalogColors = pgTable(
   },
   (t) => [index("catalog_colors_style_id_idx").on(t.styleId)],
 );
+
+// ---- Design library (the "barcode book") ----------------------------------
+// Art's design-number system: brands (G54 / ESM), product/location suffixes,
+// reusable base designs, and the concrete design items (SKUs) generated from
+// them. Creating an active design item auto-creates the inventory item + image.
+
+export const designBrands = pgTable("design_brands", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(), // G54, ESM
+  name: text("name").notNull(),
+  // ESM is legacy — new designs default to G54 and picking ESM is an exception.
+  isLegacy: boolean("is_legacy").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const designSuffixes = pgTable("design_suffixes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").notNull().unique(), // T, HD, PA, KZ, PE, LC, LS, FF...
+  label: text("label").notNull(),
+  kind: text("kind").notNull().default("product"), // product | location | hardgood
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// A reusable base design (e.g. 4428 "Summer Bloom"). Can be applied to many
+// customers/products via design items.
+export const baseDesigns = pgTable(
+  "base_designs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    baseNumber: text("base_number").notNull().unique(),
+    name: text("name").notNull(),
+    brandCode: text("brand_code").notNull().default("G54"),
+    releaseYear: integer("release_year"),
+    notes: text("notes"),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("base_designs_name_idx").on(t.name)],
+);
+
+// A concrete SKU generated from a base design: brand + optional customer +
+// product/location suffix + color variant, with the art image and a barcode.
+export const designItems = pgTable(
+  "design_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemNumber: text("item_number").notNull().unique(),
+    baseDesignId: uuid("base_design_id").references(() => baseDesigns.id, { onDelete: "set null" }),
+    brandCode: text("brand_code").notNull().default("G54"),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }), // customer, if customized
+    suffix: text("suffix"), // product/location suffix code
+    colorVariant: text("color_variant"), // e.g. -1, -P
+    barcodeNumber: text("barcode_number"),
+    barcodeSource: text("barcode_source").notNull().default("gmw"), // gmw | customer
+    imageBase64: text("image_base64"),
+    imageMimeType: text("image_mime_type"),
+    status: designItemStatusEnum("status").notNull().default("draft"),
+    // ESM / manual overrides are exceptions that surface on the exceptions report.
+    isException: boolean("is_exception").notNull().default(false),
+    exceptionReason: text("exception_reason"),
+    inventoryItemId: uuid("inventory_item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("design_items_base_idx").on(t.baseDesignId), index("design_items_bp_idx").on(t.bpId)],
+);
+
+export type DesignBrand = typeof designBrands.$inferSelect;
+export type DesignSuffix = typeof designSuffixes.$inferSelect;
+export type BaseDesign = typeof baseDesigns.$inferSelect;
+export type DesignItem = typeof designItems.$inferSelect;
 
 export const quotes = pgTable(
   "quotes",
@@ -1079,6 +1157,9 @@ export const inventoryItems = pgTable(
     reorderPoint: numeric("reorder_point", { precision: 14, scale: 2 }).notNull().default("0"),
     active: boolean("active").notNull().default(true),
     notes: text("notes"),
+    // Art image carried onto the item when it's auto-created from a design.
+    imageBase64: text("image_base64"),
+    imageMimeType: text("image_mime_type"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

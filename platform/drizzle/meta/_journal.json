@@ -232,6 +232,13 @@
       "when": 1785852139776,
       "tag": "0032_magenta_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1785854914051,
+      "tag": "0033_fast_karnak",
+      "breakpoints": true
     }
   ]
 }
