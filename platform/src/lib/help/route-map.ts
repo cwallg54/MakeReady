@@ -15,6 +15,8 @@ const ROUTE_HELP: Record<string, string> = {
   "/sales/automations": "sales-automations",
   "/sales": "building-a-quote",
   "/production": "production-jobs",
+  "/designs/new": "creating-a-design",
+  "/designs/reconcile": "design-reconciliation",
   "/designs": "design-library",
   "/inventory/forecast": "reorder-forecast",
   "/inventory/bins": "bin-management",
