@@ -57,6 +57,14 @@ export async function submitDocumentAction(_prev: DocState, formData: FormData):
     if (typeof v === "string" && v.trim()) entries[k] = v;
   }
 
+  // Validate email fields server-side (browsers only check the ones they render).
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  for (const [k, v] of Object.entries(entries)) {
+    if (/email/i.test(k) && !emailRe.test(v.trim())) {
+      return { error: `Please enter a valid email address for “${k.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase())}”.` };
+    }
+  }
+
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
   await db
     .update(customerDocuments)

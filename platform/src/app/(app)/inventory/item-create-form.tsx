@@ -14,6 +14,7 @@ export function ItemCreateForm() {
         <AdminField label="Item name" name="name" required />
         <AdminField label="SKU" name="sku" hint="Leave blank to auto-generate from the name" />
         <AdminField label="Category" name="category" hint="e.g. Blanks, Ink, Thread" />
+        <AdminField label="Territory" name="territory" hint="sales territory this item stocks for" />
         <AdminField label="Unit" name="unit" hint="each, box, roll…" />
         <AdminField label="Supplier" name="supplier" />
         <AdminField label="Cost" name="cost" type="number" />

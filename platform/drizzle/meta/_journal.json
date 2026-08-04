@@ -211,6 +211,20 @@
       "when": 1785795641356,
       "tag": "0029_late_archangel",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1785850902253,
+      "tag": "0030_gorgeous_maverick",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1785851433214,
+      "tag": "0031_brief_nitro",
+      "breakpoints": true
     }
   ]
 }

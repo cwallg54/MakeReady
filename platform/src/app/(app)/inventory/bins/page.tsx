@@ -5,7 +5,8 @@ import { warehouses, bins } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { Card, PageHeader } from "@/components/ui";
-import { createWarehouseAction, createBinAction } from "@/lib/inventory/bin-actions";
+import { ConfirmButton } from "@/components/confirm-button";
+import { createWarehouseAction, createBinAction, toggleWarehouseActiveAction, deleteWarehouseAction, toggleBinActiveAction, deleteBinAction } from "@/lib/inventory/bin-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -28,15 +29,29 @@ export default async function BinsPage() {
 
       {whs.map((w) => (
         <Card key={w.id}>
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-neutral-900">{w.code} · {w.name}{w.isDefault ? " (default)" : ""}{!w.active ? " · inactive" : ""}</h2>
-            <span className="text-xs text-neutral-400">{binsByWhs(w.id).length} bins</span>
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h2 className={`text-sm font-semibold ${w.active ? "text-neutral-900" : "text-neutral-400"}`}>{w.code} · {w.name}{w.isDefault ? " (default)" : ""}{!w.active ? " · inactive" : ""}</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-neutral-400">{binsByWhs(w.id).length} bins</span>
+              {editable && !w.isDefault && (
+                <>
+                  <form action={toggleWarehouseActiveAction}><input type="hidden" name="id" value={w.id} /><button className="text-xs text-neutral-500 hover:text-neutral-800">{w.active ? "Deactivate" : "Activate"}</button></form>
+                  <form action={deleteWarehouseAction}><input type="hidden" name="id" value={w.id} /><ConfirmButton message={`Delete warehouse ${w.code}? Only works if it holds no stock.`} className="text-xs text-red-600 hover:text-red-800">Delete</ConfirmButton></form>
+                </>
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {binsByWhs(w.id).length === 0 && <span className="text-xs text-neutral-400">No bins.</span>}
             {binsByWhs(w.id).map((b) => (
-              <span key={b.id} className={`rounded border px-2 py-0.5 font-mono text-xs ${b.isReceiving ? "border-blue-300 bg-blue-50 text-blue-700" : "border-neutral-200 bg-neutral-50 text-neutral-700"}`} title={b.description ?? undefined}>
+              <span key={b.id} className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 font-mono text-xs ${!b.active ? "border-neutral-200 bg-white text-neutral-300 line-through" : b.isReceiving ? "border-blue-300 bg-blue-50 text-blue-700" : "border-neutral-200 bg-neutral-50 text-neutral-700"}`} title={b.description ?? undefined}>
                 {b.code}{b.isReceiving ? " ⇤" : ""}
+                {editable && (
+                  <>
+                    <form action={toggleBinActiveAction} className="inline"><input type="hidden" name="id" value={b.id} /><button className="text-neutral-400 hover:text-neutral-700" title={b.active ? "Deactivate" : "Activate"}>{b.active ? "◐" : "○"}</button></form>
+                    <form action={deleteBinAction} className="inline"><input type="hidden" name="id" value={b.id} /><ConfirmButton message={`Delete bin ${b.code}? Only works if empty.`} className="text-red-500 hover:text-red-700">×</ConfirmButton></form>
+                  </>
+                )}
               </span>
             ))}
           </div>

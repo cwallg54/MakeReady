@@ -4,8 +4,9 @@ import { asc, desc, eq, count, sql } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, canView, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
-import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, schedulingProfiles, orders, quotes, historicalOrders } from "@/db/schema";
+import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, customerAttachments, schedulingProfiles, orders, quotes, historicalOrders } from "@/db/schema";
 import { FinancialDocs } from "@/components/crm/financial-docs";
+import { CustomerVault } from "@/components/crm/customer-vault";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
 import { ContactsManager } from "@/components/crm/contacts-manager";
@@ -118,6 +119,12 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   const contactEmail = primaryContact?.email ?? null;
   const canSell = canView(user.roles, "sales");
   const docs = await db.select().from(customerDocuments).where(eq(customerDocuments.bpId, id)).orderBy(desc(customerDocuments.createdAt));
+  // Finance vault is Finance/Admin only (never Sales/Art).
+  const canVault = canView(user.roles, "accounting");
+  const canManageVault = canEdit(user.roles, "accounting");
+  const vaultDocs = canVault
+    ? await db.select().from(customerAttachments).where(eq(customerAttachments.bpId, id)).orderBy(desc(customerAttachments.createdAt))
+    : [];
   const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
   const ownerSchedule = bp.ownerId ? await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, bp.ownerId) }) : null;
 
@@ -421,6 +428,14 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
             baseUrl={baseUrl}
             docs={docs.map((d) => ({ id: d.id, docType: d.docType, token: d.token, status: d.status, createdAt: d.createdAt, submittedAt: d.submittedAt }))}
           />
+
+          {canVault && (
+            <CustomerVault
+              bpId={bp.id}
+              canManage={canManageVault}
+              docs={vaultDocs.map((d) => ({ id: d.id, kind: d.kind, filename: d.filename, sizeBytes: d.sizeBytes, notes: d.notes, createdAt: d.createdAt }))}
+            />
+          )}
         </div>
       </div>
     </div>

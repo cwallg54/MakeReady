@@ -48,6 +48,43 @@ export async function sendOrderEmail(to: string, orderNumber: string, attachment
   );
 }
 
+/** Reminder to a customer to complete a still-pending document (with the link). */
+export async function sendDocumentChaseEmail(to: string, docLabel: string, url: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Reminder: your ${docLabel} for Great Mountain West`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>We're still waiting on your <strong>${docLabel}</strong> to finish setting up your account with Great Mountain West.</p>
+       <p>It only takes a couple of minutes — your information stays secure and never travels over email:</p>
+       <p><a href="${url}" style="display:inline-block;background:#111;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Complete your ${docLabel} →</a></p>
+       <p style="color:#666;font-size:13px">Or paste this link into your browser:<br>${url}</p>
+       <p>Thank you,<br>Great Mountain West (G54)</p>
+     </div>`,
+  );
+}
+
+/** Welcome / account-approved email sent to a customer once they're set up. */
+export async function sendCustomerWelcomeEmail(to: string, company: string, siteUrl: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Welcome to Great Mountain West`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <h2 style="margin:0 0 8px">Welcome to Great Mountain West${company ? `, ${company}` : ""}!</h2>
+       <p>Your account is set up and ready to go. Thank you for choosing Great Mountain West for your custom print &amp; production.</p>
+       <p><strong>What happens next:</strong></p>
+       <ul style="padding-left:18px;color:#333">
+         <li>Your salesperson will send you a link to review and approve each quote.</li>
+         <li>Once an order is placed, you'll get a live tracking link so you can watch it move from art through production to delivery — no need to call for status.</li>
+         <li>Art proofs come to you as a secure link to approve online.</li>
+       </ul>
+       <p>Browse products and learn more at <a href="${siteUrl}">${siteUrl}</a>.</p>
+       <p>We're glad to have you.</p>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+  );
+}
+
 /** Email a quote to the customer with a link to review, approve, or decline. */
 export async function sendQuoteEmail(to: string, quoteNumber: string, total: string, approveUrl: string): Promise<boolean> {
   return sendEmail(

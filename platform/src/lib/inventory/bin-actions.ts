@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { inventoryItems, stockMovements, warehouses, bins, itemBinStock } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
@@ -64,6 +64,57 @@ export async function createBinAction(formData: FormData): Promise<void> {
     isReceiving: formData.get("isReceiving") === "on",
   });
   await audit({ userId: user.id, action: "inventory.bin_create", entityType: "bin", entityId: code });
+  revalidatePath("/inventory/bins");
+}
+
+export async function toggleWarehouseActiveAction(formData: FormData): Promise<void> {
+  const user = await requireInventoryEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const w = await db.query.warehouses.findFirst({ where: eq(warehouses.id, id) });
+  if (!w) return;
+  await db.update(warehouses).set({ active: !w.active }).where(eq(warehouses.id, id));
+  await audit({ userId: user.id, action: "inventory.warehouse_toggle", entityType: "warehouse", entityId: id, metadata: { active: !w.active } });
+  revalidatePath("/inventory/bins");
+}
+
+/** Hard-delete a warehouse (and its empty bins). Blocked if it holds stock or is the default. */
+export async function deleteWarehouseAction(formData: FormData): Promise<void> {
+  const user = await requireInventoryEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const w = await db.query.warehouses.findFirst({ where: eq(warehouses.id, id) });
+  if (!w || w.isDefault) return; // never delete the default warehouse
+  const whBins = await db.select({ id: bins.id }).from(bins).where(eq(bins.warehouseId, id));
+  if (whBins.length) {
+    const [stock] = await db.select({ n: sql<number>`count(*)::int` }).from(itemBinStock).where(and(inArray(itemBinStock.binId, whBins.map((b) => b.id)), gt(itemBinStock.qty, "0")));
+    if ((stock?.n ?? 0) > 0) return; // holds stock — deactivate instead
+  }
+  await db.delete(warehouses).where(eq(warehouses.id, id)); // bins + zero itemBinStock cascade
+  await audit({ userId: user.id, action: "inventory.warehouse_delete", entityType: "warehouse", entityId: id });
+  revalidatePath("/inventory/bins");
+}
+
+export async function toggleBinActiveAction(formData: FormData): Promise<void> {
+  const user = await requireInventoryEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const b = await db.query.bins.findFirst({ where: eq(bins.id, id) });
+  if (!b) return;
+  await db.update(bins).set({ active: !b.active }).where(eq(bins.id, id));
+  await audit({ userId: user.id, action: "inventory.bin_toggle", entityType: "bin", entityId: id, metadata: { active: !b.active } });
+  revalidatePath("/inventory/bins");
+}
+
+/** Hard-delete a bin. Blocked if it holds stock. */
+export async function deleteBinAction(formData: FormData): Promise<void> {
+  const user = await requireInventoryEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const [stock] = await db.select({ n: sql<number>`count(*)::int` }).from(itemBinStock).where(and(eq(itemBinStock.binId, id), gt(itemBinStock.qty, "0")));
+  if ((stock?.n ?? 0) > 0) return; // holds stock — deactivate instead
+  await db.delete(bins).where(eq(bins.id, id)); // zero itemBinStock cascades
+  await audit({ userId: user.id, action: "inventory.bin_delete", entityType: "bin", entityId: id });
   revalidatePath("/inventory/bins");
 }
 

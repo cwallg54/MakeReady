@@ -198,6 +198,15 @@ export const productionStatusEnum = pgEnum("production_status", ["queued", "in_p
 // Stock movement reasons for the inventory ledger.
 export const stockReasonEnum = pgEnum("stock_reason", ["receive", "consume", "adjust", "count", "transfer"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
+// Finance-only document vault categories on a business partner.
+export const customerAttachmentKindEnum = pgEnum("customer_attachment_kind", [
+  "experian",
+  "tax_exempt",
+  "credit_app",
+  "address_change",
+  "credit_increase",
+  "other",
+]);
 export const customerDocStatusEnum = pgEnum("customer_doc_status", ["pending", "completed"]);
 export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "canceled", "completed"]);
 // AR invoice lifecycle: draft -> sent -> (partial ->) paid, or void.
@@ -1029,6 +1038,8 @@ export const inventoryItems = pgTable(
     category: text("category"),
     unit: text("unit").notNull().default("each"),
     supplier: text("supplier"),
+    // Sales territory this item is stocked/sold for (reps sort inventory by it).
+    territory: text("territory"),
     cost: numeric("cost", { precision: 12, scale: 2 }).notNull().default("0"),
     onHand: numeric("on_hand", { precision: 14, scale: 2 }).notNull().default("0"),
     reorderPoint: numeric("reorder_point", { precision: 14, scale: 2 }).notNull().default("0"),
@@ -1155,12 +1166,36 @@ export const customerDocuments = pgTable(
     submittedAt: timestamp("submitted_at", { withTimezone: true }),
     ip: text("ip"),
     requestedBy: uuid("requested_by").references(() => users.id),
+    // Auto-chase tracking for pending (unreturned) document requests.
+    chasedAt: timestamp("chased_at", { withTimezone: true }),
+    chaseCount: integer("chase_count").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("customer_documents_bp_id_idx").on(t.bpId)],
 );
 
 export type CustomerDocument = typeof customerDocuments.$inferSelect;
+
+// Finance-only document vault on a business partner — Experian reports,
+// tax-exempt certs, signed credit apps, address-change and credit-limit
+// justifications. Restricted to Finance/Admin (never Sales or Art).
+export const customerAttachments = pgTable(
+  "customer_attachments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id").notNull().references(() => businessPartners.id, { onDelete: "cascade" }),
+    kind: customerAttachmentKindEnum("kind").notNull().default("other"),
+    filename: text("filename").notNull(),
+    mimeType: text("mime_type").notNull().default("application/pdf"),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    contentBase64: text("content_base64").notNull(),
+    notes: text("notes"),
+    uploadedBy: uuid("uploaded_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("customer_attachments_bp_id_idx").on(t.bpId)],
+);
+export type CustomerAttachment = typeof customerAttachments.$inferSelect;
 
 // ---- Scheduling / calendar ------------------------------------------------
 

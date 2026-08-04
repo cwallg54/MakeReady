@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { submitDocumentAction, type DocState } from "@/lib/documents/actions";
 import { sectionsFor, DOC_LABELS, CC_TERMS_TEXT, TERMS_TERMS_TEXT, type CustomerDocType, type DocField } from "@/lib/documents/meta";
 
 const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const SHIP_FIELDS = new Set(["shippingAddress", "shippingCity", "shippingState", "shippingZip"]);
+const BILL_TO_SHIP: Record<string, string> = { billingAddress: "shippingAddress", billingCity: "shippingCity", billingState: "shippingState", billingZip: "shippingZip" };
 
 function Field({ f, defaultCompany }: { f: DocField; defaultCompany?: string }) {
   const common = { name: f.name, required: f.required, className: input, defaultValue: f.name === "company" ? defaultCompany : undefined };
@@ -29,6 +31,25 @@ export function ApplicationForm({ token, docType, defaultCompany }: { token: str
   const [state, action] = useActionState<DocState, FormData>(submitDocumentAction, {});
   const sections = sectionsFor(docType);
   const termsText = docType === "credit_card_application" ? CC_TERMS_TEXT : TERMS_TERMS_TEXT;
+  const formRef = useRef<HTMLFormElement>(null);
+  const [sameAsBilling, setSameAsBilling] = useState(false);
+
+  // Mirror billing → shipping while the "same as billing" box is ticked.
+  function syncShipping() {
+    const form = formRef.current;
+    if (!form) return;
+    for (const [bill, ship] of Object.entries(BILL_TO_SHIP)) {
+      const b = form.elements.namedItem(bill) as HTMLInputElement | null;
+      const s = form.elements.namedItem(ship) as HTMLInputElement | null;
+      if (b && s) {
+        s.value = b.value;
+        s.readOnly = sameAsBilling;
+        s.classList.toggle("bg-neutral-100", sameAsBilling);
+        s.classList.toggle("text-neutral-500", sameAsBilling);
+      }
+    }
+  }
+  useEffect(syncShipping, [sameAsBilling]);
 
   if (state.ok) {
     return (
@@ -40,19 +61,28 @@ export function ApplicationForm({ token, docType, defaultCompany }: { token: str
   }
 
   return (
-    <form action={action} className="space-y-6">
+    <form ref={formRef} action={action} onInput={() => { if (sameAsBilling) syncShipping(); }} className="space-y-6">
       <input type="hidden" name="token" value={token} />
       {state.error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>}
 
-      {sections.map((s) => (
-        <div key={s.title} className="rounded-xl border border-neutral-200 bg-white p-5">
-          <h2 className="text-sm font-semibold text-neutral-900">{s.title}</h2>
-          {s.note && <p className="mb-3 mt-0.5 text-xs text-neutral-500">{s.note}</p>}
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {s.fields.map((f) => <Field key={f.name} f={f} defaultCompany={defaultCompany} />)}
+      {sections.map((s) => {
+        const hasShipping = s.fields.some((f) => SHIP_FIELDS.has(f.name));
+        return (
+          <div key={s.title} className="rounded-xl border border-neutral-200 bg-white p-5">
+            <h2 className="text-sm font-semibold text-neutral-900">{s.title}</h2>
+            {s.note && <p className="mb-3 mt-0.5 text-xs text-neutral-500">{s.note}</p>}
+            {hasShipping && (
+              <label className="mt-2 flex items-center gap-2 text-sm text-neutral-700">
+                <input type="checkbox" checked={sameAsBilling} onChange={(e) => setSameAsBilling(e.target.checked)} className="h-4 w-4" />
+                Shipping address same as billing
+              </label>
+            )}
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {s.fields.map((f) => <Field key={f.name} f={f} defaultCompany={defaultCompany} />)}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       <div className="rounded-xl border border-neutral-200 bg-white p-5">
         <h2 className="text-sm font-semibold text-neutral-900">Agreement &amp; Signature</h2>

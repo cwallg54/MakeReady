@@ -40,6 +40,7 @@ export async function createItemAction(_prev: InventoryState, formData: FormData
     sku,
     name,
     category: String(formData.get("category") ?? "").trim() || null,
+    territory: String(formData.get("territory") ?? "").trim() || null,
     unit: String(formData.get("unit") ?? "").trim() || "each",
     supplier: String(formData.get("supplier") ?? "").trim() || null,
     cost: String(num(formData.get("cost"))),
@@ -65,6 +66,7 @@ export async function updateItemAction(formData: FormData): Promise<void> {
     .set({
       name: String(formData.get("name") ?? "").trim() || "Item",
       category: String(formData.get("category") ?? "").trim() || null,
+      territory: String(formData.get("territory") ?? "").trim() || null,
       unit: String(formData.get("unit") ?? "").trim() || "each",
       supplier: String(formData.get("supplier") ?? "").trim() || null,
       cost: String(num(formData.get("cost"))),

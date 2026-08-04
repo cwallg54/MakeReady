@@ -131,6 +131,7 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
             <input type="hidden" name="id" value={item.id} />
             <label className="flex flex-col text-xs text-neutral-500">Name<input name="name" defaultValue={item.name} className={`mt-1 ${input}`} /></label>
             <label className="flex flex-col text-xs text-neutral-500">Category<input name="category" defaultValue={item.category ?? ""} className={`mt-1 ${input}`} /></label>
+            <label className="flex flex-col text-xs text-neutral-500">Territory<input name="territory" defaultValue={item.territory ?? ""} className={`mt-1 ${input}`} /></label>
             <label className="flex flex-col text-xs text-neutral-500">Unit<input name="unit" defaultValue={item.unit} className={`mt-1 ${input}`} /></label>
             <label className="flex flex-col text-xs text-neutral-500">Supplier<input name="supplier" defaultValue={item.supplier ?? ""} className={`mt-1 ${input}`} /></label>
             <label className="flex flex-col text-xs text-neutral-500">Cost<input name="cost" type="number" step="0.01" defaultValue={Number(item.cost)} className={`mt-1 ${input}`} /></label>
