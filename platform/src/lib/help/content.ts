@@ -635,18 +635,21 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "In the Design & orderable item panel, enter the customer number (pre-filled from the account), the design base, and a suffix if it's a specific product or print location. MakeReady suggests the full item number." },
-          { text: "Let MakeReady auto-assign the GMW barcode (or switch to a customer-provided one), attach the art image, and click “Punch in design & create item”. The art also attaches to this order for the proof." },
+          { text: "In the Design & orderable item panel, enter the customer number (pre-filled from the account) and the design base, then a suffix if it's a specific product or print location. MakeReady suggests the full item number as you type." },
+          { text: "Fill in the rest as needed — brand (G54 by default), description, printing method, and location — then let MakeReady auto-assign the GMW barcode (or switch to a customer-provided one) and attach the art image." },
+          { text: "Click “Punch in design & create item”. With an item number and a barcode present it goes orderable immediately, and the art also attaches to this order for the proof." },
           { text: "Reusing existing artwork? Use “…or link an existing design” to attach a design that's already in the library instead of creating a new one." },
         ],
       },
+      { k: "h", text: "Finishing a draft" },
+      { k: "p", text: "If you save without an item number or barcode, the design is kept as a draft and the panel shows the full form again, pre-filled — finish it right there (add the missing customer number, design base, or barcode) and save to make it orderable. You never have to leave the art request for the Design Library. Picked the wrong design or want to start over? Use “Unlink / start over” to detach it." },
       { k: "warn", text: "This is the gate: an art job can't be moved to Approved or Done until an orderable design (item number + barcode) is linked. It stops orders being taken on items that aren't fully set up — the “it still has a Y” problem." },
       { k: "h", text: "What happens next" },
       { k: "p", text: "The proposed image appears on the customer's order tracking link. They approve it, request changes (with notes), decline, or request a meeting. You're notified of their decision, and it's logged to the customer's history. If they request changes, revise the art and send a new proof." },
       { k: "img", src: "proof-on-tracker.png", caption: "The customer reviews and approves the proof on their tracking page." },
       { k: "tip", text: "The customer never needs a login or a separate link — the proof shows up on the same tracker they already use to follow the order." },
     ],
-    related: ["proof-approvals", "customer-order-tracker", "orders-and-production-stages"],
+    related: ["creating-a-design", "design-numbering", "proof-approvals", "customer-order-tracker", "orders-and-production-stages"],
   },
   {
     slug: "sales-automations",
@@ -1457,6 +1460,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Creating a design here does what used to take manual entry in two systems: it records the design and, once it has an item number and a barcode, creates the inventory item with the art attached so a salesperson can order it immediately." },
       { k: "img", src: "design-new.png", caption: "The new-design form. Pick the customer and design base and MakeReady composes the item number; the barcode can be auto-assigned or customer-provided." },
+      { k: "tip", text: "Most designs are punched in straight from the art job (the Design & orderable item panel on an art request), which uses this same flow and links the result back to that order — see The art department workflow. Use “+ New design” here for designs that aren't tied to a specific art job." },
       { k: "h", text: "Step by step" },
       {
         k: "steps",
@@ -1474,7 +1478,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "New designs are meant to be G54. Choosing ESM (or otherwise going off-standard) is allowed but is flagged as an exception with the reason you give, and it appears on the Exceptions report so managers can review. Brands and the suffix lists are managed by an Admin under Design settings." },
       { k: "tip", text: "Read Design numbers & suffixes first so the composed number follows the conventions (right suffix, customer number on hardgoods, −P for series patches, and so on)." },
     ],
-    related: ["design-numbering", "design-library", "orders-and-production-stages"],
+    related: ["design-numbering", "design-library", "art-department", "orders-and-production-stages"],
   },
   {
     slug: "design-reconciliation",
