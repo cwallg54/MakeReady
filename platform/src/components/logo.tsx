@@ -13,7 +13,7 @@ export function LogoMark({ className = "" }: { className?: string }) {
 /** Full stacked lockup for public pages and the auth screens. */
 export function Logo({
   className = "",
-  markClassName = "h-14 w-auto",
+  markClassName = "h-20 w-auto",
   showTagline = false,
 }: {
   className?: string;
@@ -24,7 +24,7 @@ export function Logo({
     <div className={`flex flex-col items-center ${className}`}>
       <img src="/makeready-logo.png" alt="MakeReady by G54" className={markClassName} />
       {showTagline && (
-        <div className="mt-3 text-[9px] font-medium uppercase tracking-[0.3em] opacity-50">
+        <div className="mt-3 text-[10px] font-medium uppercase tracking-[0.3em] opacity-50">
           Plan. Process. Produce.
         </div>
       )}
@@ -33,6 +33,12 @@ export function Logo({
 }
 
 /** Compact lockup for the app sidebar / mobile header. */
-export function LogoInline({ className = "" }: { className?: string }) {
-  return <img src="/makeready-logo.png" alt="MakeReady by G54" className={`h-9 w-auto ${className}`} />;
+export function LogoInline({
+  className = "",
+  imgClassName = "h-11 w-auto",
+}: {
+  className?: string;
+  imgClassName?: string;
+}) {
+  return <img src="/makeready-logo.png" alt="MakeReady by G54" className={`${imgClassName} ${className}`} />;
 }

@@ -23,7 +23,7 @@ export default async function SchedulePage({
   const shell = (children: React.ReactNode) => (
     <div className="min-h-screen bg-neutral-100 px-4 py-10">
       <div className="mx-auto max-w-2xl">
-        <Logo markClassName="h-10 w-auto" className="mb-8 text-neutral-900" />
+        <Logo markClassName="h-16 w-auto" className="mb-8 text-neutral-900" />
         {children}
         <p className="mt-6 text-center text-xs text-neutral-400">MakeReady by G54 · Commercial Print &amp; Production</p>
       </div>

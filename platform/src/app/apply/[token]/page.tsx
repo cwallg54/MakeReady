@@ -14,7 +14,7 @@ export default async function ApplyPage({ params }: { params: Promise<{ token: s
   return (
     <div className="min-h-screen bg-neutral-100 px-4 py-10">
       <div className="mx-auto max-w-2xl">
-        <Logo markClassName="h-10 w-auto" className="mb-8 text-neutral-900" />
+        <Logo markClassName="h-16 w-auto" className="mb-8 text-neutral-900" />
         {!doc ? (
           <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center">
             <h1 className="text-lg font-semibold text-neutral-900">Link not valid</h1>

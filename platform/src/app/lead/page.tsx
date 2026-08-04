@@ -7,7 +7,7 @@ export default function PublicLeadPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-100 px-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-neutral-900">
-          <Logo markClassName="h-10 w-auto" />
+          <Logo markClassName="h-16 w-auto" />
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <LeadForm />

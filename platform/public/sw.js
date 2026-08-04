@@ -2,7 +2,7 @@
  * Deliberately conservative: it caches static, hashed assets and an offline
  * fallback page, but NEVER caches authenticated HTML responses (navigations are
  * network-first), so a shared device can't serve one user's data to another. */
-const CACHE = "makeready-v3";
+const CACHE = "makeready-v4";
 const PRECACHE = [
   "/offline.html",
   "/manifest.webmanifest",

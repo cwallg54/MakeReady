@@ -30,8 +30,8 @@ export function AppShell({
 
   const sidebar = (
     <>
-      <div className="border-b border-neutral-800 px-4 py-4">
-        <LogoInline className="text-white" />
+      <div className="flex items-center justify-center border-b border-neutral-800 px-4 py-5">
+        <LogoInline imgClassName="h-16 w-auto" />
       </div>
       <AppNav items={navItems} onNavigate={() => setOpen(false)} />
       <div className="border-t border-neutral-800 px-4 py-3">
@@ -68,8 +68,8 @@ export function AppShell({
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <span className="text-neutral-900 lg:hidden">
-            <LogoInline />
+          <span className="lg:hidden">
+            <LogoInline imgClassName="h-10 w-auto" />
           </span>
           <div className="ml-auto flex items-center gap-2">
             <Link

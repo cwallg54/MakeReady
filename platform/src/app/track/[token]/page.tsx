@@ -16,7 +16,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   if (!order) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-100 px-4 text-center">
-        <Logo markClassName="h-10 w-auto" className="mb-6 text-neutral-900" />
+        <Logo markClassName="h-16 w-auto" className="mb-6 text-neutral-900" />
         <h1 className="text-lg font-semibold text-neutral-900">Order not found</h1>
         <p className="mt-1 text-sm text-neutral-500">This tracking link isn&apos;t valid. Please check with Great Mountain West.</p>
       </div>
@@ -28,7 +28,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   if (order.voidedAt) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-100 px-4 text-center">
-        <Logo markClassName="h-10 w-auto" className="mb-6 text-neutral-900" />
+        <Logo markClassName="h-16 w-auto" className="mb-6 text-neutral-900" />
         <p className="text-sm font-medium uppercase tracking-widest text-neutral-400">Order {order.orderNumber}</p>
         <h1 className="mt-1 text-lg font-semibold text-neutral-900">This order has been canceled</h1>
         <p className="mt-1 max-w-md text-sm text-neutral-500">Please contact Great Mountain West if you have any questions about this order.</p>
@@ -50,7 +50,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
   return (
     <div className="min-h-screen bg-neutral-100 px-4 py-10">
       <div className="mx-auto max-w-3xl">
-        <Logo markClassName="h-10 w-auto" className="mb-8 text-neutral-900" />
+        <Logo markClassName="h-16 w-auto" className="mb-8 text-neutral-900" />
         <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8">
           <p className="text-sm font-medium uppercase tracking-widest text-neutral-400">Order {order.orderNumber}</p>
           <h1 className="mt-1 text-2xl font-bold text-neutral-900">
