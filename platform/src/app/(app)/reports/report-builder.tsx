@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { SOURCE_META, OPS_BY_TYPE, type ReportConfig, type ReportFilter, type FilterOp } from "@/lib/reports/sources";
 import { saveReport, previewReport } from "@/lib/reports/actions";
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 
 export interface BuilderInitial { id?: string; name: string; description: string; source: string; config: ReportConfig }
 

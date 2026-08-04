@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { bookMeetingAction, type BookState } from "@/lib/scheduling/actions";
 
-const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export function BookingForm({ slug, meetingTypeId, slot, when }: { slug: string; meetingTypeId: string; slot: string; when: string }) {
   const [state, action] = useActionState<BookState, FormData>(bookMeetingAction, {});

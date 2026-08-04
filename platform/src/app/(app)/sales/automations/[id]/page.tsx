@@ -9,7 +9,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { addStepAction, removeStepAction } from "@/lib/automation/actions";
 import { CampaignMetaForm } from "./campaign-meta-form";
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 const ACTION_LABEL: Record<string, string> = { create_task: "Create task", notify_owner: "Notify owner", email_customer: "Email customer" };
 
 export default async function CampaignEditPage({ params }: { params: Promise<{ id: string }> }) {

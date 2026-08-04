@@ -20,7 +20,7 @@ const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 const hasBands = (it?: Item) => !!it && !!it.priceBreaks && it.priceBreaks.length > 0;
 const hasSizeUpcharges = (it?: Item) => !!it && !!it.sizeUpcharges && Object.keys(it.sizeUpcharges).length > 0;
 const isAutoPriced = (it?: Item) => hasBands(it) || hasSizeUpcharges(it);
-const inputCls = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const inputCls = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export function QuoteBuilder({
   quoteId,

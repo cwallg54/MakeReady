@@ -65,7 +65,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
               const overdue = r.status !== "paid" && r.status !== "void" && r.dueDate && agingBucket(r.dueDate, now) !== "current";
               return (
                 <tr key={r.id}>
-                  <td className="px-4 py-2"><Link href={`/accounting/invoices/${r.id}`} className="font-medium text-blue-600 hover:underline">{r.invoiceNumber}</Link></td>
+                  <td className="px-4 py-2"><Link href={`/accounting/invoices/${r.id}`} className="font-medium text-brand-ink hover:underline">{r.invoiceNumber}</Link></td>
                   <td className="px-4 py-2 text-neutral-800">{r.company ?? "—"}</td>
                   <td className="px-4 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_BADGE[r.status]}`}>{r.status}</span></td>
                   <td className={`px-4 py-2 ${overdue ? "font-semibold text-red-600" : "text-neutral-500"}`}>{r.dueDate ? fmtDate(r.dueDate) : "—"}</td>

@@ -46,7 +46,7 @@ export default async function AuditPage({
   if (to) exportParams.set("to", to);
   if (actorId) exportParams.set("actorId", actorId);
   const exportHref = `/admin/audit/export${exportParams.toString() ? `?${exportParams}` : ""}`;
-  const inputCls = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+  const inputCls = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 
   return (
     <Card className="p-0">

@@ -11,7 +11,7 @@ import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 const STATUSES = ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"] as const;
 const LABEL: Record<string, string> = { queued: "Queued", in_production: "In production", quality_check: "Quality check", ready_to_ship: "Ready to ship", shipped: "Shipped" };
 

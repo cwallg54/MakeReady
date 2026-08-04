@@ -13,7 +13,7 @@ import { fmtDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 const REASON_LABEL: Record<string, string> = { receive: "Received", consume: "Consumed", adjust: "Adjusted", count: "Counted", transfer: "Transferred" };
 
 export default async function InventoryItemPage({ params }: { params: Promise<{ id: string }> }) {

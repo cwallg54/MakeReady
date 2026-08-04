@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { submitDocumentAction, type DocState } from "@/lib/documents/actions";
 import { sectionsFor, DOC_LABELS, CC_TERMS_TEXT, TERMS_TERMS_TEXT, type CustomerDocType, type DocField } from "@/lib/documents/meta";
 
-const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 const SHIP_FIELDS = new Set(["shippingAddress", "shippingCity", "shippingState", "shippingZip"]);
 const BILL_TO_SHIP: Record<string, string> = { billingAddress: "shippingAddress", billingCity: "shippingCity", billingState: "shippingState", billingZip: "shippingZip" };
 

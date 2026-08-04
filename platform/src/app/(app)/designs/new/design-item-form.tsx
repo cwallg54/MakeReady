@@ -7,7 +7,7 @@ import { createDesignItemAction } from "@/lib/designs/actions";
 export interface Brand { code: string; name: string; isLegacy: boolean }
 export interface Suffix { code: string; label: string; kind: string }
 
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand";
 const lbl = "mb-1 block text-xs font-medium text-neutral-600";
 
 export function DesignItemForm({ brands, suffixes }: { brands: Brand[]; suffixes: Suffix[] }) {

@@ -50,9 +50,9 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-neutral-900">Item master <span className="font-normal text-neutral-400">({total.toLocaleString()})</span></h2>
           <form className="flex flex-wrap items-center gap-2">
-            <input name="q" defaultValue={q ?? ""} placeholder="Search name / SKU / category" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500" />
+            <input name="q" defaultValue={q ?? ""} placeholder="Search name / SKU / category" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand" />
             {territories.length > 0 && (
-              <select name="territory" defaultValue={territory ?? ""} className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500">
+              <select name="territory" defaultValue={territory ?? ""} className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand">
                 <option value="">All territories</option>
                 {territories.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>

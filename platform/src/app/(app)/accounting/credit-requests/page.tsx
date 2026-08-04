@@ -11,7 +11,7 @@ import { approveCreditRequestAction, denyCreditRequestAction } from "@/lib/accou
 
 export const dynamic = "force-dynamic";
 const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 
 export default async function CreditRequestsPage({ searchParams }: { searchParams: Promise<{ err?: string }> }) {
   const user = await requireModule("accounting");
@@ -60,7 +60,7 @@ export default async function CreditRequestsPage({ searchParams }: { searchParam
                 <div key={r.id} className="rounded-lg border border-neutral-200 p-4">
                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <span className="font-semibold text-neutral-900">{r.bpId ? <Link href={`/reports/standard/credit/${r.bpId}`} className="text-blue-600 hover:underline">{r.company}</Link> : r.company ?? "—"}</span>
+                      <span className="font-semibold text-neutral-900">{r.bpId ? <Link href={`/reports/standard/credit/${r.bpId}`} className="text-brand-ink hover:underline">{r.company}</Link> : r.company ?? "—"}</span>
                       <span className={`ml-2 rounded-full px-2 py-0.5 text-xs font-semibold ${r.reason === "hold" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{r.reason === "hold" ? "On credit hold" : `${money(over)} over limit`}</span>
                     </div>
                     <span className="text-xs text-neutral-400">{r.quoteNumber ? `Quote ${r.quoteNumber} · ` : ""}by {r.requestedByName ?? "—"} · {fmtDateTime(r.createdAt)}</span>

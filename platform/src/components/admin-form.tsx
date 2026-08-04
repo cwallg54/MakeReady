@@ -31,7 +31,7 @@ export function AdminField({
         defaultValue={defaultValue}
         min={min}
         max={max}
-        className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500"
+        className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand"
       />
       {hint && <span className="mt-1 block text-xs text-neutral-500">{hint}</span>}
     </label>
@@ -55,7 +55,7 @@ export function AdminSelect({
       <select
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500"
+        className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

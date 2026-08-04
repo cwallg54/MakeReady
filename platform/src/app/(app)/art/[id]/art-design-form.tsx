@@ -12,7 +12,7 @@ export interface ExistingDesign {
   barcodeNumber: string | null; barcodeSource: string;
 }
 
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand";
 const lbl = "mb-1 block text-xs font-medium text-neutral-600";
 
 /**

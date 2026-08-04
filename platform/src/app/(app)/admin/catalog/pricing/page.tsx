@@ -15,8 +15,8 @@ import type { DecorationPricing, SizeEntry } from "@/lib/sales/pricing";
 
 export const dynamic = "force-dynamic";
 
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
-const sinp = "w-20 rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
+const sinp = "w-20 rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm outline-none focus:border-brand";
 const lbl = "text-[11px] font-medium text-neutral-500";
 
 export default async function PricingSettingsPage() {

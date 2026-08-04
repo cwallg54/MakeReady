@@ -12,7 +12,7 @@ import { recordPaymentAction } from "@/lib/accounting/actions";
 export const dynamic = "force-dynamic";
 
 const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 const lbl = "text-xs font-medium text-neutral-500";
 const METHODS = ["check", "ach", "card", "cash", "credit", "other"];
 
@@ -56,7 +56,7 @@ export default async function PaymentsPage() {
               <tr key={r.id}>
                 <td className="px-4 py-2 text-neutral-600">{fmtDateTime(r.receivedDate)}</td>
                 <td className="px-4 py-2 text-neutral-800">{r.company ?? "—"}</td>
-                <td className="px-4 py-2">{r.invoiceId ? <Link href={`/accounting/invoices/${r.invoiceId}`} className="text-blue-600 hover:underline">{r.invoiceNumber}</Link> : <span className="text-neutral-400">on account</span>}</td>
+                <td className="px-4 py-2">{r.invoiceId ? <Link href={`/accounting/invoices/${r.invoiceId}`} className="text-brand-ink hover:underline">{r.invoiceNumber}</Link> : <span className="text-neutral-400">on account</span>}</td>
                 <td className="px-4 py-2 capitalize text-neutral-600">{r.method}{r.reference ? ` · ${r.reference}` : ""}</td>
                 <td className="px-4 py-2 text-right tabular-nums font-medium text-emerald-700">{money(Number(r.amount))}</td>
               </tr>

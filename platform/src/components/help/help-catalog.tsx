@@ -36,7 +36,7 @@ export function HelpCatalog({ sections }: { sections: { section: string; article
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search help articles…"
-          className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500"
+          className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand"
         />
       </div>
 

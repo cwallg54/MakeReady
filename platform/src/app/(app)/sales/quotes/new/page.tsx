@@ -20,7 +20,7 @@ export default async function NewQuotePage({
 
   const templates = await db.select().from(orderFormTemplates).where(eq(orderFormTemplates.active, true)).orderBy(asc(orderFormTemplates.name));
 
-  const select = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+  const select = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand";
 
   return (
     <div className="max-w-lg">

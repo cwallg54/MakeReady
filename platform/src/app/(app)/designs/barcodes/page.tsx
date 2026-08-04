@@ -36,7 +36,7 @@ export default async function BarcodesPage({ searchParams }: { searchParams: Pro
       <PageHeader title="Barcodes" description="Every barcode from the book — GMW 12/10-digit and customer-provided." />
       <Card>
         <form className="flex flex-wrap items-center gap-2 text-sm">
-          <input name="q" defaultValue={q ?? ""} placeholder="Search barcode, design #, description…" className="min-w-64 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-neutral-500" />
+          <input name="q" defaultValue={q ?? ""} placeholder="Search barcode, design #, description…" className="min-w-64 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-brand" />
           <label className="flex items-center gap-1 text-xs text-neutral-600"><input type="checkbox" name="archived" value="1" defaultChecked={showArchived} className="h-4 w-4" /> include archives</label>
           <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 font-medium text-neutral-700 hover:bg-neutral-50">Filter</button>
           <span className="ml-auto text-xs text-neutral-400">{total.toLocaleString()} barcodes</span>

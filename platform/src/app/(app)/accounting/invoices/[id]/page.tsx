@@ -18,7 +18,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 const lbl = "text-xs font-medium text-neutral-500";
 const STATUS_BADGE: Record<string, string> = { draft: "bg-neutral-200 text-neutral-700", sent: "bg-blue-100 text-blue-700", partial: "bg-amber-100 text-amber-700", paid: "bg-emerald-100 text-emerald-700", void: "bg-red-100 text-red-700" };
 const METHODS = ["check", "ach", "card", "cash", "credit", "other"];

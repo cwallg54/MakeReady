@@ -49,7 +49,7 @@ export function TotpEnroll({ enrolled }: { enrolled: boolean }) {
       <p className="text-xs text-neutral-500">Can&apos;t scan? Enter this key manually: <code className="rounded bg-neutral-100 px-1.5 py-0.5">{enrollment.secret}</code></p>
       <form action={confirmAction} className="flex items-end gap-2">
         {confirmState.error && <span className="text-sm text-red-600">{confirmState.error}</span>}
-        <input name="code" required autoComplete="one-time-code" placeholder="123456" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500" />
+        <input name="code" required autoComplete="one-time-code" placeholder="123456" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand" />
         <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Verify &amp; enable</button>
       </form>
     </div>

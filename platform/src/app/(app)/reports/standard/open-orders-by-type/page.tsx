@@ -96,7 +96,7 @@ export default async function OpenOrdersByTypePage({ searchParams }: { searchPar
                 const until = r.dueDate ? daysUntil(r.dueDate, now) : null;
                 return (
                   <tr key={r.id} className="border-b border-neutral-50">
-                    <td className="px-2 py-1"><Link href={`/sales/orders/${r.id}`} className="font-medium text-blue-600 hover:underline">{r.orderNumber}</Link></td>
+                    <td className="px-2 py-1"><Link href={`/sales/orders/${r.id}`} className="font-medium text-brand-ink hover:underline">{r.orderNumber}</Link></td>
                     {!hidden("customerCode") && <td className="px-2 py-1 text-neutral-500">{r.code ?? ""}</td>}
                     <td className="px-2 py-1 text-neutral-800">{r.customer}</td>
                     {!hidden("salesperson") && <td className="px-2 py-1 text-neutral-500">{r.repName}</td>}

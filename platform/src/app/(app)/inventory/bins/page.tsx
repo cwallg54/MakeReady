@@ -10,7 +10,7 @@ import { createWarehouseAction, createBinAction, toggleWarehouseActiveAction, de
 
 export const dynamic = "force-dynamic";
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 
 export default async function BinsPage() {
   const user = await requireModule("inventory");

@@ -10,7 +10,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { addSuffixAction, toggleSuffixAction } from "@/lib/designs/actions";
 
 export const dynamic = "force-dynamic";
-const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 
 export default async function DesignConfigPage() {
   const user = await requireUser();

@@ -96,7 +96,7 @@ export default async function OpenOrdersBySalespersonPage() {
                                 const d = r.dueDate ? daysUntil(r.dueDate, now) : null;
                                 return (
                                   <tr key={r.id} className="border-b border-neutral-50">
-                                    <td className="px-2 py-1"><Link href={`/sales/orders/${r.id}`} className="font-medium text-blue-600 hover:underline">{r.orderNumber}</Link></td>
+                                    <td className="px-2 py-1"><Link href={`/sales/orders/${r.id}`} className="font-medium text-brand-ink hover:underline">{r.orderNumber}</Link></td>
                                     <td className="px-2 py-1" title={r.orderType ? ORDER_TYPE_LABEL[r.orderType] : ""}>{r.orderType ?? "—"}</td>
                                     {!hidden("poNumber") && <td className="px-2 py-1 text-neutral-500">{r.poNumber ?? ""}</td>}
                                     {!hidden("entered") && <td className="px-2 py-1 text-neutral-500">{fmtDate(r.enteredDate)}</td>}

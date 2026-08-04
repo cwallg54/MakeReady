@@ -41,7 +41,7 @@ const ORDER_STAGE_BADGE: Record<string, string> = {
   shipped: "bg-sky-100 text-sky-700",
   delivered: "bg-emerald-100 text-emerald-700",
 };
-const input = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export default async function BpDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireModule("crm");

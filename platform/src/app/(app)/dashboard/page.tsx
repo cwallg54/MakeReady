@@ -94,7 +94,7 @@ export default async function DashboardPage() {
             <div className="space-y-2">
               {[
                 { key: "lead", label: "Leads", cls: "text-amber-600" },
-                { key: "prospect", label: "Prospects", cls: "text-blue-600" },
+                { key: "prospect", label: "Prospects", cls: "text-brand-ink" },
                 { key: "customer", label: "Customers", cls: "text-emerald-600" },
               ].map((s) => (
                 <Link key={s.key} href={`/crm?stage=${s.key}`} className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-neutral-50">

@@ -62,7 +62,7 @@ export default async function AgingPage() {
             {rows.length === 0 && <tr><td colSpan={7} className="px-4 py-6 text-center text-neutral-400">No open receivables.</td></tr>}
             {rows.map((r) => (
               <tr key={r.bpId ?? r.company}>
-                <td className="px-4 py-2 text-neutral-800">{r.bpId ? <Link href={`/reports/standard/credit/${r.bpId}`} className="text-blue-600 hover:underline">{r.company}</Link> : r.company}</td>
+                <td className="px-4 py-2 text-neutral-800">{r.bpId ? <Link href={`/reports/standard/credit/${r.bpId}`} className="text-brand-ink hover:underline">{r.company}</Link> : r.company}</td>
                 {AGING_BUCKETS.map((b) => <td key={b} className={`px-4 py-2 text-right tabular-nums ${b === "90+" && r.buckets[b] ? "font-semibold text-red-600" : "text-neutral-600"}`}>{money(r.buckets[b])}</td>)}
                 <td className="px-4 py-2 text-right font-semibold tabular-nums text-neutral-900">{money(r.total)}</td>
               </tr>

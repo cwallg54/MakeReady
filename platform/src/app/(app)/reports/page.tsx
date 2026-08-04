@@ -153,7 +153,7 @@ export default async function ReportsPage() {
       <Card>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900">Low stock ({lowCount})</h2>
-          <Link href="/reports/export?d=low-stock" className="text-xs font-medium text-blue-600 hover:text-blue-800">Export CSV ↓</Link>
+          <Link href="/reports/export?d=low-stock" className="text-xs font-medium text-brand-ink hover:text-brand-ink-dark">Export CSV ↓</Link>
         </div>
         {lowStock.length === 0 ? <p className="text-xs text-neutral-400">Nothing at or below its reorder point.</p> : (
           <>

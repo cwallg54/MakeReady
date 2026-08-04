@@ -7,7 +7,7 @@ import { createStyleAction } from "@/lib/catalog/actions";
 
 export const dynamic = "force-dynamic";
 
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 const lbl = "text-xs font-medium text-neutral-500";
 const money = (n: number) => `$${n.toFixed(2)}`;
 
@@ -21,7 +21,7 @@ export default async function CatalogPage() {
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-neutral-500">Blank garments reps pick from in the Quote Builder.</p>
-        <Link href="/admin/catalog/pricing" className="text-sm font-medium text-blue-600 hover:text-blue-800">Decoration &amp; pricing settings →</Link>
+        <Link href="/admin/catalog/pricing" className="text-sm font-medium text-brand-ink hover:text-brand-ink-dark">Decoration &amp; pricing settings →</Link>
       </div>
 
       <Card>

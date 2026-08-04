@@ -56,8 +56,8 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
 
       <Card>
         <form className="flex flex-wrap items-center gap-2 text-sm">
-          <input name="q" defaultValue={q ?? ""} placeholder="Search item #, design, customer, description…" className="min-w-64 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-neutral-500" />
-          <select name="catalog" defaultValue={catalog ?? ""} className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-neutral-500">
+          <input name="q" defaultValue={q ?? ""} placeholder="Search item #, design, customer, description…" className="min-w-64 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-brand" />
+          <select name="catalog" defaultValue={catalog ?? ""} className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-brand">
             <option value="">All catalogs</option>
             {CATALOGS.map((c) => <option key={c} value={c}>{c.toUpperCase()}</option>)}
           </select>
@@ -76,7 +76,7 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
               {items.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-neutral-400">No designs match.</td></tr>}
               {items.map((i) => (
                 <tr key={i.id} className={`hover:bg-neutral-50 ${i.archived ? "opacity-60" : ""}`}>
-                  <td className="px-4 py-2"><Link href={`/designs/${i.id}`} className="font-mono text-xs font-medium text-blue-600 hover:underline">{i.itemNumber}</Link>{i.isException && <span className="ml-1 rounded bg-red-50 px-1 text-[10px] text-red-600">exc</span>}</td>
+                  <td className="px-4 py-2"><Link href={`/designs/${i.id}`} className="font-mono text-xs font-medium text-brand-ink hover:underline">{i.itemNumber}</Link>{i.isException && <span className="ml-1 rounded bg-red-50 px-1 text-[10px] text-red-600">exc</span>}</td>
                   <td className="px-4 py-2 text-neutral-800">{i.description ?? "—"}</td>
                   <td className="px-4 py-2 text-neutral-500">{i.company ?? i.custNumber ?? "—"}</td>
                   <td className="px-4 py-2"><span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600">{i.catalog}</span></td>
@@ -92,7 +92,7 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
           {items.map((i) => (
             <li key={i.id} className={`px-4 py-3 ${i.archived ? "opacity-60" : ""}`}>
               <div className="flex items-center justify-between gap-2">
-                <Link href={`/designs/${i.id}`} className="font-mono text-sm font-medium text-blue-600">{i.itemNumber}</Link>
+                <Link href={`/designs/${i.id}`} className="font-mono text-sm font-medium text-brand-ink">{i.itemNumber}</Link>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_BADGE[i.status]}`}>{i.status}</span>
               </div>
               <div className="mt-1 text-sm text-neutral-800">{i.description ?? "—"}</div>
@@ -115,7 +115,7 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
         )}
       </Card>
 
-      <p className="text-xs text-neutral-400">Suffixes and brands are in <Link href="/designs/config" className="text-blue-600 hover:underline">Design settings</Link>. Imported from the Barcode Book — active + archived.</p>
+      <p className="text-xs text-neutral-400">Suffixes and brands are in <Link href="/designs/config" className="text-brand-ink hover:underline">Design settings</Link>. Imported from the Barcode Book — active + archived.</p>
     </div>
   );
 }

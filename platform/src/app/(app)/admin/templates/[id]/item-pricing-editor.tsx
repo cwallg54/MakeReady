@@ -5,7 +5,7 @@ import type { PriceBreak } from "@/lib/sales/pricing";
 import { setItemPricingAction } from "@/lib/sales/template-actions";
 
 const input =
-  "rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+  "rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export function ItemPricingEditor({
   templateId,

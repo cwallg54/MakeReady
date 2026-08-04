@@ -27,7 +27,7 @@ const COLUMNS: { key: string; label: string }[] = [
   { key: "done", label: "Done" },
 ];
 
-const inputCls = "rounded border border-neutral-300 bg-white px-1.5 py-1 text-xs text-neutral-800 outline-none focus:border-neutral-500";
+const inputCls = "rounded border border-neutral-300 bg-white px-1.5 py-1 text-xs text-neutral-800 outline-none focus:border-brand";
 
 export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: string; name: string }[]; meId: string }) {
   const [view, setView] = useState<"kanban" | "queue">("kanban");

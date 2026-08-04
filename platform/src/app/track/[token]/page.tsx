@@ -68,7 +68,7 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
 
           {proof && (
             <div className="mt-8 rounded-xl border border-blue-200 bg-blue-50/60 p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Proof ready for your approval</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-ink">Proof ready for your approval</p>
               <h2 className="mt-1 text-base font-semibold text-neutral-900">{proof.title}</h2>
               {proof.message && <p className="mt-1 text-sm text-neutral-600">{proof.message}</p>}
               {proof.attachmentId && (

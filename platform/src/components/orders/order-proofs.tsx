@@ -6,7 +6,7 @@ import type { Order, OrderProof, OrderAttachment } from "@/db/schema";
 import { createProofAction, deleteProofAction } from "@/lib/orders/proof-actions";
 
 const TZ = "America/Denver";
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 const STATUS: Record<string, { label: string; cls: string }> = {
   pending: { label: "Awaiting customer", cls: "bg-amber-100 text-amber-800" },
   approved: { label: "Approved", cls: "bg-emerald-100 text-emerald-800" },

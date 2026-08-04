@@ -20,7 +20,7 @@ const ERR_MSG: Record<string, string> = {
   nolink: "No design found with that item number.",
 };
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 const STATUSES = ["todo", "in_progress", "proofing", "revisions", "approved", "done"] as const;
 const STATUS_LABEL: Record<string, string> = { todo: "To do", in_progress: "In progress", proofing: "Proofing", revisions: "Revisions", approved: "Approved", done: "Done" };
 const PROOF_BADGE: Record<string, string> = { pending: "bg-blue-100 text-blue-700", approved: "bg-emerald-100 text-emerald-700", changes_requested: "bg-amber-100 text-amber-700", declined: "bg-red-100 text-red-700", meeting_requested: "bg-purple-100 text-purple-700" };
@@ -66,7 +66,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
           <div className="flex h-28 w-28 flex-col items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-center group-hover:ring-2 group-hover:ring-neutral-400">
             <span className="text-2xl">📄</span>
             <span className="mt-1 line-clamp-2 text-[10px] text-neutral-500">{a.filename}</span>
-            <span className="mt-0.5 text-[9px] font-medium text-blue-600">download</span>
+            <span className="mt-0.5 text-[9px] font-medium text-brand-ink">download</span>
           </div>
         )}
       </a>
@@ -108,7 +108,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
               <span className="font-mono font-semibold text-neutral-900">{design.itemNumber}</span>
               {design.barcodeNumber && <span className="text-xs text-neutral-500">barcode {design.barcodeNumber}</span>}
               {design.description && <span className="text-xs text-neutral-500">{design.description}</span>}
-              <Link href={`/designs/${design.id}`} className="ml-auto text-xs font-medium text-blue-600 hover:text-blue-800">Open in Design Library →</Link>
+              <Link href={`/designs/${design.id}`} className="ml-auto text-xs font-medium text-brand-ink hover:text-brand-ink-dark">Open in Design Library →</Link>
             </div>
             <p className="text-xs text-emerald-700">✓ The inventory item exists with the art attached — sales can order this. The art job can now be approved.</p>
             <form action={unlinkDesignFromArtAction}>
@@ -250,7 +250,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
                   {p.signedName && <span className="ml-2 text-xs text-neutral-500">by {p.signedName} · {fmtDateTime(p.respondedAt)}</span>}
                   {p.responseNotes && <p className="text-xs text-neutral-500">“{p.responseNotes}”</p>}
                 </div>
-                <a href={`/proof/${p.token}`} className="text-xs font-medium text-blue-600 hover:text-blue-800" target="_blank" rel="noreferrer">Open proof link →</a>
+                <a href={`/proof/${p.token}`} className="text-xs font-medium text-brand-ink hover:text-brand-ink-dark" target="_blank" rel="noreferrer">Open proof link →</a>
               </li>
             ))}
           </ul>

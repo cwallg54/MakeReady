@@ -53,7 +53,7 @@ export function PasskeyManager({ credentials }: { credentials: Cred[] }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Device name (e.g. MacBook, YubiKey)"
-          className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500"
+          className="flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand"
         />
         <button onClick={addPasskey} disabled={busy} className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700 disabled:opacity-60">
           {busy ? "Waiting…" : "Add passkey"}

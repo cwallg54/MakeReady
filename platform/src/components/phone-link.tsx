@@ -6,7 +6,7 @@ export function PhoneLink({ phone, className = "" }: { phone: string; className?
   const tel = phone.replace(/[^\d+]/g, "");
   if (!tel) return <span className={className}>{phone}</span>;
   return (
-    <a href={`tel:${tel}`} className={`text-blue-600 hover:underline ${className}`}>
+    <a href={`tel:${tel}`} className={`text-brand-ink hover:underline ${className}`}>
       {phone}
     </a>
   );
@@ -15,7 +15,7 @@ export function PhoneLink({ phone, className = "" }: { phone: string; className?
 // Companion tap-to-email link.
 export function EmailLink({ email, className = "" }: { email: string; className?: string }) {
   return (
-    <a href={`mailto:${email}`} className={`text-blue-600 hover:underline ${className}`}>
+    <a href={`mailto:${email}`} className={`text-brand-ink hover:underline ${className}`}>
       {email}
     </a>
   );

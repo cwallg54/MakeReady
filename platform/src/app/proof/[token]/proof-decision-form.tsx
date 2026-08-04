@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { submitProofDecisionAction, type ProofDecisionState } from "@/lib/orders/proof-actions";
 
-const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export function ProofDecisionForm({ token }: { token: string }) {
   const [state, action] = useActionState<ProofDecisionState, FormData>(submitProofDecisionAction, {});

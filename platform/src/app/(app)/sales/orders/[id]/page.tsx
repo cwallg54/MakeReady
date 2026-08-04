@@ -207,7 +207,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <form action={voidOrderAction} className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <label className="flex-1 text-xs text-neutral-500">
               Reason
-              <input name="reason" required placeholder="Why is this order being voided?" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500" />
+              <input name="reason" required placeholder="Why is this order being voided?" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand" />
             </label>
             <input type="hidden" name="id" value={order.id} />
             <ConfirmButton message="Void this order? This cancels it (kept on record with your reason)." className="rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Void order</ConfirmButton>

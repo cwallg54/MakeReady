@@ -96,11 +96,11 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">Credit controls</h2>
           <form action={updateCreditControlsAction} className="grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="bpId" value={bp.id} />
-            <label className="text-xs text-neutral-500">Credit limit $<input name="creditLimit" type="number" step="0.01" min="0" defaultValue={bp.creditLimit ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500" /></label>
-            <label className="text-xs text-neutral-500">Terms<input name="paymentTerms" defaultValue={bp.paymentTerms ?? ""} placeholder="Net 30" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500" /></label>
+            <label className="text-xs text-neutral-500">Credit limit $<input name="creditLimit" type="number" step="0.01" min="0" defaultValue={bp.creditLimit ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand" /></label>
+            <label className="text-xs text-neutral-500">Terms<input name="paymentTerms" defaultValue={bp.paymentTerms ?? ""} placeholder="Net 30" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand" /></label>
             <label className="flex items-center gap-2 pt-5 text-sm text-neutral-700"><input type="checkbox" name="creditHold" defaultChecked={bp.creditHold} className="h-4 w-4" /> Credit hold</label>
             <label className="flex items-center gap-2 pt-5 text-sm text-neutral-700"><input type="checkbox" name="personalGuarantee" defaultChecked={bp.personalGuarantee} className="h-4 w-4" /> Personal guarantee</label>
-            <label className="text-xs text-neutral-500 sm:col-span-3">Hold reason<input name="creditHoldReason" defaultValue={bp.creditHoldReason ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500" /></label>
+            <label className="text-xs text-neutral-500 sm:col-span-3">Hold reason<input name="creditHoldReason" defaultValue={bp.creditHoldReason ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand" /></label>
             <div className="flex items-end"><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Save</button></div>
           </form>
           <p className="mt-2 text-xs text-neutral-400">A credit hold or exceeding the limit blocks converting quotes to orders for this customer.</p>
@@ -140,7 +140,7 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
             <tbody>
               {openOrders.map((o) => (
                 <tr key={o.id} className="border-b border-neutral-50">
-                  <td className="px-2 py-1"><Link href={`/sales/orders/${o.id}`} className="font-medium text-blue-600 hover:underline">{o.orderNumber}</Link></td>
+                  <td className="px-2 py-1"><Link href={`/sales/orders/${o.id}`} className="font-medium text-brand-ink hover:underline">{o.orderNumber}</Link></td>
                   <td className="px-2 py-1" title={o.orderType ? ORDER_TYPE_LABEL[o.orderType] : ""}>{o.orderType ?? "—"}</td>
                   <td className="px-2 py-1 text-neutral-500">{o.poNumber ?? ""}</td>
                   <td className="px-2 py-1 text-neutral-500">{fmtDate(o.enteredDate)}</td>
@@ -172,7 +172,7 @@ export default async function CreditReportPage({ params }: { params: Promise<{ b
               <tbody>
                 {ar.openInvoices.map((i) => (
                   <tr key={i.id} className="border-b border-neutral-50">
-                    <td className="px-2 py-1"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link></td>
+                    <td className="px-2 py-1"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-brand-ink hover:underline">{i.invoiceNumber}</Link></td>
                     <td className="px-2 py-1 text-neutral-500">{i.issueDate ? fmtDate(i.issueDate) : "—"}</td>
                     <td className="px-2 py-1 text-neutral-500">{i.dueDate ? fmtDate(i.dueDate) : "—"}</td>
                     <td className={`px-2 py-1 ${i.bucket === "90+" ? "font-semibold text-red-600" : "text-neutral-500"}`}>{i.bucket}</td>

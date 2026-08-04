@@ -10,7 +10,7 @@ import { addChargeAction, removeChargeAction, addItemAction, updateItemAction, r
 import { TemplateMetaForm } from "./template-meta-form";
 import { ItemPricingEditor } from "./item-pricing-editor";
 
-const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export default async function TemplateEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

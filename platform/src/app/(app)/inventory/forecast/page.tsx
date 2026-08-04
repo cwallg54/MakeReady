@@ -68,7 +68,7 @@ export default async function ForecastPage() {
               const urgent = r.daysOfStock < r.lead;
               return (
                 <tr key={r.i.id} className="hover:bg-neutral-50">
-                  <td className="px-4 py-2"><Link href={`/inventory/${r.i.id}`} className="font-medium text-neutral-900 hover:underline">{r.i.name}</Link> <span className="font-mono text-[11px] text-neutral-400">{r.i.sku}</span>{r.i.isImport && <span className="ml-1 rounded bg-blue-50 px-1 text-[10px] text-blue-600">import</span>}</td>
+                  <td className="px-4 py-2"><Link href={`/inventory/${r.i.id}`} className="font-medium text-neutral-900 hover:underline">{r.i.name}</Link> <span className="font-mono text-[11px] text-neutral-400">{r.i.sku}</span>{r.i.isImport && <span className="ml-1 rounded bg-blue-50 px-1 text-[10px] text-brand-ink">import</span>}</td>
                   <td className="px-4 py-2 text-neutral-500">{r.i.territory ?? "—"}</td>
                   <td className="px-4 py-2 text-right text-neutral-700">{r.onHand} {r.i.unit}</td>
                   <td className="px-4 py-2 text-right text-neutral-500">{Math.round(r.consumed)}</td>

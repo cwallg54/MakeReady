@@ -30,7 +30,7 @@ const SORT_COLS = {
 } as const;
 type SortKey = keyof typeof SORT_COLS;
 
-const inp = "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const inp = "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export default async function CrmPage({
   searchParams,

@@ -9,7 +9,7 @@ import { PageHeader, Card } from "@/components/ui";
 import { createBaseDesignAction } from "@/lib/designs/actions";
 
 export const dynamic = "force-dynamic";
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand";
 const lbl = "mb-1 block text-xs font-medium text-neutral-600";
 
 export default async function NewBaseDesignPage() {

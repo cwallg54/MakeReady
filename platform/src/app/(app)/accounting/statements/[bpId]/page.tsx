@@ -54,7 +54,7 @@ export default async function StatementPage({ params }: { params: Promise<{ bpId
             <tbody className="divide-y divide-neutral-100">
               {ar.openInvoices.map((i) => (
                 <tr key={i.id}>
-                  <td className="px-2 py-1.5"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link></td>
+                  <td className="px-2 py-1.5"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-brand-ink hover:underline">{i.invoiceNumber}</Link></td>
                   <td className="px-2 py-1.5 text-neutral-500">{i.issueDate ? fmtDate(i.issueDate) : "—"}</td>
                   <td className="px-2 py-1.5 text-neutral-500">{i.dueDate ? fmtDate(i.dueDate) : "—"}</td>
                   <td className={`px-2 py-1.5 ${i.bucket === "90+" ? "font-semibold text-red-600" : "text-neutral-500"}`}>{i.bucket}</td>

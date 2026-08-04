@@ -22,7 +22,7 @@ export interface VaultDoc { id: string; kind: string; filename: string; sizeByte
 
 /** Finance/Admin-only document vault + welcome email. Never rendered for Sales/Art. */
 export function CustomerVault({ bpId, docs, canManage }: { bpId: string; docs: VaultDoc[]; canManage: boolean }) {
-  const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+  const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
   return (
     <Card>
       <div className="mb-1 flex items-center justify-between">
@@ -36,7 +36,7 @@ export function CustomerVault({ bpId, docs, canManage }: { bpId: string; docs: V
         {docs.map((d) => (
           <div key={d.id} className="flex items-center justify-between gap-2 rounded-md border border-neutral-100 px-3 py-1.5">
             <div className="min-w-0">
-              <a href={`/crm/${bpId}/attachment/${d.id}`} target="_blank" rel="noreferrer" className="block truncate text-sm font-medium text-blue-600 hover:underline" title={d.filename}>{d.filename}</a>
+              <a href={`/crm/${bpId}/attachment/${d.id}`} target="_blank" rel="noreferrer" className="block truncate text-sm font-medium text-brand-ink hover:underline" title={d.filename}>{d.filename}</a>
               <p className="truncate text-[11px] text-neutral-400"><span className="rounded bg-neutral-100 px-1 text-neutral-600">{KIND_LABEL[d.kind] ?? d.kind}</span> · {fmtSize(d.sizeBytes)} · {fmtDate(d.createdAt)}{d.notes ? ` · ${d.notes}` : ""}</p>
             </div>
             {canManage && (

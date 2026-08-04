@@ -5,7 +5,7 @@ import { saveOrderInfoAction } from "@/lib/orders/detail-actions";
 import { ORDER_TYPES, DATE_TYPES, SHIP_VIA_OPTIONS, ORDER_TYPE_LABEL, money2 } from "@/lib/reports/standard";
 
 const TZ = "America/Denver";
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 const lbl = "text-xs font-medium text-neutral-500";
 
 export function OrderInfoCard({

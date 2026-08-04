@@ -10,7 +10,7 @@ import { PageHeader, Card } from "@/components/ui";
 import { activateDesignItemAction } from "@/lib/designs/actions";
 
 export const dynamic = "force-dynamic";
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand";
 const STATUS_BADGE: Record<string, string> = { active: "bg-emerald-100 text-emerald-700", draft: "bg-amber-100 text-amber-700", retired: "bg-neutral-200 text-neutral-600" };
 
 export default async function DesignItemPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ err?: string }> }) {
@@ -64,7 +64,7 @@ export default async function DesignItemPage({ params, searchParams }: { params:
             {item.stitchCount != null && <div><dt className="text-xs text-neutral-400">Stitch count</dt><dd className="text-neutral-900">{item.stitchCount.toLocaleString()}</dd></div>}
             <div><dt className="text-xs text-neutral-400">Salesperson</dt><dd className="text-neutral-900">{item.salesperson ?? "—"}</dd></div>
             <div><dt className="text-xs text-neutral-400">Assignee</dt><dd className="text-neutral-900">{item.assigneeInitials ?? "—"}</dd></div>
-            <div className="sm:col-span-2"><dt className="text-xs text-neutral-400">Inventory item</dt><dd>{item.inventoryItemId ? <Link href={`/inventory/${item.inventoryItemId}`} className="text-blue-600 hover:underline">Open in inventory →</Link> : <span className="text-neutral-400">not created</span>}</dd></div>
+            <div className="sm:col-span-2"><dt className="text-xs text-neutral-400">Inventory item</dt><dd>{item.inventoryItemId ? <Link href={`/inventory/${item.inventoryItemId}`} className="text-brand-ink hover:underline">Open in inventory →</Link> : <span className="text-neutral-400">not created</span>}</dd></div>
           </dl>
         </Card>
       </div>

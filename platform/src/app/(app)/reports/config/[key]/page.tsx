@@ -9,7 +9,7 @@ import { saveReportSettingsAction } from "@/lib/reports/config-actions";
 
 export const dynamic = "force-dynamic";
 
-const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-neutral-500";
+const inp = "w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 
 export default async function ReportConfigPage({ params }: { params: Promise<{ key: string }> }) {
   const user = await requireModule("reports");

@@ -79,7 +79,7 @@ export default async function AccountingHome() {
               {overdueList.length === 0 && <tr><td colSpan={4} className="px-5 py-6 text-center text-neutral-400">Nothing overdue. 🎉</td></tr>}
               {overdueList.map((i) => (
                 <tr key={i.id}>
-                  <td className="px-5 py-2"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link></td>
+                  <td className="px-5 py-2"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-brand-ink hover:underline">{i.invoiceNumber}</Link></td>
                   <td className="px-5 py-2 text-neutral-800">{i.company ?? "—"}</td>
                   <td className="px-5 py-2 font-medium text-red-600">{i.dueDate ? fmtDate(i.dueDate) : "—"}</td>
                   <td className="px-5 py-2 text-right tabular-nums font-medium text-neutral-900">{money2(i.balance)}</td>
@@ -94,7 +94,7 @@ export default async function AccountingHome() {
           {overdueList.map((i) => (
             <li key={i.id} className="flex items-center justify-between gap-3 px-5 py-3">
               <div className="min-w-0">
-                <Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link>
+                <Link href={`/accounting/invoices/${i.id}`} className="font-medium text-brand-ink hover:underline">{i.invoiceNumber}</Link>
                 <div className="truncate text-sm text-neutral-700">{i.company ?? "—"}</div>
                 <div className="text-xs font-medium text-red-600">due {i.dueDate ? fmtDate(i.dueDate) : "—"}</div>
               </div>

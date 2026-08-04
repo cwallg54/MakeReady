@@ -20,7 +20,7 @@ export interface CatalogRefs {
 }
 
 const money = (n: number) => `$${n.toFixed(2)}`;
-const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-500";
+const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 
 export function refMaps(refs: CatalogRefs) {
   const methods = new Map<string, MethodRef>(refs.methods.map((m) => [m.code, m]));
