@@ -191,6 +191,124 @@ export async function createDesignForArtAction(formData: FormData): Promise<void
   redirect(`/art/${requestId}`);
 }
 
+/**
+ * Edit / complete a design already linked to an art job — the full inline edit.
+ * Updates every field, (re)composes the number, keeps or replaces the art, and
+ * once it has an item number + barcode it activates and creates the orderable
+ * inventory item. Lets art finish a draft without leaving the art request.
+ */
+export async function completeDesignForArtAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const requestId = str(formData.get("requestId"));
+  const orderId = str(formData.get("orderId"));
+  const designItemId = str(formData.get("designItemId"));
+  if (!requestId || !designItemId) return;
+  const existing = await db.query.designItems.findFirst({ where: eq(designItems.id, designItemId) });
+  if (!existing) redirect(`/art/${requestId}?err=nolink`);
+
+  const brandCode = String(formData.get("brandCode") ?? existing.brandCode ?? "G54").trim() || "G54";
+  const custNumber = str(formData.get("custNumber"))?.toUpperCase() ?? null;
+  const designBase = str(formData.get("designBase"));
+  const suffix = str(formData.get("suffix"));
+  const colorVariant = str(formData.get("colorVariant"));
+  const description = str(formData.get("description"));
+
+  // Item number: explicit field wins; else compose; else keep the real one (not the DRAFT- placeholder).
+  let itemNumber = str(formData.get("itemNumber"));
+  if (!itemNumber && custNumber && designBase) {
+    itemNumber = `${custNumber}-${designBase}${suffix ? `-${suffix}` : ""}${colorVariant ?? ""}`;
+  }
+  if (!itemNumber && !existing.itemNumber.startsWith("DRAFT-")) itemNumber = existing.itemNumber;
+
+  const brand = await db.query.designBrands.findFirst({ where: eq(designBrands.code, brandCode) });
+  const isException = !!brand?.isLegacy || formData.get("markException") === "on";
+  const exceptionReason = str(formData.get("exceptionReason")) ?? existing.exceptionReason;
+  if (isException && !exceptionReason) redirect(`/art/${requestId}?err=exception`);
+
+  const barcodeSource = formData.get("barcodeSource") === "customer" ? "customer" : "gmw";
+  let barcodeNumber = str(formData.get("barcodeNumber")) ?? existing.barcodeNumber;
+  if (barcodeSource === "gmw" && !barcodeNumber && itemNumber) {
+    barcodeNumber = await nextNumber("gmw_barcode", "052774", 6, 200_000);
+  }
+
+  // New image replaces the old; otherwise keep what's on the draft.
+  const file = formData.get("image");
+  let imageBase64 = existing.imageBase64;
+  let imageMimeType = existing.imageMimeType;
+  let newImage = false;
+  if (file instanceof File && file.size > 0 && file.size <= MAX_IMG && file.type.startsWith("image/")) {
+    imageBase64 = Buffer.from(await file.arrayBuffer()).toString("base64");
+    imageMimeType = file.type;
+    newImage = true;
+  }
+
+  const orderable = !!itemNumber && !!barcodeNumber;
+  let inventoryItemId = existing.inventoryItemId;
+  if (orderable) {
+    const inv = await db.query.inventoryItems.findFirst({ where: eq(inventoryItems.sku, itemNumber!) });
+    if (inv) {
+      inventoryItemId = inv.id;
+      if (imageBase64) await db.update(inventoryItems).set({ imageBase64, imageMimeType, updatedAt: new Date() }).where(eq(inventoryItems.id, inv.id));
+    } else {
+      const name = description || [designBase, colorVariant, suffix].filter(Boolean).join(" ") || itemNumber!;
+      const [created] = await db.insert(inventoryItems).values({ sku: itemNumber!, name, category: brandCode, imageBase64, imageMimeType }).returning({ id: inventoryItems.id });
+      inventoryItemId = created.id;
+    }
+  }
+
+  await db.update(designItems).set({
+    itemNumber: itemNumber ?? existing.itemNumber,
+    custNumber: custNumber ?? existing.custNumber,
+    designBase: designBase ?? existing.designBase,
+    description,
+    catalog: brandCode === "ESM" ? "esm" : "g54",
+    brandCode,
+    bpId: str(formData.get("bpId")) ?? existing.bpId,
+    suffix,
+    colorVariant,
+    printing: str(formData.get("printing")) ?? existing.printing,
+    location: str(formData.get("location")) ?? existing.location,
+    barcodeNumber,
+    barcodeSource,
+    imageBase64,
+    imageMimeType,
+    status: orderable ? "active" : "draft",
+    isException,
+    exceptionReason,
+    inventoryItemId,
+    updatedAt: new Date(),
+  }).where(eq(designItems.id, designItemId));
+
+  // Carry a freshly-uploaded art image onto the order for the proof.
+  if (orderId && newImage && imageBase64 && imageMimeType) {
+    await db.insert(orderAttachments).values({
+      orderId,
+      filename: `${itemNumber ?? existing.itemNumber}.${imageMimeType.split("/")[1] ?? "png"}`,
+      mimeType: imageMimeType,
+      sizeBytes: Math.round((imageBase64.length * 3) / 4),
+      kind: "art",
+      contentBase64: imageBase64,
+      notes: `Design ${itemNumber ?? existing.itemNumber} (art department)`,
+      uploadedBy: user.id,
+    });
+  }
+  await audit({ userId: user.id, action: "art.design_complete", entityType: "art_request", entityId: requestId, metadata: { designItemId, orderable } });
+  revalidatePath(`/art/${requestId}`);
+  revalidatePath(`/designs/${designItemId}`);
+  revalidatePath("/designs");
+  redirect(`/art/${requestId}`);
+}
+
+/** Detach the design from an art job (e.g. linked the wrong one). */
+export async function unlinkDesignFromArtAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const requestId = str(formData.get("requestId"));
+  if (!requestId) return;
+  await db.update(artRequests).set({ designItemId: null, updatedAt: new Date() }).where(eq(artRequests.id, requestId));
+  await audit({ userId: user.id, action: "art.design_unlink", entityType: "art_request", entityId: requestId });
+  revalidatePath(`/art/${requestId}`);
+}
+
 /** Link an already-existing design to an art job (reused artwork). */
 export async function linkExistingDesignToArtAction(formData: FormData): Promise<void> {
   const user = await requireArt();

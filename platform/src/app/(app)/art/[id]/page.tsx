@@ -6,7 +6,7 @@ import { artRequests, orders, businessPartners, orderSpecItems, orderAttachments
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction } from "@/lib/art/actions";
-import { linkExistingDesignToArtAction } from "@/lib/designs/actions";
+import { linkExistingDesignToArtAction, unlinkDesignFromArtAction } from "@/lib/designs/actions";
 import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ArtDesignForm } from "./art-design-form";
@@ -101,7 +101,8 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
           {design && <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${DESIGN_BADGE[design.status] ?? "bg-neutral-100 text-neutral-600"}`}>{design.status === "active" ? "orderable" : design.status}</span>}
         </div>
 
-        {design ? (
+        {design && design.status === "active" ? (
+          /* Orderable — compact confirmation. */
           <div className="space-y-2 text-sm">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <span className="font-mono font-semibold text-neutral-900">{design.itemNumber}</span>
@@ -109,13 +110,37 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
               {design.description && <span className="text-xs text-neutral-500">{design.description}</span>}
               <Link href={`/designs/${design.id}`} className="ml-auto text-xs font-medium text-blue-600 hover:text-blue-800">Open in Design Library →</Link>
             </div>
-            {design.status === "active" ? (
-              <p className="text-xs text-emerald-700">✓ The inventory item exists with the art attached — sales can order this. The art job can now be approved.</p>
-            ) : (
-              <p className="text-xs text-amber-700">This design is still a draft (missing item number or barcode). Finish it in the Design Library before this art job can be approved.</p>
-            )}
+            <p className="text-xs text-emerald-700">✓ The inventory item exists with the art attached — sales can order this. The art job can now be approved.</p>
+            <form action={unlinkDesignFromArtAction}>
+              <input type="hidden" name="requestId" value={req.id} />
+              <button className="text-xs font-medium text-neutral-400 hover:text-neutral-700">Unlink / choose a different design</button>
+            </form>
+          </div>
+        ) : design ? (
+          /* Linked but still a draft — the FULL inline edit so it can be finished here. */
+          <div className="space-y-4">
+            <p className="text-xs text-amber-700">This design is a draft — fill in the rest below and it becomes orderable (no need to leave for the Design Library). The art job can’t be approved until it is.</p>
+            <ArtDesignForm
+              brands={brands}
+              suffixes={suffixes}
+              requestId={req.id}
+              orderId={order.id}
+              defaultCustNumber={defaultCustNumber}
+              defaultBpId={order.bpId ?? ""}
+              defaultDescription={defaultDescription}
+              existing={{
+                id: design.id, itemNumber: design.itemNumber, custNumber: design.custNumber, designBase: design.designBase,
+                suffix: design.suffix, colorVariant: design.colorVariant, description: design.description, brandCode: design.brandCode,
+                printing: design.printing, location: design.location, barcodeNumber: design.barcodeNumber, barcodeSource: design.barcodeSource,
+              }}
+            />
+            <form action={unlinkDesignFromArtAction} className="border-t border-neutral-100 pt-3">
+              <input type="hidden" name="requestId" value={req.id} />
+              <button className="text-xs font-medium text-neutral-400 hover:text-neutral-700">Unlink this draft / start over</button>
+            </form>
           </div>
         ) : (
+          /* Nothing linked yet — create or link an existing design. */
           <div className="space-y-4">
             <p className="text-xs text-neutral-500">Punch in the design once — it composes the item number, assigns the barcode, attaches the art, and creates the orderable item automatically. This is required before the art job can be approved, so sales never wait on a manual SAP/Zoey setup.</p>
             <ArtDesignForm
