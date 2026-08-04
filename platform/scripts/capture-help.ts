@@ -13,7 +13,7 @@ import { db } from "../src/db";
 import {
   users, sessions, businessPartners, contacts, accountGroups, activities,
   quotes, quoteLines, quoteCharges, quoteAttachments, orders, orderEvents, orderSpecItems, orderAttachments, orderProofs, artRequests, customerDocuments,
-  meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings,
+  meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings, designItems,
 } from "../src/db/schema";
 
 const DEMO_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
@@ -30,6 +30,8 @@ async function main() {
   const template = await db.query.orderFormTemplates.findFirst({ orderBy: asc(orderFormTemplates.name) });
   const campaign = await db.query.automationCampaigns.findFirst();
   const mtype = await db.query.meetingTypes.findFirst({ orderBy: asc(meetingTypes.sortOrder) });
+  // A real, matched design (with a customer + barcode) for the detail shot.
+  const sampleDesign = await db.query.designItems.findFirst({ where: eq(designItems.status, "active"), orderBy: asc(designItems.itemNumber) });
 
   // If the org requires MFA, temporarily relax it so the app doesn't redirect
   // every page to the security screen during capture. Restored at the end.
@@ -162,7 +164,12 @@ async function main() {
     ["admin-templates", "/admin/templates"],
     ["admin-config", "/admin/config"],
     ["admin-audit", "/admin/audit"],
+    ["designs", "/designs"],
+    ["design-new", "/designs/new"],
+    ["design-reconcile", "/designs/reconcile"],
+    ["design-config", "/designs/config"],
   ];
+  if (sampleDesign) authed.push(["design-detail", `/designs/${sampleDesign.id}`]);
   if (template) authed.push(["admin-template-edit", `/admin/templates/${template.id}`]);
   if (campaign) authed.push(["automation-detail", `/sales/automations/${campaign.id}`]);
 
