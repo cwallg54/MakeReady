@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { baseDesigns, designItems, designBrands, designSuffixes, inventoryItems, numberSeries, businessPartners } from "@/db/schema";
+import { baseDesigns, designItems, designBrands, designSuffixes, inventoryItems, numberSeries, businessPartners, artRequests, orderAttachments } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { isAdmin } from "@/lib/rbac";
@@ -59,18 +59,21 @@ export async function createBaseDesignAction(formData: FormData): Promise<void> 
 // ---- Design items (SKUs) --------------------------------------------------
 
 /**
- * Create a design item. When it has both an item number and a barcode, it goes
- * "active" and auto-creates the inventory item (with the art image) so sales can
- * order it — otherwise it's saved as a draft (the ordering gate).
+ * Compose + persist a design item from a form. Shared by the standalone
+ * "+ New design" flow and the art-order flow. When it has both an item number
+ * and a barcode it goes "active" and auto-creates the inventory item (carrying
+ * the art image) so sales can order it — otherwise it's a draft (the gate).
+ * Returns the new row plus what the caller needs to wire it onward.
  */
-export async function createDesignItemAction(formData: FormData): Promise<void> {
-  const user = await requireArt();
+async function composeDesignFromForm(
+  user: { id: string },
+  formData: FormData,
+): Promise<{ id: string; itemNumber: string; orderable: boolean; imageBase64: string | null; imageMimeType: string | null; inventoryItemId: string | null } | { err: string }> {
   const brandCode = String(formData.get("brandCode") ?? "G54").trim() || "G54";
   const custNumber = str(formData.get("custNumber"))?.toUpperCase() ?? null;
   const designBase = str(formData.get("designBase"));
   const suffixEarly = str(formData.get("suffix"));
   const variantEarly = str(formData.get("colorVariant"));
-  // Compose the full number if art didn't type one: CustNum-DesignBase[-suffix][variant].
   let itemNumber = str(formData.get("itemNumber"));
   if (!itemNumber && custNumber && designBase) {
     itemNumber = `${custNumber}-${designBase}${suffixEarly ? `-${suffixEarly}` : ""}${variantEarly ?? ""}`;
@@ -78,19 +81,15 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
   const barcodeSource = formData.get("barcodeSource") === "customer" ? "customer" : "gmw";
   let barcodeNumber = str(formData.get("barcodeNumber"));
 
-  // New designs default to G54; choosing ESM (or a manual override) is an
-  // exception that must be justified and appears on the exceptions report.
   const brand = await db.query.designBrands.findFirst({ where: eq(designBrands.code, brandCode) });
   const isException = !!brand?.isLegacy || formData.get("markException") === "on";
   const exceptionReason = str(formData.get("exceptionReason"));
-  if (isException && !exceptionReason) redirect("/designs/new?err=exception");
+  if (isException && !exceptionReason) return { err: "exception" };
 
-  // Barcode: auto-assign a GMW 12-digit (052774 prefix), or take the customer's.
   if (barcodeSource === "gmw" && !barcodeNumber && itemNumber) {
     barcodeNumber = await nextNumber("gmw_barcode", "052774", 6, 200_000);
   }
 
-  // Art image.
   const file = formData.get("image");
   let imageBase64: string | null = null;
   let imageMimeType: string | null = null;
@@ -102,26 +101,17 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
   const suffix = suffixEarly;
   const colorVariant = variantEarly;
   const description = str(formData.get("description"));
-
-  // Orderable only when both the item number and barcode are present.
   const orderable = !!itemNumber && !!barcodeNumber;
 
   let inventoryItemId: string | null = null;
   if (orderable) {
-    // Reuse an existing item with the same SKU, else create one carrying the art.
     const existing = await db.query.inventoryItems.findFirst({ where: eq(inventoryItems.sku, itemNumber!) });
     if (existing) {
       inventoryItemId = existing.id;
       if (imageBase64) await db.update(inventoryItems).set({ imageBase64, imageMimeType, updatedAt: new Date() }).where(eq(inventoryItems.id, existing.id));
     } else {
       const name = description || [designBase, colorVariant, suffix].filter(Boolean).join(" ") || itemNumber!;
-      const [inv] = await db.insert(inventoryItems).values({
-        sku: itemNumber!,
-        name,
-        category: brandCode,
-        imageBase64,
-        imageMimeType,
-      }).returning({ id: inventoryItems.id });
+      const [inv] = await db.insert(inventoryItems).values({ sku: itemNumber!, name, category: brandCode, imageBase64, imageMimeType }).returning({ id: inventoryItems.id });
       inventoryItemId = inv.id;
     }
   }
@@ -150,8 +140,68 @@ export async function createDesignItemAction(formData: FormData): Promise<void> 
   }).returning({ id: designItems.id });
 
   await audit({ userId: user.id, action: "design.item_create", entityType: "design_item", entityId: row.id, metadata: { itemNumber, orderable, isException } });
+  return { id: row.id, itemNumber: itemNumber ?? row.id, orderable, imageBase64, imageMimeType, inventoryItemId };
+}
+
+/**
+ * Create a design item. When it has both an item number and a barcode, it goes
+ * "active" and auto-creates the inventory item (with the art image) so sales can
+ * order it — otherwise it's saved as a draft (the ordering gate).
+ */
+export async function createDesignItemAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const res = await composeDesignFromForm(user, formData);
+  if ("err" in res) redirect(`/designs/new?err=${res.err}`);
   revalidatePath("/designs");
-  redirect(`/designs/${row.id}`);
+  redirect(`/designs/${res.id}`);
+}
+
+/**
+ * Create a design straight from an art job. Same composition + auto-item, but it
+ * links the design back to the art request (the required gate) and attaches the
+ * art image onto the order so the proof/order already carries it. This is the
+ * "art punches it in once and it flows to items" wiring from the process review.
+ */
+export async function createDesignForArtAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const requestId = str(formData.get("requestId"));
+  const orderId = str(formData.get("orderId"));
+  if (!requestId) return;
+  const res = await composeDesignFromForm(user, formData);
+  if ("err" in res) redirect(`/art/${requestId}?err=${res.err}`);
+
+  await db.update(artRequests).set({ designItemId: res.id, updatedAt: new Date() }).where(eq(artRequests.id, requestId));
+
+  // Carry the art onto the order so the proof/order already has it attached.
+  if (orderId && res.imageBase64 && res.imageMimeType) {
+    await db.insert(orderAttachments).values({
+      orderId,
+      filename: `${res.itemNumber}.${res.imageMimeType.split("/")[1] ?? "png"}`,
+      mimeType: res.imageMimeType,
+      sizeBytes: Math.round((res.imageBase64.length * 3) / 4),
+      kind: "art",
+      contentBase64: res.imageBase64,
+      notes: `Design ${res.itemNumber} (art department)`,
+      uploadedBy: user.id,
+    });
+  }
+  await audit({ userId: user.id, action: "art.design_create", entityType: "art_request", entityId: requestId, metadata: { designItemId: res.id, orderable: res.orderable } });
+  revalidatePath(`/art/${requestId}`);
+  revalidatePath("/designs");
+  redirect(`/art/${requestId}`);
+}
+
+/** Link an already-existing design to an art job (reused artwork). */
+export async function linkExistingDesignToArtAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const requestId = str(formData.get("requestId"));
+  const itemNumber = str(formData.get("itemNumber"))?.toUpperCase();
+  if (!requestId || !itemNumber) return;
+  const design = await db.query.designItems.findFirst({ where: eq(designItems.itemNumber, itemNumber) });
+  if (!design) redirect(`/art/${requestId}?err=nolink`);
+  await db.update(artRequests).set({ designItemId: design.id, updatedAt: new Date() }).where(eq(artRequests.id, requestId));
+  await audit({ userId: user.id, action: "art.design_link", entityType: "art_request", entityId: requestId, metadata: { designItemId: design.id } });
+  revalidatePath(`/art/${requestId}`);
 }
 
 /** Finalize a draft design item once its item number + barcode are filled. */

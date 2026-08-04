@@ -630,6 +630,17 @@ export const HELP_ARTICLES: HelpArticle[] = [
           { text: "Under \"Send a proof to the customer\", give it a title, pick the art to show, add an optional message, and click \"Send proof\". The request moves to Proofing." },
         ],
       },
+      { k: "h", text: "Punch in the design (required)" },
+      { k: "p", text: "Every art job has a Design & orderable item panel. Punch the design in here — once — and MakeReady composes the item number, assigns the barcode, attaches the art, and creates the orderable inventory item automatically. No more setting the item up by hand in SAP and again in the web store: art enters it once and sales can order it immediately, with the art already attached." },
+      {
+        k: "steps",
+        items: [
+          { text: "In the Design & orderable item panel, enter the customer number (pre-filled from the account), the design base, and a suffix if it's a specific product or print location. MakeReady suggests the full item number." },
+          { text: "Let MakeReady auto-assign the GMW barcode (or switch to a customer-provided one), attach the art image, and click “Punch in design & create item”. The art also attaches to this order for the proof." },
+          { text: "Reusing existing artwork? Use “…or link an existing design” to attach a design that's already in the library instead of creating a new one." },
+        ],
+      },
+      { k: "warn", text: "This is the gate: an art job can't be moved to Approved or Done until an orderable design (item number + barcode) is linked. It stops orders being taken on items that aren't fully set up — the “it still has a Y” problem." },
       { k: "h", text: "What happens next" },
       { k: "p", text: "The proposed image appears on the customer's order tracking link. They approve it, request changes (with notes), decline, or request a meeting. You're notified of their decision, and it's logged to the customer's history. If they request changes, revise the art and send a new proof." },
       { k: "img", src: "proof-on-tracker.png", caption: "The customer reviews and approves the proof on their tracking page." },

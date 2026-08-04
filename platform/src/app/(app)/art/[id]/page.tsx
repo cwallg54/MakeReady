@@ -1,38 +1,54 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { artRequests, orders, businessPartners, orderSpecItems, orderAttachments, orderProofs } from "@/db/schema";
+import { artRequests, orders, businessPartners, orderSpecItems, orderAttachments, orderProofs, designItems, designBrands, designSuffixes } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction } from "@/lib/art/actions";
+import { linkExistingDesignToArtAction } from "@/lib/designs/actions";
 import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
+import { ArtDesignForm } from "./art-design-form";
 
 export const dynamic = "force-dynamic";
+
+const DESIGN_BADGE: Record<string, string> = { active: "bg-emerald-100 text-emerald-700", draft: "bg-amber-100 text-amber-700", retired: "bg-neutral-200 text-neutral-600" };
+const ERR_MSG: Record<string, string> = {
+  needdesign: "Punch in the orderable design first — an art job can’t be approved or finished until its item number and barcode exist (so sales can order it).",
+  exception: "A legacy/ESM design needs a reason before it can be saved.",
+  nolink: "No design found with that item number.",
+};
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-500";
 const STATUSES = ["todo", "in_progress", "proofing", "revisions", "approved", "done"] as const;
 const STATUS_LABEL: Record<string, string> = { todo: "To do", in_progress: "In progress", proofing: "Proofing", revisions: "Revisions", approved: "Approved", done: "Done" };
 const PROOF_BADGE: Record<string, string> = { pending: "bg-blue-100 text-blue-700", approved: "bg-emerald-100 text-emerald-700", changes_requested: "bg-amber-100 text-amber-700", declined: "bg-red-100 text-red-700", meeting_requested: "bg-purple-100 text-purple-700" };
 
-export default async function ArtRequestPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ArtRequestPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ err?: string }> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (!canDoArt(user.roles)) redirect("/403");
   const { id } = await params;
+  const { err } = await searchParams;
 
   const req = await db.query.artRequests.findFirst({ where: eq(artRequests.id, id) });
   if (!req) notFound();
   const order = await db.query.orders.findFirst({ where: eq(orders.id, req.orderId) });
   if (!order) notFound();
   const bp = order.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : undefined;
-  const [specs, attachments, proofs] = await Promise.all([
+  const [specs, attachments, proofs, design, brands, suffixes] = await Promise.all([
     db.select().from(orderSpecItems).where(eq(orderSpecItems.orderId, order.id)).orderBy(asc(orderSpecItems.sortOrder)),
     db.select({ id: orderAttachments.id, filename: orderAttachments.filename, mimeType: orderAttachments.mimeType, kind: orderAttachments.kind })
       .from(orderAttachments).where(eq(orderAttachments.orderId, order.id)).orderBy(desc(orderAttachments.createdAt)),
     db.select().from(orderProofs).where(eq(orderProofs.orderId, order.id)).orderBy(desc(orderProofs.createdAt)),
+    req.designItemId ? db.query.designItems.findFirst({ where: eq(designItems.id, req.designItemId) }) : Promise.resolve(null),
+    db.select({ code: designBrands.code, name: designBrands.name, isLegacy: designBrands.isLegacy }).from(designBrands).where(eq(designBrands.active, true)).orderBy(asc(designBrands.sortOrder)),
+    db.select({ code: designSuffixes.code, label: designSuffixes.label, kind: designSuffixes.kind }).from(designSuffixes).where(and(eq(designSuffixes.active, true))).orderBy(asc(designSuffixes.sortOrder), asc(designSuffixes.code)),
   ]);
+  // Customer number for the design = the account's legacy code without the "C".
+  const defaultCustNumber = bp?.legacyCode?.replace(/^C/i, "") ?? "";
+  const defaultDescription = specs[0]?.product ?? "";
 
   const group = (k: string) => attachments.filter((a) => a.kind === k);
   const catalog = group("catalog");
@@ -73,6 +89,55 @@ export default async function ArtRequestPage({ params }: { params: Promise<{ id:
           </form>
         }
       />
+
+      {err && ERR_MSG[err] && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">{ERR_MSG[err]}</div>
+      )}
+
+      {/* Design & orderable item — the required gate */}
+      <Card className={design?.status === "active" ? "" : "border-amber-300"}>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-neutral-900">Design &amp; orderable item</h2>
+          {design && <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${DESIGN_BADGE[design.status] ?? "bg-neutral-100 text-neutral-600"}`}>{design.status === "active" ? "orderable" : design.status}</span>}
+        </div>
+
+        {design ? (
+          <div className="space-y-2 text-sm">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="font-mono font-semibold text-neutral-900">{design.itemNumber}</span>
+              {design.barcodeNumber && <span className="text-xs text-neutral-500">barcode {design.barcodeNumber}</span>}
+              {design.description && <span className="text-xs text-neutral-500">{design.description}</span>}
+              <Link href={`/designs/${design.id}`} className="ml-auto text-xs font-medium text-blue-600 hover:text-blue-800">Open in Design Library →</Link>
+            </div>
+            {design.status === "active" ? (
+              <p className="text-xs text-emerald-700">✓ The inventory item exists with the art attached — sales can order this. The art job can now be approved.</p>
+            ) : (
+              <p className="text-xs text-amber-700">This design is still a draft (missing item number or barcode). Finish it in the Design Library before this art job can be approved.</p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-xs text-neutral-500">Punch in the design once — it composes the item number, assigns the barcode, attaches the art, and creates the orderable item automatically. This is required before the art job can be approved, so sales never wait on a manual SAP/Zoey setup.</p>
+            <ArtDesignForm
+              brands={brands}
+              suffixes={suffixes}
+              requestId={req.id}
+              orderId={order.id}
+              defaultCustNumber={defaultCustNumber}
+              defaultBpId={order.bpId ?? ""}
+              defaultDescription={defaultDescription}
+            />
+            <form action={linkExistingDesignToArtAction} className="flex items-end gap-2 border-t border-neutral-100 pt-3">
+              <input type="hidden" name="requestId" value={req.id} />
+              <label className="flex-1">
+                <span className="mb-1 block text-xs font-medium text-neutral-600">…or link an existing design (reused artwork)</span>
+                <input name="itemNumber" placeholder="Existing item # e.g. BRI010-4015-MF" className={`w-full font-mono ${input}`} />
+              </label>
+              <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Link</button>
+            </form>
+          </div>
+        )}
+      </Card>
 
       {/* Brief + rush */}
       <Card>

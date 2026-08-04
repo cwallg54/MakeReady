@@ -1147,6 +1147,10 @@ export const artRequests = pgTable(
     rush: boolean("rush").notNull().default(false),
     dueDate: timestamp("due_date", { withTimezone: true }),
     brief: text("brief"), // the customization brief from the sales meeting
+    // The design/orderable item this art job produced. Punching this in is the
+    // required gate before the art can be approved — creating it auto-makes the
+    // inventory item (with art) so sales can order without SAP/Zoey re-entry.
+    designItemId: uuid("design_item_id").references(() => designItems.id, { onDelete: "set null" }),
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

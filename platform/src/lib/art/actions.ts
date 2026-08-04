@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
-import { orders, orderEvents, orderAttachments, orderProofs, artRequests, userRoles, notifications, activities } from "@/db/schema";
+import { orders, orderEvents, orderAttachments, orderProofs, artRequests, designItems, userRoles, notifications, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -65,15 +65,31 @@ export async function submitToArtAction(formData: FormData): Promise<void> {
   revalidatePath("/art");
 }
 
+// Advancing past the proof stage requires the orderable design to be punched in
+// first — the gate that stops art jobs finishing before sales can order the item.
+const GATED_STATUSES: ArtStatus[] = ["approved", "done"];
+
 /** Move an art request to a new Kanban column (status). */
 export async function setArtStatusAction(formData: FormData): Promise<void> {
   const user = await requireArt();
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "") as ArtStatus;
   if (!id || !ART_STATUSES.includes(status)) return;
+
+  if (GATED_STATUSES.includes(status)) {
+    const req = await db.query.artRequests.findFirst({ where: eq(artRequests.id, id) });
+    const design = req?.designItemId ? await db.query.designItems.findFirst({ where: eq(designItems.id, req.designItemId) }) : null;
+    // Must have a linked design that is orderable (active = has item # + barcode).
+    if (!design || design.status !== "active") {
+      const from = String(formData.get("from") ?? "");
+      redirect(`/art/${id}?err=needdesign${from ? `&from=${from}` : ""}`);
+    }
+  }
+
   await db.update(artRequests).set({ status, updatedAt: new Date() }).where(eq(artRequests.id, id));
   await audit({ userId: user.id, action: "art.status", entityType: "art_request", entityId: id, metadata: { status } });
   revalidatePath("/art");
+  revalidatePath(`/art/${id}`);
 }
 
 /** Assign (or unassign) an art request. Empty userId assigns to self. */
