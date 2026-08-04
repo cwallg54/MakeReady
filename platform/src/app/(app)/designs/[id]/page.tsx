@@ -70,21 +70,37 @@ export default async function DesignItemPage({ params, searchParams }: { params:
       </div>
 
       {barcodes.length > 0 && (
-        <Card className="overflow-x-auto">
+        <Card>
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">Barcodes ({barcodes.length})</h2>
-          <table className="w-full min-w-[560px] text-xs">
-            <thead className="text-left text-[10px] uppercase tracking-wide text-neutral-400"><tr><th className="py-1">12-digit</th><th className="py-1">10-digit</th><th className="py-1">Description</th><th className="py-1">Customer bc</th></tr></thead>
-            <tbody className="divide-y divide-neutral-100">
-              {barcodes.map((b) => (
-                <tr key={b.id}>
-                  <td className="py-1 font-mono text-neutral-700">{b.barcode12 ?? "—"}</td>
-                  <td className="py-1 font-mono text-neutral-500">{b.barcode10 ?? "—"}</td>
-                  <td className="py-1 text-neutral-600">{b.description ?? "—"}</td>
-                  <td className="py-1 font-mono text-neutral-500">{b.customerBarcode ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="w-full min-w-[560px] text-xs">
+              <thead className="text-left text-[10px] uppercase tracking-wide text-neutral-400"><tr><th className="py-1">12-digit</th><th className="py-1">10-digit</th><th className="py-1">Description</th><th className="py-1">Customer bc</th></tr></thead>
+              <tbody className="divide-y divide-neutral-100">
+                {barcodes.map((b) => (
+                  <tr key={b.id}>
+                    <td className="py-1 font-mono text-neutral-700">{b.barcode12 ?? "—"}</td>
+                    <td className="py-1 font-mono text-neutral-500">{b.barcode10 ?? "—"}</td>
+                    <td className="py-1 text-neutral-600">{b.description ?? "—"}</td>
+                    <td className="py-1 font-mono text-neutral-500">{b.customerBarcode ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Mobile card list */}
+          <ul className="divide-y divide-neutral-100 text-xs lg:hidden">
+            {barcodes.map((b) => (
+              <li key={b.id} className="py-2">
+                <div className="font-mono text-sm text-neutral-800">{b.barcode12 ?? b.customerBarcode ?? b.barcode10 ?? "—"}</div>
+                {b.description && <div className="mt-0.5 text-neutral-600">{b.description}</div>}
+                <div className="mt-0.5 flex flex-wrap gap-x-3 text-neutral-500">
+                  {b.barcode10 && <span className="font-mono">10-digit {b.barcode10}</span>}
+                  {b.customerBarcode && b.customerBarcode !== b.barcode12 && <span className="font-mono">cust {b.customerBarcode}</span>}
+                </div>
+              </li>
+            ))}
+          </ul>
         </Card>
       )}
 

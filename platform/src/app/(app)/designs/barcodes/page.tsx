@@ -42,22 +42,40 @@ export default async function BarcodesPage({ searchParams }: { searchParams: Pro
           <span className="ml-auto text-xs text-neutral-400">{total.toLocaleString()} barcodes</span>
         </form>
       </Card>
-      <Card className="p-0 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-sm">
-          <thead className="text-left text-xs uppercase tracking-wide text-neutral-400"><tr><th className="px-4 py-2">12-digit</th><th className="px-4 py-2">10-digit</th><th className="px-4 py-2">Description</th><th className="px-4 py-2">Design #</th><th className="px-4 py-2">Customer bc</th></tr></thead>
-          <tbody className="divide-y divide-neutral-100">
-            {rows.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-neutral-400">No barcodes match.</td></tr>}
-            {rows.map((b) => (
-              <tr key={b.id} className={`hover:bg-neutral-50 ${b.archived ? "opacity-60" : ""}`}>
-                <td className="px-4 py-2 font-mono text-xs text-neutral-800">{b.barcode12 ?? "—"}</td>
-                <td className="px-4 py-2 font-mono text-xs text-neutral-500">{b.barcode10 ?? "—"}</td>
-                <td className="px-4 py-2 text-neutral-700">{b.description ?? "—"}</td>
-                <td className="px-4 py-2 font-mono text-xs text-neutral-500">{b.designNumber ?? "—"}</td>
-                <td className="px-4 py-2 font-mono text-xs text-neutral-500">{b.customerBarcode ?? "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <Card className="p-0">
+        {/* Desktop table */}
+        <div className="hidden overflow-x-auto lg:block">
+          <table className="w-full min-w-[720px] text-sm">
+            <thead className="text-left text-xs uppercase tracking-wide text-neutral-400"><tr><th className="px-4 py-2">12-digit</th><th className="px-4 py-2">10-digit</th><th className="px-4 py-2">Description</th><th className="px-4 py-2">Design #</th><th className="px-4 py-2">Customer bc</th></tr></thead>
+            <tbody className="divide-y divide-neutral-100">
+              {rows.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-neutral-400">No barcodes match.</td></tr>}
+              {rows.map((b) => (
+                <tr key={b.id} className={`hover:bg-neutral-50 ${b.archived ? "opacity-60" : ""}`}>
+                  <td className="px-4 py-2 font-mono text-xs text-neutral-800">{b.barcode12 ?? "—"}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-neutral-500">{b.barcode10 ?? "—"}</td>
+                  <td className="px-4 py-2 text-neutral-700">{b.description ?? "—"}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-neutral-500">{b.designNumber ?? "—"}</td>
+                  <td className="px-4 py-2 font-mono text-xs text-neutral-500">{b.customerBarcode ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Mobile card list */}
+        <ul className="divide-y divide-neutral-100 lg:hidden">
+          {rows.length === 0 && <li className="px-4 py-6 text-center text-sm text-neutral-400">No barcodes match.</li>}
+          {rows.map((b) => (
+            <li key={b.id} className={`px-4 py-3 ${b.archived ? "opacity-60" : ""}`}>
+              <div className="font-mono text-sm font-medium text-neutral-900">{b.barcode12 ?? b.customerBarcode ?? b.barcode10 ?? "—"}</div>
+              {b.description && <div className="mt-1 text-sm text-neutral-700">{b.description}</div>}
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-neutral-500">
+                {b.designNumber && <span className="font-mono">design {b.designNumber}</span>}
+                {b.barcode10 && <span className="font-mono">10-digit {b.barcode10}</span>}
+                {b.customerBarcode && b.customerBarcode !== b.barcode12 && <span className="font-mono">cust {b.customerBarcode}</span>}
+              </div>
+            </li>
+          ))}
+        </ul>
         {pages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 text-sm">
             <span className="text-neutral-400">Page {page} of {pages.toLocaleString()}</span>

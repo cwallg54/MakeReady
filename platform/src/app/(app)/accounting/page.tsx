@@ -69,22 +69,39 @@ export default async function AccountingHome() {
         <Link href="/accounting/credit-requests" className={`rounded-md border px-4 py-2 font-medium ${pendingCreditN > 0 ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100" : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"}`}>Credit requests{pendingCreditN > 0 ? ` (${pendingCreditN})` : ""} →</Link>
       </div>
 
-      <Card className="p-0 overflow-x-auto">
+      <Card className="p-0">
         <div className="border-b border-neutral-200 px-5 py-3"><h2 className="text-sm font-semibold text-neutral-900">Overdue invoices</h2></div>
-        <table className="w-full min-w-[560px] text-sm">
-          <thead><tr className="text-left text-xs uppercase tracking-wide text-neutral-400"><th className="px-5 py-2">Invoice</th><th className="px-5 py-2">Customer</th><th className="px-5 py-2">Due</th><th className="px-5 py-2 text-right">Balance</th></tr></thead>
-          <tbody className="divide-y divide-neutral-100">
-            {overdueList.length === 0 && <tr><td colSpan={4} className="px-5 py-6 text-center text-neutral-400">Nothing overdue. 🎉</td></tr>}
-            {overdueList.map((i) => (
-              <tr key={i.id}>
-                <td className="px-5 py-2"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link></td>
-                <td className="px-5 py-2 text-neutral-800">{i.company ?? "—"}</td>
-                <td className="px-5 py-2 font-medium text-red-600">{i.dueDate ? fmtDate(i.dueDate) : "—"}</td>
-                <td className="px-5 py-2 text-right tabular-nums font-medium text-neutral-900">{money2(i.balance)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Desktop table */}
+        <div className="hidden overflow-x-auto lg:block">
+          <table className="w-full min-w-[560px] text-sm">
+            <thead><tr className="text-left text-xs uppercase tracking-wide text-neutral-400"><th className="px-5 py-2">Invoice</th><th className="px-5 py-2">Customer</th><th className="px-5 py-2">Due</th><th className="px-5 py-2 text-right">Balance</th></tr></thead>
+            <tbody className="divide-y divide-neutral-100">
+              {overdueList.length === 0 && <tr><td colSpan={4} className="px-5 py-6 text-center text-neutral-400">Nothing overdue. 🎉</td></tr>}
+              {overdueList.map((i) => (
+                <tr key={i.id}>
+                  <td className="px-5 py-2"><Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link></td>
+                  <td className="px-5 py-2 text-neutral-800">{i.company ?? "—"}</td>
+                  <td className="px-5 py-2 font-medium text-red-600">{i.dueDate ? fmtDate(i.dueDate) : "—"}</td>
+                  <td className="px-5 py-2 text-right tabular-nums font-medium text-neutral-900">{money2(i.balance)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Mobile card list */}
+        <ul className="divide-y divide-neutral-100 lg:hidden">
+          {overdueList.length === 0 && <li className="px-5 py-6 text-center text-sm text-neutral-400">Nothing overdue. 🎉</li>}
+          {overdueList.map((i) => (
+            <li key={i.id} className="flex items-center justify-between gap-3 px-5 py-3">
+              <div className="min-w-0">
+                <Link href={`/accounting/invoices/${i.id}`} className="font-medium text-blue-600 hover:underline">{i.invoiceNumber}</Link>
+                <div className="truncate text-sm text-neutral-700">{i.company ?? "—"}</div>
+                <div className="text-xs font-medium text-red-600">due {i.dueDate ? fmtDate(i.dueDate) : "—"}</div>
+              </div>
+              <div className="shrink-0 tabular-nums text-sm font-semibold text-neutral-900">{money2(i.balance)}</div>
+            </li>
+          ))}
+        </ul>
       </Card>
     </div>
   );
