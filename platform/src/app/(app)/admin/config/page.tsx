@@ -18,6 +18,7 @@ export default async function ConfigPage() {
           fiscalYearStartMonth={settings?.fiscalYearStartMonth ?? 1}
           sessionTimeoutMinutes={settings?.sessionTimeoutMinutes ?? 60}
           requireMfa={settings?.requireMfa ?? false}
+          creditApprovalThreshold={Number(settings?.creditApprovalThreshold ?? 5000)}
         />
       </Card>
 

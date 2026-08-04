@@ -46,6 +46,8 @@ export async function createItemAction(_prev: InventoryState, formData: FormData
     cost: String(num(formData.get("cost"))),
     onHand: String(onHand),
     reorderPoint: String(num(formData.get("reorderPoint"))),
+    leadTimeDays: Math.round(num(formData.get("leadTimeDays"))) || 30,
+    isImport: formData.get("isImport") === "on",
     notes: String(formData.get("notes") ?? "").trim() || null,
   }).returning({ id: inventoryItems.id });
 
@@ -71,6 +73,8 @@ export async function updateItemAction(formData: FormData): Promise<void> {
       supplier: String(formData.get("supplier") ?? "").trim() || null,
       cost: String(num(formData.get("cost"))),
       reorderPoint: String(num(formData.get("reorderPoint"))),
+      leadTimeDays: Math.round(num(formData.get("leadTimeDays"))) || 30,
+      isImport: formData.get("isImport") === "on",
       active: formData.get("active") === "on",
       notes: String(formData.get("notes") ?? "").trim() || null,
       updatedAt: new Date(),

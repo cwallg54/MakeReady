@@ -107,6 +107,9 @@ export const systemSettings = pgTable("system_settings", {
   sessionTimeoutMinutes: integer("session_timeout_minutes").notNull().default(60),
   // Org-wide policy: require every active user to enroll a second factor.
   requireMfa: boolean("require_mfa").notNull().default(false),
+  // Credit approval tier: finance may approve over-limit orders up to this much
+  // over the limit; anything above requires an Admin/manager.
+  creditApprovalThreshold: numeric("credit_approval_threshold", { precision: 14, scale: 2 }).notNull().default("5000"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });
@@ -212,6 +215,8 @@ export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "cancele
 // AR invoice lifecycle: draft -> sent -> (partial ->) paid, or void.
 export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "partial", "paid", "void"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["check", "ach", "card", "cash", "credit", "other"]);
+export const creditRequestReasonEnum = pgEnum("credit_request_reason", ["hold", "over_limit"]);
+export const creditRequestStatusEnum = pgEnum("credit_request_status", ["pending", "approved", "denied"]);
 
 export const accountGroups = pgTable("account_groups", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -859,6 +864,31 @@ export type Invoice = typeof invoices.$inferSelect;
 export type InvoiceLine = typeof invoiceLines.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
 
+// A salesperson's over-limit / on-hold order needs finance sign-off before it
+// converts. Reps never see the numbers — they just submit; finance reviews here.
+export const creditApprovalRequests = pgTable(
+  "credit_approval_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    quoteId: uuid("quote_id").references(() => quotes.id, { onDelete: "cascade" }),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    reason: creditRequestReasonEnum("reason").notNull(),
+    status: creditRequestStatusEnum("status").notNull().default("pending"),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"), // order total
+    accountBalance: numeric("account_balance", { precision: 14, scale: 2 }).notNull().default("0"), // snapshot
+    creditLimit: numeric("credit_limit", { precision: 14, scale: 2 }), // snapshot
+    amountOver: numeric("amount_over", { precision: 14, scale: 2 }).notNull().default("0"),
+    decisionNote: text("decision_note"),
+    newLimit: numeric("new_limit", { precision: 14, scale: 2 }), // limit finance set on approval
+    requestedBy: uuid("requested_by").references(() => users.id),
+    decidedBy: uuid("decided_by").references(() => users.id),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("credit_requests_status_idx").on(t.status), index("credit_requests_bp_idx").on(t.bpId)],
+);
+export type CreditApprovalRequest = typeof creditApprovalRequests.$inferSelect;
+
 // Admin/manager overrides for the built-in reports (title, hidden columns,
 // default filters, sort, hidden sections). One shared row per report key —
 // changes apply for everyone. See src/lib/reports/report-config.ts.
@@ -1040,6 +1070,10 @@ export const inventoryItems = pgTable(
     supplier: text("supplier"),
     // Sales territory this item is stocked/sold for (reps sort inventory by it).
     territory: text("territory"),
+    // Replenishment lead time (days) and whether it's an import (longer lead) —
+    // used by the reorder forecast.
+    leadTimeDays: integer("lead_time_days").notNull().default(30),
+    isImport: boolean("is_import").notNull().default(false),
     cost: numeric("cost", { precision: 12, scale: 2 }).notNull().default("0"),
     onHand: numeric("on_hand", { precision: 14, scale: 2 }).notNull().default("0"),
     reorderPoint: numeric("reorder_point", { precision: 14, scale: 2 }).notNull().default("0"),

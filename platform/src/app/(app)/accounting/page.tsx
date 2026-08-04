@@ -2,7 +2,7 @@ import Link from "next/link";
 import { and, desc, eq, isNull, ne, sql, inArray } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { db } from "@/db";
-import { invoices, payments, businessPartners } from "@/db/schema";
+import { invoices, payments, businessPartners, creditApprovalRequests } from "@/db/schema";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { fmtDate } from "@/lib/format";
 import { agingBucket } from "@/lib/accounting/ar";
@@ -38,6 +38,8 @@ export default async function AccountingHome() {
 
   // Payments received in the last 30 days.
   const [recentPay] = await db.select({ sum: sql<string>`COALESCE(SUM(${payments.amount}),0)` }).from(payments).where(sql`${payments.receivedDate} >= now() - interval '30 days'`);
+  const [pendingCredit] = await db.select({ n: sql<number>`count(*)::int` }).from(creditApprovalRequests).where(eq(creditApprovalRequests.status, "pending"));
+  const pendingCreditN = pendingCredit?.n ?? 0;
 
   const overdueList = open
     .map((i) => ({ ...i, balance: Number(i.total) - (paidBy.get(i.id) ?? 0) }))
@@ -64,6 +66,7 @@ export default async function AccountingHome() {
         <Link href="/accounting/invoices" className="rounded-md border border-neutral-300 bg-white px-4 py-2 font-medium text-neutral-700 hover:bg-neutral-50">All invoices →</Link>
         <Link href="/accounting/aging" className="rounded-md border border-neutral-300 bg-white px-4 py-2 font-medium text-neutral-700 hover:bg-neutral-50">AR aging →</Link>
         <Link href="/accounting/payments" className="rounded-md border border-neutral-300 bg-white px-4 py-2 font-medium text-neutral-700 hover:bg-neutral-50">Payments →</Link>
+        <Link href="/accounting/credit-requests" className={`rounded-md border px-4 py-2 font-medium ${pendingCreditN > 0 ? "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100" : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"}`}>Credit requests{pendingCreditN > 0 ? ` (${pendingCreditN})` : ""} →</Link>
       </div>
 
       <Card className="p-0 overflow-x-auto">

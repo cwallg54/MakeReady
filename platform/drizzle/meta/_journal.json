@@ -225,6 +225,13 @@
       "when": 1785851433214,
       "tag": "0031_brief_nitro",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1785852139776,
+      "tag": "0032_magenta_paper_doll",
+      "breakpoints": true
     }
   ]
 }

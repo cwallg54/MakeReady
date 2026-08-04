@@ -212,6 +212,7 @@ const settingsSchema = z.object({
   timezone: z.string().trim().min(1),
   fiscalYearStartMonth: z.coerce.number().int().min(1).max(12),
   sessionTimeoutMinutes: z.coerce.number().int().min(5).max(1440),
+  creditApprovalThreshold: z.coerce.number().min(0).max(10_000_000),
 });
 
 export async function updateSettingsAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
@@ -222,17 +223,20 @@ export async function updateSettingsAction(_prev: AdminState, formData: FormData
     timezone: formData.get("timezone"),
     fiscalYearStartMonth: formData.get("fiscalYearStartMonth"),
     sessionTimeoutMinutes: formData.get("sessionTimeoutMinutes"),
+    creditApprovalThreshold: formData.get("creditApprovalThreshold") ?? 5000,
   });
   if (!parsed.success) return { error: "Please check the configuration values." };
 
   const requireMfa = formData.get("requireMfa") === "on";
+  const { creditApprovalThreshold, ...rest } = parsed.data;
+  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold) };
 
   await db
     .insert(systemSettings)
-    .values({ id: SYSTEM_SETTINGS_ID, ...parsed.data, requireMfa, updatedBy: admin.id, updatedAt: new Date() })
+    .values({ id: SYSTEM_SETTINGS_ID, ...data, requireMfa, updatedBy: admin.id, updatedAt: new Date() })
     .onConflictDoUpdate({
       target: systemSettings.id,
-      set: { ...parsed.data, requireMfa, updatedBy: admin.id, updatedAt: new Date() },
+      set: { ...data, requireMfa, updatedBy: admin.id, updatedAt: new Date() },
     });
 
   await audit({ userId: admin.id, action: "config.update", entityType: "system_settings", entityId: SYSTEM_SETTINGS_ID });

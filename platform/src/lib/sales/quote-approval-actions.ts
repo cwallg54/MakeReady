@@ -12,6 +12,7 @@ import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { sendQuoteEmail } from "@/lib/email";
 import { createOrderFromQuote } from "./order-from-quote";
+import { assessCredit, openCreditRequest } from "./credit";
 
 const BASE = () => process.env.APP_URL ?? "https://makeready.g54.com";
 
@@ -87,9 +88,12 @@ export async function submitQuoteDecisionAction(_prev: QuoteDecisionState, formD
   let creditBlocked = false;
   if (approve) {
     const bp = quote.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, quote.bpId), columns: { creditHold: true, creditLimit: true, accountBalance: true } }) : null;
-    const overLimit = bp?.creditLimit != null && Number(bp.creditLimit) > 0 && Number(bp.accountBalance ?? 0) + Number(quote.total) > Number(bp.creditLimit);
-    creditBlocked = !!bp?.creditHold || !!overLimit;
-    if (!creditBlocked) {
+    const assessment = bp ? assessCredit(bp, Number(quote.total)) : null;
+    creditBlocked = !!assessment?.blocked;
+    if (creditBlocked && assessment) {
+      // Customer approved, but it needs finance sign-off — open a request.
+      await openCreditRequest({ quoteId: quote.id, bpId: quote.bpId, orderTotal: Number(quote.total), assessment, requestedBy: quote.createdBy });
+    } else {
       await createOrderFromQuote(quote.id, quote.createdBy);
       converted = true;
     }

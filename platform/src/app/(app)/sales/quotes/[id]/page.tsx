@@ -4,7 +4,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, businessPartners, contacts, catalogStyles, catalogColors, sizeClasses, decorationMethods, printLocations, embroideryTiers } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, businessPartners, contacts, catalogStyles, catalogColors, sizeClasses, decorationMethods, printLocations, embroideryTiers, creditApprovalRequests } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
@@ -80,10 +80,10 @@ const NEXT_STATUS: Record<string, { to: string; label: string }[]> = {
   converted: [],
 };
 
-export default async function QuoteDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ holderr?: string }> }) {
+export default async function QuoteDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ review?: string }> }) {
   const user = await requireModule("sales");
   const { id } = await params;
-  const { holderr } = await searchParams;
+  const { review } = await searchParams;
   const editable = canEdit(user.roles, "sales");
 
   const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, id) });
@@ -157,6 +157,8 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
   const rules = (template?.charges as ChargeRule[] | null) ?? [];
   const canStatus = editable && quote.status !== "converted";
   const base = process.env.APP_URL ?? "https://makeready.g54.com";
+  // A pending finance credit review parks the conversion (reps never see the numbers).
+  const pendingCredit = await db.query.creditApprovalRequests.findFirst({ where: and(eq(creditApprovalRequests.quoteId, id), eq(creditApprovalRequests.status, "pending")), columns: { id: true } });
 
   return (
     <div className="max-w-5xl">
@@ -191,9 +193,9 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
         }
       />
 
-      {holderr && (
-        <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
-          <span className="font-semibold">Order blocked.</span> {holderr === "hold" ? "This customer is on credit hold — clear the hold in the customer's account before converting." : "This order would exceed the customer's credit limit. Adjust the limit, collect on open invoices, or reduce the order."}
+      {(review || pendingCredit) && quote.status !== "converted" && (
+        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span className="font-semibold">Submitted for credit review.</span> This order needs finance sign-off before it can be produced. Your finance team has been notified and will approve or follow up — no action needed from you.
         </div>
       )}
 

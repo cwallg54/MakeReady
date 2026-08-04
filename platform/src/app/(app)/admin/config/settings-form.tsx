@@ -17,6 +17,7 @@ export function SettingsForm({
   fiscalYearStartMonth,
   sessionTimeoutMinutes,
   requireMfa,
+  creditApprovalThreshold,
 }: {
   companyName: string;
   legalName: string;
@@ -24,6 +25,7 @@ export function SettingsForm({
   fiscalYearStartMonth: number;
   sessionTimeoutMinutes: number;
   requireMfa: boolean;
+  creditApprovalThreshold: number;
 }) {
   const [state, action] = useActionState<AdminState, FormData>(updateSettingsAction, {});
   return (
@@ -51,6 +53,14 @@ export function SettingsForm({
           required
           defaultValue={sessionTimeoutMinutes}
           hint="Idle timeout before sign-out"
+        />
+        <AdminField
+          label="Credit approval threshold ($ over limit)"
+          name="creditApprovalThreshold"
+          type="number"
+          min={0}
+          defaultValue={creditApprovalThreshold}
+          hint="Finance can approve orders up to this much over a customer's limit; more needs an Admin"
         />
       </div>
       <label className="flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">

@@ -38,7 +38,12 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
       <PageHeader
         title="Inventory"
         description="Item master and stock levels."
-        action={<Link href="/inventory/bins" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Warehouses &amp; bins</Link>}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/inventory/forecast" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Reorder forecast</Link>
+            <Link href="/inventory/bins" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Warehouses &amp; bins</Link>
+          </div>
+        }
       />
 
       <Card>

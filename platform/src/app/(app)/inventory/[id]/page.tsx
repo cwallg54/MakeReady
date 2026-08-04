@@ -136,6 +136,8 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
             <label className="flex flex-col text-xs text-neutral-500">Supplier<input name="supplier" defaultValue={item.supplier ?? ""} className={`mt-1 ${input}`} /></label>
             <label className="flex flex-col text-xs text-neutral-500">Cost<input name="cost" type="number" step="0.01" defaultValue={Number(item.cost)} className={`mt-1 ${input}`} /></label>
             <label className="flex flex-col text-xs text-neutral-500">Reorder point<input name="reorderPoint" type="number" step="0.01" defaultValue={Number(item.reorderPoint)} className={`mt-1 ${input}`} /></label>
+            <label className="flex flex-col text-xs text-neutral-500">Lead time (days)<input name="leadTimeDays" type="number" defaultValue={item.leadTimeDays} className={`mt-1 ${input}`} /></label>
+            <label className="flex items-center gap-2 text-xs text-neutral-600"><input type="checkbox" name="isImport" defaultChecked={item.isImport} className="h-4 w-4" /> Imported item</label>
             <label className="flex flex-col text-xs text-neutral-500 sm:col-span-2">Notes<input name="notes" defaultValue={item.notes ?? ""} className={`mt-1 ${input}`} /></label>
             <label className="flex items-center gap-2 text-sm text-neutral-700"><input type="checkbox" name="active" defaultChecked={item.active} className="h-4 w-4" /> Active</label>
             <div className="sm:col-span-2"><button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save details</button></div>

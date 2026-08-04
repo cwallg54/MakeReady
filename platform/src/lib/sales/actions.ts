@@ -10,6 +10,7 @@ import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { priceQuote, resolveUnitPrice, sizeUpcharge, priceGarmentLine, type ChargeRule, type PriceBreak, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry } from "./pricing";
 import { createOrderFromQuote } from "./order-from-quote";
+import { assessCredit, openCreditRequest } from "./credit";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -277,15 +278,18 @@ export async function setQuoteStatusAction(formData: FormData): Promise<void> {
   const status = String(formData.get("status") ?? "");
   if (!id || !["draft", "sent", "accepted", "rejected", "converted"].includes(status)) return;
 
-  // Credit enforcement: block converting to an order when the customer is on
-  // credit hold or the order would push them over their credit limit. Checked
-  // before the status change so the quote isn't left "converted" with no order.
+  // Credit enforcement: a blocked (on-hold or over-limit) conversion doesn't
+  // dead-end — it opens a finance credit-approval request. Checked before the
+  // status change so the quote isn't left "converted" with no order.
   if (status === "converted") {
     const q = await db.query.quotes.findFirst({ where: eq(quotes.id, id), columns: { bpId: true, total: true } });
     const bp = q?.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, q.bpId), columns: { creditHold: true, creditLimit: true, accountBalance: true } }) : null;
-    if (bp?.creditHold) redirect(`/sales/quotes/${id}?holderr=hold`);
-    if (bp?.creditLimit != null && Number(bp.creditLimit) > 0 && Number(bp.accountBalance ?? 0) + Number(q?.total ?? 0) > Number(bp.creditLimit)) {
-      redirect(`/sales/quotes/${id}?holderr=limit`);
+    if (bp) {
+      const assessment = assessCredit(bp, Number(q?.total ?? 0));
+      if (assessment.blocked) {
+        await openCreditRequest({ quoteId: id, bpId: q?.bpId ?? null, orderTotal: Number(q?.total ?? 0), assessment, requestedBy: user.id });
+        redirect(`/sales/quotes/${id}?review=1`);
+      }
     }
   }
 

@@ -20,7 +20,9 @@ export function ItemCreateForm() {
         <AdminField label="Cost" name="cost" type="number" />
         <AdminField label="On hand" name="onHand" type="number" />
         <AdminField label="Reorder point" name="reorderPoint" type="number" />
+        <AdminField label="Lead time (days)" name="leadTimeDays" type="number" hint="Replenishment lead time — imports run longer" />
       </div>
+      <label className="flex items-center gap-2 text-sm text-neutral-700"><input type="checkbox" name="isImport" className="h-4 w-4" /> Imported item (longer lead time)</label>
       <AdminField label="Notes" name="notes" />
       <AdminSubmit>Add item</AdminSubmit>
     </form>
