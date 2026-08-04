@@ -348,13 +348,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "h", text: "What the customer sees" },
-      { k: "p", text: "The customer opens the link (no login needed), completes the form, types their name to sign, agrees to the terms, and submits." },
+      { k: "p", text: "The customer opens the link (no login needed), completes the form, types their name to sign, agrees to the terms, and submits. A “Shipping address same as billing” checkbox copies the billing address for them, and email fields are validated before the form will submit." },
       { k: "img", src: "apply.png", caption: "The customer-facing secure application page." },
       { k: "h", text: "Reviewing a submission" },
-      { k: "p", text: "Once submitted the row shows \"Completed\" with a \"View submission\" link, and the account's activity log records who signed and when." },
+      { k: "p", text: "Once submitted the row shows \"Completed\" with a \"View submission\" link, and the account's activity log records who signed and when. Finance can also store Experian reports and other sensitive documents in the account's Finance vault — see Finance vault, welcome email & credit-app chase." },
       { k: "warn", text: "Credit card numbers are never collected in the app. The Credit Card Application directs customers to contact stacie@g54.com to provide card details out-of-band. A 3% processing fee applies to card transactions." },
     ],
-    related: ["creating-a-business-partner", "managing-an-account"],
+    related: ["creating-a-business-partner", "managing-an-account", "customer-finance-vault"],
   },
   {
     slug: "capturing-web-leads",
@@ -1211,7 +1211,138 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "The Credit Report also shows the live AR balance, available credit, aging, and average pay age (APA) so you have the full picture before deciding." },
       { k: "warn", text: "Credit limit and account balance are finance-sensitive and hidden from the Sales Rep role." },
     ],
-    related: ["invoicing-and-payments", "ar-aging-and-statements", "standard-reports"],
+    related: ["invoicing-and-payments", "ar-aging-and-statements", "standard-reports", "credit-approvals"],
+  },
+
+  // ─────────────────────────────── Sales (quote approval) ────────────────────
+  {
+    slug: "customer-quote-approval",
+    title: "Customer quote approval",
+    section: "Sales",
+    summary: "Email a quote with a link the customer clicks to approve or decline online — approval can auto-create the order.",
+    who: "Admin, Sales Manager, Sales Rep",
+    blocks: [
+      { k: "p", text: "Customers can approve or decline a quote from a secure link — no login, and their decision is recorded and logged automatically." },
+      { k: "h", text: "Sending for approval" },
+      {
+        k: "steps",
+        items: [
+          { text: "On a quote, click “✉ Email for approval”. MakeReady sends the customer a branded email (via g54.com) with a “Review & approve your quote” button, and marks the quote Sent." },
+          { text: "The quote page shows a Customer approval card with the same shareable link, so you can copy it anywhere. (The old “compose in my email app” option is still there as a fallback.)" },
+        ],
+      },
+      { k: "h", text: "What the customer sees" },
+      { k: "p", text: "The link opens a clean page with the quote — line items, garments and decoration, charges, and total — and Approve / Decline buttons with a typed-signature box. Their decision records their name, the date, and their network address." },
+      { k: "h", text: "After they respond" },
+      {
+        k: "list",
+        items: [
+          "Approve → the quote auto-converts to a trackable order (unless the customer is on credit hold or over their limit, in which case it's marked Accepted and sent to finance for review — see Credit approvals).",
+          "Decline → the quote is marked Rejected with their note.",
+          "Either way, the response is logged to the customer's activity history and the rep is notified. The quote page then shows who decided and when.",
+        ],
+      },
+      { k: "tip", text: "Emailing a quote for approval also works if the customer has no email on file — you'll still get the link to copy and share." },
+    ],
+    related: ["building-a-quote", "editing-and-emailing-a-quote", "credit-approvals", "orders-and-production-stages"],
+  },
+
+  // ─────────────────────────────── CRM (finance) ─────────────────────────────
+  {
+    slug: "customer-finance-vault",
+    title: "Finance vault, welcome email & credit-app chase",
+    section: "CRM",
+    summary: "Store sensitive customer documents (finance-only), send a welcome/approved email, and auto-remind customers who haven't returned a credit application.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "The customer record has a Finance-only area for sensitive documents and onboarding, alongside the public financial-intake requests." },
+      { k: "h", text: "The Finance vault" },
+      { k: "p", text: "On a customer, the “Finance vault” card (marked Finance only) holds sensitive PDFs — Experian reports, tax-exempt certificates, signed credit apps, address-change and credit-limit-increase justifications. Upload with a document type and optional note; each file has a secure download link. Sales and Art users never see this card." },
+      { k: "h", text: "Welcome / account-approved email" },
+      { k: "p", text: "When a customer is set up, use “Send welcome” in the vault card to email their primary contact a branded welcome — account created, where their order tracking and proof links will come from, and a link to the site. It's logged to their activity history." },
+      { k: "h", text: "Credit-application auto-chase" },
+      { k: "p", text: "If you request a Terms/Credit Application and the customer hasn't returned it within a few days, MakeReady automatically emails a reminder (up to three times) and notifies the account owner. Each reminder is recorded in the customer's activity log — no manual follow-up needed." },
+      { k: "warn", text: "The vault and credit controls are limited to Admin and Finance roles." },
+    ],
+    related: ["financial-intake-documents", "credit-control", "credit-approvals"],
+  },
+
+  // ─────────────────────────────── Accounting (credit approvals) ─────────────
+  {
+    slug: "credit-approvals",
+    title: "Credit approvals (over-limit orders)",
+    section: "Accounting",
+    summary: "How over-limit or on-hold orders route to finance for sign-off, with tiered approval and one-click convert.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "When a rep converts a quote for a customer who's on credit hold or would go over their limit, it doesn't dead-end — it opens a credit-approval request for finance. The rep just sees “Submitted for credit review” with no finance numbers exposed." },
+      { k: "h", text: "Working the queue" },
+      {
+        k: "steps",
+        items: [
+          { text: "Open Accounting → Credit Requests (a pending count also shows on the Accounting dashboard)." },
+          { text: "Each request shows the order amount, the customer's balance, their limit, and how much over. Approve & convert (optionally set a new credit limit and/or clear the hold) — which creates the order — or Decline with a reason." },
+          { text: "The rep is notified of the decision either way, and it's logged to the customer's activity." },
+        ],
+      },
+      { k: "h", text: "Tiered approval" },
+      { k: "p", text: "Finance can clear orders up to a set amount over the limit; anything above that needs an Admin/manager. Set the threshold in Admin → Configuration (“Credit approval threshold”, default $5,000)." },
+      { k: "tip", text: "The same request opens when a customer approves a quote online whose credit is blocked — so nothing slips through." },
+    ],
+    related: ["credit-control", "customer-quote-approval", "invoicing-and-payments"],
+  },
+
+  // ─────────────────────────────── Inventory (forecast + territories) ────────
+  {
+    slug: "reorder-forecast",
+    title: "Reorder forecast, territories & warehouse cleanup",
+    section: "Inventory",
+    summary: "Forecast what to reorder from usage and lead time, sort inventory by territory, and remove obsolete warehouses/bins.",
+    who: "Admin, Production, Finance (view)",
+    blocks: [
+      { k: "h", text: "Reorder forecast" },
+      { k: "p", text: "Inventory → “Reorder forecast” lists items projected to run out within their lead time, with a suggested order quantity. It measures usage from the last 12 months of “consume” stock movements, projects the need across each item's lead time, and sorts by days-of-stock remaining (most urgent first)." },
+      { k: "list", items: [
+        "Set each item's Lead time (days) and mark it Imported (imports run longer) on the item form.",
+        "Accuracy grows as MakeReady records more picking activity, so a fresh catalog will look sparse at first.",
+      ] },
+      { k: "h", text: "Territories" },
+      { k: "p", text: "Items have a Territory field, and the Inventory list has a territory filter and column — so reps and buyers can sort stock by the territory it serves." },
+      { k: "h", text: "Warehouse & bin cleanup" },
+      { k: "p", text: "On Warehouses & bins, you can Deactivate or Delete obsolete warehouses and bins (delete is blocked if they still hold stock, and the default warehouse is protected) — so the imported legacy locations you don't use can be cleared out." },
+    ],
+    related: ["inventory-overview", "bin-management"],
+  },
+
+  // ─────────────────────────────── Art & Production (design library) ─────────
+  {
+    slug: "design-library",
+    title: "Design Library (the barcode book)",
+    section: "Art & Production",
+    summary: "The design-number system in MakeReady — create design numbers, attach art, assign barcodes, and auto-create the orderable item.",
+    who: "Art, Admin, Production, Sales Manager",
+    blocks: [
+      { k: "p", text: "The Design Library replaces the barcode-book spreadsheet. It holds every design number, its customer, description, art, and barcodes — and creating a new design automatically makes the inventory item so sales can order it right away." },
+      { k: "h", text: "Finding designs" },
+      { k: "p", text: "Open Design Library from the sidebar. Search by item number, customer, description, or design base; filter by catalog (G54, ESM, EMB, Patches, OSH, Wood, Stain, Royalty…) and toggle archived rows. Open a design to see its fields (customer, base, printing, royalty, location, salesperson, assignee, stitch count) and its linked barcodes. The Barcodes view browses every barcode." },
+      { k: "h", text: "Creating a design" },
+      {
+        k: "steps",
+        items: [
+          { text: "Click “+ New design”. Pick the customer (or type the customer number without the leading “C”, or NEW), and the Design Base." },
+          { text: "Choose a suffix (product or print location) and a color variant if needed — MakeReady composes the full item number as Customer-DesignBase-suffix-variant." },
+          { text: "Pick the brand (G54 is the default; choosing ESM is a legacy exception that needs a reason). Attach the art image." },
+          { text: "Let MakeReady auto-assign a GMW 12-digit barcode (052774…) or enter the customer's barcode." },
+          { text: "Save. With an item number and barcode present, it creates the inventory item with the art attached — orderable immediately. Missing either saves it as a draft (the ordering gate) that you finish later." },
+        ],
+      },
+      { k: "h", text: "Exceptions & settings" },
+      { k: "p", text: "New designs are forced to G54; ESM/manual overrides land on the Exceptions report with their reason. Manage brands and the product/location suffixes under Design settings." },
+      { k: "h", text: "Customer reconciliation" },
+      { k: "p", text: "The Reconcile view lists Barcode Book customer numbers that didn't match an account. Link one to a customer and every design + barcode with that number attaches to them — and it backfills the account's legacy code so future imports match automatically." },
+      { k: "warn", text: "The Design Library is limited to Art, Admin, Production, and Sales Manager roles." },
+    ],
+    related: ["art-department", "inventory-overview", "building-a-quote"],
   },
 ];
 
