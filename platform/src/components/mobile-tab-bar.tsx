@@ -73,7 +73,7 @@ export function MobileTabBar({ tabs }: { tabs: MobileTab[] }) {
                 href={t.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
-                  active ? "text-neutral-900" : "text-neutral-400 hover:text-neutral-600"
+                  active ? "text-[#5f9e0f]" : "text-neutral-400 hover:text-neutral-600"
                 }`}
               >
                 <span className={`h-6 w-6 ${active ? "opacity-100" : "opacity-80"}`}>{t.icon}</span>

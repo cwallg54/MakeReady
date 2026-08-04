@@ -32,7 +32,9 @@ function Leaf({ item, active, onNavigate }: { item: NavItem; active: boolean; on
       href={item.href!}
       onClick={onNavigate}
       className={`flex items-center justify-between rounded-md px-3 py-2 text-sm transition ${
-        active ? "bg-white/10 font-semibold text-white" : "text-neutral-400 hover:bg-white/5 hover:text-neutral-200"
+        active
+          ? "bg-[#8DC63F]/15 font-semibold text-[#a6e05a] ring-1 ring-inset ring-[#8DC63F]/30"
+          : "text-neutral-400 hover:bg-white/5 hover:text-neutral-200"
       }`}
     >
       <span>{item.label}</span>
@@ -51,7 +53,7 @@ function Group({ item, activeHref, onNavigate }: { item: NavItem; activeHref: st
       <button
         onClick={() => setOpen((o) => !o)}
         className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition ${
-          hasActiveChild ? "font-semibold text-white" : "text-neutral-300 hover:bg-white/5 hover:text-neutral-200"
+          hasActiveChild ? "font-semibold text-[#a6e05a]" : "text-neutral-300 hover:bg-white/5 hover:text-neutral-200"
         }`}
       >
         <span>{item.label}</span>

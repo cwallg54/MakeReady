@@ -30,8 +30,8 @@ export function AppShell({
 
   const sidebar = (
     <>
-      <div className="flex items-center justify-center border-b border-neutral-800 px-4 py-5">
-        <LogoInline imgClassName="h-16 w-auto" />
+      <div className="flex items-center justify-center border-b border-neutral-200 bg-white px-4 py-4">
+        <LogoInline imgClassName="h-14 w-auto" />
       </div>
       <AppNav items={navItems} onNavigate={() => setOpen(false)} />
       <div className="border-t border-neutral-800 px-4 py-3">
