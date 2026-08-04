@@ -7,7 +7,7 @@ Project management scope document of features **built and deployed** to producti
 - [~] Delivered, dependent on an external step (noted)
 - [ ] Not yet built (backlog)
 
-Last updated: 2026-08-03.
+Last updated: 2026-08-04.
 
 ---
 
@@ -67,7 +67,7 @@ Last updated: 2026-08-03.
 - [x] Role-aware global dashboard
 - [x] Branding / logo; Mountain-time display everywhere
 - [x] Collapsible sidebar submenus (CRM, Sales)
-- [x] Help Center: 25 how-to articles with screenshots + search
+- [x] Help Center: 30+ how-to articles with screenshots + search (incl. Design Library, numbering/suffixes, and the art order process)
 - [x] Contextual "?" button (deep-links to the article for the current page)
 - [~] Transactional email (Resend provisioned; **awaiting g54.com DNS verification** to deliver)
 
@@ -107,6 +107,13 @@ Last updated: 2026-08-03.
 
 ### 2.6 Data Migration
 - [x] Legacy ERP import: 7,109 business partners, 9,909 contacts, 14,146 addresses, 16 account groups
+- [x] Historical order import: 262k legacy SAP orders (ORDR) → shown on the customer page
+
+### 2.7 Customer Onboarding & Document Vault (Phase 1)
+- [x] Customer document vault — finance-only PDF attachments on the account (Experian report, tax-exempt, credit app, address changes, limit-increase justifications); hidden from Sales/Art
+- [x] Welcome / "you're approved" branded email when a customer is set up
+- [x] Credit-application auto-chase reminder when the application isn't returned
+- [x] Intake polish — "billing same as shipping", email-format validation, more configurable required fields
 
 ---
 
@@ -224,7 +231,57 @@ Last updated: 2026-08-03.
 - [x] AR Aging report (current / 1–30 / 31–60 / 61–90 / 90+) by customer with totals
 - [x] Customer statements — page + PDF + email
 - [x] Credit control — set limit / hold / terms / guarantee; enforcement blocks quote→order when on hold or over limit
+- [x] Credit-limit approval workflow — over-limit orders route to a finance queue (/accounting/credit-requests) with a configurable threshold; reps never touch it
+- [x] Salesperson order-entry credit hint — "needs review" signal without exposing the finance file
 - [ ] Accounts Payable, GL posting, dunning automation (backlog)
+
+---
+
+## Design Library — Art Barcode Book (Phase 3)
+
+### D.1 Catalog & Import
+- [x] Design Library at /designs (Art / Admin / Production / Sales Manager) — replaces the barcode-book spreadsheet
+- [x] Full Barcode Book import: ~11,800 design numbers + ~53,600 barcodes (live + archived)
+- [x] Real numbering model: Full # = CustNum-DesignBase[-suffix][-variant]; catalogs G54/ESM/EMB/Patch/OSH/Wood/Stain/Royalty/UVS/DTF
+- [x] Rich fields: description, printing, royalty, location, salesperson, assignee, stitch count, setup
+- [x] Complete suffix reference — 44 hardgood products, softgood print locations, sizes
+- [x] Searchable/paginated list (catalog + archive filters); design detail with linked barcodes; barcode browser
+- [x] Design settings — brands + product/location suffix lists (Admin)
+
+### D.2 Orderable Items & Gates
+- [x] Auto-create the inventory item (with art image) on an orderable design — kills the manual SAP + web-store double entry
+- [x] Ordering gate — a design isn't orderable until it has an item number + barcode (draft otherwise)
+- [x] Conditional logic — default G54, ESM legacy exception with required reason + Exceptions report
+- [x] Barcodes — GMW 12-digit (052774 prefix) auto-assign or customer-provided
+
+### D.3 Reconciliation
+- [x] Customer reconciliation — link Barcode Book customer numbers that didn't match an account; backfills legacy code for future imports
+
+### D.4 Art Order Process Wiring
+- [x] "Design & orderable item" panel on the art request — punch the design in once from the art job; auto-creates the orderable item and attaches the art onto the order for the proof
+- [x] Required gate — an art job can't move to Approved/Done until an orderable design is linked
+- [x] Finish a draft in place — the panel shows the full pre-filled edit form; no hop to the Design Library
+- [x] Link an existing design (reused artwork) or unlink / start over
+
+---
+
+## Inventory
+
+- [x] Inventory items imported from SAP B1 (OITM/OITB/OITW, 4 warehouses) — 6,219 stocked items
+- [x] Territory field on inventory + sort/filter (reps too)
+- [x] Deactivate obsolete warehouses / bins / territories (SAP-imported junk)
+- [x] Low-stock forecasting & reorder suggestions (past-year sales + lead time, domestic vs import)
+- [x] Bin management
+
+---
+
+## Mobile & PWA
+
+- [x] Mobile field-sales experience — bottom tab bar, mobile card lists, tap-to-call/email, mobile quote builder (desktop unchanged)
+- [x] Installable PWA (manifest + icons); hamburger drawer exposes the full nav on phones
+- [x] Mobile card lists for Design Library, Barcodes, and Accounting AR
+- [x] Offline support — service worker caches static assets + a branded offline fallback page (authenticated HTML never cached; no cross-user leak)
+- [ ] True offline data viewing (last-synced quotes/accounts) — backlog (security-sensitive)
 
 ---
 
@@ -233,10 +290,11 @@ Last updated: 2026-08-03.
 - [x] Quoting calculator: banded/quantity pricing + per-size upcharges + minimums (delivered — see §3.1/§3.2)
 - [x] Quoting calculator (full): blank-garment catalog + vendor→garment cascade, white/light/dark color tiers, per-location decoration (silk screen/DTF/foil/softhand/embroidery), size classes, embroidery stitch tiers — admin at Catalog & Pricing
 - [ ] Quoting calculator (remaining): confirm real softgoods decoration rates from the client's order form (seed has estimates); optional supplier-cost import
-- [ ] Credit-app auto-chase reminders + welcome packet + new-lead auto-reply
+- [x] Credit-app auto-chase reminders + welcome/approved email (delivered — see §2.7)
 - [ ] Reporting suite: marketing-source ROI, top-selling designs/products, rep activity
 - [ ] Global NLP search across records (needs an Anthropic API key)
 - [x] Native art-request Kanban (Trello replacement) — delivered (see §3.5a)
 - [ ] Independent-rep deal-registration quick form
 - [x] Credit gates / limits enforcement — delivered (see Accounting); [ ] Experian integration
-- [ ] Phase 3+ modules: Web Store, Jobs & Production, Inventory/MRP, Content Library ([x] Accounting AR delivered)
+- [ ] Phase 3+ modules: Web Store, Content Library ([x] Accounting AR, Design Library, Inventory forecasting delivered)
+- [x] Art→item automation: art creates the design → orderable item with image, no SAP/Zoey re-entry (delivered — see §D.4)
