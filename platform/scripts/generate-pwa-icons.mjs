@@ -1,11 +1,13 @@
 // Generate MakeReady PWA icons with no external dependencies.
-// Draws a navy square with a white "M" monogram and writes valid PNGs.
+// Draws the brand mark — a white left peak + two lime bars on a dark square —
+// matching src/components/logo.tsx, and writes valid PNGs.
 // Run: node scripts/generate-pwa-icons.mjs
 import { deflateSync } from "node:zlib";
 import { writeFileSync } from "node:fs";
 
-const NAVY = [15, 23, 42]; // #0f172a
+const NAVY = [15, 23, 42]; // #0f172a background
 const WHITE = [255, 255, 255];
+const GREEN = [141, 198, 63]; // #8DC63F brand lime
 
 // CRC32 for PNG chunks
 const CRC_TABLE = (() => {
@@ -58,31 +60,32 @@ function distToSeg(px, py, ax, ay, bx, by) {
   return Math.hypot(px - cx, py - cy);
 }
 
-// Is normalized point (u,v in 0..1) inside the "M" glyph?
-function inM(u, v) {
-  const w = 0.18;           // stroke thickness
-  const half = w / 2;
-  // verticals
-  if (u <= w && v >= 0 && v <= 1) return true;
-  if (u >= 1 - w && v >= 0 && v <= 1) return true;
-  // diagonals meeting at center valley (0.5, 0.55)
-  if (distToSeg(u, v, half, half, 0.5, 0.62) <= half) return true;
-  if (distToSeg(u, v, 1 - half, half, 0.5, 0.62) <= half) return true;
+// The brand mark in its own coordinate space (matches the SVG in logo.tsx):
+// a left peak + two parallel bars, stroke radius R.
+const MARK_W = 136, MARK_H = 60, R = 6.5;
+const LEFT_PEAK = [ [6, 60, 44, 6], [44, 6, 82, 60] ]; // apex (44,6)
+const GREEN_BARS = [ [70, 60, 98, 18], [92, 60, 120, 18] ]; // two "/" bars
+function nearAny(mx, my, segs) {
+  for (const [ax, ay, bx, by] of segs) if (distToSeg(mx, my, ax, ay, bx, by) <= R) return true;
   return false;
 }
 
 function render(size) {
   const buf = Buffer.alloc(size * size * 4);
-  const pad = 0.24; // letter occupies middle (1-2*pad) of the icon → within maskable safe zone
-  const span = 1 - pad * 2;
+  const pad = 0.16;                 // mark sits in the maskable safe zone
+  const span = size * (1 - pad * 2);
+  const scale = span / MARK_W;
+  const offX = (size - MARK_W * scale) / 2;
+  const offY = (size - MARK_H * scale) / 2;
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const i = (y * size + x) * 4;
-      // background navy, full-bleed (valid as "any" and "maskable")
-      let [r, g, b] = NAVY;
-      const u = (x / (size - 1) - pad) / span;
-      const v = (y / (size - 1) - pad) / span;
-      if (u >= 0 && u <= 1 && v >= 0 && v <= 1 && inM(u, v)) [r, g, b] = WHITE;
+      let [r, g, b] = NAVY;         // full-bleed dark background (any + maskable)
+      const mx = (x - offX) / scale;
+      const my = (y - offY) / scale;
+      // Green drawn on top (matches SVG order), then the white peak.
+      if (nearAny(mx, my, GREEN_BARS)) [r, g, b] = GREEN;
+      else if (nearAny(mx, my, LEFT_PEAK)) [r, g, b] = WHITE;
       buf[i] = r; buf[i + 1] = g; buf[i + 2] = b; buf[i + 3] = 255;
     }
   }

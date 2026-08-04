@@ -1,25 +1,32 @@
 /**
- * MakeReady logo — geometric triple-peak mark + wordmark.
- * A placeholder rendering of the brand mark lives at /public/makeready-mark.svg;
- * drop the final brand PNG/SVG there (or swap this component) for pixel-perfect art.
+ * MakeReady by G54 brand logo — two overlapping mountain peaks (a dark peak +
+ * two lime bars) with the "MakeReady" wordmark.
+ *
+ * The lime green is fixed brand color; the dark parts use `currentColor` so the
+ * lockup reads correctly on both light surfaces (public pages, mobile header —
+ * dark on white) and the dark sidebar / auth screens (white on near-black).
  */
+const GREEN = "#8DC63F";
+
 export function LogoMark({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 150 66" className={className} fill="none" aria-hidden="true">
-      <g
+    <svg viewBox="0 0 150 80" className={className} fill="none" aria-hidden="true">
+      {/* Left peak — adapts to the background. */}
+      <path
+        d="M6 73 L48 13 L90 73"
         stroke="currentColor"
-        strokeWidth={9}
+        strokeWidth={13}
         strokeLinejoin="round"
         strokeLinecap="round"
-      >
-        <path d="M6 60 L46 10 L86 60" />
-        <path d="M64 60 L96 20 L128 60" />
-        <path d="M104 60 L126 32 L146 60" />
-      </g>
+      />
+      {/* Right peak — two parallel lime bars. */}
+      <path d="M78 73 L108 30" stroke={GREEN} strokeWidth={13} strokeLinecap="round" />
+      <path d="M100 73 L130 30" stroke={GREEN} strokeWidth={13} strokeLinecap="round" />
     </svg>
   );
 }
 
+/** Full stacked lockup: mark over the wordmark + "BY G54" rule. */
 export function Logo({
   className = "",
   markClassName = "h-7 w-auto",
@@ -30,14 +37,19 @@ export function Logo({
   showTagline?: boolean;
 }) {
   return (
-    <div className={`flex flex-col items-center gap-2 ${className}`}>
+    <div className={`flex flex-col items-center gap-2.5 ${className}`}>
       <LogoMark className={markClassName} />
       <div className="text-center leading-none">
-        <div className="text-xl font-extrabold tracking-tight">
-          MAKE<span className="font-black">READY</span>
+        <div className="text-2xl font-extrabold tracking-tight">
+          <span className="text-[#8DC63F]">Make</span>
+          <span>Ready</span>
         </div>
-        <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.25em] opacity-70">
-          by G54
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <span className="h-px w-6 bg-[#8DC63F]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+            by <span className="font-black">G54</span>
+          </span>
+          <span className="h-px w-6 bg-[#8DC63F]" />
         </div>
         {showTagline && (
           <div className="mt-2 text-[9px] font-medium uppercase tracking-[0.3em] opacity-50">
@@ -53,9 +65,10 @@ export function Logo({
 export function LogoInline({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <LogoMark className="h-6 w-auto shrink-0" />
-      <span className="text-sm font-extrabold tracking-tight">
-        MAKE<span className="font-black">READY</span>
+      <LogoMark className="h-7 w-auto shrink-0" />
+      <span className="text-base font-extrabold tracking-tight">
+        <span className="text-[#8DC63F]">Make</span>
+        <span>Ready</span>
       </span>
     </div>
   );
