@@ -291,7 +291,7 @@ Last updated: 2026-08-04.
 - [x] Quoting calculator (full): blank-garment catalog + vendor→garment cascade, white/light/dark color tiers, per-location decoration (silk screen/DTF/foil/softhand/embroidery), size classes, embroidery stitch tiers — admin at Catalog & Pricing
 - [ ] Quoting calculator (remaining): confirm real softgoods decoration rates from the client's order form (seed has estimates); optional supplier-cost import
 - [x] Credit-app auto-chase reminders + welcome/approved email (delivered — see §2.7)
-- [ ] Reporting suite: marketing-source ROI, top-selling designs/products, rep activity
+- [x] Reporting suite: Lead-Source ROI, Top Products & Designs, Sales-Rep Activity (standard reports with period filters + CSV export)
 - [ ] Global NLP search across records (needs an Anthropic API key)
 - [x] Native art-request Kanban (Trello replacement) — delivered (see §3.5a)
 - [ ] Independent-rep deal-registration quick form
