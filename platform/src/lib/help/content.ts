@@ -153,9 +153,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
           { text: "Open makeready.g54.com in your phone's browser and sign in." },
           { text: "iPhone (Safari): tap the Share button, then \"Add to Home Screen\"." },
           { text: "Android (Chrome): tap the ⋮ menu, then \"Install app\" (or \"Add to Home screen\")." },
-          { text: "Launch MakeReady from the new navy \"M\" icon — it opens full screen." },
+          { text: "Launch MakeReady from the new MakeReady icon on your home screen — it opens full screen." },
         ],
       },
+      { k: "h", text: "It works offline" },
+      { k: "p", text: "Once installed, MakeReady keeps working if your signal drops. If you open a page with no connection, you'll see a friendly \"You're offline\" screen instead of a browser error, and it reloads itself automatically the moment you're back online. (For your data's safety on a shared phone, live records aren't stored on the device — you'll need a connection to load them.)" },
       { k: "h", text: "Getting around" },
       { k: "p", text: "A bottom bar gives you one-tap access to the things you use in the field:" },
       {
@@ -1013,9 +1015,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "Each breakdown has a CSV export link so you can pull the underlying numbers into a spreadsheet." },
       { k: "h", text: "Standard reports" },
       { k: "p", text: "Under \"Standard reports\" on the Reports page are four fixed, SAP-parity reports that mirror the legacy ERP: Sales Analysis by Salesperson & Customer, Open Orders by Salesperson, Open Orders by Type, and the Customer Credit Report. See Standard reports for what each one shows." },
+      { k: "h", text: "Analytics reports" },
+      { k: "p", text: "In the same list are four analytics reports with their own charts: Revenue Trend (monthly sales over time, back to 2008), Top Products & Designs, Sales-Rep Activity, and Lead-Source ROI. See Analytics reports." },
       { k: "tip", text: "For the sales pipeline by customer, remember the CRM account page now shows each customer's full order history and lifetime spend." },
     ],
-    related: ["standard-reports", "building-and-scheduling-reports", "managing-an-account"],
+    related: ["standard-reports", "analytics-reports", "building-and-scheduling-reports", "managing-an-account"],
   },
   {
     slug: "building-and-scheduling-reports",
@@ -1105,8 +1109,43 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "Customer Credit Report" },
       { k: "p", text: "A full credit profile for one customer — pick them from the search box. It shows the credit header (terms, limit, AR balance, available credit, hold status, average pay age), trailing 12/24/36-month sales, open orders, real open invoices with aging, recent payments, and the collection-activity log. Finance can set the customer's credit controls right on this page — see Credit control." },
       { k: "warn", text: "Standard reports are limited to Admin, Sales Manager, and Finance roles." },
+      { k: "tip", text: "Alongside these, the same list has four analytics reports with charts — Revenue Trend, Top Products & Designs, Sales-Rep Activity, and Lead-Source ROI. See Analytics reports." },
     ],
-    related: ["reports-overview", "credit-control", "invoicing-and-payments"],
+    related: ["reports-overview", "analytics-reports", "credit-control", "invoicing-and-payments"],
+  },
+  {
+    slug: "analytics-reports",
+    title: "Analytics reports (Revenue Trend, Top Products, Rep Activity, Lead-Source ROI)",
+    section: "Reports & Analytics",
+    summary: "Four visual analytics reports with charts and CSV export: revenue over time, best-selling products, per-rep activity, and where the business comes from.",
+    who: "Admin, Sales Manager, Finance",
+    blocks: [
+      { k: "p", text: "The Reports page lists four analytics reports next to the standard ones. Each has charts, a table, and a CSV export. Most also have a period selector at the top (Last 30 days / 90 days / 12 months / All time) — pick the window you want and the whole report updates." },
+
+      { k: "h", text: "Revenue Trend" },
+      { k: "p", text: "A month-by-month picture of sales over time, drawn as a stacked area chart. The lower band is migrated SAP order history and the top band is orders placed in MakeReady, so you can watch the business move onto the new system. The migrated history reaches back to 2008. Choose a range (12 / 24 / 36 months or All time). The cards above the chart show total revenue, the monthly average, the best month, and what share is now flowing through MakeReady." },
+      { k: "img", src: "report-revenue-trend.png", caption: "Revenue Trend — monthly revenue, SAP history (grey) plus MakeReady orders (green)." },
+
+      { k: "h", text: "Top Products & Designs" },
+      { k: "p", text: "The best-selling line items ranked by quoted value, with a Won column for what was actually accepted, plus a “sales by product / decoration type” breakdown with each type's share. Bar charts sit above the tables. Use the period selector to focus on recent activity." },
+      { k: "img", src: "report-top-products.png", caption: "Top Products & Designs — top line items and sales by type." },
+      { k: "p", text: "Line-item detail comes from quotes (the record that carries both the product and its price), so this report fills in as more quoting happens in MakeReady." },
+
+      { k: "h", text: "Sales-Rep Activity" },
+      { k: "p", text: "A scoreboard per sales rep for the chosen period: logged calls, notes, emails, and visits (their total is “touches”), quotes created and won with the won dollar value, and orders credited with their dollar value. A chart compares won-vs-order value by rep and another shows touches by rep. Totals are on the bottom row." },
+      { k: "img", src: "report-rep-activity.png", caption: "Sales-Rep Activity — touches, quotes, and orders per rep." },
+      { k: "tip", text: "“Touches” counts activity your team logs on accounts (system entries are excluded), so the numbers reflect real outreach — encourage reps to log their calls and visits." },
+
+      { k: "h", text: "Lead-Source ROI" },
+      { k: "p", text: "Where the business comes from. For each lead source it shows how many accounts carry it, how many became customers, the conversion rate, and the lifetime revenue (migrated SAP history plus current orders), with revenue-per-account. Sorted by revenue." },
+      { k: "img", src: "report-lead-source.png", caption: "Lead-Source ROI — accounts, conversion, and lifetime revenue by source." },
+      { k: "p", text: "Accounts imported without a lead source group under “(unspecified)”, which is most of the migrated book today — the report gets sharper as new accounts are tagged with where they came from. Set a lead source on the account when you create or edit a Business Partner." },
+
+      { k: "h", text: "Exporting" },
+      { k: "p", text: "Every analytics report has an Export CSV button (top-right) that respects the period you've chosen, so you can take the numbers into a spreadsheet." },
+      { k: "warn", text: "Analytics reports are limited to Admin, Sales Manager, and Finance roles." },
+    ],
+    related: ["reports-overview", "standard-reports", "managing-an-account", "building-a-quote"],
   },
 
   // ─────────────────────────────── Catalog & pricing (admin) ─────────────────
