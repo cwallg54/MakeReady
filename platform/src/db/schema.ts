@@ -1503,6 +1503,17 @@ export const storeProducts = pgTable(
 export type StoreCategory = typeof storeCategories.$inferSelect;
 export type StoreProduct = typeof storeProducts.$inferSelect;
 
+// Customer pricing tiers — a group carries a % discount applied on top of the
+// customer's price (retail or B2B).
+export const storeCustomerGroups = pgTable("store_customer_groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  discountPct: numeric("discount_pct", { precision: 5, scale: 2 }).notNull().default("0"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // Storefront customer account (separate auth realm from staff `users`). Linked
 // to a CRM Business Partner when matched. Self-register → pending → admin approves.
 export const storeCustomers = pgTable(
@@ -1510,6 +1521,7 @@ export const storeCustomers = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    groupId: uuid("group_id").references(() => storeCustomerGroups.id, { onDelete: "set null" }),
     email: text("email").notNull().unique(),
     passwordHash: text("password_hash"),
     name: text("name").notNull(),
@@ -1580,6 +1592,7 @@ export const storeOrderItems = pgTable(
 );
 
 export type StoreCustomer = typeof storeCustomers.$inferSelect;
+export type StoreCustomerGroup = typeof storeCustomerGroups.$inferSelect;
 export type StoreOrder = typeof storeOrders.$inferSelect;
 export type StoreOrderItem = typeof storeOrderItems.$inferSelect;
 

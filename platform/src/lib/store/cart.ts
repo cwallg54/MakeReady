@@ -2,7 +2,16 @@ import "server-only";
 import { cookies } from "next/headers";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, inventoryItems } from "@/db/schema";
+import { storeProducts, inventoryItems, storeCustomerGroups, type StoreCustomer } from "@/db/schema";
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** The % discount a customer's pricing group grants (0 if none/inactive). */
+export async function customerDiscountPct(customer: StoreCustomer | null): Promise<number> {
+  if (!customer?.groupId) return 0;
+  const g = await db.query.storeCustomerGroups.findFirst({ where: eq(storeCustomerGroups.id, customer.groupId), columns: { discountPct: true, active: true } });
+  return g && g.active ? Number(g.discountPct) : 0;
+}
 
 /** Cookie-based cart (no login needed to shop). Kept small: product id + qty. */
 const CART_COOKIE = "mr_cart";
@@ -46,15 +55,17 @@ export async function writeCart(lines: CartLine[]): Promise<void> {
   });
 }
 
-/** B2B customers pay the B2B price when set; everyone else pays retail. */
-export function priceFor(p: { retailPrice: string; b2bPrice: string | null }, b2b: boolean): number {
+/** B2B customers pay the B2B price when set; everyone else pays retail. A group
+ *  discount % (if any) is then applied on top. */
+export function priceFor(p: { retailPrice: string; b2bPrice: string | null }, b2b: boolean, discountPct = 0): number {
   const retail = Number(p.retailPrice);
   const b2bPrice = p.b2bPrice != null ? Number(p.b2bPrice) : null;
-  return b2b && b2bPrice != null ? b2bPrice : retail;
+  const base = b2b && b2bPrice != null ? b2bPrice : retail;
+  return discountPct > 0 ? round2(base * (1 - discountPct / 100)) : base;
 }
 
 /** Resolve the cart cookie to full line items (dropping unpublished/removed). */
-export async function cartDetails(b2b: boolean): Promise<{ items: CartItem[]; subtotal: number; count: number }> {
+export async function cartDetails(b2b: boolean, discountPct = 0): Promise<{ items: CartItem[]; subtotal: number; count: number }> {
   const lines = await readCart();
   if (!lines.length) return { items: [], subtotal: 0, count: 0 };
   const ids = lines.map((l) => l.id);
@@ -74,7 +85,7 @@ export async function cartDetails(b2b: boolean): Promise<{ items: CartItem[]; su
   for (const l of lines) {
     const p = byId.get(l.id);
     if (!p || !p.published) continue;
-    const unitPrice = priceFor(p, b2b);
+    const unitPrice = priceFor(p, b2b, discountPct);
     items.push({
       id: p.id, title: p.title, slug: p.slug, sku: p.sku, qty: l.qty,
       unitPrice, lineTotal: unitPrice * l.qty,

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { storeOrders, storeOrderItems, numberSeries, notifications, userRoles, users } from "@/db/schema";
-import { readCart, writeCart, cartDetails } from "./cart";
+import { readCart, writeCart, cartDetails, customerDiscountPct } from "./cart";
 import { getCurrentCustomer, registerCustomer, loginCustomer, logoutCustomer } from "./customer-auth";
 import { getStoreSettings } from "./settings";
 import { writePromoCode, clearPromoCode, getCartTotals, validatePromo } from "./promo";
@@ -111,7 +111,7 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
   const settings = await getStoreSettings();
   if (!settings.enabled) return { error: "The store is currently closed." };
   if (!settings.publicEnabled && !customer) return { error: "Please sign in to place an order." };
-  const { items, subtotal, discount, total, promoCode } = await getCartTotals(b2b);
+  const { items, subtotal, discount, total, promoCode } = await getCartTotals(b2b, await customerDiscountPct(customer));
   if (items.length === 0) return { error: "Your cart is empty." };
   // Re-validate the promo at order time (subtotal may have changed).
   const appliedPromo = promoCode && discount > 0 ? (await validatePromo(promoCode, subtotal)) : null;

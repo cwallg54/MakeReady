@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
+import { customerDiscountPct } from "@/lib/store/cart";
 import { getCartTotals } from "@/lib/store/promo";
 import { setQtyAction, removeFromCartAction, applyPromoAction, removePromoAction } from "@/lib/store/storefront-actions";
 
@@ -8,7 +9,7 @@ const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDi
 
 export default async function CartPage() {
   const customer = await getCurrentCustomer();
-  const { items, subtotal, discount, total, promoCode, promoError } = await getCartTotals(!!customer);
+  const { items, subtotal, discount, total, promoCode, promoError } = await getCartTotals(!!customer, await customerDiscountPct(customer));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">

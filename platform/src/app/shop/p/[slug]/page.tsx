@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { getStoreSettings } from "@/lib/store/settings";
+import { customerDiscountPct } from "@/lib/store/cart";
 import { getProductBySlug } from "@/lib/store/storefront-data";
 import { addToCartAction } from "@/lib/store/storefront-actions";
 
@@ -13,7 +14,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const [customer, settings] = await Promise.all([getCurrentCustomer(), getStoreSettings()]);
   if (!settings.publicEnabled && !customer) redirect("/shop/login");
   const b2b = !!customer;
-  const p = await getProductBySlug(slug, b2b);
+  const p = await getProductBySlug(slug, b2b, await customerDiscountPct(customer));
   if (!p) notFound();
   const discounted = p.price < p.retail;
 

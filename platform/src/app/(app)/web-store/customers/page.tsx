@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { storeCustomers } from "@/db/schema";
+import { storeCustomers, storeCustomerGroups } from "@/db/schema";
+import { asc, eq } from "drizzle-orm";
 import { PageHeader, Card } from "@/components/ui";
 import { setCustomerStatusAction } from "@/lib/store/actions";
+import { GroupSelect } from "./group-select";
 import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +19,10 @@ export default async function StoreCustomersPage() {
   if (!canEdit(user.roles, "web_store")) redirect("/web-store");
 
   // Pending first, then most recent.
-  const rows = await db.select().from(storeCustomers)
-    .orderBy(sql`case ${storeCustomers.status} when 'pending' then 0 else 1 end`, desc(storeCustomers.createdAt)).limit(200);
+  const [rows, groups] = await Promise.all([
+    db.select().from(storeCustomers).orderBy(sql`case ${storeCustomers.status} when 'pending' then 0 else 1 end`, desc(storeCustomers.createdAt)).limit(200),
+    db.select({ id: storeCustomerGroups.id, name: storeCustomerGroups.name }).from(storeCustomerGroups).where(eq(storeCustomerGroups.active, true)).orderBy(asc(storeCustomerGroups.name)),
+  ]);
   const pending = rows.filter((r) => r.status === "pending").length;
 
   return (
@@ -38,7 +42,10 @@ export default async function StoreCustomersPage() {
                 </div>
                 <div className="text-xs text-neutral-500">{c.email}{c.companyName ? ` · ${c.companyName}` : ""}{c.phone ? ` · ${c.phone}` : ""} · joined {fmtDate(c.createdAt)}</div>
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 items-center gap-2">
+                {c.status !== "rejected" && groups.length > 0 && (
+                  <GroupSelect id={c.id} groupId={c.groupId} groups={groups} />
+                )}
                 {c.status === "pending" && (
                   <>
                     <form action={setCustomerStatusAction}><input type="hidden" name="id" value={c.id} /><input type="hidden" name="status" value="active" /><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">Approve</button></form>

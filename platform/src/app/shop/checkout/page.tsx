@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { getStoreSettings } from "@/lib/store/settings";
+import { customerDiscountPct } from "@/lib/store/cart";
 import { getCartTotals } from "@/lib/store/promo";
 import { CheckoutForm } from "./checkout-form";
 
@@ -11,7 +12,7 @@ const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDi
 export default async function CheckoutPage() {
   const [customer, settings] = await Promise.all([getCurrentCustomer(), getStoreSettings()]);
   if (!settings.publicEnabled && !customer) redirect("/shop/login");
-  const { items, subtotal, discount, total, promoCode } = await getCartTotals(!!customer);
+  const { items, subtotal, discount, total, promoCode } = await getCartTotals(!!customer, await customerDiscountPct(customer));
   if (items.length === 0) redirect("/shop/cart");
 
   return (

@@ -44,8 +44,8 @@ export interface CartTotals {
 }
 
 /** Cart lines + any applied promo, re-validated against the current subtotal. */
-export async function getCartTotals(b2b: boolean): Promise<CartTotals> {
-  const { items, subtotal, count } = await cartDetails(b2b);
+export async function getCartTotals(b2b: boolean, discountPct = 0): Promise<CartTotals> {
+  const { items, subtotal, count } = await cartDetails(b2b, discountPct);
   const code = await readPromoCode();
   let discount = 0, promoError: string | null = null;
   if (code && subtotal > 0) {

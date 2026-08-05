@@ -34,7 +34,7 @@ export async function listCategories() {
     .from(storeCategories).where(eq(storeCategories.active, true)).orderBy(asc(storeCategories.sortOrder), asc(storeCategories.name));
 }
 
-export async function listProducts(opts: { b2b: boolean; q?: string; categorySlug?: string; featuredOnly?: boolean; limit?: number }): Promise<StoreListItem[]> {
+export async function listProducts(opts: { b2b: boolean; discountPct?: number; q?: string; categorySlug?: string; featuredOnly?: boolean; limit?: number }): Promise<StoreListItem[]> {
   const cond = audienceWhere(opts.b2b);
   if (opts.q) cond.push(or(ilike(storeProducts.title, `%${opts.q}%`), ilike(storeProducts.description, `%${opts.q}%`)) as SQL);
   if (opts.featuredOnly) cond.push(eq(storeProducts.featured, true));
@@ -55,12 +55,12 @@ export async function listProducts(opts: { b2b: boolean; q?: string; categorySlu
 
   return rows.map((r) => ({
     id: r.id, title: r.title, slug: r.slug,
-    price: priceFor(r, opts.b2b), retailPrice: Number(r.retailPrice),
+    price: priceFor(r, opts.b2b, opts.discountPct ?? 0), retailPrice: Number(r.retailPrice),
     featured: r.featured, image: image(r), sku: r.sku, categoryName: r.categoryName,
   }));
 }
 
-export async function getProductBySlug(slug: string, b2b: boolean) {
+export async function getProductBySlug(slug: string, b2b: boolean, discountPct = 0) {
   const cond = [eq(storeProducts.slug, slug), ...audienceWhere(b2b)];
   const [row] = await db.select({
     id: storeProducts.id, title: storeProducts.title, slug: storeProducts.slug, description: storeProducts.description,
@@ -75,7 +75,7 @@ export async function getProductBySlug(slug: string, b2b: boolean) {
   if (!row) return null;
   return {
     ...row,
-    price: priceFor(row, b2b),
+    price: priceFor(row, b2b, discountPct),
     retail: Number(row.retailPrice),
     inStock: row.onHand != null ? Number(row.onHand) > 0 : true,
     image: image(row),

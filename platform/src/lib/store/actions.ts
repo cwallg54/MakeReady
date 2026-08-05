@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings, storePromos } from "@/db/schema";
+import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings, storePromos, storeCustomerGroups } from "@/db/schema";
 import { getStoreSettings } from "./settings";
 import { createSalesOrderFromStoreOrder } from "./order-handoff";
 import { getCurrentUser } from "@/lib/auth/service";
@@ -243,6 +243,38 @@ export async function updateStoreSettingsAction(formData: FormData): Promise<voi
   await audit({ userId: user.id, action: "store.settings_update", entityType: "store_settings", entityId: current.id });
   revalidatePath("/web-store/settings");
   revalidatePath("/shop");
+}
+
+// ---- Customer groups (tiered pricing) -------------------------------------
+
+export async function addStoreGroupAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const name = str(formData.get("name"));
+  if (!name) return;
+  const pct = Math.min(100, Math.max(0, Number(String(formData.get("discountPct") ?? "0").replace(/[^0-9.]/g, "")) || 0));
+  await db.insert(storeCustomerGroups).values({ name, discountPct: pct.toFixed(2) }).onConflictDoNothing({ target: storeCustomerGroups.name });
+  await audit({ userId: user.id, action: "store.group_add", entityType: "store_group", entityId: name });
+  revalidatePath("/web-store/groups");
+}
+
+export async function toggleStoreGroupAction(formData: FormData): Promise<void> {
+  await requireStoreEdit();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  const g = await db.query.storeCustomerGroups.findFirst({ where: eq(storeCustomerGroups.id, id), columns: { active: true } });
+  if (!g) return;
+  await db.update(storeCustomerGroups).set({ active: !g.active, updatedAt: new Date() }).where(eq(storeCustomerGroups.id, id));
+  revalidatePath("/web-store/groups");
+}
+
+export async function setCustomerGroupAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  const groupId = str(formData.get("groupId"));
+  await db.update(storeCustomers).set({ groupId: groupId || null, updatedAt: new Date() }).where(eq(storeCustomers.id, id));
+  await audit({ userId: user.id, action: "store.customer_group", entityType: "store_customer", entityId: id, metadata: { groupId } });
+  revalidatePath("/web-store/customers");
 }
 
 // ---- Customers (approval) -------------------------------------------------

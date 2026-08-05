@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { getStoreSettings } from "@/lib/store/settings";
+import { customerDiscountPct } from "@/lib/store/cart";
 import { listCategories, listProducts } from "@/lib/store/storefront-data";
 import { ProductCard } from "./product-card";
 
@@ -25,9 +26,10 @@ export default async function ShopHome({ searchParams }: { searchParams: Promise
     );
   }
 
+  const discountPct = await customerDiscountPct(customer);
   const [cats, products] = await Promise.all([
     listCategories(),
-    listProducts({ b2b, q: sp.q?.trim(), categorySlug: sp.cat }),
+    listProducts({ b2b, discountPct, q: sp.q?.trim(), categorySlug: sp.cat }),
   ]);
   const activeCat = cats.find((c) => c.slug === sp.cat);
 
