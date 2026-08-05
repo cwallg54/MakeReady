@@ -32,6 +32,7 @@ export const HELP_SECTIONS = [
   "Account & Security",
   "CRM",
   "Sales",
+  "Web Store",
   "Art & Production",
   "Inventory",
   "Accounting",
@@ -1555,6 +1556,52 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "Numbers marked NEW (customer-specific but no number yet) aren't shown here — they're expected to be blank until a customer number is assigned." },
     ],
     related: ["design-library", "creating-a-design"],
+  },
+
+  // ─────────────────────────────── Web Store ─────────────────────────────────
+  {
+    slug: "web-store-admin",
+    title: "Running the Web Store",
+    section: "Web Store",
+    summary: "Publish products to the storefront, set retail and B2B pricing, approve Business Partner logins, and work store orders — the native store that replaces Zoey.",
+    who: "Admin, Sales Manager",
+    blocks: [
+      { k: "p", text: "The Web Store is a native online store built into MakeReady — no third-party platform. You administer it here, and it powers a public storefront at /shop (eventually your g54.com store). There are two audiences: the general public, who can buy in-stock items only (no custom orders), and Business Partners, who sign in to see B2B pricing and the full catalog." },
+      { k: "h", text: "Publishing products" },
+      {
+        k: "steps",
+        items: [
+          { text: "Open Web Store from the sidebar. Click “Add from inventory” to browse your stock and add any item to the store — or “+ New product” for a standalone listing." },
+          { text: "On the product, set the Retail price (what the public pays) and, optionally, a B2B price (what signed-in Business Partners pay). Choose Visibility — Public store, B2B only, or both — add a description, category, and image (it falls back to the inventory photo)." },
+          { text: "Flip Published on to make it live. Use the status toggle right on the product list for quick publish/unpublish." },
+        ],
+      },
+      { k: "tip", text: "Categories (top of the Web Store page) group products on the storefront. Products with no category still show under “All”." },
+      { k: "h", text: "Business Partner logins" },
+      { k: "p", text: "Customers request an account on the storefront and land under Web Store → Customers as “pending.” Approve them there and they can sign in and shop at B2B pricing; you can also suspend or reject accounts. Approval is required before anyone can order on account." },
+      { k: "h", text: "Orders" },
+      { k: "p", text: "Store orders come into Web Store → Orders (you also get an email + a notification). The store uses an on-account / request model — no card is charged online. Open an order and move it through Pending → Confirmed → Fulfilled. Confirming an order deducts the item quantities from inventory; canceling a confirmed order restores them." },
+      { k: "h", text: "Settings" },
+      { k: "p", text: "Web Store → Settings controls the store name, hero text, and two switches: whether the store is open at all, and whether the public may shop (turn that off to make it a Business-Partner-only store). Use “View store ↗” anywhere to see the live storefront." },
+      { k: "warn", text: "The Web Store is limited to Admin and Sales Manager (Sales and Finance can view). Customers are a separate login from staff accounts." },
+    ],
+    related: ["storefront-shopping", "inventory-overview", "invoicing-and-payments"],
+  },
+  {
+    slug: "storefront-shopping",
+    title: "The storefront (what customers see)",
+    section: "Web Store",
+    summary: "How the public shop and the Business Partner portal work — browsing, accounts, pricing, and on-account checkout.",
+    who: "Admin, Sales Manager, Sales",
+    blocks: [
+      { k: "p", text: "The storefront lives at /shop. Anyone can browse and buy published in-stock items — no login needed — but only existing inventory, with no customization. Business Partners sign in for account pricing and any B2B-only products." },
+      { k: "h", text: "Shopping" },
+      { k: "p", text: "Customers filter by category or search, open a product, choose a quantity, and add it to the cart. The cart shows a running subtotal. At checkout they enter contact and shipping details (signed-in Business Partners skip that — it's on their account) and place the order. No payment is taken online: your team confirms the order, calculates shipping and tax, and follows up to arrange payment or bills it to the account." },
+      { k: "h", text: "Business Partner accounts" },
+      { k: "p", text: "New customers click “Request an account,” enter their details, and wait for approval (see Running the Web Store). Once approved they sign in, see B2B pricing, and get an order history under “My account.”" },
+      { k: "tip", text: "Every order sends the customer a confirmation email and gives them an order number (WEB-…). They can revisit any order from their account." },
+    ],
+    related: ["web-store-admin"],
   },
 ];
 

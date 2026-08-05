@@ -18,6 +18,7 @@ const ROUTE_HELP: Record<string, string> = {
   "/designs/new": "creating-a-design",
   "/designs/reconcile": "design-reconciliation",
   "/designs": "design-library",
+  "/web-store": "web-store-admin",
   "/inventory/forecast": "reorder-forecast",
   "/inventory/bins": "bin-management",
   "/inventory": "inventory-overview",
