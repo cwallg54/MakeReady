@@ -87,6 +87,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "After signing in you land on your dashboard. What you see is tailored to your role — the modules you can open, the stats that matter to you, and your own open tasks." },
       { k: "img", src: "dashboard.png", caption: "The dashboard greets you by name and summarizes what needs attention." },
+      { k: "img", src: "dashboard-mobile.png", caption: "The same dashboard on a phone — 2-up tiles and a bottom navigation bar." },
       { k: "h", text: "What's on your dashboard" },
       { k: "p", text: "The dashboard shows live numbers for your role, and each tile taps through to the detail screen:" },
       {
@@ -171,6 +172,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "p", text: "You only see the tabs your role has access to." },
+      { k: "img", src: "dashboard-mobile.png", caption: "The dashboard on a phone, with the bottom navigation bar." },
       { k: "tip", text: "Tap the center ＋ button — or press and hold it — to pop up quick actions: New Business Partner and New Quote. Press-and-hold gives a little buzz; tap either option, or tap outside to dismiss. (A \"customer\" in MakeReady is just a Business Partner, so New Business Partner is how you add a new customer, lead, or prospect.)" },
       { k: "h", text: "Working an account" },
       { k: "p", text: "Open an account and you'll see a quick-action row at the top:" },
@@ -183,9 +185,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
           "🧾 New Quote — starts a quote with this customer already filled in",
         ],
       },
+      { k: "img", src: "crm-detail-mobile.png", caption: "An account on a phone — the quick-action row (call, email, log, new quote) sits at the top." },
       { k: "tip", text: "Call and Email use your phone's own dialer and mail app, so they work even to save the number to your contacts." },
       { k: "h", text: "Quoting on the go" },
       { k: "p", text: "The quote builder is touch-friendly on mobile: each line item is a card where you pick the product, size, and quantity, and the price fills in automatically — the same server-checked pricing as the desktop. Tap Save when you're done." },
+      { k: "img", src: "quote-builder-mobile.png", caption: "The quote builder on a phone — stacked line cards with automatic band pricing." },
       { k: "h", text: "Drag-and-drop on a phone" },
       { k: "p", text: "Kanban boards — the CRM pipeline, the Art board, and the Production board — support drag-and-drop by touch. Press and hold a card for a moment (you'll feel a little buzz as it lifts), then drag it over another column and let go to drop. Drag near the top or bottom of the screen and the page scrolls so you can reach columns that are off-screen. A quick tap still opens the card." },
       { k: "h", text: "Switching between the list and the board" },
@@ -208,6 +212,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "Two-factor authentication (2FA) adds a second check at sign-in so a stolen password isn't enough to get in. Open it from your initials avatar in the top-right, or go to Account Security." },
       { k: "warn", text: "2FA is required for every MakeReady user. When your account is first set up you'll be brought straight to this page — a banner reads “One more step to finish setting up your account.” Add one method (an authenticator app or a passkey) and a “Continue to MakeReady →” button takes you into the app. You can't use the rest of MakeReady until at least one method is enrolled." },
       { k: "img", src: "security.png", caption: "The Security page. A banner shows whether 2FA is on." },
+      { k: "img", src: "security-mobile.png", caption: "The Security page on a phone." },
       { k: "h", text: "Authenticator app (TOTP)" },
       {
         k: "steps",
@@ -246,6 +251,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Business Partners are the heart of CRM — every customer, lead, and prospect. They anchor quotes, orders, and (in later phases) invoices and Web Store access. Open CRM → Business Partners." },
       { k: "img", src: "crm-list.png", caption: "The Business Partners list with stage filters and search." },
+      { k: "img", src: "crm-list-mobile.png", caption: "On a phone the list becomes tap-friendly cards with the same search." },
       { k: "h", text: "Filter and search" },
       {
         k: "list",
@@ -295,6 +301,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Opening a Business Partner shows everything about the account on one page." },
       { k: "img", src: "crm-detail.png", caption: "A Business Partner record." },
+      { k: "img", src: "crm-detail-mobile.png", caption: "The account on a phone, with the tap-to-call / email / log quick-action row." },
       { k: "h", text: "Stage & owner" },
       { k: "p", text: "Use the quick buttons in the stage bar (e.g. \"→ Prospect\") to move the account through its lifecycle, and set the Owner from the dropdown. Every change is recorded automatically." },
       { k: "h", text: "Account details" },
@@ -322,6 +329,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "The Pipeline gives you a Kanban view of your accounts by stage. Open CRM → Pipeline (or \"Pipeline\" from the Business Partners list)." },
       { k: "img", src: "pipeline.png", caption: "Leads, Prospects, and Customers as columns." },
+      { k: "img", src: "pipeline-mobile.png", caption: "On a phone, with a List / Board toggle and press-and-hold drag." },
       {
         k: "steps",
         items: [
@@ -463,6 +471,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "The CAP PRICING tab → quantity bands" },
       { k: "p", text: "On the caps order form, the unit price came from the CAP PRICING tab based on the style (RC, REN, VEL, Animal) and the quantity band. In MakeReady you just pick the cap and type the quantity — the unit price fills from the same bands (RC 72 → $10.50, 144 → $9.25, 288 → $8.25, 432 → $8.00, 576 → $7.75) and updates as you change the quantity. You'll see \"auto-priced by quantity band\" under the line, and a \"below 72 minimum\" note if you're under the style's minimum." },
       { k: "img", src: "quote-builder.png", caption: "Pick the cap and quantity — the unit price fills from the band automatically." },
+      { k: "img", src: "quote-builder-mobile.png", caption: "The quote builder on a phone — each line is a stacked card with the same automatic pricing." },
       { k: "h", text: "Baja & apparel → size upcharges" },
       { k: "p", text: "The Baja form added $2 for 2XL and $3 for 3XL. In MakeReady, choose the Size from the dropdown on the line and the upcharge is added to the unit price for you." },
       { k: "h", text: "Softgoods decoration → Charges & setup" },
@@ -517,6 +526,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "When a quote is accepted, convert it into a trackable order. On the quote, click \"Convert to order\" — this creates the order once, with its own number and a customer tracking link." },
       { k: "img", src: "order-detail.png", caption: "An order with its progress tracker, stage controls, and PDF tools." },
+      { k: "img", src: "order-detail-mobile.png", caption: "The same order on a phone." },
       { k: "h", text: "Production details & artwork" },
       { k: "p", text: "After the order is created, capture exactly what the customer wants made. The \"Production details\" section works for apparel and non-apparel alike — tees, hats, cups, and promo items." },
       {
@@ -614,6 +624,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "On the order page, the salesperson clicks \"Submit to art →\". That creates an art request, moves the order into the Art & Proof stage, and notifies the art team. The catalogue image the customer picked and the production spec travel with it, so art sees exactly what was ordered." },
       { k: "h", text: "The Art board — Queue and Kanban" },
       { k: "img", src: "art-board.png", caption: "The Art Department board — toggle between Queue and Kanban." },
+      { k: "img", src: "art-board-mobile.png", caption: "The Art board on a phone (press-and-hold to drag cards on the Kanban)." },
       {
         k: "steps",
         items: [
@@ -730,6 +741,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "The team calendar shows every scheduled meeting in a month grid. Open Sales → Calendar." },
       { k: "img", src: "calendar.png", caption: "The month calendar with per-appointment cards." },
+      { k: "img", src: "calendar-mobile.png", caption: "On a phone the month grid becomes a tap-friendly agenda list." },
       {
         k: "list",
         items: [
@@ -1000,6 +1012,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Admin, Sales Manager, Finance",
     blocks: [
       { k: "p", text: "Open Reports from the sidebar for an at-a-glance picture of the business. The top of the page shows headline KPIs (accounts, pipeline, open quotes and their value, open orders, inventory valuation), followed by a set of visual charts and written breakdowns." },
+      { k: "img", src: "reports-mobile.png", caption: "The Reports dashboard on a phone — KPI tiles and charts stack into a single column." },
       { k: "h", text: "The charts" },
       { k: "p", text: "Charts are drawn on real, dense data and always label their values so nothing is guesswork:" },
       {
@@ -1192,6 +1205,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Admin, Finance",
     blocks: [
       { k: "p", text: "The Accounting area is Accounts Receivable — turning delivered work into invoices and collecting on them. Open Accounting from the sidebar for the AR overview (outstanding, overdue, collected), then Invoices, Payments, AR Aging, and Statements." },
+      { k: "img", src: "accounting-mobile.png", caption: "The Accounting overview on a phone — stat tiles and overdue invoices as cards." },
       { k: "h", text: "Creating an invoice" },
       {
         k: "steps",
@@ -1377,6 +1391,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "The Design Library replaces the barcode-book spreadsheet. The entire book was imported — roughly 11,800 design numbers (across G54, ESM, embroidery, patches, overseas headwear, wood, stain tee and royalty) and 53,000+ barcodes, active and archived. Everything is searchable, and creating a new design here automatically makes the inventory item so sales can order it right away — no more re-typing it into two systems." },
       { k: "img", src: "designs.png", caption: "The Design Library — search, catalog filter, and the Barcodes / Reconcile / Exceptions views. The counter shows the full imported book." },
+      { k: "img", src: "designs-mobile.png", caption: "The Design Library on a phone — the table becomes cards you can search and tap." },
       { k: "h", text: "Finding a design" },
       {
         k: "steps",

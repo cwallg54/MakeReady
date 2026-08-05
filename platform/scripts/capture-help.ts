@@ -214,6 +214,28 @@ async function main() {
   await fullPage(authCtx, "order-production", `/sales/orders/${order.id}`);
   await fullPage(authCtx, "quote-attachments", `/sales/quotes/${quote.id}`);
 
+  // ---- Mobile (phone) layouts ----------------------------------------------
+  // Same screens at phone width, saved as <name>-mobile.png, so the help center
+  // can show both the desktop and the phone layout of each feature.
+  const mobileCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  await mobileCtx.addCookies([{ name: "mr_session", value: jwt, domain: "makeready.g54.com", path: "/", httpOnly: true, secure: true, sameSite: "Lax", expires: Math.floor(exp.getTime() / 1000) }]);
+  const mobilePages: [string, string][] = [
+    ["dashboard", "/dashboard"],
+    ["crm-list", "/crm"],
+    ["crm-detail", `/crm/${bp.id}`],
+    ["pipeline", "/crm/pipeline"],
+    ["quote-builder", `/sales/quotes/${quote.id}`],
+    ["order-detail", `/sales/orders/${order.id}`],
+    ["art-board", "/art"],
+    ["designs", "/designs"],
+    ["accounting", "/accounting"],
+    ["reports", "/reports"],
+    ["calendar", "/calendar"],
+    ["security", "/account/security"],
+  ];
+  console.log("Mobile screenshots:");
+  for (const [n, p] of mobilePages) await shoot(mobileCtx, `${n}-mobile`, p);
+
   const pubCtx = await browser.newContext({ viewport: { width: 1280, height: 1000 }, deviceScaleFactor: 2 });
   console.log("Public screenshots:");
   for (const [n, p] of publics) await shoot(pubCtx, n, p);
