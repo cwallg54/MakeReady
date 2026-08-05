@@ -59,6 +59,7 @@ export default async function WebStorePage({ searchParams }: { searchParams: Pro
             <a href="/shop" target="_blank" rel="noreferrer" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">View store ↗</a>
             {editable && <Link href="/web-store/inventory" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Add from inventory</Link>}
             {editable && <Link href="/web-store/categories" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Categories</Link>}
+            {editable && <Link href="/web-store/promos" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Promos</Link>}
             {editable && <Link href="/web-store/settings" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Settings</Link>}
             {editable && <Link href="/web-store/products/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">+ New product</Link>}
           </div>

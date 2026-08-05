@@ -182,6 +182,9 @@ export const storeCustomerStatusEnum = pgEnum("store_customer_status", ["pending
 // Store order lifecycle (on-account / request model — no online payment yet).
 export const storeOrderStatusEnum = pgEnum("store_order_status", ["pending", "confirmed", "fulfilled", "canceled"]);
 
+// Promo code discount type.
+export const storePromoKindEnum = pgEnum("store_promo_kind", ["percent", "fixed"]);
+
 export const activityTypeEnum = pgEnum("activity_type", [
   "note",
   "call",
@@ -1552,6 +1555,8 @@ export const storeOrders = pgTable(
     shippingAddress: text("shipping_address"),
     notes: text("notes"),
     subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull().default("0"),
+    discount: numeric("discount", { precision: 12, scale: 2 }).notNull().default("0"),
+    promoCode: text("promo_code"),
     total: numeric("total", { precision: 12, scale: 2 }).notNull().default("0"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -1595,3 +1600,25 @@ export const storeSettings = pgTable("store_settings", {
 });
 
 export type StoreSettings = typeof storeSettings.$inferSelect;
+
+// Storefront promo / coupon codes applied at checkout.
+export const storePromos = pgTable(
+  "store_promos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // stored uppercase
+    description: text("description"),
+    kind: storePromoKindEnum("kind").notNull().default("percent"),
+    value: numeric("value", { precision: 12, scale: 2 }).notNull().default("0"), // percent (0-100) or fixed $
+    active: boolean("active").notNull().default(true),
+    minSubtotal: numeric("min_subtotal", { precision: 12, scale: 2 }).notNull().default("0"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    usageLimit: integer("usage_limit"), // null = unlimited
+    usedCount: integer("used_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("store_promos_code_idx").on(t.code)],
+);
+
+export type StorePromo = typeof storePromos.$inferSelect;

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings } from "@/db/schema";
+import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings, storePromos } from "@/db/schema";
 import { getStoreSettings } from "./settings";
 import { createSalesOrderFromStoreOrder } from "./order-handoff";
 import { getCurrentUser } from "@/lib/auth/service";
@@ -179,6 +179,49 @@ export async function toggleCategoryAction(formData: FormData): Promise<void> {
   await db.update(storeCategories).set({ active: !c.active, updatedAt: new Date() }).where(eq(storeCategories.id, id));
   await audit({ userId: user.id, action: "store.category_toggle", entityType: "store_category", entityId: id });
   revalidatePath("/web-store/categories");
+}
+
+// ---- Promo codes ----------------------------------------------------------
+
+export async function addPromoAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const code = str(formData.get("code"))?.toUpperCase();
+  if (!code) return;
+  const kind = formData.get("kind") === "fixed" ? "fixed" : "percent";
+  const value = money(formData.get("value"));
+  const minSubtotal = money(formData.get("minSubtotal"));
+  const limit = str(formData.get("usageLimit"));
+  const expires = str(formData.get("expiresAt"));
+  await db.insert(storePromos).values({
+    code,
+    description: str(formData.get("description")),
+    kind,
+    value,
+    minSubtotal,
+    usageLimit: limit && Number(limit) > 0 ? Math.floor(Number(limit)) : null,
+    expiresAt: expires ? new Date(expires) : null,
+  }).onConflictDoNothing({ target: storePromos.code });
+  await audit({ userId: user.id, action: "store.promo_add", entityType: "store_promo", entityId: code });
+  revalidatePath("/web-store/promos");
+}
+
+export async function togglePromoAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  const p = await db.query.storePromos.findFirst({ where: eq(storePromos.id, id), columns: { active: true } });
+  if (!p) return;
+  await db.update(storePromos).set({ active: !p.active, updatedAt: new Date() }).where(eq(storePromos.id, id));
+  revalidatePath("/web-store/promos");
+}
+
+export async function deletePromoAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  await db.delete(storePromos).where(eq(storePromos.id, id));
+  await audit({ userId: user.id, action: "store.promo_delete", entityType: "store_promo", entityId: id });
+  revalidatePath("/web-store/promos");
 }
 
 // ---- Settings -------------------------------------------------------------

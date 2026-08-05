@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { getStoreSettings } from "@/lib/store/settings";
-import { cartDetails } from "@/lib/store/cart";
+import { getCartTotals } from "@/lib/store/promo";
 import { CheckoutForm } from "./checkout-form";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDi
 export default async function CheckoutPage() {
   const [customer, settings] = await Promise.all([getCurrentCustomer(), getStoreSettings()]);
   if (!settings.publicEnabled && !customer) redirect("/shop/login");
-  const { items, subtotal } = await cartDetails(!!customer);
+  const { items, subtotal, discount, total, promoCode } = await getCartTotals(!!customer);
   if (items.length === 0) redirect("/shop/cart");
 
   return (
@@ -30,8 +30,16 @@ export default async function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <div className="flex justify-between border-t border-neutral-200 pt-2 text-sm font-semibold">
-            <span>Subtotal</span><span className="tabular-nums">{money(subtotal)}</span>
+          <div className="flex justify-between border-t border-neutral-200 pt-2 text-sm">
+            <span className="text-neutral-500">Subtotal</span><span className="tabular-nums">{money(subtotal)}</span>
+          </div>
+          {discount > 0 && (
+            <div className="flex justify-between text-sm text-emerald-700">
+              <span>Discount{promoCode ? ` (${promoCode})` : ""}</span><span className="tabular-nums">−{money(discount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm font-semibold">
+            <span>Total</span><span className="tabular-nums">{money(total)}</span>
           </div>
           {customer && <p className="text-xs text-emerald-700">Signed in as {customer.name} — billed to your account.</p>}
           <Link href="/shop/cart" className="block text-center text-xs text-neutral-500 hover:text-neutral-800">← Edit cart</Link>

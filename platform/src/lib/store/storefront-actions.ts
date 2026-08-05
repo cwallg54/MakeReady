@@ -7,6 +7,9 @@ import { storeOrders, storeOrderItems, numberSeries, notifications, userRoles, u
 import { readCart, writeCart, cartDetails } from "./cart";
 import { getCurrentCustomer, registerCustomer, loginCustomer, logoutCustomer } from "./customer-auth";
 import { getStoreSettings } from "./settings";
+import { writePromoCode, clearPromoCode, getCartTotals, validatePromo } from "./promo";
+import { storePromos } from "@/db/schema";
+import { sql } from "drizzle-orm";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { sendStoreOrderConfirmation, sendStoreOrderStaffAlert } from "@/lib/email";
 
@@ -43,6 +46,18 @@ export async function setQtyAction(formData: FormData): Promise<void> {
 export async function removeFromCartAction(formData: FormData): Promise<void> {
   const id = String(formData.get("productId") ?? "");
   await writeCart((await readCart()).filter((l) => l.id !== id));
+  redirect("/shop/cart");
+}
+
+export async function applyPromoAction(formData: FormData): Promise<void> {
+  const code = String(formData.get("code") ?? "").trim();
+  if (code) await writePromoCode(code);
+  else await clearPromoCode();
+  redirect("/shop/cart");
+}
+
+export async function removePromoAction(): Promise<void> {
+  await clearPromoCode();
   redirect("/shop/cart");
 }
 
@@ -96,8 +111,10 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
   const settings = await getStoreSettings();
   if (!settings.enabled) return { error: "The store is currently closed." };
   if (!settings.publicEnabled && !customer) return { error: "Please sign in to place an order." };
-  const { items, subtotal } = await cartDetails(b2b);
+  const { items, subtotal, discount, total, promoCode } = await getCartTotals(b2b);
   if (items.length === 0) return { error: "Your cart is empty." };
+  // Re-validate the promo at order time (subtotal may have changed).
+  const appliedPromo = promoCode && discount > 0 ? (await validatePromo(promoCode, subtotal)) : null;
 
   const contactName = (customer?.name ?? String(formData.get("contactName") ?? "")).trim();
   const contactEmail = (customer?.email ?? String(formData.get("contactEmail") ?? "")).trim();
@@ -119,8 +136,13 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
       shippingAddress: shipping || null,
       notes: notes || null,
       subtotal: subtotal.toFixed(2),
-      total: subtotal.toFixed(2),
+      discount: (appliedPromo?.ok ? appliedPromo.discount : 0).toFixed(2),
+      promoCode: appliedPromo?.ok ? promoCode : null,
+      total: (appliedPromo?.ok ? total : subtotal).toFixed(2),
     }).returning({ id: storeOrders.id });
+    if (appliedPromo?.ok) {
+      await tx.update(storePromos).set({ usedCount: sql`${storePromos.usedCount} + 1`, updatedAt: new Date() }).where(eq(storePromos.id, appliedPromo.promo.id));
+    }
 
     await tx.insert(storeOrderItems).values(items.map((i) => ({
       orderId: order.id,
@@ -136,24 +158,26 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
 
   // Confirmation email + staff alert/notification. Best-effort — never block the
   // order on an email failure.
+  const finalTotal = appliedPromo?.ok ? total : subtotal;
   try {
     const appUrl = process.env.APP_URL ?? "";
     const adminLink = `/web-store/orders/${orderId}`;
     const emailItems = items.map((i) => ({ title: i.title, qty: i.qty, lineTotal: i.lineTotal }));
-    await sendStoreOrderConfirmation(contactEmail, orderNumber, emailItems, subtotal);
+    await sendStoreOrderConfirmation(contactEmail, orderNumber, emailItems, finalTotal);
 
     const staff = await db.select({ id: userRoles.userId, email: users.email })
       .from(userRoles).innerJoin(users, eq(users.id, userRoles.userId))
       .where(inArray(userRoles.role, ["admin", "sales_manager"]));
     const uniq = [...new Map(staff.map((s) => [s.id, s])).values()];
     if (uniq.length) {
-      await sendStoreOrderStaffAlert(uniq.map((s) => s.email), orderNumber, contactName, subtotal, b2b, `${appUrl}${adminLink}`);
-      await db.insert(notifications).values(uniq.map((s) => ({ userId: s.id, type: "store", title: `New store order ${orderNumber}`, body: `${contactName} · $${subtotal.toFixed(2)}`, link: adminLink })));
+      await sendStoreOrderStaffAlert(uniq.map((s) => s.email), orderNumber, contactName, finalTotal, b2b, `${appUrl}${adminLink}`);
+      await db.insert(notifications).values(uniq.map((s) => ({ userId: s.id, type: "store", title: `New store order ${orderNumber}`, body: `${contactName} · $${finalTotal.toFixed(2)}`, link: adminLink })));
     }
   } catch (e) {
     console.error("store order notify failed", e);
   }
 
   await writeCart([]);
+  await clearPromoCode();
   redirect(`/shop/order/${orderId}`);
 }

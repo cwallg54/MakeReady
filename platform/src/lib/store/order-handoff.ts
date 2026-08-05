@@ -26,12 +26,13 @@ async function createInvoiceForStoreOrder(storeOrder: StoreOrder, salesOrderId: 
   if (existing) return existing.id;
   const bp = await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId), columns: { paymentTerms: true } });
   const invoiceNumber = await nextInvoiceNumber();
-  const total = storeOrder.total ?? "0";
   const [inv] = await db.insert(invoices).values({
     invoiceNumber, bpId, orderId: salesOrderId,
     terms: bp?.paymentTerms ?? "Net 30",
-    subtotal: total, total,
-    notes: `Web store order ${storeOrder.orderNumber}`,
+    subtotal: storeOrder.subtotal ?? "0",
+    discount: storeOrder.discount ?? "0",
+    total: storeOrder.total ?? "0",
+    notes: `Web store order ${storeOrder.orderNumber}${storeOrder.promoCode ? ` · promo ${storeOrder.promoCode}` : ""}`,
     createdBy: byUserId,
   }).returning({ id: invoices.id });
   const lines = await db.select().from(storeOrderItems).where(eq(storeOrderItems.orderId, storeOrder.id));
