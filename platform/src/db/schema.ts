@@ -171,6 +171,10 @@ export const webStoreStatusEnum = pgEnum("web_store_status", [
   "published",
 ]);
 
+// Which storefront audience can see a product: the public shop, the B2B
+// (logged-in Business Partner) portal, or both.
+export const storeVisibilityEnum = pgEnum("store_visibility", ["public", "b2b", "both"]);
+
 export const activityTypeEnum = pgEnum("activity_type", [
   "note",
   "call",
@@ -1431,3 +1435,60 @@ export type MeetingType = typeof meetingTypes.$inferSelect;
 export type SchedulingProfile = typeof schedulingProfiles.$inferSelect;
 export type AvailabilityBlock = typeof availabilityBlocks.$inferSelect;
 export type Meeting = typeof meetings.$inferSelect;
+
+// ---- Web Store (native storefront, replacing Zoey) -------------------------
+
+// Merchandising categories for the storefront (separate from the internal
+// inventory `category` text field).
+export const storeCategories = pgTable(
+  "store_categories",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("store_categories_slug_idx").on(t.slug)],
+);
+
+// A product published to the storefront. Usually backed by a stock inventory
+// item (the public store sells existing inventory only); pricing/description/
+// image live here so the store presentation is independent of internal stock.
+export const storeProducts = pgTable(
+  "store_products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    inventoryItemId: uuid("inventory_item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
+    title: text("title").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description"),
+    categoryId: uuid("category_id").references(() => storeCategories.id, { onDelete: "set null" }),
+    // Public retail price; B2B price optional (falls back to retail when null).
+    retailPrice: numeric("retail_price", { precision: 12, scale: 2 }).notNull().default("0"),
+    b2bPrice: numeric("b2b_price", { precision: 12, scale: 2 }),
+    visibility: storeVisibilityEnum("visibility").notNull().default("both"),
+    published: boolean("published").notNull().default(false),
+    featured: boolean("featured").notNull().default(false),
+    taxable: boolean("taxable").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    // Optional store-specific image; when null the storefront uses the linked
+    // inventory item's image.
+    imageBase64: text("image_base64"),
+    imageMimeType: text("image_mime_type"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("store_products_slug_idx").on(t.slug),
+    index("store_products_category_idx").on(t.categoryId),
+    index("store_products_inventory_idx").on(t.inventoryItemId),
+  ],
+);
+
+export type StoreCategory = typeof storeCategories.$inferSelect;
+export type StoreProduct = typeof storeProducts.$inferSelect;

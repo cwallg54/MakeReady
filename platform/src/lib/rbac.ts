@@ -63,7 +63,7 @@ export const MODULES: {
   { key: "dashboard", label: "Dashboard", href: "/dashboard", phase1: true },
   { key: "crm", label: "CRM", href: "/crm", phase1: true },
   { key: "sales", label: "Sales", href: "/sales", phase1: true },
-  { key: "web_store", label: "Web Store", href: "/web-store", phase1: false },
+  { key: "web_store", label: "Web Store", href: "/web-store", phase1: true },
   { key: "accounting", label: "Accounting", href: "/accounting", phase1: true },
   { key: "controlling", label: "Controlling", href: "/controlling", phase1: false },
   { key: "asset_accounting", label: "Asset Accounting", href: "/asset-accounting", phase1: false },
