@@ -274,6 +274,13 @@
       "when": 1785950245729,
       "tag": "0038_lame_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1785950634061,
+      "tag": "0039_wonderful_yellow_claw",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { storeOrders, storeOrderItems, numberSeries, notifications, userRoles, users } from "@/db/schema";
 import { readCart, writeCart, cartDetails } from "./cart";
 import { getCurrentCustomer, registerCustomer, loginCustomer, logoutCustomer } from "./customer-auth";
+import { getStoreSettings } from "./settings";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { sendStoreOrderConfirmation, sendStoreOrderStaffAlert } from "@/lib/email";
 
@@ -92,6 +93,9 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
 
   const customer = await getCurrentCustomer();
   const b2b = !!customer;
+  const settings = await getStoreSettings();
+  if (!settings.enabled) return { error: "The store is currently closed." };
+  if (!settings.publicEnabled && !customer) return { error: "Please sign in to place an order." };
   const { items, subtotal } = await cartDetails(b2b);
   if (items.length === 0) return { error: "Your cart is empty." };
 

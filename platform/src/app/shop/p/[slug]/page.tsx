@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
+import { getStoreSettings } from "@/lib/store/settings";
 import { getProductBySlug } from "@/lib/store/storefront-data";
 import { addToCartAction } from "@/lib/store/storefront-actions";
 
@@ -9,7 +10,8 @@ const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDi
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const customer = await getCurrentCustomer();
+  const [customer, settings] = await Promise.all([getCurrentCustomer(), getStoreSettings()]);
+  if (!settings.publicEnabled && !customer) redirect("/shop/login");
   const b2b = !!customer;
   const p = await getProductBySlug(slug, b2b);
   if (!p) notFound();

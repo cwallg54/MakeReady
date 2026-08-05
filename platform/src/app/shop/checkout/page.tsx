@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
+import { getStoreSettings } from "@/lib/store/settings";
 import { cartDetails } from "@/lib/store/cart";
 import { CheckoutForm } from "./checkout-form";
 
@@ -8,7 +9,8 @@ export const dynamic = "force-dynamic";
 const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default async function CheckoutPage() {
-  const customer = await getCurrentCustomer();
+  const [customer, settings] = await Promise.all([getCurrentCustomer(), getStoreSettings()]);
+  if (!settings.publicEnabled && !customer) redirect("/shop/login");
   const { items, subtotal } = await cartDetails(!!customer);
   if (items.length === 0) redirect("/shop/cart");
 

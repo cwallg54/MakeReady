@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements } from "@/db/schema";
+import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings } from "@/db/schema";
+import { getStoreSettings } from "./settings";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -177,6 +178,26 @@ export async function toggleCategoryAction(formData: FormData): Promise<void> {
   await db.update(storeCategories).set({ active: !c.active, updatedAt: new Date() }).where(eq(storeCategories.id, id));
   await audit({ userId: user.id, action: "store.category_toggle", entityType: "store_category", entityId: id });
   revalidatePath("/web-store/categories");
+}
+
+// ---- Settings -------------------------------------------------------------
+
+export async function updateStoreSettingsAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const current = await getStoreSettings();
+  await db.update(storeSettings).set({
+    storeName: str(formData.get("storeName")) ?? "The G54 Store",
+    tagline: str(formData.get("tagline")),
+    heroHeadline: str(formData.get("heroHeadline")),
+    heroSubtext: str(formData.get("heroSubtext")),
+    contactEmail: str(formData.get("contactEmail")),
+    enabled: formData.get("enabled") === "on",
+    publicEnabled: formData.get("publicEnabled") === "on",
+    updatedAt: new Date(),
+  }).where(eq(storeSettings.id, current.id));
+  await audit({ userId: user.id, action: "store.settings_update", entityType: "store_settings", entityId: current.id });
+  revalidatePath("/web-store/settings");
+  revalidatePath("/shop");
 }
 
 // ---- Customers (approval) -------------------------------------------------

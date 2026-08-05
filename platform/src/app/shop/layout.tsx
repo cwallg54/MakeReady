@@ -1,12 +1,27 @@
 import Link from "next/link";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { cartDetails } from "@/lib/store/cart";
+import { getStoreSettings } from "@/lib/store/settings";
 
 export const dynamic = "force-dynamic";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const customer = await getCurrentCustomer();
+  const [customer, settings] = await Promise.all([getCurrentCustomer(), getStoreSettings()]);
   const { count } = await cartDetails(!!customer);
+
+  // Master switch: when the store is closed, show a simple notice for everyone.
+  if (!settings.enabled) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-6 text-center">
+        <div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/makeready-logo.png" alt={settings.storeName} className="mx-auto mb-6 h-12 w-auto" />
+          <h1 className="text-xl font-bold text-neutral-900">The store is currently closed</h1>
+          <p className="mt-1 text-sm text-neutral-500">Please check back soon.{settings.contactEmail ? ` Questions? ${settings.contactEmail}` : ""}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50 text-neutral-900">
@@ -36,8 +51,8 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
 
       <footer className="border-t border-neutral-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-neutral-400">
-          MakeReady by G54 · {customer ? "Business Partner store" : "Online store"} ·
-          {customer ? " You're seeing your account pricing." : " Sign in for Business Partner pricing and the full catalog."}
+          {settings.storeName} · {customer ? "Business Partner store — you're seeing your account pricing." : "Sign in for Business Partner pricing and the full catalog."}
+          {settings.tagline ? ` · ${settings.tagline}` : ""}
         </div>
       </footer>
     </div>

@@ -1574,3 +1574,19 @@ export const storeOrderItems = pgTable(
 export type StoreCustomer = typeof storeCustomers.$inferSelect;
 export type StoreOrder = typeof storeOrders.$inferSelect;
 export type StoreOrderItem = typeof storeOrderItems.$inferSelect;
+
+// Storefront configuration — a single row (branding + open/close toggles).
+export const storeSettings = pgTable("store_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  storeName: text("store_name").notNull().default("The G54 Store"),
+  tagline: text("tagline"),
+  heroHeadline: text("hero_headline"),
+  heroSubtext: text("hero_subtext"),
+  contactEmail: text("contact_email"),
+  // Master switch, and whether the general public (not logged-in) may shop.
+  enabled: boolean("enabled").notNull().default(true),
+  publicEnabled: boolean("public_enabled").notNull().default(true),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type StoreSettings = typeof storeSettings.$inferSelect;
