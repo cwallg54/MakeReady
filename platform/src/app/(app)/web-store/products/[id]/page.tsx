@@ -4,10 +4,10 @@ import { notFound, redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems } from "@/db/schema";
+import { storeProducts, storeProductVariants, storeCategories, inventoryItems } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
-import { updateStoreProductAction, deleteStoreProductAction } from "@/lib/store/actions";
+import { updateStoreProductAction, deleteStoreProductAction, addVariantAction, toggleVariantAction, deleteVariantAction } from "@/lib/store/actions";
 
 export const dynamic = "force-dynamic";
 const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand";
@@ -19,9 +19,10 @@ export default async function EditStoreProductPage({ params }: { params: Promise
   const { id } = await params;
   const product = await db.query.storeProducts.findFirst({ where: eq(storeProducts.id, id) });
   if (!product) notFound();
-  const [cats, inv] = await Promise.all([
+  const [cats, inv, variants] = await Promise.all([
     db.select({ id: storeCategories.id, name: storeCategories.name }).from(storeCategories).where(eq(storeCategories.active, true)).orderBy(asc(storeCategories.sortOrder), asc(storeCategories.name)),
     product.inventoryItemId ? db.query.inventoryItems.findFirst({ where: eq(inventoryItems.id, product.inventoryItemId) }) : Promise.resolve(null),
+    db.select().from(storeProductVariants).where(eq(storeProductVariants.productId, id)).orderBy(asc(storeProductVariants.sortOrder), asc(storeProductVariants.label)),
   ]);
   const src = product.imageBase64 ? `data:${product.imageMimeType ?? "image/png"};base64,${product.imageBase64}`
     : inv?.imageBase64 ? `data:${inv.imageMimeType ?? "image/png"};base64,${inv.imageBase64}` : null;
@@ -93,6 +94,46 @@ export default async function EditStoreProductPage({ params }: { params: Promise
           </div>
         )}
       </form>
+
+      {/* Variants / options (size, color, …) */}
+      <Card className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold text-neutral-900">Options / variants</h2>
+          <p className="text-xs text-neutral-500">Add each purchasable option (e.g. &ldquo;Large / Navy&rdquo;). Price adjustment is added to the base price. Leave empty for a single-option product.</p>
+        </div>
+
+        {variants.length > 0 && (
+          <ul className="divide-y divide-neutral-100 rounded-md border border-neutral-200">
+            {variants.map((v) => (
+              <li key={v.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                <div className="min-w-0">
+                  <span className={`text-sm font-medium ${v.active ? "text-neutral-900" : "text-neutral-400 line-through"}`}>{v.label}</span>
+                  <span className="ml-2 text-xs text-neutral-500">
+                    {Number(v.priceDelta) !== 0 ? `${Number(v.priceDelta) > 0 ? "+" : ""}$${Number(v.priceDelta).toFixed(2)}` : "base price"}
+                    {v.sku ? ` · ${v.sku}` : ""}
+                  </span>
+                </div>
+                {editable && (
+                  <div className="flex shrink-0 gap-2">
+                    <form action={toggleVariantAction}><input type="hidden" name="id" value={v.id} /><button className="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50">{v.active ? "Disable" : "Enable"}</button></form>
+                    <form action={deleteVariantAction}><input type="hidden" name="id" value={v.id} /><ConfirmButton message="Delete this option?" className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100">Delete</ConfirmButton></form>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {editable && (
+          <form action={addVariantAction} className="flex flex-wrap items-end gap-2 border-t border-neutral-100 pt-4">
+            <input type="hidden" name="productId" value={product.id} />
+            <label className="flex-1 min-w-[10rem]"><span className={lbl}>Option label</span><input name="label" required placeholder="Large / Navy" className={inp} /></label>
+            <label><span className={lbl}>SKU <span className="text-neutral-400">optional</span></span><input name="sku" className={`${inp} w-32`} /></label>
+            <label><span className={lbl}>Price +/− ($)</span><input name="priceDelta" type="number" step="0.01" defaultValue="0" className={`${inp} w-28`} /></label>
+            <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Add option</button>
+          </form>
+        )}
+      </Card>
 
       {editable && (
         <Card className="flex items-center justify-between">

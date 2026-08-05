@@ -16,7 +16,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const b2b = !!customer;
   const p = await getProductBySlug(slug, b2b, await customerDiscountPct(customer));
   if (!p) notFound();
-  const discounted = p.price < p.retail;
+  const hasVariants = p.variants.length > 0;
+  const displayPrice = hasVariants ? Math.min(...p.variants.map((v) => v.price)) : p.price;
+  const discounted = displayPrice < p.retail;
 
   return (
     <div className="space-y-4">
@@ -33,7 +35,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {p.categoryName && <span className="text-xs uppercase tracking-wide text-neutral-400">{p.categoryName}</span>}
           <h1 className="mt-1 text-2xl font-bold text-neutral-900">{p.title}</h1>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-semibold text-neutral-900">{money(p.price)}</span>
+            {hasVariants && <span className="text-xs uppercase tracking-wide text-neutral-400">From</span>}
+            <span className="text-2xl font-semibold text-neutral-900">{money(displayPrice)}</span>
             {discounted && <span className="text-sm text-neutral-400 line-through">{money(p.retail)}</span>}
             {b2b && discounted && <span className="rounded bg-[#8DC63F]/20 px-1.5 py-0.5 text-xs font-semibold text-brand-ink">B2B price</span>}
           </div>
@@ -43,8 +46,18 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           {p.description && <p className="mt-4 whitespace-pre-line text-sm text-neutral-600">{p.description}</p>}
 
-          <form action={addToCartAction} className="mt-6 flex items-end gap-3">
+          <form action={addToCartAction} className="mt-6 flex flex-wrap items-end gap-3">
             <input type="hidden" name="productId" value={p.id} />
+            {hasVariants && (
+              <label className="text-sm">
+                <span className="mb-1 block text-xs font-medium text-neutral-600">Option</span>
+                <select name="variantId" required defaultValue={p.variants[0]?.id} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand">
+                  {p.variants.map((v) => (
+                    <option key={v.id} value={v.id}>{v.label} — {money(v.price)}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label className="text-sm">
               <span className="mb-1 block text-xs font-medium text-neutral-600">Qty</span>
               <input name="qty" type="number" min="1" defaultValue="1" className="w-20 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand" />

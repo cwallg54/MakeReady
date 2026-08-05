@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems } from "@/db/schema";
+import { storeProducts, storeCategories, inventoryItems, storeProductVariants } from "@/db/schema";
 import { priceFor } from "./cart";
 
 export interface StoreListItem {
@@ -73,11 +73,24 @@ export async function getProductBySlug(slug: string, b2b: boolean, discountPct =
     .leftJoin(storeCategories, eq(storeProducts.categoryId, storeCategories.id))
     .where(and(...cond)).limit(1);
   if (!row) return null;
+
+  const variantRows = await db.select({ id: storeProductVariants.id, label: storeProductVariants.label, sku: storeProductVariants.sku, priceDelta: storeProductVariants.priceDelta })
+    .from(storeProductVariants)
+    .where(and(eq(storeProductVariants.productId, row.id), eq(storeProductVariants.active, true)))
+    .orderBy(asc(storeProductVariants.sortOrder), asc(storeProductVariants.label));
+
+  const variants = variantRows.map((v) => ({
+    id: v.id, label: v.label, sku: v.sku,
+    price: priceFor(row, b2b, discountPct, Number(v.priceDelta)),
+    priceDelta: Number(v.priceDelta),
+  }));
+
   return {
     ...row,
     price: priceFor(row, b2b, discountPct),
     retail: Number(row.retailPrice),
     inStock: row.onHand != null ? Number(row.onHand) > 0 : true,
     image: image(row),
+    variants,
   };
 }

@@ -1500,6 +1500,26 @@ export const storeProducts = pgTable(
   ],
 );
 
+// Purchasable variations of a product (e.g. "Large / Navy"). A product with no
+// variants is bought as-is; with variants the buyer must pick one. priceDelta is
+// added to the product's base price before any B2B/group discount.
+export const storeProductVariants = pgTable(
+  "store_product_variants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id").notNull().references(() => storeProducts.id, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    sku: text("sku"),
+    priceDelta: numeric("price_delta", { precision: 12, scale: 2 }).notNull().default("0"),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("store_product_variants_product_idx").on(t.productId)],
+);
+export type StoreProductVariant = typeof storeProductVariants.$inferSelect;
+
 export type StoreCategory = typeof storeCategories.$inferSelect;
 export type StoreProduct = typeof storeProducts.$inferSelect;
 

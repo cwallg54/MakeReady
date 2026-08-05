@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings, storePromos, storeCustomerGroups } from "@/db/schema";
+import { storeProducts, storeProductVariants, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings, storePromos, storeCustomerGroups } from "@/db/schema";
 import { getStoreSettings } from "./settings";
 import { createSalesOrderFromStoreOrder } from "./order-handoff";
 import { getCurrentUser } from "@/lib/auth/service";
@@ -275,6 +275,43 @@ export async function setCustomerGroupAction(formData: FormData): Promise<void> 
   await db.update(storeCustomers).set({ groupId: groupId || null, updatedAt: new Date() }).where(eq(storeCustomers.id, id));
   await audit({ userId: user.id, action: "store.customer_group", entityType: "store_customer", entityId: id, metadata: { groupId } });
   revalidatePath("/web-store/customers");
+}
+
+// ---- Product variants (size / color / options) ----------------------------
+
+export async function addVariantAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const productId = str(formData.get("productId"));
+  const label = str(formData.get("label"));
+  if (!productId || !label) return;
+  const exists = await db.query.storeProducts.findFirst({ where: eq(storeProducts.id, productId), columns: { id: true } });
+  if (!exists) return;
+  const delta = Number(String(formData.get("priceDelta") ?? "0").replace(/[^0-9.-]/g, "")) || 0;
+  const sort = Math.floor(Number(formData.get("sortOrder") ?? 0)) || 0;
+  await db.insert(storeProductVariants).values({ productId, label, sku: str(formData.get("sku")), priceDelta: delta.toFixed(2), sortOrder: sort });
+  await audit({ userId: user.id, action: "store.variant_add", entityType: "store_product", entityId: productId, metadata: { label } });
+  revalidatePath(`/web-store/products/${productId}`);
+}
+
+export async function toggleVariantAction(formData: FormData): Promise<void> {
+  await requireStoreEdit();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  const v = await db.query.storeProductVariants.findFirst({ where: eq(storeProductVariants.id, id), columns: { active: true, productId: true } });
+  if (!v) return;
+  await db.update(storeProductVariants).set({ active: !v.active, updatedAt: new Date() }).where(eq(storeProductVariants.id, id));
+  revalidatePath(`/web-store/products/${v.productId}`);
+}
+
+export async function deleteVariantAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const id = str(formData.get("id"));
+  if (!id) return;
+  const v = await db.query.storeProductVariants.findFirst({ where: eq(storeProductVariants.id, id), columns: { productId: true } });
+  if (!v) return;
+  await db.delete(storeProductVariants).where(eq(storeProductVariants.id, id));
+  await audit({ userId: user.id, action: "store.variant_delete", entityType: "store_product", entityId: v.productId });
+  revalidatePath(`/web-store/products/${v.productId}`);
 }
 
 // ---- Customers (approval) -------------------------------------------------

@@ -23,16 +23,18 @@ export default async function CartPage() {
         <>
           <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-white">
             {items.map((i) => (
-              <li key={i.id} className="flex items-center gap-3 p-3">
+              <li key={i.variantId ? `${i.id}:${i.variantId}` : i.id} className="flex items-center gap-3 p-3">
                 {i.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={i.image} alt="" className="h-16 w-16 shrink-0 rounded-lg border border-neutral-200 object-cover" />
                 ) : <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-dashed border-neutral-200 text-[9px] text-neutral-300">no img</span>}
                 <div className="min-w-0 flex-1">
                   <Link href={`/shop/p/${i.slug}`} className="text-sm font-medium text-neutral-900 hover:underline">{i.title}</Link>
+                  {i.variantLabel && <div className="text-xs font-medium text-neutral-600">{i.variantLabel}</div>}
                   <div className="text-xs text-neutral-500">{money(i.unitPrice)} each{i.sku ? ` · ${i.sku}` : ""}</div>
                   <form action={setQtyAction} className="mt-1 flex items-center gap-1">
                     <input type="hidden" name="productId" value={i.id} />
+                    <input type="hidden" name="variantId" value={i.variantId ?? ""} />
                     <input name="qty" type="number" min="0" defaultValue={i.qty} className="w-16 rounded border border-neutral-300 px-2 py-1 text-sm outline-none focus:border-brand" />
                     <button className="rounded border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50">Update</button>
                   </form>
@@ -41,6 +43,7 @@ export default async function CartPage() {
                   <div className="text-sm font-semibold text-neutral-900">{money(i.lineTotal)}</div>
                   <form action={removeFromCartAction}>
                     <input type="hidden" name="productId" value={i.id} />
+                    <input type="hidden" name="variantId" value={i.variantId ?? ""} />
                     <button className="text-xs text-red-600 hover:text-red-800">Remove</button>
                   </form>
                 </div>

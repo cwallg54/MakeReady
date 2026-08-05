@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { storeOrders, storeOrderItems, numberSeries, notifications, userRoles, users } from "@/db/schema";
-import { readCart, writeCart, cartDetails, customerDiscountPct } from "./cart";
+import { readCart, writeCart, cartDetails, customerDiscountPct, lineKey } from "./cart";
 import { getCurrentCustomer, registerCustomer, loginCustomer, logoutCustomer } from "./customer-auth";
 import { getStoreSettings } from "./settings";
 import { writePromoCode, clearPromoCode, getCartTotals, validatePromo } from "./promo";
@@ -23,29 +23,35 @@ export interface StoreFormState {
 
 export async function addToCartAction(formData: FormData): Promise<void> {
   const id = String(formData.get("productId") ?? "");
+  const vid = String(formData.get("variantId") ?? "") || null;
   const qty = Math.min(999, Math.max(1, Math.floor(Number(formData.get("qty") ?? 1)) || 1));
   if (!id) return;
   const lines = await readCart();
-  const existing = lines.find((l) => l.id === id);
+  const key = lineKey(id, vid);
+  const existing = lines.find((l) => lineKey(l.id, l.vid) === key);
   if (existing) existing.qty = Math.min(999, existing.qty + qty);
-  else lines.push({ id, qty });
+  else lines.push({ id, qty, vid });
   await writeCart(lines);
   redirect("/shop/cart");
 }
 
 export async function setQtyAction(formData: FormData): Promise<void> {
   const id = String(formData.get("productId") ?? "");
+  const vid = String(formData.get("variantId") ?? "") || null;
+  const key = lineKey(id, vid);
   const qty = Math.floor(Number(formData.get("qty") ?? 0));
   let lines = await readCart();
-  if (qty <= 0) lines = lines.filter((l) => l.id !== id);
-  else lines = lines.map((l) => (l.id === id ? { ...l, qty: Math.min(999, qty) } : l));
+  if (qty <= 0) lines = lines.filter((l) => lineKey(l.id, l.vid) !== key);
+  else lines = lines.map((l) => (lineKey(l.id, l.vid) === key ? { ...l, qty: Math.min(999, qty) } : l));
   await writeCart(lines);
   redirect("/shop/cart");
 }
 
 export async function removeFromCartAction(formData: FormData): Promise<void> {
   const id = String(formData.get("productId") ?? "");
-  await writeCart((await readCart()).filter((l) => l.id !== id));
+  const vid = String(formData.get("variantId") ?? "") || null;
+  const key = lineKey(id, vid);
+  await writeCart((await readCart()).filter((l) => lineKey(l.id, l.vid) !== key));
   redirect("/shop/cart");
 }
 
@@ -147,7 +153,7 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
     await tx.insert(storeOrderItems).values(items.map((i) => ({
       orderId: order.id,
       storeProductId: i.id,
-      title: i.title,
+      title: i.variantLabel ? `${i.title} — ${i.variantLabel}` : i.title,
       sku: i.sku,
       unitPrice: i.unitPrice.toFixed(2),
       qty: i.qty,
