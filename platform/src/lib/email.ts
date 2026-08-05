@@ -48,6 +48,52 @@ export async function sendOrderEmail(to: string, orderNumber: string, attachment
   );
 }
 
+/** Store order — confirmation to the customer. */
+export async function sendStoreOrderConfirmation(
+  to: string,
+  orderNumber: string,
+  items: { title: string; qty: number; lineTotal: number }[],
+  total: number,
+): Promise<boolean> {
+  const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const rows = items.map((i) => `<tr><td style="padding:4px 0">${i.qty}× ${i.title}</td><td style="padding:4px 0;text-align:right">${money(i.lineTotal)}</td></tr>`).join("");
+  return sendEmail(
+    to,
+    `Your G54 store order ${orderNumber}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <h2 style="margin:0 0 8px">Thanks for your order!</h2>
+       <p>We've received order <strong>${orderNumber}</strong>. Our team will confirm it, calculate shipping and tax, and follow up. <strong>No payment was taken online.</strong></p>
+       <table style="width:100%;border-collapse:collapse;font-size:14px;margin:12px 0">
+         ${rows}
+         <tr><td style="padding:8px 0 0;border-top:1px solid #e5e5e5;font-weight:600">Subtotal</td><td style="padding:8px 0 0;border-top:1px solid #e5e5e5;text-align:right;font-weight:600">${money(total)}</td></tr>
+       </table>
+       <p>— Great Mountain West (G54)</p>
+     </div>`,
+  );
+}
+
+/** Store order — internal alert to the store team. */
+export async function sendStoreOrderStaffAlert(
+  recipients: string[],
+  orderNumber: string,
+  contactName: string,
+  total: number,
+  isB2b: boolean,
+  adminUrl: string,
+): Promise<boolean> {
+  if (recipients.length === 0) return false;
+  const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return sendEmail(
+    recipients,
+    `New store order ${orderNumber} — ${money(total)}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>A new ${isB2b ? "B2B" : "public"} store order came in.</p>
+       <p><strong>${orderNumber}</strong> · ${contactName} · ${money(total)}</p>
+       <p><a href="${adminUrl}">Open the order →</a></p>
+     </div>`,
+  );
+}
+
 /** Reminder to a customer to complete a still-pending document (with the link). */
 export async function sendDocumentChaseEmail(to: string, docLabel: string, url: string): Promise<boolean> {
   return sendEmail(

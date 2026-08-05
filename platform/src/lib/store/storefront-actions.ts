@@ -1,12 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { storeOrders, storeOrderItems, inventoryItems, storeProducts, numberSeries } from "@/db/schema";
+import { storeOrders, storeOrderItems, numberSeries, notifications, userRoles, users } from "@/db/schema";
 import { readCart, writeCart, cartDetails } from "./cart";
 import { getCurrentCustomer, registerCustomer, loginCustomer, logoutCustomer } from "./customer-auth";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
+import { sendStoreOrderConfirmation, sendStoreOrderStaffAlert } from "@/lib/email";
 
 export interface StoreFormState {
   error?: string;
@@ -128,6 +129,26 @@ export async function placeOrderAction(_prev: StoreFormState, formData: FormData
     })));
     return order.id;
   });
+
+  // Confirmation email + staff alert/notification. Best-effort — never block the
+  // order on an email failure.
+  try {
+    const appUrl = process.env.APP_URL ?? "";
+    const adminLink = `/web-store/orders/${orderId}`;
+    const emailItems = items.map((i) => ({ title: i.title, qty: i.qty, lineTotal: i.lineTotal }));
+    await sendStoreOrderConfirmation(contactEmail, orderNumber, emailItems, subtotal);
+
+    const staff = await db.select({ id: userRoles.userId, email: users.email })
+      .from(userRoles).innerJoin(users, eq(users.id, userRoles.userId))
+      .where(inArray(userRoles.role, ["admin", "sales_manager"]));
+    const uniq = [...new Map(staff.map((s) => [s.id, s])).values()];
+    if (uniq.length) {
+      await sendStoreOrderStaffAlert(uniq.map((s) => s.email), orderNumber, contactName, subtotal, b2b, `${appUrl}${adminLink}`);
+      await db.insert(notifications).values(uniq.map((s) => ({ userId: s.id, type: "store", title: `New store order ${orderNumber}`, body: `${contactName} · $${subtotal.toFixed(2)}`, link: adminLink })));
+    }
+  } catch (e) {
+    console.error("store order notify failed", e);
+  }
 
   await writeCart([]);
   redirect(`/shop/order/${orderId}`);

@@ -60,6 +60,9 @@ export default async function StoreOrderPage({ params }: { params: Promise<{ id:
             <tr className="border-t border-neutral-200"><td colSpan={3} className="px-4 py-2 text-right text-xs font-semibold text-neutral-700">Total</td><td className="px-4 py-2 text-right text-sm font-semibold tabular-nums text-neutral-900">{money(Number(order.total))}</td></tr>
           </tbody>
         </table>
+        <p className="px-4 pb-3 text-xs text-neutral-400">
+          {order.stockApplied ? "✓ Inventory has been deducted for this order (on confirm). Canceling restores it." : "Confirming this order deducts the item quantities from inventory."}
+        </p>
       </Card>
     </div>
   );

@@ -1,0 +1,1 @@
+ALTER TABLE "store_orders" ADD COLUMN "stock_applied" boolean DEFAULT false NOT NULL;

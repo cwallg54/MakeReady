@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders } from "@/db/schema";
+import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -201,10 +201,38 @@ export async function setCustomerStatusAction(formData: FormData): Promise<void>
 export async function setOrderStatusAction(formData: FormData): Promise<void> {
   const user = await requireStoreEdit();
   const id = str(formData.get("id"));
-  const status = str(formData.get("status"));
+  const status = str(formData.get("status")) as "pending" | "confirmed" | "fulfilled" | "canceled" | null;
   if (!id || !status || !["pending", "confirmed", "fulfilled", "canceled"].includes(status)) return;
-  await db.update(storeOrders).set({ status: status as "pending" | "confirmed" | "fulfilled" | "canceled", updatedAt: new Date() }).where(eq(storeOrders.id, id));
-  await audit({ userId: user.id, action: "store.order_status", entityType: "store_order", entityId: id, metadata: { status } });
+  const order = await db.query.storeOrders.findFirst({ where: eq(storeOrders.id, id) });
+  if (!order) return;
+
+  // Stock: deduct line quantities when the order is confirmed; add them back if
+  // a stock-applied order is later canceled. `stockApplied` makes it idempotent.
+  const applyStock = status === "confirmed" && !order.stockApplied;
+  const restoreStock = status === "canceled" && order.stockApplied;
+
+  await db.transaction(async (tx) => {
+    if (applyStock || restoreStock) {
+      const lines = await tx.select({ qty: storeOrderItems.qty, invId: storeProducts.inventoryItemId })
+        .from(storeOrderItems).leftJoin(storeProducts, eq(storeOrderItems.storeProductId, storeProducts.id))
+        .where(eq(storeOrderItems.orderId, id));
+      for (const l of lines) {
+        if (!l.invId || !l.qty) continue;
+        const item = await tx.query.inventoryItems.findFirst({ where: eq(inventoryItems.id, l.invId), columns: { onHand: true } });
+        if (!item) continue;
+        const delta = applyStock ? -l.qty : l.qty;
+        await tx.update(inventoryItems).set({ onHand: String(Number(item.onHand) + delta), updatedAt: new Date() }).where(eq(inventoryItems.id, l.invId));
+        await tx.insert(stockMovements).values({ itemId: l.invId, delta: String(delta), reason: applyStock ? "consume" : "adjust", note: `Store order ${order.orderNumber}${applyStock ? "" : " (canceled)"}`, byUserId: user.id });
+      }
+    }
+    await tx.update(storeOrders).set({
+      status,
+      stockApplied: applyStock ? true : restoreStock ? false : order.stockApplied,
+      updatedAt: new Date(),
+    }).where(eq(storeOrders.id, id));
+  });
+
+  await audit({ userId: user.id, action: "store.order_status", entityType: "store_order", entityId: id, metadata: { status, stock: applyStock ? "deducted" : restoreStock ? "restored" : "unchanged" } });
   revalidatePath("/web-store/orders");
   revalidatePath(`/web-store/orders/${id}`);
 }

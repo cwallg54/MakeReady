@@ -1540,6 +1540,9 @@ export const storeOrders = pgTable(
     customerId: uuid("customer_id").references(() => storeCustomers.id, { onDelete: "set null" }),
     isB2b: boolean("is_b2b").notNull().default(false),
     status: storeOrderStatusEnum("status").notNull().default("pending"),
+    // True once this order's line quantities have been deducted from stock
+    // (on confirm). Restored (and reset) if the order is later canceled.
+    stockApplied: boolean("stock_applied").notNull().default(false),
     contactName: text("contact_name"),
     contactEmail: text("contact_email"),
     contactPhone: text("contact_phone"),
