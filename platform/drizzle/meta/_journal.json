@@ -281,6 +281,13 @@
       "when": 1785950634061,
       "tag": "0039_wonderful_yellow_claw",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1785952628757,
+      "tag": "0040_opposite_ogun",
+      "breakpoints": true
     }
   ]
 }

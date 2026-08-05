@@ -1543,6 +1543,9 @@ export const storeOrders = pgTable(
     // True once this order's line quantities have been deducted from stock
     // (on confirm). Restored (and reset) if the order is later canceled.
     stockApplied: boolean("stock_applied").notNull().default(false),
+    // The ops sales order spawned from this store order (on confirm), so it
+    // flows through production + AR. Null until confirmed.
+    salesOrderId: uuid("sales_order_id").references(() => orders.id, { onDelete: "set null" }),
     contactName: text("contact_name"),
     contactEmail: text("contact_email"),
     contactPhone: text("contact_phone"),

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { storeOrders, storeOrderItems } from "@/db/schema";
+import { storeOrders, storeOrderItems, orders } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { setOrderStatusAction } from "@/lib/store/actions";
 import { fmtDateTime } from "@/lib/format";
@@ -21,6 +21,7 @@ export default async function StoreOrderPage({ params }: { params: Promise<{ id:
   const order = await db.query.storeOrders.findFirst({ where: eq(storeOrders.id, id) });
   if (!order) notFound();
   const items = await db.select().from(storeOrderItems).where(eq(storeOrderItems.orderId, id)).orderBy(asc(storeOrderItems.title));
+  const salesOrder = order.salesOrderId ? await db.query.orders.findFirst({ where: eq(orders.id, order.salesOrderId), columns: { id: true, orderNumber: true } }) : null;
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -36,6 +37,14 @@ export default async function StoreOrderPage({ params }: { params: Promise<{ id:
           </form>
         ) : <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-neutral-700">{order.status}</span>}
       />
+
+      {salesOrder ? (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          Sales order <Link href={`/sales/orders/${salesOrder.id}`} className="font-semibold text-emerald-900 hover:underline">{salesOrder.orderNumber}</Link> was created — it flows through production and can be invoiced from Accounting.
+        </div>
+      ) : (
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-500">Confirming this order creates a sales order that flows into production and Accounts Receivable.</div>
+      )}
 
       <Card>
         <h2 className="mb-2 text-sm font-semibold text-neutral-900">Customer</h2>

@@ -6,6 +6,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders, storeOrderItems, stockMovements, storeSettings } from "@/db/schema";
 import { getStoreSettings } from "./settings";
+import { createSalesOrderFromStoreOrder } from "./order-handoff";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -252,6 +253,17 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
       updatedAt: new Date(),
     }).where(eq(storeOrders.id, id));
   });
+
+  // On confirm, spawn a real ops sales order (once) so it flows to production +
+  // AR. Best-effort — outside the stock transaction to avoid nested transactions.
+  if (applyStock && !order.salesOrderId) {
+    try {
+      const soId = await createSalesOrderFromStoreOrder(order, user.id);
+      if (soId) await db.update(storeOrders).set({ salesOrderId: soId, updatedAt: new Date() }).where(eq(storeOrders.id, id));
+    } catch (e) {
+      console.error("store -> sales order handoff failed", e);
+    }
+  }
 
   await audit({ userId: user.id, action: "store.order_status", entityType: "store_order", entityId: id, metadata: { status, stock: applyStock ? "deducted" : restoreStock ? "restored" : "unchanged" } });
   revalidatePath("/web-store/orders");
