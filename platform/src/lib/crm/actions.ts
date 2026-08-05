@@ -17,6 +17,7 @@ import {
   activityTypeEnum,
 } from "@/db/schema";
 import { enrollBp } from "@/lib/automation/engine";
+import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { requestDocumentForBp } from "@/lib/documents/actions";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView, crmScopedToOwn } from "@/lib/rbac";
@@ -440,6 +441,10 @@ export async function updateContactAction(formData: FormData): Promise<void> {
 export async function createPublicLeadAction(_prev: CrmState, formData: FormData): Promise<CrmState> {
   // Honeypot: bots fill hidden fields. Silently pretend success.
   if (String(formData.get("website") ?? "").trim()) return { ok: true };
+
+  // Throttle the public form by IP to blunt spam/abuse (on top of the honeypot).
+  const rl = await consumeRateLimit("lead", await clientIp(), 15, 3600);
+  if (!rl.ok) return { error: `Too many submissions. ${retryMessage(rl.retryAfterSec)}` };
 
   const companyName = String(formData.get("companyName") ?? "").trim();
   const contactName = String(formData.get("contactName") ?? "").trim();

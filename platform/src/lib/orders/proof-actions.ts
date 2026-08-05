@@ -8,6 +8,7 @@ import { randomBytes } from "crypto";
 import { db } from "@/db";
 import { orders, orderProofs, activities, notifications, schedulingProfiles } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
+import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 
@@ -58,6 +59,8 @@ export interface ProofDecisionState {
 
 /** Public — the customer's Approve / Request changes / Decline / Request-a-meeting decision. */
 export async function submitProofDecisionAction(_prev: ProofDecisionState, formData: FormData): Promise<ProofDecisionState> {
+  const rl = await consumeRateLimit("proof-decision", await clientIp(), 30, 600);
+  if (!rl.ok) return { error: `Too many attempts. ${retryMessage(rl.retryAfterSec)}` };
   const token = String(formData.get("token") ?? "");
   const decision = String(formData.get("decision") ?? "");
   const signedName = String(formData.get("signedName") ?? "").trim();

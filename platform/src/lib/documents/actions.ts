@@ -10,6 +10,7 @@ import { customerDocuments, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { DOC_LABELS } from "./meta";
 
 async function requireCrmEdit() {
@@ -40,6 +41,8 @@ export interface DocState {
 
 /** Public: customer submits a completed document via their token link. */
 export async function submitDocumentAction(_prev: DocState, formData: FormData): Promise<DocState> {
+  const rl = await consumeRateLimit("doc-submit", await clientIp(), 20, 3600);
+  if (!rl.ok) return { error: `Too many attempts. ${retryMessage(rl.retryAfterSec)}` };
   const token = String(formData.get("token") ?? "");
   const doc = await db.query.customerDocuments.findFirst({ where: eq(customerDocuments.token, token) });
   if (!doc) return { error: "This link is not valid." };

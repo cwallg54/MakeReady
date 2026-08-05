@@ -61,7 +61,7 @@ flowchart LR
 |---|---|---|---|---|
 | **Anthropic (Claude API)** | AI features: natural-language search across records, future assistants | ❌ **needed** | **Usage-based** — add a card / prepay credits at console.anthropic.com | Building the NLP search / AI features. Set `ANTHROPIC_API_KEY` |
 | **Experian** (business credit) | Credit recommendation on new accounts (score/risk → suggested limit) | ❌ **needed** (business account) | **Per-report or subscription** | Phase 4 credit-recommendation feature (currently awaiting a sample report) |
-| **Offsite backup storage** (AWS S3 / Cloudflare R2 / Backblaze B2) | Nightly `pg_dump` copies stored off Neon for disaster recovery | ❌ **needed** | **Usage** (small, ~$1–5/mo) | Security hardening TODO |
+| **Offsite backups** — GitHub Actions (built) → optional S3/R2 | Nightly encrypted `pg_dump` off Neon. Works **today with no new account** (stored as GitHub artifacts) once two repo secrets are set; S3/R2 optional for longer retention | GitHub ✅ / S3 optional | Free (artifacts) · S3 ~$1–5/mo optional | Set `BACKUP_DATABASE_URL` + `BACKUP_PASSPHRASE` secrets — see `DB_BACKUP.md` |
 
 ## 🔵 Existing account — API access only (no new payment)
 

@@ -24,6 +24,9 @@ Last updated: 2026-08-04.
 - [x] Forced password reset (first login / admin-required)
 - [x] Password policy (min 10 chars, upper + lower + number)
 - [x] Edge proxy auth gate + Node-layer deep guards (session/active/RBAC)
+- [x] Security response headers (HSTS, nosniff, Referrer-Policy, Permissions-Policy, X-Frame-Options) + strict CSP with per-request nonce
+- [x] Postgres-backed rate limiting on sign-in, password reset, and the public forms (lead capture, quote/proof decisions, financial intake)
+- [x] Nightly encrypted offsite DB backup (GitHub Actions `pg_dump` → AES-256 → artifact/S3) — see docs/architecture/DB_BACKUP.md
 
 ### 0.2 Multi-Factor Authentication
 - [x] TOTP authenticator app enrollment (QR + manual key)

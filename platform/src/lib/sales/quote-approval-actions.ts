@@ -10,6 +10,7 @@ import { quotes, businessPartners, contacts, activities, notifications } from "@
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { sendQuoteEmail } from "@/lib/email";
 import { createOrderFromQuote } from "./order-from-quote";
 import { assessCredit, openCreditRequest } from "./credit";
@@ -66,6 +67,8 @@ export interface QuoteDecisionState {
 
 /** Public: the customer's Approve / Decline decision on a quote. */
 export async function submitQuoteDecisionAction(_prev: QuoteDecisionState, formData: FormData): Promise<QuoteDecisionState> {
+  const rl = await consumeRateLimit("quote-decision", await clientIp(), 30, 600);
+  if (!rl.ok) return { error: `Too many attempts. ${retryMessage(rl.retryAfterSec)}` };
   const token = String(formData.get("token") ?? "");
   const decision = String(formData.get("decision") ?? "");
   const signedName = String(formData.get("signedName") ?? "").trim();

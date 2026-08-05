@@ -32,6 +32,20 @@ function buildCsp(nonce: string): string {
   ].join("; ");
 }
 
+/** Defence-in-depth response headers applied to every request. HSTS forces
+ *  HTTPS; nosniff blocks MIME confusion; the referrer + frame + permissions
+ *  policies limit leakage, clickjacking, and access to device features the app
+ *  doesn't use. (Passkeys/WebAuthn are left at their same-origin default.) */
+function applySecurityHeaders(res: { headers: Headers }, csp: string): void {
+  res.headers.set("Content-Security-Policy", csp);
+  res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-Frame-Options", "DENY");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()");
+  res.headers.set("X-DNS-Prefetch-Control", "off");
+}
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const nonce = btoa(crypto.randomUUID());
@@ -47,18 +61,18 @@ export async function proxy(req: NextRequest) {
     const url = new URL("/login", req.url);
     if (pathname !== "/") url.searchParams.set("next", pathname);
     const redirect = NextResponse.redirect(url);
-    redirect.headers.set("Content-Security-Policy", csp);
+    applySecurityHeaders(redirect, csp);
     return redirect;
   }
 
   // Forward the pathname (path-aware MFA policy) and the CSP/nonce so Next.js
-  // stamps the nonce onto its scripts; also set CSP on the response.
+  // stamps the nonce onto its scripts; also set the security headers on the way out.
   const fwd = new Headers(req.headers);
   fwd.set("x-pathname", pathname);
   fwd.set("x-nonce", nonce);
   fwd.set("Content-Security-Policy", csp);
   const res = NextResponse.next({ request: { headers: fwd } });
-  res.headers.set("Content-Security-Policy", csp);
+  applySecurityHeaders(res, csp);
   return res;
 }
 
