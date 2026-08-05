@@ -124,8 +124,17 @@ export async function destroyCurrentSession(): Promise<void> {
 }
 
 export type LoginResult =
-  | { ok: true; mfaRequired: boolean; mustReset: boolean }
+  | { ok: true; mfaRequired: boolean; mustReset: boolean; enrollMfa: boolean }
   | { ok: false; error: "invalid" | "locked" };
+
+/** Org requires MFA and this user hasn't enrolled a factor yet. Used to send
+ *  them straight to the security page in one redirect (a nested layout-level
+ *  redirect during a Server Action's soft navigation renders blank). */
+export async function needsMfaEnrollment(userId: string): Promise<boolean> {
+  const settings = await db.query.systemSettings.findFirst();
+  if (!settings?.requireMfa) return false;
+  return !(await userHasMfa(userId));
+}
 
 /** Authenticate by email + password. Generic errors; never reveal whether an email exists. */
 export async function login(
@@ -177,14 +186,16 @@ export async function login(
     const token = await signMfaPendingToken(user.id);
     (await cookies()).set(MFA_PENDING_COOKIE, token, pendingCookieOptions());
     await audit({ userId: user.id, action: "auth.mfa_challenge", entityType: "user", entityId: user.id, ip });
-    return { ok: true, mfaRequired: true, mustReset: user.mustResetPassword };
+    return { ok: true, mfaRequired: true, mustReset: user.mustResetPassword, enrollMfa: false };
   }
 
   await createSession(user.id, rememberMe);
   await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
   await audit({ userId: user.id, action: "auth.login", entityType: "user", entityId: user.id, ip });
 
-  return { ok: true, mfaRequired: false, mustReset: user.mustResetPassword };
+  // No factor yet: if the org requires MFA, the caller sends them straight to
+  // the security page to enroll (avoids the blank-screen double redirect).
+  return { ok: true, mfaRequired: false, mustReset: user.mustResetPassword, enrollMfa: await needsMfaEnrollment(user.id) };
 }
 
 /** The user id awaiting a second factor (from the pending cookie), or null. */

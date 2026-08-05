@@ -9,6 +9,7 @@ import {
   resetPassword,
   getCurrentUser,
   establishSession,
+  needsMfaEnrollment,
 } from "./service";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
@@ -48,6 +49,9 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   }
   if (result.mfaRequired) redirect("/login/mfa");
   if (result.mustReset) redirect("/reset-required");
+  // Enroll-MFA users go straight to the security page — one redirect, so the
+  // client soft-navigation doesn't hit a nested layout redirect (blank screen).
+  if (result.enrollMfa) redirect("/account/security");
   redirect("/dashboard");
 }
 
@@ -121,5 +125,7 @@ export async function forcedResetAction(_prev: FormState, formData: FormData): P
   }
   // resetPassword cleared all sessions; start a fresh one so the user goes straight in.
   await establishSession(user.id);
+  // Same one-redirect rule: if they still need to enroll MFA, go there directly.
+  if (await needsMfaEnrollment(user.id)) redirect("/account/security");
   redirect("/dashboard");
 }

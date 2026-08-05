@@ -16,9 +16,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Org-wide policy: if MFA is required and the user hasn't enrolled, force them
   // to the security page until they set up a second factor.
+  let mustEnroll = false;
   if (!user.mfaEnabled) {
     const settings = await db.query.systemSettings.findFirst();
     if (settings?.requireMfa) {
+      mustEnroll = true;
       const path = (await headers()).get("x-pathname") ?? "";
       // Only redirect when we positively know we're NOT already on the security
       // page. If the pathname header is ever missing, fail open (don't redirect)
@@ -116,8 +118,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <AppShell
-      navItems={items}
-      mobileTabs={mobileTabs}
+      // While a user must still enroll MFA, hide the nav so they can't
+      // soft-navigate off the security page (which would hit the layout
+      // redirect and blank). They get full nav back the moment they enroll.
+      navItems={mustEnroll ? [] : items}
+      mobileTabs={mustEnroll ? [] : mobileTabs}
       userName={user.name}
       rolesLabel={user.roles.map((r) => ROLE_LABELS[r]).join(", ")}
       initials={initials}
