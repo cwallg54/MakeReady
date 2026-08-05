@@ -286,6 +286,7 @@ Last updated: 2026-08-04.
 - [x] Business Partner logins: self-register → **admin approves** (approve / reject / suspend)
 - [x] Store orders: on-account/request model, status workflow (pending → confirmed → fulfilled/canceled); confirming deducts stock (logged as a stock movement), canceling restores it
 - [x] New-order email to the customer + internal email/notification to Admin/Sales Manager
+- [x] Confirming a store order spawns a real sales order (flows into production + AR); linked back to the store order
 
 ### Public storefront at /shop (later g54.com)
 - [x] Public shop — browse published in-stock items, cart, on-account checkout (no custom orders, no login needed)
