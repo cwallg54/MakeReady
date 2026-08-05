@@ -150,6 +150,66 @@ export async function getRepActivity(since: Date | null): Promise<RepActivityRow
     .sort((a, b) => b.wonValue + b.orderValue - (a.wonValue + a.orderValue) || b.touches - a.touches);
 }
 
+// ---- Revenue trend (monthly) ---------------------------------------------
+
+export interface TrendPoint {
+  month: string; // YYYY-MM
+  label: string; // "Aug '26"
+  historical: number; // migrated SAP orders
+  current: number;    // orders placed in MakeReady
+  total: number;
+}
+
+const MONTHS_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split("-");
+  return `${MONTHS_ABBR[Number(m) - 1]} '${y.slice(2)}`;
+}
+
+/** Monthly revenue for the last `months` (null = all time), combining migrated
+ *  SAP history and current sales orders. Missing months are zero-filled so the
+ *  axis is continuous. */
+export async function getRevenueTrend(months: number | null): Promise<TrendPoint[]> {
+  const now = new Date();
+  const startCap = months ? new Date(now.getFullYear(), now.getMonth() - (months - 1), 1) : null;
+  const [hist, cur] = await Promise.all([
+    db
+      .select({ ym: sql<string>`to_char(${historicalOrders.docDate}, 'YYYY-MM')`, rev: sql<string>`COALESCE(SUM(${historicalOrders.docTotal}), 0)` })
+      .from(historicalOrders)
+      .where(startCap ? and(eq(historicalOrders.canceled, false), gte(historicalOrders.docDate, startCap)) : eq(historicalOrders.canceled, false))
+      .groupBy(sql`to_char(${historicalOrders.docDate}, 'YYYY-MM')`),
+    db
+      .select({ ym: sql<string>`to_char(${orders.createdAt}, 'YYYY-MM')`, rev: sql<string>`COALESCE(SUM(${orders.amount}), 0)` })
+      .from(orders)
+      .where(startCap ? and(isNull(orders.voidedAt), gte(orders.createdAt, startCap)) : isNull(orders.voidedAt))
+      .groupBy(sql`to_char(${orders.createdAt}, 'YYYY-MM')`),
+  ]);
+
+  const histMap = new Map(hist.map((r) => [r.ym, Number(r.rev)]));
+  const curMap = new Map(cur.map((r) => [r.ym, Number(r.rev)]));
+  const keys = new Set([...histMap.keys(), ...curMap.keys()]);
+  if (keys.size === 0) return [];
+
+  // Continuous axis: from the earliest month (bounded by the period cap) to now.
+  const sorted = [...keys].sort();
+  const startYm = startCap ? `${startCap.getFullYear()}-${String(startCap.getMonth() + 1).padStart(2, "0")}` : sorted[0];
+  const endYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const start = startYm < sorted[0] && !startCap ? sorted[0] : startYm;
+
+  const points: TrendPoint[] = [];
+  let [y, m] = start.split("-").map(Number);
+  for (let guard = 0; guard < 600; guard++) {
+    const ym = `${y}-${String(m).padStart(2, "0")}`;
+    const historical = histMap.get(ym) ?? 0;
+    const current = curMap.get(ym) ?? 0;
+    points.push({ month: ym, label: monthLabel(ym), historical, current, total: historical + current });
+    if (ym === endYm) break;
+    m += 1; if (m > 12) { m = 1; y += 1; }
+  }
+  return points;
+}
+
 // ---- Lead-Source ROI ------------------------------------------------------
 
 export interface LeadSourceRow {

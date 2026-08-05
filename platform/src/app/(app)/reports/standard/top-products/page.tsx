@@ -5,6 +5,7 @@ import { canBuildReports } from "@/lib/reports/sources";
 import { PageHeader, Card } from "@/components/ui";
 import { money2, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
 import { getTopProducts, periodSince, parsePeriod, PERIOD_LABEL, type Period } from "@/lib/reports/analytics-data";
+import { ChartPanel, HBars } from "../charts";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,17 @@ export default async function TopProductsPage({ searchParams }: { searchParams: 
           <Link key={p} href={`/reports/standard/top-products?period=${p}`} className={`rounded-md border px-3 py-1 ${period === p ? "border-brand bg-brand/15 font-medium text-brand-ink" : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"}`}>{PERIOD_LABEL[p]}</Link>
         ))}
       </div>
+
+      {(products.length > 0 || byType.length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ChartPanel title="Top line items" subtitle="by quoted value">
+            {products.length === 0 ? <p className="pt-8 text-center text-sm text-neutral-400">No data yet.</p> : <HBars data={products.slice(0, 8).map((p) => ({ name: p.description, value: p.revenue }))} kind="money" gid="g-topprod" />}
+          </ChartPanel>
+          <ChartPanel title="Sales by type" subtitle="order amount">
+            {byType.length === 0 ? <p className="pt-8 text-center text-sm text-neutral-400">No data yet.</p> : <HBars data={byType.map((t) => ({ name: t.orderType ? (ORDER_TYPE_LABEL[t.orderType] ?? t.orderType) : "Unspecified", value: t.amount }))} kind="money" color="#334155" gid="g-bytype" />}
+          </ChartPanel>
+        </div>
+      )}
 
       <Card className="p-0">
         <div className="border-b border-neutral-200 px-5 py-3"><h2 className="text-sm font-semibold text-neutral-900">Top line items by quoted value</h2></div>

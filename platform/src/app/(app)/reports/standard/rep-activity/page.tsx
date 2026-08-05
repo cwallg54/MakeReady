@@ -5,6 +5,7 @@ import { canBuildReports } from "@/lib/reports/sources";
 import { PageHeader, Card } from "@/components/ui";
 import { money2 } from "@/lib/reports/standard";
 import { getRepActivity, periodSince, parsePeriod, PERIOD_LABEL, type Period } from "@/lib/reports/analytics-data";
+import { ChartPanel, GroupedBars, HBars } from "../charts";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +40,17 @@ export default async function RepActivityPage({ searchParams }: { searchParams: 
           <Link key={p} href={`/reports/standard/rep-activity?period=${p}`} className={`rounded-md border px-3 py-1 ${period === p ? "border-brand bg-brand/15 font-medium text-brand-ink" : "border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50"}`}>{PERIOD_LABEL[p]}</Link>
         ))}
       </div>
+
+      {rows.length > 0 && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ChartPanel title="Value by rep" subtitle="won quotes vs order $">
+            <GroupedBars data={rows.slice(0, 8).map((r) => ({ name: r.name.split(" ")[0], won: r.wonValue, orders: r.orderValue }))} aKey="won" bKey="orders" aLabel="Won $" bLabel="Order $" />
+          </ChartPanel>
+          <ChartPanel title="Touches by rep" subtitle="calls + notes + emails + visits">
+            <HBars data={rows.slice(0, 8).map((r) => ({ name: r.name, value: r.touches }))} kind="num" gid="g-touches" />
+          </ChartPanel>
+        </div>
+      )}
 
       <Card className="overflow-x-auto p-0">
         {rows.length === 0 ? (

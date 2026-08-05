@@ -118,6 +118,7 @@ export const STANDARD_REPORTS = [
   { slug: "open-orders-by-salesperson", name: "Open Orders by Salesperson", description: "Open orders grouped by salesperson, due month, territory, and customer." },
   { slug: "open-orders-by-type", name: "Open Orders by Type", description: "Open orders grouped by product/decoration type, sorted by due date." },
   { slug: "credit", name: "Customer Credit Report", description: "Per-customer credit profile: terms, limit, trailing sales, open orders, and collection activity." },
+  { slug: "revenue-trend", name: "Revenue Trend", description: "Monthly revenue over time (migrated SAP history + current orders) with a chart and CSV." },
   { slug: "top-products", name: "Top Products & Designs", description: "Best-selling line items by quoted and won value, plus sales by product/decoration type." },
   { slug: "rep-activity", name: "Sales-Rep Activity", description: "Per-rep calls, notes, visits, quotes created/won, and orders — over a chosen period." },
   { slug: "lead-source-roi", name: "Lead-Source ROI", description: "Accounts, conversions, and lifetime revenue by lead source — where the business comes from." },
