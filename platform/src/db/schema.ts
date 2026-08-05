@@ -1589,6 +1589,8 @@ export const storeSettings = pgTable("store_settings", {
   // Master switch, and whether the general public (not logged-in) may shop.
   enabled: boolean("enabled").notNull().default(true),
   publicEnabled: boolean("public_enabled").notNull().default(true),
+  // When on, confirming an on-account order also drafts an AR invoice.
+  autoInvoice: boolean("auto_invoice").notNull().default(false),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

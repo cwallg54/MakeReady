@@ -194,6 +194,7 @@ export async function updateStoreSettingsAction(formData: FormData): Promise<voi
     contactEmail: str(formData.get("contactEmail")),
     enabled: formData.get("enabled") === "on",
     publicEnabled: formData.get("publicEnabled") === "on",
+    autoInvoice: formData.get("autoInvoice") === "on",
     updatedAt: new Date(),
   }).where(eq(storeSettings.id, current.id));
   await audit({ userId: user.id, action: "store.settings_update", entityType: "store_settings", entityId: current.id });
@@ -258,7 +259,8 @@ export async function setOrderStatusAction(formData: FormData): Promise<void> {
   // AR. Best-effort — outside the stock transaction to avoid nested transactions.
   if (applyStock && !order.salesOrderId) {
     try {
-      const soId = await createSalesOrderFromStoreOrder(order, user.id);
+      const settings = await getStoreSettings();
+      const soId = await createSalesOrderFromStoreOrder(order, user.id, { autoInvoice: settings.autoInvoice });
       if (soId) await db.update(storeOrders).set({ salesOrderId: soId, updatedAt: new Date() }).where(eq(storeOrders.id, id));
     } catch (e) {
       console.error("store -> sales order handoff failed", e);

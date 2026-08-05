@@ -37,6 +37,12 @@ export default async function StoreSettingsPage() {
           <label className="flex items-center gap-2 text-sm text-neutral-700"><input type="checkbox" name="publicEnabled" defaultChecked={s.publicEnabled} className="h-4 w-4" /> Allow the public to shop (uncheck to require a Business Partner login)</label>
         </Card>
 
+        <Card className="space-y-3">
+          <h2 className="text-sm font-semibold text-neutral-900">Accounting</h2>
+          <label className="flex items-center gap-2 text-sm text-neutral-700"><input type="checkbox" name="autoInvoice" defaultChecked={s.autoInvoice} className="h-4 w-4" /> Auto-draft an AR invoice when a Business Partner order is confirmed</label>
+          <p className="text-xs text-neutral-400">Creates a draft invoice (from the sales order) for signed-in Business Partner orders. Guest/public orders are never auto-invoiced. Review and issue it from Accounting.</p>
+        </Card>
+
         <div className="flex items-center gap-3">
           <button className="rounded-md bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-700">Save settings</button>
           <a href="/shop" target="_blank" rel="noreferrer" className="text-sm font-medium text-brand-ink hover:underline">View store ↗</a>

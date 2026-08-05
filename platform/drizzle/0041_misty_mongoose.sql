@@ -1,0 +1,1 @@
+ALTER TABLE "store_settings" ADD COLUMN "auto_invoice" boolean DEFAULT false NOT NULL;
