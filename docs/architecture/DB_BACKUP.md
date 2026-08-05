@@ -59,4 +59,14 @@ account you'd create):
    `pg_restore --no-owner --no-privileges --dbname "<TARGET_DATABASE_URL>" makeready.dump`
 4. Point the app at the restored database (or promote the Neon branch).
 
-> Test a restore periodically — an untested backup isn't a backup.
+## Automated restore drill
+
+A second workflow, **`.github/workflows/db-restore-drill.yml`**, runs on the 1st
+of each month (and on demand): it downloads the latest encrypted backup,
+decrypts it, restores it into a throwaway Postgres, and asserts the core tables
+(`users`, `business_partners`, `historical_orders`) came back with data. If a
+backup can't be restored, the run fails and you're notified — so "the backups
+are recoverable" is proven continuously, not assumed. Trigger it any time from
+Actions → "Backup restore drill" → Run workflow.
+
+> An untested backup isn't a backup — the drill above is that test, automated.

@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { schedulingProfiles, availabilityBlocks, meetings, meetingTypes, notifications } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
+import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { computeSlots, slotIsValid, type AvailBlock } from "./slots";
 
 function slugify(s: string): string {
@@ -76,6 +77,8 @@ export interface BookState {
 }
 
 export async function bookMeetingAction(_prev: BookState, formData: FormData): Promise<BookState> {
+  const rl = await consumeRateLimit("book-meeting", await clientIp(), 20, 3600);
+  if (!rl.ok) return { error: `Too many booking attempts. ${retryMessage(rl.retryAfterSec)}` };
   const slug = String(formData.get("slug") ?? "");
   const meetingTypeId = String(formData.get("meetingTypeId") ?? "");
   const startIso = String(formData.get("slot") ?? "");
