@@ -20,7 +20,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     const settings = await db.query.systemSettings.findFirst();
     if (settings?.requireMfa) {
       const path = (await headers()).get("x-pathname") ?? "";
-      if (!path.startsWith("/account/security")) redirect("/account/security");
+      // Only redirect when we positively know we're NOT already on the security
+      // page. If the pathname header is ever missing, fail open (don't redirect)
+      // so this can never loop into a blank screen — enforcement still fires on
+      // the normal case where the header is present.
+      const onSecurity = path === "" || path.startsWith("/account/security");
+      if (!onSecurity) redirect("/account/security");
     }
   }
 
