@@ -278,6 +278,22 @@ Last updated: 2026-08-04.
 
 ---
 
+## Web Store (native storefront — replaces Zoey)
+
+### Admin (in-platform) at /web-store *(Role: Admin/Sales Manager)*
+- [x] Publish inventory items or standalone products to the store; retail + optional B2B price; visibility (public / B2B / both); category, description, image (falls back to the inventory photo); publish/featured/taxable
+- [x] "Add from inventory" browser; category management; storefront settings (name, hero, open/close + public-shopping toggles)
+- [x] Business Partner logins: self-register → **admin approves** (approve / reject / suspend)
+- [x] Store orders: on-account/request model, status workflow (pending → confirmed → fulfilled/canceled); confirming deducts stock (logged as a stock movement), canceling restores it
+- [x] New-order email to the customer + internal email/notification to Admin/Sales Manager
+
+### Public storefront at /shop (later g54.com)
+- [x] Public shop — browse published in-stock items, cart, on-account checkout (no custom orders, no login needed)
+- [x] B2B portal — Business Partner sign-in shows account (B2B) pricing and the full catalog; account + order history
+- [x] Cookie cart, order confirmation (WEB-##### number), separate customer auth realm (own cookie/session table)
+- [x] Rate-limited public register/login/checkout; storefront respects the open/close + public-shopping settings
+- [ ] Online card payment (Stripe), product variants/options, tiered/customer-group pricing, promotions, shipping/tax, order→ops handoff (backlog)
+
 ## Mobile & PWA
 
 - [x] Mobile field-sales experience — bottom tab bar, mobile card lists, tap-to-call/email, mobile quote builder (desktop unchanged)
@@ -299,5 +315,5 @@ Last updated: 2026-08-04.
 - [x] Native art-request Kanban (Trello replacement) — delivered (see §3.5a)
 - [ ] Independent-rep deal-registration quick form
 - [x] Credit gates / limits enforcement — delivered (see Accounting); [ ] Experian integration
-- [ ] Phase 3+ modules: Web Store, Content Library ([x] Accounting AR, Design Library, Inventory forecasting delivered)
+- [ ] Phase 3+ modules: Content Library ([x] Accounting AR, Design Library, Inventory forecasting, **Web Store** delivered)
 - [x] Art→item automation: art creates the design → orderable item with image, no SAP/Zoey re-entry (delivered — see §D.4)
