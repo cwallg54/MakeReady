@@ -175,6 +175,13 @@ export const webStoreStatusEnum = pgEnum("web_store_status", [
 // (logged-in Business Partner) portal, or both.
 export const storeVisibilityEnum = pgEnum("store_visibility", ["public", "b2b", "both"]);
 
+// Storefront customer account lifecycle. Self-registered customers start
+// `pending` and can't order until an admin approves them to `active`.
+export const storeCustomerStatusEnum = pgEnum("store_customer_status", ["pending", "active", "suspended", "rejected"]);
+
+// Store order lifecycle (on-account / request model — no online payment yet).
+export const storeOrderStatusEnum = pgEnum("store_order_status", ["pending", "confirmed", "fulfilled", "canceled"]);
+
 export const activityTypeEnum = pgEnum("activity_type", [
   "note",
   "call",
@@ -1492,3 +1499,75 @@ export const storeProducts = pgTable(
 
 export type StoreCategory = typeof storeCategories.$inferSelect;
 export type StoreProduct = typeof storeProducts.$inferSelect;
+
+// Storefront customer account (separate auth realm from staff `users`). Linked
+// to a CRM Business Partner when matched. Self-register → pending → admin approves.
+export const storeCustomers = pgTable(
+  "store_customers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    email: text("email").notNull().unique(),
+    passwordHash: text("password_hash"),
+    name: text("name").notNull(),
+    phone: text("phone"),
+    companyName: text("company_name"),
+    status: storeCustomerStatusEnum("status").notNull().default("pending"),
+    approvedBy: uuid("approved_by").references(() => users.id, { onDelete: "set null" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("store_customers_email_idx").on(t.email), index("store_customers_status_idx").on(t.status)],
+);
+
+// Storefront customer sessions (independent of staff `sessions`).
+export const storeCustomerSessions = pgTable("store_customer_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  customerId: uuid("customer_id").notNull().references(() => storeCustomers.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// An order placed through the storefront. On-account/request model — no online
+// payment; staff confirm and fulfil. Guest (public) orders have no customerId.
+export const storeOrders = pgTable(
+  "store_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderNumber: text("order_number").notNull().unique(),
+    customerId: uuid("customer_id").references(() => storeCustomers.id, { onDelete: "set null" }),
+    isB2b: boolean("is_b2b").notNull().default(false),
+    status: storeOrderStatusEnum("status").notNull().default("pending"),
+    contactName: text("contact_name"),
+    contactEmail: text("contact_email"),
+    contactPhone: text("contact_phone"),
+    shippingAddress: text("shipping_address"),
+    notes: text("notes"),
+    subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull().default("0"),
+    total: numeric("total", { precision: 12, scale: 2 }).notNull().default("0"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("store_orders_customer_idx").on(t.customerId), index("store_orders_status_idx").on(t.status)],
+);
+
+export const storeOrderItems = pgTable(
+  "store_order_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id").notNull().references(() => storeOrders.id, { onDelete: "cascade" }),
+    storeProductId: uuid("store_product_id").references(() => storeProducts.id, { onDelete: "set null" }),
+    title: text("title").notNull(),
+    sku: text("sku"),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+    qty: integer("qty").notNull().default(1),
+    lineTotal: numeric("line_total", { precision: 12, scale: 2 }).notNull(),
+  },
+  (t) => [index("store_order_items_order_idx").on(t.orderId)],
+);
+
+export type StoreCustomer = typeof storeCustomers.$inferSelect;
+export type StoreOrder = typeof storeOrders.$inferSelect;
+export type StoreOrderItem = typeof storeOrderItems.$inferSelect;

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { storeProducts, storeCategories, inventoryItems } from "@/db/schema";
+import { storeProducts, storeCategories, inventoryItems, storeCustomers, storeOrders } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -177,4 +177,34 @@ export async function toggleCategoryAction(formData: FormData): Promise<void> {
   await db.update(storeCategories).set({ active: !c.active, updatedAt: new Date() }).where(eq(storeCategories.id, id));
   await audit({ userId: user.id, action: "store.category_toggle", entityType: "store_category", entityId: id });
   revalidatePath("/web-store/categories");
+}
+
+// ---- Customers (approval) -------------------------------------------------
+
+export async function setCustomerStatusAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const id = str(formData.get("id"));
+  const status = str(formData.get("status"));
+  if (!id || !status || !["active", "rejected", "suspended", "pending"].includes(status)) return;
+  await db.update(storeCustomers).set({
+    status: status as "active" | "rejected" | "suspended" | "pending",
+    approvedBy: status === "active" ? user.id : null,
+    approvedAt: status === "active" ? new Date() : null,
+    updatedAt: new Date(),
+  }).where(eq(storeCustomers.id, id));
+  await audit({ userId: user.id, action: "store.customer_status", entityType: "store_customer", entityId: id, metadata: { status } });
+  revalidatePath("/web-store/customers");
+}
+
+// ---- Orders ---------------------------------------------------------------
+
+export async function setOrderStatusAction(formData: FormData): Promise<void> {
+  const user = await requireStoreEdit();
+  const id = str(formData.get("id"));
+  const status = str(formData.get("status"));
+  if (!id || !status || !["pending", "confirmed", "fulfilled", "canceled"].includes(status)) return;
+  await db.update(storeOrders).set({ status: status as "pending" | "confirmed" | "fulfilled" | "canceled", updatedAt: new Date() }).where(eq(storeOrders.id, id));
+  await audit({ userId: user.id, action: "store.order_status", entityType: "store_order", entityId: id, metadata: { status } });
+  revalidatePath("/web-store/orders");
+  revalidatePath(`/web-store/orders/${id}`);
 }

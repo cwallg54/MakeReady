@@ -52,13 +52,16 @@ export default async function WebStorePage({ searchParams }: { searchParams: Pro
       <PageHeader
         title="Web Store"
         description="Publish products to the storefront, set retail and B2B pricing, and control who can see them."
-        action={editable ? (
+        action={
           <div className="flex flex-wrap items-center gap-2">
-            <Link href="/web-store/inventory" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Add from inventory</Link>
-            <Link href="/web-store/categories" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Categories</Link>
-            <Link href="/web-store/products/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">+ New product</Link>
+            <Link href="/web-store/orders" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Orders</Link>
+            <Link href="/web-store/customers" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Customers</Link>
+            <a href="/shop" target="_blank" rel="noreferrer" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">View store ↗</a>
+            {editable && <Link href="/web-store/inventory" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Add from inventory</Link>}
+            {editable && <Link href="/web-store/categories" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Categories</Link>}
+            {editable && <Link href="/web-store/products/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">+ New product</Link>}
           </div>
-        ) : undefined}
+        }
       />
 
       <div className="grid grid-cols-3 gap-4">
