@@ -206,7 +206,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Everyone",
     blocks: [
       { k: "p", text: "Two-factor authentication (2FA) adds a second check at sign-in so a stolen password isn't enough to get in. Open it from your initials avatar in the top-right, or go to Account Security." },
-      { k: "warn", text: "2FA is now required for every MakeReady user. On your next sign-in you'll be taken to this page and can't use the rest of the app until you enroll at least one method — an authenticator app or a passkey. Set one up now so you're not caught out mid-task." },
+      { k: "warn", text: "2FA is required for every MakeReady user. When your account is first set up you'll be brought straight to this page — a banner reads “One more step to finish setting up your account.” Add one method (an authenticator app or a passkey) and a “Continue to MakeReady →” button takes you into the app. You can't use the rest of MakeReady until at least one method is enrolled." },
       { k: "img", src: "security.png", caption: "The Security page. A banner shows whether 2FA is on." },
       { k: "h", text: "Authenticator app (TOTP)" },
       {
