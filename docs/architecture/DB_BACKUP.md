@@ -25,7 +25,11 @@ MakeReady has **two** layers of protection for the Neon Postgres database:
 
 ## Required setup (one-time) — GitHub → Settings → Secrets and variables → Actions
 
-The job **will not run** until these two repository secrets exist:
+> Status: these secrets were configured when the workflow was first set up (a
+> real run produced an encrypted artifact). This section is the reference for
+> verifying or rotating them. Confirm the latest run is green (see below).
+
+The job **will not run** without these two repository secrets:
 
 | Secret | Value |
 |---|---|
