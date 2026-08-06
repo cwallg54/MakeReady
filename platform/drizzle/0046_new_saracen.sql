@@ -1,0 +1,1 @@
+ALTER TABLE "inventory_items" ADD COLUMN "reorder_alert_at" timestamp with time zone;

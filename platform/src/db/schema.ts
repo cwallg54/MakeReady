@@ -1222,6 +1222,9 @@ export const inventoryItems = pgTable(
     cost: numeric("cost", { precision: 12, scale: 2 }).notNull().default("0"),
     onHand: numeric("on_hand", { precision: 14, scale: 2 }).notNull().default("0"),
     reorderPoint: numeric("reorder_point", { precision: 14, scale: 2 }).notNull().default("0"),
+    // When we last raised a reorder alert for this item (dedupes the daily cron).
+    // Cleared when stock is replenished back above the reorder point.
+    reorderAlertAt: timestamp("reorder_alert_at", { withTimezone: true }),
     active: boolean("active").notNull().default(true),
     notes: text("notes"),
     // Art image carried onto the item when it's auto-created from a design.

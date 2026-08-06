@@ -106,7 +106,11 @@ export async function adjustStockAction(formData: FormData): Promise<void> {
   if (delta === 0 && reason !== "count") return;
 
   await db.insert(stockMovements).values({ itemId: id, delta: String(delta), reason: reason as "receive" | "consume" | "adjust" | "count", note, byUserId: user.id });
-  await db.update(inventoryItems).set({ onHand: String(onHand + delta), updatedAt: new Date() }).where(eq(inventoryItems.id, id));
+  const newOnHand = onHand + delta;
+  // Replenished back above the reorder point → clear the alert flag so a future
+  // dip raises a fresh reorder notification.
+  const clearAlert = newOnHand > Number(item.reorderPoint) && item.reorderAlertAt != null;
+  await db.update(inventoryItems).set({ onHand: String(newOnHand), updatedAt: new Date(), ...(clearAlert ? { reorderAlertAt: null } : {}) }).where(eq(inventoryItems.id, id));
   await audit({ userId: user.id, action: "inventory.adjust", entityType: "inventory_item", entityId: id, metadata: { reason, delta } });
   revalidatePath(`/inventory/${id}`);
   revalidatePath("/inventory");
