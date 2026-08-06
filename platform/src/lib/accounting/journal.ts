@@ -103,6 +103,7 @@ export interface TrialBalanceRow {
   code: string;
   name: string;
   type: GlAccountType;
+  subtype: string | null;
   debit: number; // total debits posted
   credit: number; // total credits posted
   balance: number; // signed on the account's normal side
@@ -116,7 +117,7 @@ export async function accountTotals(opts: { from?: Date; to?: Date } = {}): Prom
   if (opts.to) conds.push(sql`${journalEntries.date} <= ${opts.to}`);
   const rows = await db
     .select({
-      id: glAccounts.id, code: glAccounts.code, name: glAccounts.name, type: glAccounts.type,
+      id: glAccounts.id, code: glAccounts.code, name: glAccounts.name, type: glAccounts.type, subtype: glAccounts.subtype,
       debit: sql<string>`COALESCE(SUM(${journalLines.debit}), 0)`,
       credit: sql<string>`COALESCE(SUM(${journalLines.credit}), 0)`,
     })
@@ -128,7 +129,7 @@ export async function accountTotals(opts: { from?: Date; to?: Date } = {}): Prom
 
   return rows.map((r) => {
     const debit = Number(r.debit), credit = Number(r.credit);
-    return { id: r.id, code: r.code, name: r.name, type: r.type, debit, credit, balance: accountBalance(r.type, debit, credit) };
+    return { id: r.id, code: r.code, name: r.name, type: r.type, subtype: r.subtype, debit, credit, balance: accountBalance(r.type, debit, credit) };
   });
 }
 

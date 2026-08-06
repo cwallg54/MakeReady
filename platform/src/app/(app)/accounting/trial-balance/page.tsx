@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { DateTime } from "luxon";
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card } from "@/components/ui";
 import { trialBalance } from "@/lib/accounting/journal";
-import { ACCOUNT_TYPE_MAP } from "@/lib/accounting/gl";
+import { StatementDoc, StatementPrintStyles, fmtAcct } from "@/components/accounting/statement";
+import { PrintButton } from "@/components/accounting/print-button";
 
 export const dynamic = "force-dynamic";
-const money = (n: number) => (n ? `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "");
+const COMPANY = "Great Mountain West";
+const amt = (n: number) => (n ? fmtAcct(n) : "");
 
 export default async function TrialBalancePage() {
   await requireModule("accounting");
@@ -20,37 +23,50 @@ export default async function TrialBalancePage() {
     return { ...r, dr, cr };
   });
   const balanced = Math.round((totalDr - totalCr) * 100) / 100 === 0;
+  const period = `As of ${DateTime.now().setZone("America/Denver").toFormat("LLLL d, yyyy")}`;
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <div className="text-sm"><Link href="/accounting" className="text-neutral-500 hover:text-neutral-900">← Accounting</Link></div>
-      <PageHeader title="Trial balance" description="Every account's net balance from posted journal entries. Total debits must equal total credits." />
+    <div className="max-w-3xl space-y-5">
+      <div className="flex items-center justify-between print:hidden">
+        <Link href="/accounting" className="text-sm text-neutral-500 hover:text-neutral-900">← Accounting</Link>
+        <PrintButton />
+      </div>
+      <div className="print:hidden"><PageHeader title="Trial Balance" description="Every account's net balance from posted entries. Total debits must equal total credits." /></div>
 
-      <Card className="p-0">
-        <table className="w-full text-sm">
-          <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-400">
-            <tr><th className="px-4 py-2">Account</th><th className="px-4 py-2">Type</th><th className="px-4 py-2 text-right">Debit</th><th className="px-4 py-2 text-right">Credit</th></tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100">
-            {display.length === 0 && <tr><td colSpan={4} className="px-4 py-8 text-center text-neutral-400">No posted activity yet.</td></tr>}
-            {display.map((r) => (
-              <tr key={r.id} className="hover:bg-neutral-50">
-                <td className="px-4 py-2"><Link href={`/accounting/ledger?account=${r.id}`} className="hover:underline"><span className="font-mono text-neutral-500">{r.code}</span> <span className="text-neutral-800">{r.name}</span></Link></td>
-                <td className="px-4 py-2 text-neutral-400">{ACCOUNT_TYPE_MAP[r.type].label}</td>
-                <td className="px-4 py-2 text-right tabular-nums text-neutral-800">{money(r.dr)}</td>
-                <td className="px-4 py-2 text-right tabular-nums text-neutral-800">{money(r.cr)}</td>
+      <StatementPrintStyles />
+      <div id="statement-print">
+        <StatementDoc company={COMPANY} title="Trial Balance" period={period}>
+          <table className="w-full font-serif text-sm">
+            <thead>
+              <tr className="border-b border-neutral-400 text-xs uppercase tracking-wide text-neutral-500">
+                <th className="py-1 text-left font-semibold">Account</th>
+                <th className="w-36 py-1 text-right font-semibold">Debit</th>
+                <th className="w-36 py-1 text-right font-semibold">Credit</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className={`border-t-2 font-semibold ${balanced ? "border-neutral-300 bg-neutral-50" : "border-red-300 bg-red-50"}`}>
-              <td className="px-4 py-2" colSpan={2}>{balanced ? "Total (balanced)" : "Total — OUT OF BALANCE"}</td>
-              <td className="px-4 py-2 text-right tabular-nums">{money(totalDr)}</td>
-              <td className="px-4 py-2 text-right tabular-nums">{money(totalCr)}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </Card>
+            </thead>
+            <tbody>
+              {display.length === 0 && <tr><td colSpan={3} className="py-6 text-center text-neutral-400">No posted activity yet.</td></tr>}
+              {display.map((r) => (
+                <tr key={r.id}>
+                  <td className="py-0.5"><span className="mr-2 text-neutral-400">{r.code}</span>{r.name}</td>
+                  <td className="py-0.5 text-right tabular-nums">{amt(r.dr)}</td>
+                  <td className="py-0.5 text-right tabular-nums">{amt(r.cr)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="font-semibold">
+                <td className="pt-2 text-right">Total</td>
+                <td className="pt-2 text-right tabular-nums"><span className="border-t border-b-4 border-double border-neutral-800 px-0.5 py-0.5">{fmtAcct(totalDr, true)}</span></td>
+                <td className="pt-2 text-right tabular-nums"><span className="border-t border-b-4 border-double border-neutral-800 px-0.5 py-0.5">{fmtAcct(totalCr, true)}</span></td>
+              </tr>
+            </tfoot>
+          </table>
+          {!balanced && <p className="mt-4 text-center text-xs font-semibold text-red-600">Out of balance — total debits do not equal total credits.</p>}
+        </StatementDoc>
+      </div>
+
+      <p className="text-center text-xs text-neutral-400 print:hidden">Click any account in the <Link href="/accounting/ledger" className="underline">general ledger</Link> to see its detail.</p>
     </div>
   );
 }

@@ -4,29 +4,62 @@ import { accountTotals, type TrialBalanceRow } from "./journal";
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export interface StatementLine { id: string; code: string; name: string; amount: number }
-export interface StatementSection { title: string; lines: StatementLine[]; total: number }
+export interface StatementGroup { label: string | null; lines: StatementLine[]; total: number }
 
-const toLines = (rows: TrialBalanceRow[]) =>
+const toLines = (rows: TrialBalanceRow[]): StatementLine[] =>
   rows.filter((r) => r.balance !== 0).map((r) => ({ id: r.id, code: r.code, name: r.name, amount: round2(r.balance) }));
 const sum = (rows: TrialBalanceRow[]) => round2(rows.reduce((s, r) => s + r.balance, 0));
 
-/** Income statement (P&L) for a period: revenue − expenses = net income. */
-export async function incomeStatement(from: Date, to: Date): Promise<{
-  revenue: StatementSection; expenses: StatementSection; netIncome: number;
-}> {
-  const totals = await accountTotals({ from, to });
-  const rev = totals.filter((r) => r.type === "revenue");
-  const exp = totals.filter((r) => r.type === "expense");
-  const revenue: StatementSection = { title: "Revenue", lines: toLines(rev), total: sum(rev) };
-  const expenses: StatementSection = { title: "Expenses", lines: toLines(exp), total: sum(exp) };
-  return { revenue, expenses, netIncome: round2(revenue.total - expenses.total) };
+/** Group rows by their subtype (preserving code order), skipping empty groups. */
+function groupBySubtype(rows: TrialBalanceRow[]): StatementGroup[] {
+  const order: string[] = [];
+  const map = new Map<string, TrialBalanceRow[]>();
+  for (const r of rows) {
+    const key = r.subtype || "Other";
+    if (!map.has(key)) { map.set(key, []); order.push(key); }
+    map.get(key)!.push(r);
+  }
+  return order
+    .map((label) => ({ label, lines: toLines(map.get(label)!), total: sum(map.get(label)!) }))
+    .filter((g) => g.lines.length > 0);
 }
 
-/** Balance sheet as of a date: Assets = Liabilities + Equity (incl. earnings). */
-export async function balanceSheet(asOf: Date): Promise<{
-  assets: StatementSection; liabilities: StatementSection; equity: StatementSection;
-  earnings: number; liabilitiesAndEquity: number; balanced: boolean;
-}> {
+// ---- Income statement (P&L) -----------------------------------------------
+
+export interface IncomeStatement {
+  revenue: StatementGroup;
+  cogs: StatementGroup;
+  grossProfit: number;
+  operating: StatementGroup;
+  operatingIncome: number;
+  netIncome: number;
+}
+
+export async function incomeStatement(from: Date, to: Date): Promise<IncomeStatement> {
+  const totals = await accountTotals({ from, to });
+  const rev = totals.filter((r) => r.type === "revenue");
+  const cogsRows = totals.filter((r) => r.type === "expense" && (r.subtype ?? "").toUpperCase() === "COGS");
+  const opRows = totals.filter((r) => r.type === "expense" && (r.subtype ?? "").toUpperCase() !== "COGS");
+
+  const revenue: StatementGroup = { label: null, lines: toLines(rev), total: sum(rev) };
+  const cogs: StatementGroup = { label: null, lines: toLines(cogsRows), total: sum(cogsRows) };
+  const operating: StatementGroup = { label: null, lines: toLines(opRows), total: sum(opRows) };
+  const grossProfit = round2(revenue.total - cogs.total);
+  const operatingIncome = round2(grossProfit - operating.total);
+  return { revenue, cogs, grossProfit, operating, operatingIncome, netIncome: operatingIncome };
+}
+
+// ---- Balance sheet --------------------------------------------------------
+
+export interface BalanceSheet {
+  assets: { groups: StatementGroup[]; total: number };
+  liabilities: { groups: StatementGroup[]; total: number };
+  equity: StatementGroup;
+  totalLiabEquity: number;
+  balanced: boolean;
+}
+
+export async function balanceSheet(asOf: Date): Promise<BalanceSheet> {
   const totals = await accountTotals({ to: asOf });
   const a = totals.filter((r) => r.type === "asset");
   const l = totals.filter((r) => r.type === "liability");
@@ -36,12 +69,21 @@ export async function balanceSheet(asOf: Date): Promise<{
 
   // Net income to date rolls into equity (retained earnings not yet closed).
   const earnings = round2(sum(rev) - sum(exp));
-  const assets: StatementSection = { title: "Assets", lines: toLines(a), total: sum(a) };
-  const liabilities: StatementSection = { title: "Liabilities", lines: toLines(l), total: sum(l) };
   const equityLines = toLines(e);
   if (earnings !== 0) equityLines.push({ id: "current-earnings", code: "", name: "Current-period net income", amount: earnings });
-  const equity: StatementSection = { title: "Equity", lines: equityLines, total: round2(sum(e) + earnings) };
 
-  const liabilitiesAndEquity = round2(liabilities.total + equity.total);
-  return { assets, liabilities, equity, earnings, liabilitiesAndEquity, balanced: Math.abs(assets.total - liabilitiesAndEquity) < 0.005 };
+  const assetGroups = groupBySubtype(a);
+  const liabGroups = groupBySubtype(l);
+  const assetsTotal = sum(a);
+  const liabTotal = sum(l);
+  const equityTotal = round2(sum(e) + earnings);
+  const totalLiabEquity = round2(liabTotal + equityTotal);
+
+  return {
+    assets: { groups: assetGroups, total: assetsTotal },
+    liabilities: { groups: liabGroups, total: liabTotal },
+    equity: { label: null, lines: equityLines, total: equityTotal },
+    totalLiabEquity,
+    balanced: Math.abs(assetsTotal - totalLiabEquity) < 0.005,
+  };
 }
