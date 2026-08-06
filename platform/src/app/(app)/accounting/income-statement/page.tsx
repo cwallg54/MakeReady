@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { DateTime } from "luxon";
+import { and, eq, sql as dsql } from "drizzle-orm";
+import { db } from "@/db";
+import { journalEntries } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card } from "@/components/ui";
 import { incomeStatement } from "@/lib/accounting/statements";
@@ -39,10 +42,22 @@ export default async function IncomeStatementPage({ searchParams }: { searchPara
 
   const { revenue, expenses, netIncome } = await incomeStatement(from, to);
 
+  // Flag if any posted entries in this period are modeled estimates, so figures
+  // aren't mistaken for actuals.
+  const [est] = await db.select({ n: dsql<number>`count(*)::int` }).from(journalEntries)
+    .where(and(eq(journalEntries.status, "posted"), eq(journalEntries.source, "estimate"), dsql`${journalEntries.date} >= ${from}`, dsql`${journalEntries.date} <= ${to}`));
+  const hasEstimates = (est?.n ?? 0) > 0;
+
   return (
     <div className="max-w-2xl space-y-6">
       <div className="text-sm"><Link href="/accounting" className="text-neutral-500 hover:text-neutral-900">← Accounting</Link></div>
       <PageHeader title="Income statement" description="Revenue and expenses over a period (profit & loss). From posted journal entries." />
+
+      {hasEstimates && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+          Includes <strong>modeled expense estimates</strong> (tagged &ldquo;estimate&rdquo; in the journal) — revenue is real from the SAP history, but expenses are scaled estimates. Replace with actuals when an expense/GL export is available.
+        </div>
+      )}
 
       <Card>
         <form method="get" className="flex flex-wrap items-end gap-2">
