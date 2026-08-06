@@ -1315,7 +1315,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Raise invoices (from an order or standalone), issue and email them, and record customer payments.",
     who: "Admin, Finance",
     blocks: [
-      { k: "p", text: "The Accounting area is Accounts Receivable — turning delivered work into invoices and collecting on them. Open Accounting from the sidebar for the AR overview (outstanding, overdue, collected), then Invoices, Payments, AR Aging, and Statements." },
+      { k: "p", text: "Accounting is a full double-entry finance platform: Accounts Receivable (invoices, payments, aging, statements), Accounts Payable (vendors & bills), and the general ledger with financial statements. This article covers AR — turning delivered work into invoices and collecting on them. See Accounts Payable for what you owe vendors, and General ledger & financial statements for the books, trial balance, income statement, balance sheet, and cash flow." },
+      { k: "p", text: "Open Accounting from the sidebar for the AR overview (outstanding, overdue, collected), then Invoices, Payments, AR Aging, and Statements." },
       { k: "img", src: "accounting-mobile.png", caption: "The Accounting overview on a phone — stat tiles and overdue invoices as cards." },
       { k: "h", text: "Creating an invoice" },
       {
@@ -1338,11 +1339,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "p", text: "Recording a payment (or issuing/voiding an invoice) keeps the customer's account balance current automatically." },
+      { k: "h", text: "It posts to the ledger for you" },
+      { k: "p", text: "Issuing an invoice posts it to the general ledger automatically — a debit to Accounts Receivable and a credit to Sales Revenue (plus Sales Discounts when discounted). Recording a payment posts a debit to Cash and a credit to Accounts Receivable, and voiding an invoice reverses its posting. So the trial balance and financial statements stay current without any manual journal entries." },
       { k: "h", text: "Voiding" },
       { k: "p", text: "If an invoice was raised in error, use \"Void\" with a reason. A voided invoice is retained for the record but drops out of the balance and aging." },
       { k: "warn", text: "Accounting is limited to Admin and Finance roles." },
     ],
-    related: ["ar-aging-and-statements", "credit-control", "orders-and-production-stages"],
+    related: ["ar-aging-and-statements", "accounts-payable", "general-ledger", "credit-control", "orders-and-production-stages"],
   },
   {
     slug: "ar-aging-and-statements",
@@ -1363,8 +1366,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "tip", text: "You can also reach a customer's statement straight from their Credit Report via the \"Statement\" button." },
+      { k: "p", text: "Both the AR Aging and the customer Statement are formatted like traditional accounting statements — company header, ruled subtotals, and a double-underlined total — with a Print / Save PDF button that prints just the statement." },
     ],
-    related: ["invoicing-and-payments", "credit-control", "standard-reports"],
+    related: ["invoicing-and-payments", "general-ledger", "credit-control", "standard-reports"],
   },
   {
     slug: "credit-control",
