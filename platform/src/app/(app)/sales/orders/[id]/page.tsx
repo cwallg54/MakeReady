@@ -18,15 +18,17 @@ import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
 import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
 import { submitToArtAction } from "@/lib/art/actions";
+import { artReadinessChecklist } from "@/lib/art/gate";
 import { sendToProductionAction } from "@/lib/production/actions";
 import { voidOrderAction } from "@/lib/orders/detail-actions";
 import { createDocumentRequestAction } from "@/lib/documents/actions";
 import { DOC_LABELS } from "@/lib/documents/meta";
 import { desc } from "drizzle-orm";
 
-export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function OrderDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ art?: string }> }) {
   const user = await requireModule("sales");
   const { id } = await params;
+  const { art } = await searchParams;
   const editable = canEdit(user.roles, "sales");
 
   const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
@@ -44,6 +46,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const reachedAt: Partial<Record<OrderStage, string>> = {};
   for (const e of events) if (!reachedAt[e.stage]) reachedAt[e.stage] = fmtDateTime(e.at);
+
+  // Gatekeeper: what's still missing before this order can be handed to art.
+  const artChecklist = artReadinessChecklist(order, specItems, attachments);
 
   // Sales reps for the Order info assignment dropdown.
   const repRows = await db
@@ -77,6 +82,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
           <span className="font-semibold">Order voided.</span> {order.voidReason}
           {order.voidedAt && <span className="text-red-600"> · {fmtDateTime(order.voidedAt)}</span>}
+        </div>
+      )}
+
+      {art === "incomplete" && (
+        <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <span className="font-semibold">Not ready for art yet.</span> Complete the art request checklist below before submitting.
         </div>
       )}
 
@@ -132,19 +143,53 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-semibold text-neutral-900">Art department</h2>
-              <p className="text-xs text-neutral-500">Hand this order to the art team for design, customization, and proofing. The catalogue image and spec go with it.</p>
+              <p className="text-xs text-neutral-500">Hand this order to the art team for design, customization, and proofing — once the request is complete so art never has to chase missing details.</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <form action={submitToArtAction}>
-                <input type="hidden" name="orderId" value={order.id} />
-                <button className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50">Submit to art →</button>
-              </form>
-              <form action={sendToProductionAction}>
-                <input type="hidden" name="orderId" value={order.id} />
-                <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Send to production →</button>
-              </form>
-            </div>
+            <form action={sendToProductionAction}>
+              <input type="hidden" name="orderId" value={order.id} />
+              <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Send to production →</button>
+            </form>
           </div>
+
+          {order.stage === "received" ? (
+            <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Art request checklist</p>
+                <span className={`text-xs font-semibold ${artChecklist.complete ? "text-emerald-600" : "text-amber-600"}`}>
+                  {artChecklist.items.filter((i) => i.done).length}/{artChecklist.items.length} complete
+                </span>
+              </div>
+              <ul className="mt-2 space-y-1.5">
+                {artChecklist.items.map((it) => (
+                  <li key={it.key} className="flex items-start gap-2 text-sm">
+                    <span className={it.done ? "text-emerald-600" : "text-neutral-300"}>{it.done ? "✓" : "○"}</span>
+                    <span className={it.done ? "text-neutral-700" : "text-neutral-500"}>
+                      {it.label}
+                      {!it.done && <span className="block text-xs text-neutral-400">{it.hint}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4">
+                <form action={submitToArtAction}>
+                  <input type="hidden" name="orderId" value={order.id} />
+                  <button
+                    disabled={!artChecklist.complete}
+                    className={`rounded-md px-4 py-2 text-sm font-semibold ${
+                      artChecklist.complete ? "bg-neutral-900 text-white hover:bg-neutral-700" : "cursor-not-allowed border border-neutral-200 bg-neutral-100 text-neutral-400"
+                    }`}
+                  >
+                    Submit to art →
+                  </button>
+                </form>
+                {!artChecklist.complete && (
+                  <p className="mt-2 text-xs text-amber-700">Finish the checklist — fill in Production details and upload artwork in the sections below — before submitting.</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-emerald-700">✓ Submitted to the art department.</p>
+          )}
         </Card>
       )}
 

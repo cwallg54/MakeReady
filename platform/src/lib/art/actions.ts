@@ -5,11 +5,12 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
-import { orders, orderEvents, orderAttachments, orderProofs, artRequests, designItems, userRoles, notifications, activities } from "@/db/schema";
+import { orders, orderEvents, orderAttachments, orderSpecItems, orderProofs, artRequests, designItems, userRoles, notifications, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { notifyTrackerStage } from "@/lib/orders/notify";
+import { artReadinessChecklist } from "./gate";
 import { canDoArt } from "./access";
 
 const ART_STATUSES = ["todo", "in_progress", "proofing", "revisions", "approved", "done"] as const;
@@ -37,6 +38,18 @@ export async function submitToArtAction(formData: FormData): Promise<void> {
   if (!orderId) return;
   const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
   if (!order) return;
+
+  // Gatekeeper: the order can only enter art with a complete request. Enforced
+  // on the initial hand-off (received → art_proof); the UI mirrors this checklist.
+  if (order.stage === "received") {
+    const [specItems, atts] = await Promise.all([
+      db.select().from(orderSpecItems).where(eq(orderSpecItems.orderId, orderId)),
+      db.select({ kind: orderAttachments.kind }).from(orderAttachments).where(eq(orderAttachments.orderId, orderId)),
+    ]);
+    if (!artReadinessChecklist(order, specItems, atts).complete) {
+      redirect(`/sales/orders/${orderId}?art=incomplete`);
+    }
+  }
 
   const existing = await db.query.artRequests.findFirst({ where: eq(artRequests.orderId, orderId) });
   if (!existing) {
