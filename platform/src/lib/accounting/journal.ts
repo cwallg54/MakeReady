@@ -108,11 +108,12 @@ export interface TrialBalanceRow {
   balance: number; // signed on the account's normal side
 }
 
-/** Per-account debit/credit totals and normal-side balance from POSTED entries,
- *  optionally up to a date. The basis for the trial balance & statements. */
-export async function trialBalance(opts: { asOf?: Date } = {}): Promise<TrialBalanceRow[]> {
+/** Per-account debit/credit totals and normal-side balance from POSTED entries
+ *  within an optional date range. Basis for the trial balance & statements. */
+export async function accountTotals(opts: { from?: Date; to?: Date } = {}): Promise<TrialBalanceRow[]> {
   const conds = [eq(journalEntries.status, "posted")];
-  if (opts.asOf) conds.push(sql`${journalEntries.date} <= ${opts.asOf}`);
+  if (opts.from) conds.push(sql`${journalEntries.date} >= ${opts.from}`);
+  if (opts.to) conds.push(sql`${journalEntries.date} <= ${opts.to}`);
   const rows = await db
     .select({
       id: glAccounts.id, code: glAccounts.code, name: glAccounts.name, type: glAccounts.type,
@@ -129,6 +130,11 @@ export async function trialBalance(opts: { asOf?: Date } = {}): Promise<TrialBal
     const debit = Number(r.debit), credit = Number(r.credit);
     return { id: r.id, code: r.code, name: r.name, type: r.type, debit, credit, balance: accountBalance(r.type, debit, credit) };
   });
+}
+
+/** Trial balance: cumulative account balances up to an optional as-of date. */
+export function trialBalance(opts: { asOf?: Date } = {}): Promise<TrialBalanceRow[]> {
+  return accountTotals({ to: opts.asOf });
 }
 
 /** Posted journal lines for one account, oldest first, with a running balance. */
