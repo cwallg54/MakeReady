@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { glAccounts, journalEntries, invoices, payments } from "@/db/schema";
+import { glAccounts, journalEntries, invoices, payments, bills, billLines, billPayments } from "@/db/schema";
 import { createJournal, voidJournal, type DraftLine } from "./journal";
 
 /** Resolve system GL accounts (by system_key) that are active. */
@@ -70,6 +70,55 @@ export async function postPaymentToGl(paymentId: string, userId: string): Promis
     await createJournal({ date: p.receivedDate ?? new Date(), memo: "Customer payment", lines, source: "payment", sourceId: paymentId, post: true }, userId);
   } catch (e) {
     console.error("postPaymentToGl failed", e);
+  }
+}
+
+/** Post an approved vendor bill: Dr each line's expense/asset account /
+ *  Cr Accounts Payable (total). Idempotent, best-effort. */
+export async function postBillToGl(billId: string, userId: string): Promise<void> {
+  try {
+    if (await alreadyPosted("bill", billId)) return;
+    const bill = await db.query.bills.findFirst({ where: eq(bills.id, billId) });
+    if (!bill || bill.voidedAt) return;
+    const total = Number(bill.total);
+    if (total <= 0) return;
+    const acc = await systemAccounts(["ap", "cogs"]);
+    if (!acc.ap) return;
+    const lines = await db.select().from(billLines).where(eq(billLines.billId, billId));
+
+    const draft: DraftLine[] = [];
+    for (const l of lines) {
+      const ext = Number(l.extended);
+      if (ext === 0) continue;
+      const accountId = l.accountId ?? acc.cogs; // fall back to COGS if unset
+      if (!accountId) return;
+      draft.push({ accountId, debit: ext, credit: 0, memo: l.description });
+    }
+    if (!draft.length) return;
+    draft.push({ accountId: acc.ap, debit: 0, credit: total, memo: `Bill ${bill.billNumber}` });
+    await createJournal({ date: bill.issueDate ?? new Date(), memo: `Bill ${bill.billNumber}${bill.vendorRef ? ` (${bill.vendorRef})` : ""}`, lines: draft, source: "bill", sourceId: billId, post: true }, userId);
+  } catch (e) {
+    console.error("postBillToGl failed", e);
+  }
+}
+
+/** Post a vendor payment: Dr Accounts Payable / Cr Cash. */
+export async function postBillPaymentToGl(paymentId: string, userId: string): Promise<void> {
+  try {
+    if (await alreadyPosted("bill_payment", paymentId)) return;
+    const p = await db.query.billPayments.findFirst({ where: eq(billPayments.id, paymentId) });
+    if (!p) return;
+    const amount = Number(p.amount);
+    if (amount <= 0) return;
+    const acc = await systemAccounts(["ap", "cash"]);
+    if (!acc.ap || !acc.cash) return;
+    const ref = (p.reference ?? "").trim();
+    await createJournal({ date: p.paidDate ?? new Date(), memo: "Vendor payment", lines: [
+      { accountId: acc.ap, debit: amount, credit: 0, memo: "Vendor payment" },
+      { accountId: acc.cash, debit: 0, credit: amount, memo: `Payment${ref ? ` ${ref}` : ""}` },
+    ], source: "bill_payment", sourceId: paymentId, post: true }, userId);
+  } catch (e) {
+    console.error("postBillPaymentToGl failed", e);
   }
 }
 

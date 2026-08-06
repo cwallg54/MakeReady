@@ -351,6 +351,13 @@
       "when": 1785997440917,
       "tag": "0049_daffy_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1785997789455,
+      "tag": "0050_useful_vanisher",
+      "breakpoints": true
     }
   ]
 }

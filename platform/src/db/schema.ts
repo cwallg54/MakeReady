@@ -1125,6 +1125,89 @@ export const journalLines = pgTable(
 );
 export type JournalLine = typeof journalLines.$inferSelect;
 
+// ---- Accounts Payable (vendor bills) --------------------------------------
+export const billStatusEnum = pgEnum("bill_status", ["draft", "open", "partial", "paid", "void"]);
+
+export const vendors = pgTable(
+  "vendors",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email"),
+    phone: text("phone"),
+    terms: text("terms"), // e.g. "Net 30"
+    // Default expense/inventory GL account new bill lines suggest for this vendor.
+    defaultAccountId: uuid("default_account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    address: text("address"),
+    notes: text("notes"),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("vendors_name_idx").on(t.name)],
+);
+export type Vendor = typeof vendors.$inferSelect;
+
+export const bills = pgTable(
+  "bills",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    billNumber: text("bill_number").notNull().unique(), // internal, "BILL-00001"
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    vendorRef: text("vendor_ref"), // the vendor's own invoice number
+    status: billStatusEnum("status").notNull().default("draft"),
+    issueDate: timestamp("issue_date", { withTimezone: true }),
+    dueDate: timestamp("due_date", { withTimezone: true }),
+    terms: text("terms"),
+    subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("bills_vendor_idx").on(t.vendorId), index("bills_status_idx").on(t.status)],
+);
+export type Bill = typeof bills.$inferSelect;
+
+export const billLines = pgTable(
+  "bill_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    billId: uuid("bill_id").notNull().references(() => bills.id, { onDelete: "cascade" }),
+    // The GL account this line is charged to (expense, or an asset like Inventory).
+    accountId: uuid("account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    description: text("description").notNull(),
+    qty: numeric("qty", { precision: 14, scale: 2 }).notNull().default("1"),
+    unitPrice: numeric("unit_price", { precision: 14, scale: 2 }).notNull().default("0"),
+    extended: numeric("extended", { precision: 14, scale: 2 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("bill_lines_bill_idx").on(t.billId)],
+);
+export type BillLine = typeof billLines.$inferSelect;
+
+export const billPayments = pgTable(
+  "bill_payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    billId: uuid("bill_id").references(() => bills.id, { onDelete: "set null" }),
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    method: paymentMethodEnum("method").notNull().default("check"),
+    reference: text("reference"),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    paidDate: timestamp("paid_date", { withTimezone: true }).notNull().defaultNow(),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("bill_payments_bill_idx").on(t.billId)],
+);
+export type BillPayment = typeof billPayments.$inferSelect;
+
 // Admin/manager overrides for the built-in reports (title, hidden columns,
 // default filters, sort, hidden sections). One shared row per report key —
 // changes apply for everyone. See src/lib/reports/report-config.ts.
