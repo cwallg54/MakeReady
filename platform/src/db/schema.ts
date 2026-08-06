@@ -1234,6 +1234,22 @@ export const bankTransactions = pgTable(
 );
 export type BankTransaction = typeof bankTransactions.$inferSelect;
 
+// ---- Controlling (management accounting) ----------------------------------
+// Annual budget per GL account, compared to actual postings.
+export const budgets = pgTable(
+  "budgets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    accountId: uuid("account_id").notNull().references(() => glAccounts.id, { onDelete: "cascade" }),
+    fiscalYear: integer("fiscal_year").notNull(),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("budgets_account_year_uk").on(t.accountId, t.fiscalYear)],
+);
+export type Budget = typeof budgets.$inferSelect;
+
 // Admin/manager overrides for the built-in reports (title, hidden columns,
 // default filters, sort, hidden sections). One shared row per report key —
 // changes apply for everyone. See src/lib/reports/report-config.ts.

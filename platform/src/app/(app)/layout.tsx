@@ -37,6 +37,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "crm-bp", label: "Business Partners", href: "/crm", phase1: true },
       { key: "crm-pipeline", label: "Pipeline", href: "/crm/pipeline", phase1: true },
     ],
+    controlling: [
+      { key: "ctrl-overview", label: "Overview", href: "/controlling", phase1: true },
+      { key: "ctrl-profit", label: "Profitability", href: "/controlling/profitability", phase1: true },
+      { key: "ctrl-budget", label: "Budget vs Actual", href: "/controlling/budget", phase1: true },
+    ],
     sales: [
       { key: "sales-quotes", label: "Quotes", href: "/sales", phase1: true },
       { key: "sales-orders", label: "Orders", href: "/sales/orders", phase1: true },
@@ -74,7 +79,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // cluster below Sales, so exclude their base modules from the auto list.
   // Controlling and Asset Accounting are unbuilt finance placeholders — their
   // scope is surfaced on the Accounting hub instead of as empty sidebar items.
-  const HIDDEN_MODULES = new Set(["jobs", "inventory", "controlling", "asset_accounting"]);
+  const HIDDEN_MODULES = new Set(["jobs", "inventory", "asset_accounting"]);
   const visible = visibleModules(user.roles).filter((m) => !HIDDEN_MODULES.has(m.key));
   const items: NavItem[] = visible
     .filter((m) => m.phase1)
