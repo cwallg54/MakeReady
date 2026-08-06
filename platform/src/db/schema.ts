@@ -110,6 +110,10 @@ export const systemSettings = pgTable("system_settings", {
   // Credit approval tier: finance may approve over-limit orders up to this much
   // over the limit; anything above requires an Admin/manager.
   creditApprovalThreshold: numeric("credit_approval_threshold", { precision: 14, scale: 2 }).notNull().default("5000"),
+  // GL period close: journal entries dated on/before this date are locked — they
+  // can't be created-as-posted, posted, or voided. Null = books fully open.
+  glClosingDate: timestamp("gl_closing_date", { withTimezone: true }),
+  glClosingNote: text("gl_closing_note"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });

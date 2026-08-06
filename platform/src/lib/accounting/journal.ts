@@ -1,10 +1,19 @@
 import "server-only";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { journalEntries, journalLines, glAccounts, numberSeries } from "@/db/schema";
+import { journalEntries, journalLines, glAccounts, numberSeries, systemSettings } from "@/db/schema";
 import { accountBalance, type GlAccountType } from "./gl";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** The GL period-close date (entries on/before it are locked), or null. */
+export async function glClosingDate(): Promise<Date | null> {
+  const s = await db.query.systemSettings.findFirst({ columns: { glClosingDate: true } });
+  return s?.glClosingDate ?? null;
+}
+function isLocked(date: Date, closing: Date | null): boolean {
+  return !!closing && date.getTime() <= closing.getTime();
+}
 
 export interface DraftLine {
   accountId: string;
@@ -53,6 +62,7 @@ export async function createJournal(input: CreateJournalInput, userId: string): 
   if (lines.length < 2) return { ok: false, error: "A journal entry needs at least two lines." };
   const t = totals(lines);
   if (input.post && !t.balanced) return { ok: false, error: `Debits (${t.debit.toFixed(2)}) must equal credits (${t.credit.toFixed(2)}).` };
+  if (input.post && isLocked(input.date, await glClosingDate())) return { ok: false, error: "That date is in a closed accounting period. Use a later date or reopen the period." };
 
   // Guard against inactive/unknown accounts.
   const ids = Array.from(new Set(lines.map((l) => l.accountId)));
@@ -82,6 +92,7 @@ export async function postJournal(id: string, userId: string): Promise<{ ok: boo
   const entry = await db.query.journalEntries.findFirst({ where: eq(journalEntries.id, id) });
   if (!entry) return { ok: false, error: "Entry not found." };
   if (entry.status !== "draft") return { ok: false, error: "Only draft entries can be posted." };
+  if (isLocked(entry.date, await glClosingDate())) return { ok: false, error: "This entry's date is in a closed accounting period." };
   const lines = await db.select().from(journalLines).where(eq(journalLines.entryId, id));
   const t = totals(lines.map((l) => ({ accountId: l.accountId, debit: Number(l.debit), credit: Number(l.credit) })));
   if (!t.balanced) return { ok: false, error: "Entry is not balanced." };
@@ -94,6 +105,7 @@ export async function voidJournal(id: string, userId: string, reason: string): P
   const entry = await db.query.journalEntries.findFirst({ where: eq(journalEntries.id, id) });
   if (!entry) return { ok: false, error: "Entry not found." };
   if (entry.status === "void") return { ok: true };
+  if (isLocked(entry.date, await glClosingDate())) return { ok: false, error: "This entry's date is in a closed accounting period and can't be voided." };
   await db.update(journalEntries).set({ status: "void", voidedAt: new Date(), voidReason: reason || "Voided", postedBy: entry.postedBy ?? userId, updatedAt: new Date() }).where(eq(journalEntries.id, id));
   return { ok: true };
 }

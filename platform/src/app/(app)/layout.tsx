@@ -55,6 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "acct-trial", label: "Trial Balance", href: "/accounting/trial-balance", phase1: true },
       { key: "acct-pl", label: "Income Statement", href: "/accounting/income-statement", phase1: true },
       { key: "acct-bs", label: "Balance Sheet", href: "/accounting/balance-sheet", phase1: true },
+      { key: "acct-close", label: "Period Close", href: "/accounting/close", phase1: true },
     ],
   };
 
