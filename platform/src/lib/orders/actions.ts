@@ -11,6 +11,7 @@ import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { sendOrderEmail } from "@/lib/email";
 import { generateOrderPdf } from "./pdf";
+import { notifyTrackerStage } from "./notify";
 import { ORDER_STAGES, type OrderStage } from "./stages";
 
 async function requireSalesEdit() {
@@ -28,6 +29,7 @@ export async function setOrderStageAction(formData: FormData): Promise<void> {
 
   const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
   if (!order) return;
+  const changed = order.stage !== stage;
 
   await db.update(orders).set({ stage, updatedAt: new Date() }).where(eq(orders.id, id));
   await db.insert(orderEvents).values({ orderId: id, stage, byUserId: user.id });
@@ -37,6 +39,7 @@ export async function setOrderStageAction(formData: FormData): Promise<void> {
     revalidatePath(`/crm/${order.bpId}`);
   }
   await audit({ userId: user.id, action: "order.stage", entityType: "order", entityId: id, metadata: { stage } });
+  if (changed) await notifyTrackerStage(id, stage);
   revalidatePath(`/sales/orders/${id}`);
   revalidatePath("/sales/orders");
 }

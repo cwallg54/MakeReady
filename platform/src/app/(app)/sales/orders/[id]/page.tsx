@@ -20,6 +20,8 @@ import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
 import { submitToArtAction } from "@/lib/art/actions";
 import { sendToProductionAction } from "@/lib/production/actions";
 import { voidOrderAction } from "@/lib/orders/detail-actions";
+import { createDocumentRequestAction } from "@/lib/documents/actions";
+import { DOC_LABELS } from "@/lib/documents/meta";
 import { desc } from "drizzle-orm";
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -53,6 +55,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   // Accounts-receivable: whether this user can invoice, and any existing invoice.
   const canInvoice = canEdit(user.roles, "accounting");
+  const canRequestDoc = canEdit(user.roles, "crm") && !voided && !!order.bpId;
   const existingInvoice = canInvoice ? await db.query.invoices.findFirst({ where: eq(invoices.orderId, id), columns: { id: true, invoiceNumber: true, status: true } }) : null;
 
   const base = process.env.APP_URL ?? "https://makeready.g54.com";
@@ -199,6 +202,25 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </ul>
         </Card>
       </div>
+
+      {canRequestDoc && (
+        <Card className="mt-6">
+          <h2 className="mb-1 text-sm font-semibold text-neutral-900">Request a document from the customer</h2>
+          <p className="mb-3 text-xs text-neutral-500">Adds an item to this order&apos;s tracker and emails the customer a secure link to complete it — nothing is sent by email itself.</p>
+          <form action={createDocumentRequestAction} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <input type="hidden" name="bpId" value={order.bpId!} />
+            <input type="hidden" name="orderId" value={order.id} />
+            <label className="flex-1 text-xs text-neutral-500">
+              Document
+              <select name="docType" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand">
+                <option value="terms_application">{DOC_LABELS.terms_application}</option>
+                <option value="credit_card_application">{DOC_LABELS.credit_card_application}</option>
+              </select>
+            </label>
+            <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Request document</button>
+          </form>
+        </Card>
+      )}
 
       {canAct && (
         <Card className="mt-6 border-red-200">

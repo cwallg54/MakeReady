@@ -48,6 +48,31 @@ export async function sendOrderEmail(to: string, orderNumber: string, attachment
   );
 }
 
+/** Point the customer back to their single order-tracker link — on a stage
+ *  change or when something new needs their attention. Returns true if sent. */
+export async function sendOrderTrackerEmail(
+  to: string,
+  opts: { orderNumber: string; url: string; subject: string; headline: string; body: string; actionNeeded?: boolean },
+): Promise<boolean> {
+  const { orderNumber, url, subject, headline, body, actionNeeded } = opts;
+  const accent = actionNeeded ? "#f59e0b" : "#111827";
+  const cta = actionNeeded ? "Review &amp; respond" : "View your order";
+  return sendEmail(
+    to,
+    subject,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;margin:0 0 4px">Order ${orderNumber}</p>
+       <h1 style="font-size:18px;color:#111827;margin:0 0 8px">${headline}</h1>
+       <p style="color:#374151;font-size:14px;line-height:1.5">${body}</p>
+       <p style="margin:20px 0">
+         <a href="${url}" style="display:inline-block;background:${accent};color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:10px 20px;border-radius:8px">${cta} &rarr;</a>
+       </p>
+       <p style="color:#6b7280;font-size:12px">Or paste this link into your browser:<br><a href="${url}" style="color:#2563eb">${url}</a></p>
+       <p style="color:#9ca3af;font-size:12px;margin-top:24px">MakeReady by G54 &middot; Commercial Print &amp; Production</p>
+     </div>`,
+  );
+}
+
 /** Store order — confirmation to the customer. */
 export async function sendStoreOrderConfirmation(
   to: string,

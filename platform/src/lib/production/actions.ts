@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { orders, orderEvents, productionJobs, userRoles, notifications, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
-
+import { notifyTrackerStage } from "@/lib/orders/notify";
 import { audit } from "@/lib/audit";
 
 const PROD_STATUSES = ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"] as const;
@@ -52,6 +52,7 @@ async function syncOrderStage(orderId: string, stage: "production" | "quality" |
   await db.update(orders).set({ stage, updatedAt: new Date() }).where(eq(orders.id, orderId));
   await db.insert(orderEvents).values({ orderId, stage, byUserId: userId, note: "Production update" });
   if (order.bpId) revalidatePath(`/crm/${order.bpId}`);
+  await notifyTrackerStage(orderId, stage);
 }
 
 /** Hand an order to production — creates the job, moves the order into the

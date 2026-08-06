@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { notifyTracker } from "./notify";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -24,11 +25,12 @@ export async function createProofAction(formData: FormData): Promise<void> {
   const attachmentId = String(formData.get("attachmentId") ?? "") || null;
   if (!orderId) return;
 
+  const title = String(formData.get("title") ?? "").trim() || "Proof";
   await db.insert(orderProofs).values({
     orderId,
     attachmentId,
     token: randomBytes(24).toString("hex"),
-    title: String(formData.get("title") ?? "").trim() || "Proof",
+    title,
     message: String(formData.get("message") ?? "").trim() || null,
     requestedBy: user.id,
   });
@@ -38,6 +40,12 @@ export async function createProofAction(formData: FormData): Promise<void> {
     revalidatePath(`/crm/${order.bpId}`);
   }
   await audit({ userId: user.id, action: "proof.create", entityType: "order", entityId: orderId });
+  await notifyTracker(orderId, {
+    subject: `Action needed — proof ready to approve for order ${order?.orderNumber ?? ""}`.trim(),
+    headline: "A proof is ready for your approval",
+    body: `We&rsquo;ve prepared a proof (&ldquo;${title}&rdquo;) for your order. Please review it and approve or request changes on your order page.`,
+    actionNeeded: true,
+  });
   revalidatePath(`/sales/orders/${orderId}`);
 }
 

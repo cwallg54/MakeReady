@@ -9,6 +9,7 @@ import { orders, orderEvents, orderAttachments, orderProofs, artRequests, design
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { notifyTrackerStage } from "@/lib/orders/notify";
 import { canDoArt } from "./access";
 
 const ART_STATUSES = ["todo", "in_progress", "proofing", "revisions", "approved", "done"] as const;
@@ -47,7 +48,8 @@ export async function submitToArtAction(formData: FormData): Promise<void> {
       createdBy: user.id,
     });
   }
-  if (order.stage === "received") {
+  const movedToArt = order.stage === "received";
+  if (movedToArt) {
     await db.update(orders).set({ stage: "art_proof", updatedAt: new Date() }).where(eq(orders.id, orderId));
     await db.insert(orderEvents).values({ orderId, stage: "art_proof", byUserId: user.id, note: "Submitted to art department" });
   }
@@ -61,6 +63,7 @@ export async function submitToArtAction(formData: FormData): Promise<void> {
     revalidatePath(`/crm/${order.bpId}`);
   }
   await audit({ userId: user.id, action: "art.submit", entityType: "order", entityId: orderId });
+  if (movedToArt) await notifyTrackerStage(orderId, "art_proof");
   revalidatePath(`/sales/orders/${orderId}`);
   revalidatePath("/art");
 }

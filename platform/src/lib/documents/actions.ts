@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
+import { notifyTracker } from "@/lib/orders/notify";
 import { DOC_LABELS } from "./meta";
 
 async function requireCrmEdit() {
@@ -32,6 +33,16 @@ export async function createDocumentRequestAction(formData: FormData): Promise<v
   await db.insert(customerDocuments).values({ bpId, orderId, docType: dt, token, requestedBy: user.id });
   await db.insert(activities).values({ bpId, userId: user.id, type: "other", isSystem: true, content: `Requested ${DOC_LABELS[dt]} from customer` });
   await audit({ userId: user.id, action: "document.request", entityType: "business_partner", entityId: bpId, metadata: { docType, orderId } });
+  // If tied to an order, nudge the customer to their tracker where they can fill it in.
+  if (orderId) {
+    await notifyTracker(orderId, {
+      subject: `Action needed — please complete your ${DOC_LABELS[dt]}`,
+      headline: `Please complete your ${DOC_LABELS[dt]}`,
+      body: `We need you to complete and submit your ${DOC_LABELS[dt]}. You can fill it out securely on your order page &mdash; nothing you enter is sent by email.`,
+      actionNeeded: true,
+    });
+    revalidatePath(`/sales/orders/${orderId}`);
+  }
   revalidatePath(`/crm/${bpId}`);
 }
 
