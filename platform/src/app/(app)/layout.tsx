@@ -73,17 +73,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Controlling and Asset Accounting are unbuilt finance placeholders — their
   // scope is surfaced on the Accounting hub instead of as empty sidebar items.
   const HIDDEN_MODULES = new Set(["jobs", "inventory", "controlling", "asset_accounting"]);
-  const items: NavItem[] = visibleModules(user.roles)
-    .filter((m) => !HIDDEN_MODULES.has(m.key))
+  const visible = visibleModules(user.roles).filter((m) => !HIDDEN_MODULES.has(m.key));
+  const items: NavItem[] = visible
+    .filter((m) => m.phase1)
     .map((m) => {
-      const children = m.phase1 ? SUBMENUS[m.key] : undefined;
-      return {
-        key: m.key,
-        label: m.label,
-        href: children ? undefined : m.phase1 ? m.href : `/module/${m.key}`,
-        phase1: m.phase1,
-        children,
-      };
+      const children = SUBMENUS[m.key];
+      return { key: m.key, label: m.label, href: children ? undefined : m.href, phase1: true, children };
     });
 
   // Operations cluster — placed directly below Sales in the sidebar.
@@ -96,6 +91,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     const salesIdx = items.findIndex((i) => i.key === "sales");
     items.splice(salesIdx >= 0 ? salesIdx + 1 : items.length, 0, ...ops);
   }
+  // Not-yet-built modules collapse into a single "Coming Soon" group so they
+  // don't clutter the main sidebar.
+  const soon = visible.filter((m) => !m.phase1);
+  if (soon.length) {
+    items.push({
+      key: "soon",
+      label: "Coming Soon",
+      phase1: true,
+      children: soon.map((m) => ({ key: m.key, label: m.label, href: `/module/${m.key}`, phase1: false })),
+    });
+  }
+
   // Help Center — available to everyone.
   items.push({ key: "help", label: "Help", href: "/help", phase1: true });
 
