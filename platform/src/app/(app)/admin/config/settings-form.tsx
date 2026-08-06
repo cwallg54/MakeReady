@@ -18,6 +18,7 @@ export function SettingsForm({
   sessionTimeoutMinutes,
   requireMfa,
   creditApprovalThreshold,
+  defaultTaxRatePct,
 }: {
   companyName: string;
   legalName: string;
@@ -26,6 +27,7 @@ export function SettingsForm({
   sessionTimeoutMinutes: number;
   requireMfa: boolean;
   creditApprovalThreshold: number;
+  defaultTaxRatePct: number;
 }) {
   const [state, action] = useActionState<AdminState, FormData>(updateSettingsAction, {});
   return (
@@ -61,6 +63,15 @@ export function SettingsForm({
           min={0}
           defaultValue={creditApprovalThreshold}
           hint="Finance can approve orders up to this much over a customer's limit; more needs an Admin"
+        />
+        <AdminField
+          label="Default sales-tax rate (%)"
+          name="defaultTaxRatePct"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={defaultTaxRatePct}
+          hint="Applied to new invoices; can be overridden per invoice"
         />
       </div>
       <label className="flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">

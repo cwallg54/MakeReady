@@ -114,6 +114,8 @@ export const systemSettings = pgTable("system_settings", {
   // can't be created-as-posted, posted, or voided. Null = books fully open.
   glClosingDate: timestamp("gl_closing_date", { withTimezone: true }),
   glClosingNote: text("gl_closing_note"),
+  // Default sales-tax rate applied to new invoices (e.g. 0.0725 = 7.25%).
+  defaultTaxRate: numeric("default_tax_rate", { precision: 6, scale: 4 }).notNull().default("0"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });
@@ -991,6 +993,9 @@ export const invoices = pgTable(
     terms: text("terms"), // e.g. "Net 30"
     subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
     discount: numeric("discount", { precision: 14, scale: 2 }).notNull().default("0"),
+    // Sales tax: the rate applied (e.g. 0.0725) and the computed tax amount.
+    taxRate: numeric("tax_rate", { precision: 6, scale: 4 }).notNull().default("0"),
+    tax: numeric("tax", { precision: 14, scale: 2 }).notNull().default("0"),
     total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
     notes: text("notes"),
     voidedAt: timestamp("voided_at", { withTimezone: true }),

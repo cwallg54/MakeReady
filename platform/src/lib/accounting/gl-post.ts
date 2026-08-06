@@ -31,21 +31,23 @@ export async function postInvoiceToGl(invoiceId: string, userId: string): Promis
     if (await alreadyPosted("invoice", invoiceId)) return;
     const inv = await db.query.invoices.findFirst({ where: eq(invoices.id, invoiceId) });
     if (!inv || inv.voidedAt) return;
-    const total = Number(inv.total), subtotal = Number(inv.subtotal), discount = Number(inv.discount);
+    const total = Number(inv.total), subtotal = Number(inv.subtotal), discount = Number(inv.discount), tax = Number(inv.tax);
     if (subtotal <= 0) return;
-    const acc = await systemAccounts(["ar", "sales", "sales_discounts"]);
+    const acc = await systemAccounts(["ar", "sales", "sales_discounts", "sales_tax"]);
     if (!acc.ar || !acc.sales) return; // GL not configured yet
 
+    // Dr AR (total incl. tax) / Cr Sales (net revenue) / Cr Sales Tax Payable /
+    // Dr Sales Discounts. Revenue is recognised net of discount when there's no
+    // discounts account.
+    const revenue = discount > 0 && acc.sales_discounts ? subtotal : subtotal - discount;
     const lines: DraftLine[] = [
       { accountId: acc.ar, debit: total, credit: 0, memo: `Invoice ${inv.invoiceNumber}` },
+      { accountId: acc.sales, debit: 0, credit: revenue, memo: `Invoice ${inv.invoiceNumber}` },
     ];
-    if (discount > 0 && acc.sales_discounts) {
-      lines.push({ accountId: acc.sales, debit: 0, credit: subtotal, memo: `Invoice ${inv.invoiceNumber}` });
-      lines.push({ accountId: acc.sales_discounts, debit: discount, credit: 0, memo: `Discount ${inv.invoiceNumber}` });
-    } else {
-      // No discounts account (or no discount): recognise revenue at the net total.
-      lines.push({ accountId: acc.sales, debit: 0, credit: total, memo: `Invoice ${inv.invoiceNumber}` });
-    }
+    if (discount > 0 && acc.sales_discounts) lines.push({ accountId: acc.sales_discounts, debit: discount, credit: 0, memo: `Discount ${inv.invoiceNumber}` });
+    if (tax > 0 && acc.sales_tax) lines.push({ accountId: acc.sales_tax, debit: 0, credit: tax, memo: `Sales tax ${inv.invoiceNumber}` });
+    else if (tax > 0) lines[0].debit = total - tax; // no tax account: keep AR to the taxable total so it balances
+
     await createJournal({ date: inv.issueDate ?? new Date(), memo: `Invoice ${inv.invoiceNumber}`, lines, source: "invoice", sourceId: invoiceId, post: true }, userId);
   } catch (e) {
     console.error("postInvoiceToGl failed", e);

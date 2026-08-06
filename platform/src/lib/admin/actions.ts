@@ -214,6 +214,7 @@ const settingsSchema = z.object({
   fiscalYearStartMonth: z.coerce.number().int().min(1).max(12),
   sessionTimeoutMinutes: z.coerce.number().int().min(5).max(1440),
   creditApprovalThreshold: z.coerce.number().min(0).max(10_000_000),
+  defaultTaxRatePct: z.coerce.number().min(0).max(100),
 });
 
 export async function updateSettingsAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
@@ -225,12 +226,13 @@ export async function updateSettingsAction(_prev: AdminState, formData: FormData
     fiscalYearStartMonth: formData.get("fiscalYearStartMonth"),
     sessionTimeoutMinutes: formData.get("sessionTimeoutMinutes"),
     creditApprovalThreshold: formData.get("creditApprovalThreshold") ?? 5000,
+    defaultTaxRatePct: formData.get("defaultTaxRatePct") ?? 0,
   });
   if (!parsed.success) return { error: "Please check the configuration values." };
 
   const requireMfa = formData.get("requireMfa") === "on";
-  const { creditApprovalThreshold, ...rest } = parsed.data;
-  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold) };
+  const { creditApprovalThreshold, defaultTaxRatePct, ...rest } = parsed.data;
+  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold), defaultTaxRate: (defaultTaxRatePct / 100).toFixed(4) };
 
   await db
     .insert(systemSettings)

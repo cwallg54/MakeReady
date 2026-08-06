@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { invoices, invoiceLines, payments, numberSeries, orders, quoteLines, businessPartners, contacts, activities } from "@/db/schema";
+import { invoices, invoiceLines, payments, numberSeries, orders, quoteLines, businessPartners, contacts, activities, systemSettings } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -45,6 +45,11 @@ function termsDays(terms: string | null | undefined): number {
   return m ? Number(m[1]) : 30;
 }
 
+async function defaultTaxRate(): Promise<string> {
+  const s = await db.query.systemSettings.findFirst({ columns: { defaultTaxRate: true } });
+  return s?.defaultTaxRate ?? "0";
+}
+
 async function nextInvoiceNumber(): Promise<string> {
   return db.transaction(async (tx) => {
     let s = await tx.query.numberSeries.findFirst({ where: eq(numberSeries.documentType, "invoice") });
@@ -55,13 +60,16 @@ async function nextInvoiceNumber(): Promise<string> {
   });
 }
 
-/** Recompute an invoice's stored subtotal/total from its lines + discount. */
+/** Recompute an invoice's stored subtotal/tax/total from its lines, discount,
+ *  and tax rate. Tax applies to the discounted subtotal. */
 async function recomputeInvoiceTotals(invoiceId: string): Promise<void> {
   const [row] = await db.select({ subtotal: sql<string>`COALESCE(SUM(${invoiceLines.extended}), 0)` }).from(invoiceLines).where(eq(invoiceLines.invoiceId, invoiceId));
-  const inv = await db.query.invoices.findFirst({ where: eq(invoices.id, invoiceId), columns: { discount: true } });
+  const inv = await db.query.invoices.findFirst({ where: eq(invoices.id, invoiceId), columns: { discount: true, taxRate: true } });
   const subtotal = Number(row?.subtotal ?? 0);
-  const total = subtotal - Number(inv?.discount ?? 0);
-  await db.update(invoices).set({ subtotal: String(subtotal.toFixed(2)), total: String(total.toFixed(2)), updatedAt: new Date() }).where(eq(invoices.id, invoiceId));
+  const taxable = subtotal - Number(inv?.discount ?? 0);
+  const tax = Math.round(taxable * Number(inv?.taxRate ?? 0) * 100) / 100;
+  const total = taxable + tax;
+  await db.update(invoices).set({ subtotal: subtotal.toFixed(2), tax: tax.toFixed(2), total: total.toFixed(2), updatedAt: new Date() }).where(eq(invoices.id, invoiceId));
 }
 
 // ---- Create ---------------------------------------------------------------
@@ -82,6 +90,7 @@ export async function createInvoiceFromOrderAction(formData: FormData): Promise<
     bpId: order.bpId,
     orderId,
     terms: bp?.paymentTerms ?? "Net 30",
+    taxRate: await defaultTaxRate(),
     createdBy: user.id,
   }).returning({ id: invoices.id });
 
@@ -104,7 +113,7 @@ export async function createBlankInvoiceAction(formData: FormData): Promise<void
   const bpId = str(formData.get("bpId"));
   const bp = bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId) }) : null;
   const invoiceNumber = await nextInvoiceNumber();
-  const [inv] = await db.insert(invoices).values({ invoiceNumber, bpId, terms: bp?.paymentTerms ?? "Net 30", createdBy: user.id }).returning({ id: invoices.id });
+  const [inv] = await db.insert(invoices).values({ invoiceNumber, bpId, terms: bp?.paymentTerms ?? "Net 30", taxRate: await defaultTaxRate(), createdBy: user.id }).returning({ id: invoices.id });
   await audit({ userId: user.id, action: "invoice.create", entityType: "invoice", entityId: inv.id });
   redirect(`/accounting/invoices/${inv.id}`);
 }
@@ -116,11 +125,14 @@ export async function updateInvoiceMetaAction(formData: FormData): Promise<void>
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const dueStr = String(formData.get("dueDate") ?? "").trim();
+  // Accept a tax rate as a percent (e.g. 7.25) and store it as a fraction.
+  const taxPct = num(formData.get("taxRatePct"));
   await db.update(invoices).set({
     bpId: str(formData.get("bpId")),
     terms: str(formData.get("terms")),
     dueDate: dueStr ? new Date(dueStr + "T12:00:00") : null,
     discount: String(num(formData.get("discount")).toFixed(2)),
+    taxRate: (Math.max(0, taxPct) / 100).toFixed(4),
     notes: str(formData.get("notes")),
     updatedAt: new Date(),
   }).where(eq(invoices.id, id));

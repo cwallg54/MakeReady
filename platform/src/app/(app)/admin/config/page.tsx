@@ -19,6 +19,7 @@ export default async function ConfigPage() {
           sessionTimeoutMinutes={settings?.sessionTimeoutMinutes ?? 60}
           requireMfa={settings?.requireMfa ?? false}
           creditApprovalThreshold={Number(settings?.creditApprovalThreshold ?? 5000)}
+          defaultTaxRatePct={Number(settings?.defaultTaxRate ?? 0) * 100}
         />
       </Card>
 

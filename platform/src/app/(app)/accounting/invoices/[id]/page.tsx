@@ -84,6 +84,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             <label><span className={lbl}>Terms</span><input name="terms" defaultValue={inv.terms ?? ""} placeholder="Net 30" className={`mt-1 ${inp}`} /></label>
             <label><span className={lbl}>Due date</span><input name="dueDate" type="date" defaultValue={due} className={`mt-1 ${inp}`} /></label>
             <label><span className={lbl}>Discount $</span><input name="discount" type="number" step="0.01" min="0" defaultValue={inv.discount} className={`mt-1 ${inp}`} /></label>
+            <label><span className={lbl}>Tax rate %</span><input name="taxRatePct" type="number" step="0.001" min="0" defaultValue={(Number(inv.taxRate) * 100).toFixed(3).replace(/\.?0+$/, "")} className={`mt-1 ${inp}`} /></label>
             <label className="sm:col-span-3"><span className={lbl}>Notes</span><input name="notes" defaultValue={inv.notes ?? ""} className={`mt-1 ${inp}`} /></label>
             <div className="sm:col-span-4"><button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Save details</button></div>
           </form>
@@ -129,6 +130,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         <div className="mt-4 ml-auto max-w-xs space-y-1 text-sm">
           <div className="flex justify-between"><span className="text-neutral-500">Subtotal</span><span className="tabular-nums">{money(Number(inv.subtotal))}</span></div>
           {Number(inv.discount) > 0 && <div className="flex justify-between"><span className="text-neutral-500">Discount</span><span className="tabular-nums">−{money(Number(inv.discount))}</span></div>}
+          {Number(inv.tax) > 0 && <div className="flex justify-between"><span className="text-neutral-500">Sales tax ({(Number(inv.taxRate) * 100).toFixed(3).replace(/\.?0+$/, "")}%)</span><span className="tabular-nums">{money(Number(inv.tax))}</span></div>}
           <div className="flex justify-between border-t border-neutral-200 pt-1 font-semibold text-neutral-900"><span>Total</span><span className="tabular-nums">{money(Number(inv.total))}</span></div>
           <div className="flex justify-between"><span className="text-neutral-500">Paid</span><span className="tabular-nums text-emerald-700">{money(paid)}</span></div>
           <div className="flex justify-between font-semibold"><span>Balance</span><span className="tabular-nums">{money(balance)}</span></div>
