@@ -63,8 +63,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "acct-pl", label: "Income Statement", href: "/accounting/income-statement", phase1: true },
       { key: "acct-bs", label: "Balance Sheet", href: "/accounting/balance-sheet", phase1: true },
       { key: "acct-cf", label: "Cash Flow", href: "/accounting/cash-flow", phase1: true },
-      { key: "acct-h-close", label: "Period", phase1: true, header: true },
+      { key: "acct-h-close", label: "Close & Setup", phase1: true, header: true },
       { key: "acct-close", label: "Period Close", href: "/accounting/close", phase1: true },
+      { key: "acct-import", label: "Import / Migrate", href: "/accounting/import", phase1: true },
     ],
   };
 
