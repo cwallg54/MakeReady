@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { refreshInvoice, recomputeAccountBalance } from "./ar";
+import { postInvoiceToGl, postPaymentToGl, reverseGlForSource } from "./gl-post";
 import { generateInvoicePdf } from "./invoice-pdf";
 import { generateStatementPdf } from "./statement-pdf";
 import { sendInvoiceEmail, sendStatementEmail } from "@/lib/email";
@@ -172,6 +173,7 @@ export async function sendInvoiceAction(formData: FormData): Promise<void> {
   const due = inv.dueDate ?? new Date(issue.getTime() + termsDays(inv.terms) * 86_400_000);
   await db.update(invoices).set({ issueDate: issue, dueDate: due, updatedAt: new Date() }).where(eq(invoices.id, id));
   await refreshInvoice(id);
+  await postInvoiceToGl(id, user.id); // Dr AR / Cr Sales — idempotent, best-effort
   if (inv.bpId) {
     await db.insert(activities).values({ bpId: inv.bpId, userId: user.id, type: "note", isSystem: true, content: `Invoice ${inv.invoiceNumber} issued — ${inv.total} due ${due.toLocaleDateString("en-US")}` });
     revalidatePath(`/crm/${inv.bpId}`);
@@ -188,7 +190,7 @@ export async function recordPaymentAction(formData: FormData): Promise<void> {
   if (amount <= 0) return;
   const method = String(formData.get("method") ?? "check");
   const dateStr = String(formData.get("receivedDate") ?? "").trim();
-  await db.insert(payments).values({
+  const [pay] = await db.insert(payments).values({
     invoiceId,
     bpId,
     amount: String(amount.toFixed(2)),
@@ -197,7 +199,8 @@ export async function recordPaymentAction(formData: FormData): Promise<void> {
     receivedDate: dateStr ? new Date(dateStr + "T12:00:00") : new Date(),
     notes: str(formData.get("notes")),
     createdBy: user.id,
-  });
+  }).returning({ id: payments.id });
+  await postPaymentToGl(pay.id, user.id); // Dr Cash / Cr AR — idempotent, best-effort
   if (invoiceId) await refreshInvoice(invoiceId);
   else if (bpId) await recomputeAccountBalance(bpId);
   await audit({ userId: user.id, action: "payment.record", entityType: "invoice", entityId: invoiceId ?? bpId ?? "", metadata: { amount } });
@@ -217,6 +220,7 @@ export async function emailInvoiceAction(formData: FormData): Promise<void> {
     const due = inv.dueDate ?? new Date(Date.now() + termsDays(inv.terms) * 86_400_000);
     await db.update(invoices).set({ issueDate: new Date(), dueDate: due, updatedAt: new Date() }).where(eq(invoices.id, id));
     await refreshInvoice(id);
+    await postInvoiceToGl(id, user.id); // issue-on-email also posts to the GL
   }
   const to = await recipientFor(inv.bpId);
   const pdf = await generateInvoicePdf(id);
@@ -277,6 +281,7 @@ export async function voidInvoiceAction(formData: FormData): Promise<void> {
   const inv = await db.query.invoices.findFirst({ where: eq(invoices.id, id) });
   if (!inv || inv.voidedAt) return;
   await db.update(invoices).set({ voidedAt: new Date(), voidReason: reason || "Voided", status: "void", updatedAt: new Date() }).where(eq(invoices.id, id));
+  await reverseGlForSource("invoice", id, user.id, `Invoice ${inv.invoiceNumber} voided`); // reverse its GL posting
   if (inv.bpId) await recomputeAccountBalance(inv.bpId);
   await audit({ userId: user.id, action: "invoice.void", entityType: "invoice", entityId: id, metadata: { reason } });
   revalidatePath(`/accounting/invoices/${id}`);
