@@ -49,6 +49,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "acct-aging", label: "AR Aging", href: "/accounting/aging", phase1: true },
       { key: "acct-statements", label: "Statements", href: "/accounting/statements", phase1: true },
       { key: "acct-credit", label: "Credit Requests", href: "/accounting/credit-requests", phase1: true },
+      { key: "acct-chart", label: "Chart of Accounts", href: "/accounting/chart", phase1: true },
     ],
   };
 

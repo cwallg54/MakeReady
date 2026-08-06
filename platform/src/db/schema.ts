@@ -254,6 +254,10 @@ export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "cancele
 // AR invoice lifecycle: draft -> sent -> (partial ->) paid, or void.
 export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "partial", "paid", "void"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["check", "ach", "card", "cash", "credit", "other"]);
+// General ledger: the five fundamental account types. Asset & expense accounts
+// are debit-normal; liability, equity & revenue are credit-normal.
+export const glAccountTypeEnum = pgEnum("gl_account_type", ["asset", "liability", "equity", "revenue", "expense"]);
+export const journalStatusEnum = pgEnum("journal_status", ["draft", "posted", "void"]);
 export const creditRequestReasonEnum = pgEnum("credit_request_reason", ["hold", "over_limit"]);
 export const creditRequestStatusEnum = pgEnum("credit_request_status", ["pending", "approved", "denied"]);
 // Design-library (barcode book) statuses. A design item isn't orderable until
@@ -1054,6 +1058,68 @@ export const creditApprovalRequests = pgTable(
   (t) => [index("credit_requests_status_idx").on(t.status), index("credit_requests_bp_idx").on(t.bpId)],
 );
 export type CreditApprovalRequest = typeof creditApprovalRequests.$inferSelect;
+
+// ---- General Ledger (double-entry) ----------------------------------------
+// Chart of accounts, journal entries, and their balanced debit/credit lines.
+// Posted journal lines ARE the general ledger; account balances and the trial
+// balance / financial statements are derived from them.
+export const glAccounts = pgTable(
+  "gl_accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // e.g. "1000", "4000"
+    name: text("name").notNull(),
+    type: glAccountTypeEnum("type").notNull(),
+    subtype: text("subtype"), // free-form grouping, e.g. "Current Asset", "COGS"
+    description: text("description"),
+    active: boolean("active").notNull().default(true),
+    // Marks system accounts used by auto-posting (AR, sales, cash…) so they
+    // aren't deleted; the key is a stable slug like "ar", "sales", "cash".
+    systemKey: text("system_key").unique(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("gl_accounts_type_idx").on(t.type)],
+);
+export type GlAccount = typeof glAccounts.$inferSelect;
+
+export const journalEntries = pgTable(
+  "journal_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entryNumber: text("entry_number").notNull().unique(), // "JE-00001"
+    date: timestamp("date", { withTimezone: true }).notNull().defaultNow(), // effective posting date
+    memo: text("memo"),
+    status: journalStatusEnum("status").notNull().default("draft"),
+    // Provenance: "manual" or an auto-post source ("invoice", "payment", …).
+    source: text("source").notNull().default("manual"),
+    sourceId: uuid("source_id"), // the invoice/payment/etc. this was posted from
+    postedAt: timestamp("posted_at", { withTimezone: true }),
+    postedBy: uuid("posted_by").references(() => users.id),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("journal_entries_status_idx").on(t.status), index("journal_entries_date_idx").on(t.date), index("journal_entries_source_idx").on(t.source, t.sourceId)],
+);
+export type JournalEntry = typeof journalEntries.$inferSelect;
+
+export const journalLines = pgTable(
+  "journal_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entryId: uuid("entry_id").notNull().references(() => journalEntries.id, { onDelete: "cascade" }),
+    accountId: uuid("account_id").notNull().references(() => glAccounts.id),
+    debit: numeric("debit", { precision: 14, scale: 2 }).notNull().default("0"),
+    credit: numeric("credit", { precision: 14, scale: 2 }).notNull().default("0"),
+    memo: text("memo"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("journal_lines_entry_idx").on(t.entryId), index("journal_lines_account_idx").on(t.accountId)],
+);
+export type JournalLine = typeof journalLines.$inferSelect;
 
 // Admin/manager overrides for the built-in reports (title, hidden columns,
 // default filters, sort, hidden sections). One shared row per report key —
