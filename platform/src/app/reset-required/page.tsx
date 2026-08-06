@@ -11,7 +11,7 @@ export default async function ResetRequiredPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 px-4 text-neutral-100">
       <div className="w-full max-w-sm">
-        <Logo className="mb-8 text-white" markClassName="h-20 w-auto" />
+        <Logo dark className="mb-8 text-white" markClassName="h-20 w-auto" />
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-6 shadow-xl">
           <h1 className="text-lg font-semibold text-white">Update your password</h1>
           <p className="mt-1 mb-4 text-sm text-neutral-400">

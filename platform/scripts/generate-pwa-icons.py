@@ -32,6 +32,12 @@ for y in range(h):
 mark = im.crop((0, 0, w, mark_bottom))
 mark = mark.crop(mark.getbbox())
 
+# The artwork is black; recolor the mark white so it reads on the navy tile
+# (keep its alpha shape).
+white_mark = Image.new("RGBA", mark.size, (255, 255, 255, 0))
+white_mark.putalpha(mark.getchannel("A"))
+mark = white_mark
+
 def render(size):
     canvas = Image.new("RGBA", (size, size), NAVY)  # full-bleed (any + maskable)
     scale = min(size * 0.64 / mark.width, size * 0.64 / mark.height)
