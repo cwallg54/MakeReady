@@ -25,6 +25,8 @@ export interface HelpArticle {
   who?: string;
   blocks: HelpBlock[];
   related?: string[];
+  /** Sort weight within the section (lower first); unset keeps source order. */
+  order?: number;
 }
 
 export const HELP_SECTIONS = [
@@ -1256,6 +1258,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "general-ledger",
     title: "General ledger & financial statements",
     section: "Accounting",
+    order: 6,
     summary: "The double-entry books — chart of accounts, journal entries, trial balance, income statement, and balance sheet.",
     who: "Admin, Finance",
     blocks: [
@@ -1289,6 +1292,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "accounts-payable",
     title: "Accounts Payable — vendors & bills",
     section: "Accounting",
+    order: 5,
     summary: "Track what you owe: set up vendors, enter and approve bills, record vendor payments — all posting to the general ledger.",
     who: "Admin, Finance",
     blocks: [
@@ -1342,6 +1346,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "invoicing-and-payments",
     title: "Invoicing & payments",
     section: "Accounting",
+    order: 1,
     summary: "Raise invoices (from an order or standalone), issue and email them, and record customer payments.",
     who: "Admin, Finance",
     blocks: [
@@ -1383,6 +1388,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "ar-aging-and-statements",
     title: "AR aging & statements",
     section: "Accounting",
+    order: 2,
     summary: "See what's owed and how overdue by customer, and send a customer their account statement.",
     who: "Admin, Finance",
     blocks: [
@@ -1406,6 +1412,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "credit-control",
     title: "Credit control (limits & holds)",
     section: "Accounting",
+    order: 3,
     summary: "Set a customer's credit limit, terms, and hold — and how MakeReady blocks orders that breach them.",
     who: "Admin, Finance",
     blocks: [
@@ -1486,6 +1493,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "credit-approvals",
     title: "Credit approvals (over-limit orders)",
     section: "Accounting",
+    order: 4,
     summary: "How over-limit or on-hold orders route to finance for sign-off, with tiered approval and one-click convert.",
     who: "Admin, Finance",
     blocks: [
@@ -1765,7 +1773,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
 export function articlesBySection(): { section: string; articles: HelpArticle[] }[] {
   return HELP_SECTIONS.map((section) => ({
     section,
-    articles: HELP_ARTICLES.filter((a) => a.section === section),
+    // Stable sort: articles with an `order` come first (ascending); the rest
+    // keep their source order.
+    articles: HELP_ARTICLES.filter((a) => a.section === section).sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
   })).filter((g) => g.articles.length > 0);
 }
 
