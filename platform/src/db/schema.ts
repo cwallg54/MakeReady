@@ -1340,6 +1340,9 @@ export const customerDocuments = pgTable(
     bpId: uuid("bp_id")
       .notNull()
       .references(() => businessPartners.id, { onDelete: "cascade" }),
+    // Optionally tie a document request to a specific order so it surfaces on
+    // that order's customer tracker. Null = an account-level (onboarding) request.
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "cascade" }),
     docType: customerDocTypeEnum("doc_type").notNull(),
     token: text("token").notNull().unique(),
     status: customerDocStatusEnum("status").notNull().default("pending"),
@@ -1353,7 +1356,7 @@ export const customerDocuments = pgTable(
     chaseCount: integer("chase_count").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("customer_documents_bp_id_idx").on(t.bpId)],
+  (t) => [index("customer_documents_bp_id_idx").on(t.bpId), index("customer_documents_order_id_idx").on(t.orderId)],
 );
 
 export type CustomerDocument = typeof customerDocuments.$inferSelect;

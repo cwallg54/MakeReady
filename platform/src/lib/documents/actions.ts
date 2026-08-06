@@ -27,10 +27,11 @@ export async function createDocumentRequestAction(formData: FormData): Promise<v
   const docType = String(formData.get("docType") ?? "");
   if (!bpId || !["terms_application", "credit_card_application"].includes(docType)) return;
   const dt = docType as "terms_application" | "credit_card_application";
+  const orderId = String(formData.get("orderId") ?? "") || null;
   const token = randomBytes(18).toString("hex");
-  await db.insert(customerDocuments).values({ bpId, docType: dt, token, requestedBy: user.id });
+  await db.insert(customerDocuments).values({ bpId, orderId, docType: dt, token, requestedBy: user.id });
   await db.insert(activities).values({ bpId, userId: user.id, type: "other", isSystem: true, content: `Requested ${DOC_LABELS[dt]} from customer` });
-  await audit({ userId: user.id, action: "document.request", entityType: "business_partner", entityId: bpId, metadata: { docType } });
+  await audit({ userId: user.id, action: "document.request", entityType: "business_partner", entityId: bpId, metadata: { docType, orderId } });
   revalidatePath(`/crm/${bpId}`);
 }
 
