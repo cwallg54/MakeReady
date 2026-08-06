@@ -44,28 +44,37 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "sales-calendar", label: "Calendar", href: "/calendar", phase1: true },
     ],
     accounting: [
+      { key: "acct-overview", label: "Overview", href: "/accounting", phase1: true },
+      { key: "acct-h-ar", label: "Receivables", phase1: true, header: true },
       { key: "acct-invoices", label: "Invoices", href: "/accounting/invoices", phase1: true },
       { key: "acct-payments", label: "Payments", href: "/accounting/payments", phase1: true },
       { key: "acct-aging", label: "AR Aging", href: "/accounting/aging", phase1: true },
-      { key: "acct-statements", label: "Statements", href: "/accounting/statements", phase1: true },
-      { key: "acct-bills", label: "Bills (A/P)", href: "/accounting/bills", phase1: true },
-      { key: "acct-vendors", label: "Vendors", href: "/accounting/vendors", phase1: true },
+      { key: "acct-statements", label: "Customer Statements", href: "/accounting/statements", phase1: true },
       { key: "acct-credit", label: "Credit Requests", href: "/accounting/credit-requests", phase1: true },
+      { key: "acct-h-ap", label: "Payables", phase1: true, header: true },
+      { key: "acct-bills", label: "Bills", href: "/accounting/bills", phase1: true },
+      { key: "acct-vendors", label: "Vendors", href: "/accounting/vendors", phase1: true },
+      { key: "acct-h-gl", label: "General Ledger", phase1: true, header: true },
       { key: "acct-chart", label: "Chart of Accounts", href: "/accounting/chart", phase1: true },
       { key: "acct-journal", label: "Journal Entries", href: "/accounting/journal", phase1: true },
-      { key: "acct-ledger", label: "General Ledger", href: "/accounting/ledger", phase1: true },
+      { key: "acct-ledger", label: "Account Ledger", href: "/accounting/ledger", phase1: true },
       { key: "acct-trial", label: "Trial Balance", href: "/accounting/trial-balance", phase1: true },
+      { key: "acct-h-stmt", label: "Financial Statements", phase1: true, header: true },
       { key: "acct-pl", label: "Income Statement", href: "/accounting/income-statement", phase1: true },
       { key: "acct-bs", label: "Balance Sheet", href: "/accounting/balance-sheet", phase1: true },
       { key: "acct-cf", label: "Cash Flow", href: "/accounting/cash-flow", phase1: true },
+      { key: "acct-h-close", label: "Period", phase1: true, header: true },
       { key: "acct-close", label: "Period Close", href: "/accounting/close", phase1: true },
     ],
   };
 
   // The Operations group (Art, Production, Inventory) is rendered as a custom
   // cluster below Sales, so exclude their base modules from the auto list.
+  // Controlling and Asset Accounting are unbuilt finance placeholders — their
+  // scope is surfaced on the Accounting hub instead of as empty sidebar items.
+  const HIDDEN_MODULES = new Set(["jobs", "inventory", "controlling", "asset_accounting"]);
   const items: NavItem[] = visibleModules(user.roles)
-    .filter((m) => m.key !== "jobs" && m.key !== "inventory")
+    .filter((m) => !HIDDEN_MODULES.has(m.key))
     .map((m) => {
       const children = m.phase1 ? SUBMENUS[m.key] : undefined;
       return {

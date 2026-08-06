@@ -10,6 +10,8 @@ export interface NavItem {
   href?: string;
   phase1: boolean;
   children?: NavItem[];
+  /** A non-clickable sub-section label inside a group's children. */
+  header?: boolean;
 }
 
 function isMatch(href: string, path: string) {
@@ -63,7 +65,13 @@ function Group({ item, activeHref, onNavigate }: { item: NavItem; activeHref: st
       </button>
       {open && (
         <div className="ml-3 mt-0.5 space-y-0.5 border-l border-neutral-800 pl-2">
-          {item.children!.map((c) => <Leaf key={c.key} item={c} active={c.href === activeHref} onNavigate={onNavigate} />)}
+          {item.children!.map((c) =>
+            c.header ? (
+              <p key={c.key} className="px-3 pb-0.5 pt-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-600 first:pt-0.5">{c.label}</p>
+            ) : (
+              <Leaf key={c.key} item={c} active={c.href === activeHref} onNavigate={onNavigate} />
+            ),
+          )}
         </div>
       )}
     </div>
