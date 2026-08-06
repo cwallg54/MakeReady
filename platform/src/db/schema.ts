@@ -160,6 +160,31 @@ export const notifications = pgTable(
   (t) => [index("notifications_user_id_idx").on(t.userId)],
 );
 
+// Teams / groups for routing work and alerts to a set of people (e.g. Purchasing,
+// Production) instead of a single person — gives coverage, visibility, and
+// reporting. Notifications route to a team's members, with a role fallback when
+// the team has no members yet.
+export const teams = pgTable("teams", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(), // stable slug used in code, e.g. "purchasing"
+  name: text("name").notNull(),
+  description: text("description"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const teamMembers = pgTable(
+  "team_members",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    teamId: uuid("team_id").notNull().references(() => teams.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("team_members_team_user_uk").on(t.teamId, t.userId), index("team_members_user_idx").on(t.userId)],
+);
+export type Team = typeof teams.$inferSelect;
+
 // ---- CRM (Phase 2) --------------------------------------------------------
 // Mirrors the legacy ERP customer model (business partners, contacts,
 // addresses, groups) with clean names. `legacyCode` retains the source

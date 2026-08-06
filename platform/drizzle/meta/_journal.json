@@ -330,6 +330,13 @@
       "when": 1785993283132,
       "tag": "0046_new_saracen",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1785993851813,
+      "tag": "0047_slimy_gertrude_yorkes",
+      "breakpoints": true
     }
   ]
 }

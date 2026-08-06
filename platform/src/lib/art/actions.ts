@@ -5,11 +5,12 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
-import { orders, orderEvents, orderAttachments, orderSpecItems, orderProofs, artRequests, designItems, userRoles, notifications, activities } from "@/db/schema";
+import { orders, orderEvents, orderAttachments, orderSpecItems, orderProofs, artRequests, designItems, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { notifyTrackerStage } from "@/lib/orders/notify";
+import { notifyTeam } from "@/lib/teams/notify";
 import { artReadinessChecklist } from "./gate";
 import { canDoArt } from "./access";
 
@@ -23,10 +24,8 @@ async function requireArt() {
 }
 
 async function notifyArtTeam(title: string, body: string, link: string) {
-  const team = await db.select({ id: userRoles.userId }).from(userRoles).where(eq(userRoles.role, "art"));
-  if (team.length) {
-    await db.insert(notifications).values(team.map((u) => ({ userId: u.id, type: "art", title, body, link })));
-  }
+  // Routes to the "art" team's members, falling back to everyone with the art role.
+  await notifyTeam("art", { type: "art", title, body, link }, ["art"]);
 }
 
 /** Salesperson hands an order to the art department. Creates the art request

@@ -4,10 +4,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderEvents, productionJobs, userRoles, notifications, activities } from "@/db/schema";
+import { orders, orderEvents, productionJobs, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { notifyTrackerStage } from "@/lib/orders/notify";
+import { notifyTeam } from "@/lib/teams/notify";
 import { audit } from "@/lib/audit";
 
 const PROD_STATUSES = ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"] as const;
@@ -29,8 +30,8 @@ async function requireProductionEdit() {
 }
 
 async function notifyProduction(title: string, body: string, link: string) {
-  const team = await db.select({ id: userRoles.userId }).from(userRoles).where(eq(userRoles.role, "production"));
-  if (team.length) await db.insert(notifications).values(team.map((u) => ({ userId: u.id, type: "production", title, body, link })));
+  // Routes to the "production" team's members, falling back to the production role.
+  await notifyTeam("production", { type: "production", title, body, link }, ["production"]);
 }
 
 /** Create the production job for an order if one doesn't already exist. */

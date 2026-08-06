@@ -1,7 +1,8 @@
 import "server-only";
-import { and, eq, gte, inArray, sql } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { inventoryItems, stockMovements, notifications, userRoles } from "@/db/schema";
+import { inventoryItems, stockMovements, notifications } from "@/db/schema";
+import { teamRecipientIds } from "@/lib/teams/notify";
 
 const WINDOW_DAYS = 365;
 // Don't re-alert the same item more often than this (days).
@@ -62,13 +63,9 @@ export async function runReorderAlerts(now = new Date()): Promise<{ scanned: num
   const due = rows.filter((r) => !r.item.reorderAlertAt || r.item.reorderAlertAt < staleCutoff);
   if (!due.length) return { scanned: rows.length, alerted: 0 };
 
-  // Purchasing is handled by admins / sales managers today (a dedicated
-  // Purchasing team can be routed here once teams exist).
-  const recips = await db
-    .select({ id: userRoles.userId })
-    .from(userRoles)
-    .where(inArray(userRoles.role, ["admin", "sales_manager"]));
-  const userIds = Array.from(new Set(recips.map((r) => r.id)));
+  // Route to the Purchasing team; fall back to admins / sales managers if that
+  // team has no members yet.
+  const userIds = await teamRecipientIds("purchasing", ["admin", "sales_manager"]);
 
   for (const r of due) {
     if (userIds.length) {
