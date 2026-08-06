@@ -1218,6 +1218,32 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
   // ─────────────────────────────── Accounting ────────────────────────────────
   {
+    slug: "general-ledger",
+    title: "General ledger & financial statements",
+    section: "Accounting",
+    summary: "The double-entry books — chart of accounts, journal entries, trial balance, income statement, and balance sheet.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "Beyond Accounts Receivable, MakeReady keeps a full double-entry general ledger — the controller/CFO books. Everything rolls up from posted journal entries into the trial balance and the financial statements." },
+      { k: "h", text: "Chart of Accounts" },
+      { k: "p", text: "Accounting → Chart of Accounts is your account structure, grouped by the five types: Assets and Expenses are debit-normal; Liabilities, Equity, and Revenue are credit-normal. A standard chart is pre-loaded (cash, AR, inventory, AP, sales tax, sales, COGS, and common expenses). Add, rename, or disable accounts as needed. Accounts marked “system” are used by automatic posting — keep them." },
+      { k: "h", text: "Journal entries" },
+      { k: "steps", items: [
+        { text: "Accounting → Journal Entries → New entry. Set the date and a memo." },
+        { text: "Add lines, each posting a debit or a credit to an account. The running totals show a live balance check." },
+        { text: "Debits must equal credits. Click “Save & post” to post it to the ledger, or “Save draft” to finish later." },
+        { text: "A posted entry can be voided (with a reason) — it stays on record but is excluded from balances. Drafts can be deleted." },
+      ] },
+      { k: "tip", text: "Most entries post themselves: issuing an invoice records Dr Accounts Receivable / Cr Sales, and recording a payment records Dr Cash / Cr Accounts Receivable. Voiding an invoice reverses its entry. You only hand-key adjustments (payroll, depreciation, accruals, corrections)." },
+      { k: "h", text: "General ledger & trial balance" },
+      { k: "p", text: "General Ledger shows every posted transaction for one account with a running balance (drill in from any account). Trial Balance lists every account's net as a debit or credit — the two columns must be equal, which proves the books are in balance." },
+      { k: "h", text: "Financial statements" },
+      { k: "p", text: "Income Statement (P&L) shows revenue minus expenses over a period you pick (defaults to year-to-date). Balance Sheet shows assets versus liabilities plus equity as of a date, with current-period net income folded into equity — it flags if anything is out of balance. Both are built live from posted entries." },
+      { k: "warn", text: "Only POSTED entries affect balances and statements; drafts and voided entries do not. The general ledger is finance-only (Admin and Finance roles)." },
+    ],
+    related: ["invoicing-and-payments"],
+  },
+  {
     slug: "invoicing-and-payments",
     title: "Invoicing & payments",
     section: "Accounting",
