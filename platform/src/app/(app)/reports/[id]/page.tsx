@@ -7,7 +7,7 @@ import { reportDefinitions, reportSchedules } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canBuildReports, sourceMeta, type ReportConfig } from "@/lib/reports/sources";
 import { runReport, displayValue, groupRows, numericColumns } from "@/lib/reports/run";
-import { deleteReport, saveSchedule, deleteSchedule } from "@/lib/reports/actions";
+import { deleteReport, saveSchedule, deleteSchedule, sendReportNowAction } from "@/lib/reports/actions";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { fmtDateTime } from "@/lib/format";
@@ -18,11 +18,12 @@ const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm
 const DOW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MAX_SHOWN = 500;
 
-export default async function ReportViewPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReportViewPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; err?: string }> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (!canBuildReports(user.roles)) redirect("/403");
   const { id } = await params;
+  const { sent, err } = await searchParams;
 
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) notFound();
@@ -52,6 +53,10 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
           </div>
         }
       />
+
+      {sent === "1" && <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">Report emailed to the schedule recipients.</div>}
+      {sent === "queued" && <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">Report generated — email delivery isn&apos;t live in this environment yet, so it was logged rather than sent.</div>}
+      {err === "recipients" && <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800">Add at least one recipient email before scheduling or sending.</div>}
 
       <Card className="p-0">
         <div className="border-b border-neutral-100 px-4 py-2 text-xs text-neutral-400">{result.rows.length.toLocaleString()} row{result.rows.length === 1 ? "" : "s"}{result.rows.length > MAX_SHOWN ? ` (showing first ${MAX_SHOWN}; export CSV for all)` : ""}</div>
@@ -133,10 +138,17 @@ export default async function ReportViewPage({ params }: { params: Promise<{ id:
           <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">{schedule ? "Update schedule" : "Schedule it"}</button>
         </form>
         {schedule && (
-          <form action={deleteSchedule} className="mt-2">
-            <input type="hidden" name="id" value={schedule.id} /><input type="hidden" name="reportId" value={id} />
-            <button className="text-xs font-medium text-red-600 hover:text-red-800">Remove schedule</button>
-          </form>
+          <div className="mt-3 flex items-center gap-3 border-t border-neutral-100 pt-3">
+            <form action={sendReportNowAction}>
+              <input type="hidden" name="reportId" value={id} />
+              <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50">✉ Send now</button>
+            </form>
+            <span className="text-xs text-neutral-400">Emails the report to the recipients immediately (also updates &ldquo;last sent&rdquo;).</span>
+            <form action={deleteSchedule} className="ml-auto">
+              <input type="hidden" name="id" value={schedule.id} /><input type="hidden" name="reportId" value={id} />
+              <button className="text-xs font-medium text-red-600 hover:text-red-800">Remove schedule</button>
+            </form>
+          </div>
         )}
         <p className="mt-2 text-xs text-neutral-400">Delivery runs with the daily scheduler; emails send from the verified g54.com domain.</p>
       </Card>

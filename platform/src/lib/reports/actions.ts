@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
 import { canBuildReports, type ReportConfig } from "./sources";
 import { runReport, type ReportResult } from "./run";
+import { buildAndEmailReport } from "./deliver";
 
 async function requireBuild() {
   const user = await getCurrentUser();
@@ -74,6 +75,20 @@ export async function saveSchedule(formData: FormData): Promise<void> {
   }
   await audit({ userId: user.id, action: "report.schedule", entityType: "report", entityId: reportId, metadata: { frequency } });
   revalidatePath(`/reports/${reportId}`);
+}
+
+/** Send this report to its schedule's recipients right now (a test / on-demand
+ *  send), without waiting for the daily cron. */
+export async function sendReportNowAction(formData: FormData): Promise<void> {
+  const user = await requireBuild();
+  const reportId = String(formData.get("reportId") ?? "");
+  if (!reportId) return;
+  const sched = await db.query.reportSchedules.findFirst({ where: eq(reportSchedules.reportId, reportId) });
+  if (!sched || sched.recipients.length === 0) redirect(`/reports/${reportId}?err=recipients`);
+  const ok = await buildAndEmailReport(reportId, sched.format === "pdf" ? "pdf" : "csv", sched.recipients);
+  await db.update(reportSchedules).set({ lastRunAt: new Date() }).where(eq(reportSchedules.id, sched.id));
+  await audit({ userId: user.id, action: "report.send_now", entityType: "report", entityId: reportId, metadata: { ok } });
+  redirect(`/reports/${reportId}?sent=${ok ? "1" : "queued"}`);
 }
 
 export async function deleteSchedule(formData: FormData): Promise<void> {

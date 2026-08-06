@@ -1,12 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { reportSchedules, reportDefinitions } from "@/db/schema";
-import { runReport, reportToCsv, numericColumns } from "@/lib/reports/run";
-import { reportToPdf } from "@/lib/reports/pdf";
-import { sourceMeta, type ReportConfig } from "@/lib/reports/sources";
-import { sendReportEmail } from "@/lib/email";
-
-const slug = (s: string) => s.replace(/[^a-z0-9]+/gi, "-").toLowerCase().replace(/^-|-$/g, "") || "report";
+import { reportSchedules } from "@/db/schema";
+import { buildAndEmailReport } from "@/lib/reports/deliver";
 
 // Daily Vercel Cron — emails any scheduled reports that are due today.
 export async function GET(req: Request) {
@@ -28,20 +23,8 @@ export async function GET(req: Request) {
       (s.frequency === "monthly" && (s.dayOfMonth ?? 1) === dom);
     if (!due) continue;
 
-    const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, s.reportId) });
-    if (!def) continue;
     try {
-      const cfg = def.config as ReportConfig;
-      const result = await runReport(def.source, cfg);
-      const labels = Object.fromEntries((sourceMeta(def.source)?.fields ?? []).map((f) => [f.key, f.label]));
-      let b64: string, ext: string;
-      if (s.format === "pdf") {
-        const bytes = await reportToPdf(result, { title: def.name, labels, groupField: cfg.groupField, numericCols: numericColumns(def.source) });
-        b64 = Buffer.from(bytes).toString("base64"); ext = "pdf";
-      } else {
-        b64 = Buffer.from(reportToCsv(result, labels), "utf8").toString("base64"); ext = "csv";
-      }
-      await sendReportEmail(s.recipients, def.name, b64, `${slug(def.name)}.${ext}`);
+      await buildAndEmailReport(s.reportId, s.format === "pdf" ? "pdf" : "csv", s.recipients);
       await db.update(reportSchedules).set({ lastRunAt: now }).where(eq(reportSchedules.id, s.id));
       sent++;
     } catch (e) {
