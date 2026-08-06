@@ -21,13 +21,15 @@ export function StatementPrintStyles() {
   );
 }
 
-/** A statement "page": white paper, serif type, centered company header. */
-export function StatementDoc({ company, title, period, children }: { company: string; title: string; period: string; children: ReactNode }) {
+/** A statement "page": white paper, serif type, centered company header.
+ *  `wide` gives a roomier page for multi-column tables (e.g. an aging matrix). */
+export function StatementDoc({ company, title, period, subtitle, wide = false, children }: { company: string; title: string; period: string; subtitle?: string; wide?: boolean; children: ReactNode }) {
   return (
-    <div className="statement-paper mx-auto max-w-2xl rounded-lg border border-neutral-200 bg-white px-8 py-8 font-serif text-neutral-900 shadow-sm sm:px-12">
+    <div className={`statement-paper mx-auto ${wide ? "max-w-4xl" : "max-w-2xl"} rounded-lg border border-neutral-200 bg-white px-8 py-8 font-serif text-neutral-900 shadow-sm sm:px-12`}>
       <div className="mb-6 text-center">
         <h1 className="text-lg font-bold tracking-wide">{company}</h1>
         <h2 className="text-base">{title}</h2>
+        {subtitle && <p className="text-sm text-neutral-700">{subtitle}</p>}
         <p className="text-sm text-neutral-500">{period}</p>
       </div>
       <div className="text-sm">{children}</div>
