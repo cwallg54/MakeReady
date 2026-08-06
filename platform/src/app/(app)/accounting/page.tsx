@@ -122,6 +122,7 @@ export default async function AccountingHome() {
       ]} />
 
       <Section title="Close & Setup" tiles={[
+        { href: "/accounting/reconcile", label: "Bank Reconciliation", desc: "Match a bank statement to the cash ledger." },
         { href: "/accounting/close", label: "Period Close", desc: "Lock closed periods so the books can't change." },
         { href: "/accounting/import", label: "Import / Migrate", desc: "Post real balances from an export; retire estimates." },
       ]} />

@@ -1213,6 +1213,27 @@ export const billPayments = pgTable(
 );
 export type BillPayment = typeof billPayments.$inferSelect;
 
+// ---- Bank reconciliation --------------------------------------------------
+// Imported bank-statement lines, matched/cleared against the GL cash account.
+export const bankTransactions = pgTable(
+  "bank_transactions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    txnDate: timestamp("txn_date", { withTimezone: true }).notNull(),
+    description: text("description").notNull().default(""),
+    // Signed: positive = deposit/credit, negative = withdrawal/debit.
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    cleared: boolean("cleared").notNull().default(false),
+    // Set when this line was posted to the GL from the reconcile screen.
+    journalEntryId: uuid("journal_entry_id").references(() => journalEntries.id, { onDelete: "set null" }),
+    note: text("note"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("bank_transactions_date_idx").on(t.txnDate)],
+);
+export type BankTransaction = typeof bankTransactions.$inferSelect;
+
 // Admin/manager overrides for the built-in reports (title, hidden columns,
 // default filters, sort, hidden sections). One shared row per report key —
 // changes apply for everyone. See src/lib/reports/report-config.ts.
