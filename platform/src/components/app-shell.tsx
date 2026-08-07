@@ -71,7 +71,17 @@ export function AppShell({
           <span className="lg:hidden">
             <LogoInline imgClassName="h-10 w-auto" />
           </span>
+          <form action="/search" className="hidden max-w-md flex-1 items-center sm:flex">
+            <span className="pointer-events-none -mr-7 text-neutral-400">🔍</span>
+            <input
+              name="q"
+              placeholder="Search anything with AI — customers, orders, designs…"
+              aria-label="Search"
+              className="w-full rounded-md border border-neutral-300 bg-neutral-50 py-1.5 pl-9 pr-3 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand focus:bg-white"
+            />
+          </form>
           <div className="ml-auto flex items-center gap-2">
+            <Link href="/search" className="rounded-md p-1.5 text-neutral-600 hover:bg-neutral-100 sm:hidden" aria-label="Search">🔍</Link>
             <Link
               href="/notifications"
               className="relative rounded-md px-2 py-1.5 text-sm text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 sm:px-3"

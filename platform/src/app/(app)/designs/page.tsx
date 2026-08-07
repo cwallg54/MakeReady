@@ -6,6 +6,7 @@ import { canDoArt } from "@/lib/art/access";
 import { db } from "@/db";
 import { designItems, businessPartners } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
+import { aiCatalogAnswer } from "@/lib/ai/catalog-answer";
 
 export const dynamic = "force-dynamic";
 const PAGE = 50;
@@ -37,6 +38,7 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
     db.select({ unmatchedN: sql<number>`count(distinct ${designItems.custNumber})::int` }).from(designItems).where(and(sql`${designItems.bpId} is null`, sql`${designItems.custNumber} is not null and ${designItems.custNumber} <> '' and ${designItems.custNumber} <> 'NEW'`, eq(designItems.archived, false))),
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE));
+  const aiPick = q ? await aiCatalogAnswer(q, "art & design catalog", items.map((i) => `${i.itemNumber}${i.description ? ` — ${i.description}` : ""}${i.company ? ` (${i.company})` : ""}`)) : null;
   const qs = (p: number) => { const s = new URLSearchParams(); if (q) s.set("q", q); if (catalog) s.set("catalog", catalog); if (showArchived) s.set("archived", "1"); if (p > 1) s.set("page", String(p)); return `/designs?${s.toString()}`; };
 
   return (
@@ -56,7 +58,7 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
 
       <Card>
         <form className="flex flex-wrap items-center gap-2 text-sm">
-          <input name="q" defaultValue={q ?? ""} placeholder="Search item #, design, customer, description…" className="min-w-64 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-brand" />
+          <input name="q" defaultValue={q ?? ""} placeholder="✨ Search the art catalog with AI — item #, design, customer, description…" className="min-w-64 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-brand" />
           <select name="catalog" defaultValue={catalog ?? ""} className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 outline-none focus:border-brand">
             <option value="">All catalogs</option>
             {CATALOGS.map((c) => <option key={c} value={c}>{c.toUpperCase()}</option>)}
@@ -66,6 +68,13 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
           <span className="ml-auto text-xs text-neutral-400">{total.toLocaleString()} designs</span>
         </form>
       </Card>
+
+      {aiPick && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 text-sm leading-relaxed text-neutral-800">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-400">✨ AI catalog search</p>
+          {aiPick}
+        </div>
+      )}
 
       <Card className="p-0">
         {/* Desktop table */}

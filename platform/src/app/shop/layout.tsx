@@ -32,7 +32,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
             <img src="/makeready-logo.png" alt="MakeReady by G54" className="h-9 w-auto" />
           </Link>
           <form action="/shop" className="ml-2 hidden flex-1 sm:block">
-            <input name="q" placeholder="Search the store…" className="w-full max-w-md rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand" />
+            <input name="q" placeholder="✨ Search the store with AI — describe what you want…" className="w-full max-w-md rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand" />
           </form>
           <nav className="ml-auto flex items-center gap-3 text-sm">
             {customer ? (

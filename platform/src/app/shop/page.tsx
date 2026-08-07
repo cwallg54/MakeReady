@@ -3,6 +3,7 @@ import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { getStoreSettings } from "@/lib/store/settings";
 import { customerDiscountPct } from "@/lib/store/cart";
 import { listCategories, listProducts } from "@/lib/store/storefront-data";
+import { aiCatalogAnswer } from "@/lib/ai/catalog-answer";
 import { ProductCard } from "./product-card";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,7 @@ export default async function ShopHome({ searchParams }: { searchParams: Promise
     listProducts({ b2b, discountPct, q: sp.q?.trim(), categorySlug: sp.cat }),
   ]);
   const activeCat = cats.find((c) => c.slug === sp.cat);
+  const aiPick = sp.q?.trim() ? await aiCatalogAnswer(sp.q.trim(), "product catalog", products.map((p) => p.title)) : null;
 
   return (
     <div className="space-y-6">
@@ -53,6 +55,12 @@ export default async function ShopHome({ searchParams }: { searchParams: Promise
       </div>
 
       {sp.q && <p className="text-sm text-neutral-500">{products.length} result{products.length === 1 ? "" : "s"} for “{sp.q}”</p>}
+      {aiPick && (
+        <div className="rounded-xl border border-brand/30 bg-brand/5 p-4 text-sm leading-relaxed text-neutral-800">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-brand-ink">✨ AI pick</p>
+          {aiPick}
+        </div>
+      )}
       {activeCat && <h2 className="text-lg font-semibold text-neutral-900">{activeCat.name}</h2>}
 
       {products.length === 0 ? (
