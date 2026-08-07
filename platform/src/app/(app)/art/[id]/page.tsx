@@ -8,6 +8,7 @@ import { canDoArt } from "@/lib/art/access";
 import { canEdit } from "@/lib/rbac";
 import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, logArtRevisionAction, markProductionReadyAction } from "@/lib/art/actions";
 import { productionReadinessChecklist } from "@/lib/art/gate";
+import { estimateArtMinutes } from "@/lib/art/scheduling";
 import { linkExistingDesignToArtAction, unlinkDesignFromArtAction } from "@/lib/designs/actions";
 import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
@@ -80,6 +81,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
     hasSpecialInstructions: !!(req.brief || order.productionNotes),
   });
   const isHeadwearOrHard = req.productionType === "headwear" || req.productionType === "hard_goods";
+  const autoEstimate = estimateArtMinutes(req.productionType, !!req.previousDesignRef);
 
   const Thumb = ({ a }: { a: (typeof attachments)[number] }) => {
     const href = `/art/attachment/${a.id}`;
@@ -230,7 +232,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
         <form action={updateArtDetailsAction} className="space-y-3">
           <input type="hidden" name="id" value={req.id} />
           <div className="grid gap-2 sm:grid-cols-3">
-            <label className="text-xs text-neutral-500">Est. time (minutes)<input name="estimatedMinutes" type="number" min="0" defaultValue={req.estimatedMinutes ?? ""} className={`mt-1 w-full ${input}`} /></label>
+            <label className="text-xs text-neutral-500">Est. time (minutes)<input name="estimatedMinutes" type="number" min="0" defaultValue={req.estimatedMinutes ?? ""} placeholder={autoEstimate ? `auto: ${autoEstimate}` : ""} className={`mt-1 w-full ${input}`} /></label>
             <label className="text-xs text-neutral-500">Production type
               <select name="productionType" defaultValue={req.productionType ?? ""} className={`mt-1 w-full ${input}`}>
                 <option value="">— choose —</option>

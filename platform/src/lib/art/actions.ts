@@ -13,6 +13,7 @@ import { audit } from "@/lib/audit";
 import { notifyTrackerStage } from "@/lib/orders/notify";
 import { notifyTeam } from "@/lib/teams/notify";
 import { artReadinessChecklist, productionReadinessChecklist } from "./gate";
+import { estimateArtMinutes } from "./scheduling";
 import { canDoArt } from "./access";
 
 const PROD_TYPES = ["screen_print", "embroidery", "headwear", "hard_goods", "other"] as const;
@@ -151,14 +152,18 @@ export async function updateArtDetailsAction(formData: FormData): Promise<void> 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   const productionType = String(formData.get("productionType") ?? "");
+  const validType = (PROD_TYPES as readonly string[]).includes(productionType) ? (productionType as (typeof PROD_TYPES)[number]) : null;
+  const previousDesignRef = str(formData.get("previousDesignRef"));
+  // Auto-estimate when the artist left the time blank but chose a production type.
+  const estimatedMinutes = intOrNull(formData.get("estimatedMinutes")) ?? estimateArtMinutes(validType, !!previousDesignRef);
   await db.update(artRequests).set({
-    estimatedMinutes: intOrNull(formData.get("estimatedMinutes")),
-    productionType: (PROD_TYPES as readonly string[]).includes(productionType) ? (productionType as (typeof PROD_TYPES)[number]) : null,
+    estimatedMinutes,
+    productionType: validType,
     stitchCount: intOrNull(formData.get("stitchCount")),
     separationsDone: formData.get("separationsDone") === "on",
     sourcingType: str(formData.get("sourcingType")),
     supplierNotes: str(formData.get("supplierNotes")),
-    previousDesignRef: str(formData.get("previousDesignRef")),
+    previousDesignRef,
     blankItemRef: str(formData.get("blankItemRef")),
     updatedAt: new Date(),
   }).where(eq(artRequests.id, id));

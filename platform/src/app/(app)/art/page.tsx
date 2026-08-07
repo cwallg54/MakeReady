@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
@@ -69,7 +70,10 @@ export default async function ArtPage() {
 
   return (
     <div className="max-w-6xl">
-      <PageHeader title="Art department" description="Requests submitted for design, customization, and proofing." />
+      <div className="flex items-center justify-between">
+        <PageHeader title="Art department" description="Requests submitted for design, customization, and proofing." />
+        <Link href="/art/schedule" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Schedule →</Link>
+      </div>
       {workloadList.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
           {workloadList.map((w) => (
