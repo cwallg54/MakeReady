@@ -9,6 +9,7 @@ import { canEdit } from "@/lib/rbac";
 import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, markDigitizerSentAction, markSeparationsSentAction, uploadProductionFileAction, logArtRevisionAction, markProductionReadyAction } from "@/lib/art/actions";
 import { productionReadinessChecklist } from "@/lib/art/gate";
 import { estimateArtMinutes } from "@/lib/art/scheduling";
+import { generateArtBriefAction } from "@/lib/ai/actions";
 import { linkExistingDesignToArtAction, unlinkDesignFromArtAction } from "@/lib/designs/actions";
 import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
@@ -120,8 +121,8 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
         }
       />
 
-      {err && ERR_MSG[err] && (
-        <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">{ERR_MSG[err]}</div>
+      {err && (
+        <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">{ERR_MSG[err] ?? err}</div>
       )}
 
       {/* Design & orderable item — the required gate */}
@@ -204,6 +205,10 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
             <input type="checkbox" name="rush" defaultChecked={req.rush} className="h-4 w-4" /> Rush
           </label>
           <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save brief</button>
+        </form>
+        <form action={generateArtBriefAction} className="mt-2">
+          <input type="hidden" name="id" value={req.id} />
+          <button className="text-xs font-medium text-brand-ink hover:underline">✨ Draft brief with AI (from the order spec)</button>
         </form>
         {order.productionNotes && <p className="mt-3 text-xs text-neutral-500">Production notes: {order.productionNotes}</p>}
       </Card>

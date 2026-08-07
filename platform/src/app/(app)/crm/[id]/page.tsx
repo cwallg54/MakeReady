@@ -9,6 +9,7 @@ import { FinancialDocs } from "@/components/crm/financial-docs";
 import { CustomerVault } from "@/components/crm/customer-vault";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
+import { CustomerSummary } from "@/components/ai/customer-summary";
 import { ContactsManager } from "@/components/crm/contacts-manager";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -135,6 +136,8 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
         title={bp.companyName}
         description={`${bp.bpNumber} · ${group?.name ?? "No account group"}${bp.leadSource ? ` · Source: ${bp.leadSource}` : ""} · Web Store: ${WEB_STORE_LABEL[bp.webStoreStatus]}`}
       />
+
+      <div className="mb-6"><CustomerSummary bpId={bp.id} /></div>
 
       {/* Stage + owner bar */}
       <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3">
