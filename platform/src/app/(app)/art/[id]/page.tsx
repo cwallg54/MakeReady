@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { artRequests, artRevisions, orders, businessPartners, orderSpecItems, orderAttachments, orderProofs, designItems, designBrands, designSuffixes } from "@/db/schema";
+import { artRequests, artRevisions, orders, businessPartners, orderSpecItems, orderAttachments, orderProofs, designItems, designBrands, designSuffixes, users, userRoles } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { canEdit } from "@/lib/rbac";
-import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, markDigitizerSentAction, markSeparationsSentAction, uploadProductionFileAction, logArtRevisionAction, markProductionReadyAction } from "@/lib/art/actions";
+import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, markDigitizerSentAction, markSeparationsSentAction, uploadProductionFileAction, logArtRevisionAction, markProductionReadyAction, assignArtAction } from "@/lib/art/actions";
 import { productionReadinessChecklist } from "@/lib/art/gate";
 import { estimateArtMinutes } from "@/lib/art/scheduling";
 import { generateArtBriefAction } from "@/lib/ai/actions";
@@ -14,6 +14,7 @@ import { linkExistingDesignToArtAction, unlinkDesignFromArtAction } from "@/lib/
 import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ArtDesignForm } from "./art-design-form";
+import { ArtWorkflow, type WorkflowStep } from "./art-workflow";
 
 const PROD_TYPES: { v: string; label: string }[] = [
   { v: "screen_print", label: "Silkscreen" }, { v: "embroidery", label: "Embroidery" },
@@ -86,6 +87,53 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
   const isHeadwearOrHard = req.productionType === "headwear" || req.productionType === "hard_goods";
   const autoEstimate = estimateArtMinutes(req.productionType, !!req.previousDesignRef);
 
+  // The art/production team, for the assignment control on this page.
+  const teamRaw = await db.select({ id: users.id, name: users.name })
+    .from(users).innerJoin(userRoles, eq(userRoles.userId, users.id))
+    .where(inArray(userRoles.role, ["art", "production"]));
+  const team = Array.from(new Map(teamRaw.map((u) => [u.id, u])).values()).sort((a, b) => a.name.localeCompare(b.name));
+  const assignedName = req.assignedTo ? team.find((t) => t.id === req.assignedTo)?.name ?? null : null;
+
+  // Derive the SOP flow from real state so the stepper shows where the job is
+  // and, for the current step, exactly what to do next.
+  const proofSent = proofs.length > 0;
+  const proofApproved = proofs.some((p) => p.status === "approved");
+  const assigned = !!req.assignedTo;
+  const approved = proofApproved || req.status === "approved" || req.status === "done" || !!req.productionReadyAt;
+  const artStarted = proposed.length > 0 || ["in_progress", "proofing", "revisions", "approved", "done"].includes(req.status) || proofSent || approved;
+  const needsHandoff = !!req.productionType && req.productionType !== "other";
+  const handoffDone = !!(req.digitizerSentAt || req.separationsSentAt || req.buyerSentAt);
+  const productionReady = !!req.productionReadyAt;
+  const handoffHint = req.productionType === "embroidery" ? "Send the files to the digitizer"
+    : req.productionType === "screen_print" ? "Send the separations to the shop"
+    : isHeadwearOrHard ? "Send the production files to the buyer" : "Complete the production handoff";
+
+  const done: Record<string, boolean> = {
+    submitted: true,
+    assigned: assigned || artStarted || approved || productionReady,
+    art: artStarted,
+    review: proofSent || approved || productionReady,
+    approved: approved || productionReady,
+    handoff: !needsHandoff || handoffDone,
+    ready: productionReady,
+  };
+  const stepDefs: { key: keyof typeof done; label: string; hint: string; anchor: string; na?: boolean }[] = [
+    { key: "submitted", label: "Request submitted", hint: "", anchor: "" },
+    { key: "assigned", label: "Assign artist", hint: "Assign an artist to this job", anchor: "assign" },
+    { key: "art", label: "Artwork produced", hint: "Upload the proposed art", anchor: "images" },
+    { key: "review", label: "Out for review", hint: "Send a proof to the customer", anchor: "proof" },
+    { key: "approved", label: "Customer approved", hint: "Waiting on the customer to approve the proof", anchor: "proofs" },
+    { key: "handoff", label: "Production handoff", hint: handoffHint, anchor: "handoff", na: !needsHandoff },
+    { key: "ready", label: "Production ready", hint: "Finish the readiness checklist, then mark production-ready", anchor: "readiness" },
+  ];
+  let currentAssigned = false;
+  const steps: WorkflowStep[] = stepDefs.map((d, i) => {
+    if (d.na) return { n: i + 1, label: d.label, state: "na", anchor: d.anchor };
+    if (done[d.key]) return { n: i + 1, label: d.label, state: "done", anchor: d.anchor };
+    if (!currentAssigned) { currentAssigned = true; return { n: i + 1, label: d.label, state: "current", hint: d.hint, anchor: d.anchor }; }
+    return { n: i + 1, label: d.label, state: "todo", anchor: d.anchor };
+  });
+
   const Thumb = ({ a }: { a: (typeof attachments)[number] }) => {
     const href = `/art/attachment/${a.id}`;
     return (
@@ -124,6 +172,39 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
       {err && (
         <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">{ERR_MSG[err] ?? err}</div>
       )}
+
+      {/* SOP flow — where the job is and what's next */}
+      <ArtWorkflow steps={steps} />
+
+      {/* Approved → back to sales for order entry & invoicing (the cash-flow seam) */}
+      {approved && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3">
+          <div className="text-sm text-emerald-900">
+            <span className="font-semibold">Customer approved.</span> Sales has been notified.
+            {productionReady ? " This job is production-ready." : " Finish any production handoff, then mark it production-ready."}
+          </div>
+          <Link href={`/sales/orders/${order.id}`} className="rounded-md bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-800">
+            Return to order → entry &amp; invoicing
+          </Link>
+        </div>
+      )}
+
+      {/* Assigned artist */}
+      <Card id="assign">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-sm font-semibold text-neutral-900">Assigned artist</h2>
+          {assignedName ? <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700">{assignedName}</span> : <span className="text-xs text-amber-600">Unassigned</span>}
+          <form action={assignArtAction} className="ml-auto flex items-center gap-2">
+            <input type="hidden" name="id" value={req.id} />
+            <select name="assignedTo" defaultValue={req.assignedTo ?? "__none"} className={input}>
+              <option value="__none">Unassigned</option>
+              <option value="__me">Assign to me</option>
+              {team.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Assign</button>
+          </form>
+        </div>
+      </Card>
 
       {/* Design & orderable item — the required gate */}
       <Card className={design?.status === "active" ? "" : "border-amber-300"}>
@@ -262,7 +343,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
       </Card>
 
       {/* Production readiness checklist */}
-      <Card className={readiness.complete ? "border-emerald-300" : ""}>
+      <Card id="readiness" className={readiness.complete ? "border-emerald-300" : ""}>
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900">Production readiness</h2>
           <span className={`text-xs font-semibold ${readiness.complete ? "text-emerald-600" : "text-amber-600"}`}>{readiness.items.filter((i) => i.done || i.na).length}/{readiness.items.length}</span>
@@ -288,7 +369,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
       </Card>
 
       {/* Production files & handoff */}
-      <Card>
+      <Card id="handoff">
         <h2 className="mb-1 text-sm font-semibold text-neutral-900">Production files &amp; handoff</h2>
         <p className="mb-3 text-xs text-neutral-500">Upload completed production/digitized files and send them to the right place. Files are kept with the order and design.</p>
 
@@ -373,7 +454,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
       )}
 
       {/* Images */}
-      <Card>
+      <Card id="images">
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Images</h2>
         {[["From the catalogue", catalog], ["Customer art & references", customer], ["Proposed art", proposed]].map(([label, list]) => (
           <div key={label as string} className="mb-4">
@@ -394,7 +475,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
       </Card>
 
       {/* Send proof */}
-      <Card>
+      <Card id="proof">
         <h2 className="mb-1 text-sm font-semibold text-neutral-900">Send a proof to the customer</h2>
         <p className="mb-3 text-xs text-neutral-400">The proof appears on the customer’s tracking link, where they can approve, request changes, decline, or request a meeting.</p>
         <form action={sendArtProofAction} className="space-y-2">
@@ -414,7 +495,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
 
       {/* Proof history */}
       {proofs.length > 0 && (
-        <Card>
+        <Card id="proofs">
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">Proof history</h2>
           <ul className="space-y-2 text-sm">
             {proofs.map((p) => (

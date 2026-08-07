@@ -23,12 +23,14 @@ export function PageHeader({
 export function Card({
   children,
   className = "",
+  id,
 }: {
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <div className={`rounded-xl border border-neutral-200 bg-white p-5 shadow-sm ${className}`}>
+    <div id={id} className={`rounded-xl border border-neutral-200 bg-white p-5 shadow-sm ${className}`}>
       {children}
     </div>
   );
