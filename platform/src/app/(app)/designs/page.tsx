@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { designItems, businessPartners } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { aiCatalogAnswer } from "@/lib/ai/catalog-answer";
+import { voyageConfigured, embedQuery, toVectorLiteral } from "@/lib/ai/voyage";
 
 export const dynamic = "force-dynamic";
 const PAGE = 50;
@@ -39,6 +40,32 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
   ]);
   const pages = Math.max(1, Math.ceil(total / PAGE));
   const aiPick = q ? await aiCatalogAnswer(q, "art & design catalog", items.map((i) => `${i.itemNumber}${i.description ? ` — ${i.description}` : ""}${i.company ? ` (${i.company})` : ""}`)) : null;
+
+  // Semantic matches: vector-search the query against the embedded catalogue.
+  // Inert (empty) until a VOYAGE_API_KEY is set and scripts/embed-designs.mjs
+  // has been run — the try/catch swallows "table doesn't exist yet".
+  type SemHit = { id: string; itemNumber: string; description: string | null; company: string | null };
+  let semantic: SemHit[] = [];
+  if (q && voyageConfigured()) {
+    try {
+      const qvec = await embedQuery(q);
+      if (qvec) {
+        const lit = toVectorLiteral(qvec);
+        const res = await db.execute(sql`
+          select d.id, d.item_number as "itemNumber", d.description, b.company_name as company
+          from design_embeddings e
+          join design_items d on d.id = e.design_id
+          left join business_partners b on b.id = d.bp_id
+          where d.archived = false
+          order by e.embedding <=> ${lit}::vector
+          limit 12`);
+        semantic = ((res as unknown as { rows?: SemHit[] }).rows ?? (res as unknown as SemHit[])) as SemHit[];
+      }
+    } catch {
+      // embeddings not backfilled yet — fall back to keyword results silently
+    }
+  }
+
   const qs = (p: number) => { const s = new URLSearchParams(); if (q) s.set("q", q); if (catalog) s.set("catalog", catalog); if (showArchived) s.set("archived", "1"); if (p > 1) s.set("page", String(p)); return `/designs?${s.toString()}`; };
 
   return (
@@ -74,6 +101,25 @@ export default async function DesignsPage({ searchParams }: { searchParams: Prom
           <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-400">✨ AI catalog search</p>
           {aiPick}
         </div>
+      )}
+
+      {semantic.length > 0 && (
+        <Card className="p-0">
+          <div className="border-b border-neutral-100 px-4 py-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-brand-ink">✨ AI matches for “{q}”</h2>
+          </div>
+          <ul className="divide-y divide-neutral-100">
+            {semantic.map((s) => (
+              <li key={s.id}>
+                <Link href={`/designs/${s.id}`} className="flex items-center gap-3 px-4 py-2 hover:bg-neutral-50">
+                  <span className="shrink-0 font-mono text-xs font-medium text-brand-ink">{s.itemNumber}</span>
+                  <span className="truncate text-sm text-neutral-800">{s.description ?? "—"}</span>
+                  {s.company && <span className="ml-auto shrink-0 text-xs text-neutral-400">{s.company}</span>}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
 
       <Card className="p-0">
