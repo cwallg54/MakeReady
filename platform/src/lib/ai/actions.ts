@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { artRequests, orders, orderSpecItems, businessPartners, activities, historicalOrders, invoices } from "@/db/schema";
+import { artRequests, orders, orderSpecItems, businessPartners, activities, historicalOrders, invoices, glAccounts } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { canDoArt } from "@/lib/art/access";
@@ -90,4 +90,67 @@ export async function summarizeCustomerAction(_prev: AiState, formData: FormData
   if (!res.ok) return { error: res.error };
   await audit({ userId: user.id, action: "ai.customer_summary", entityType: "business_partner", entityId: bpId });
   return { text: res.text };
+}
+
+// ---- Draft a customer email -----------------------------------------------
+
+const EMAIL_PURPOSE: Record<string, string> = {
+  followup: "a friendly follow-up checking in on their needs",
+  reengage: "re-engaging a customer we haven't heard from in a while",
+  thankyou: "thanking them for their recent business",
+  quote_nudge: "a gentle nudge on an open quote awaiting their approval",
+};
+
+/** Draft a short, professional outreach email to a customer for a given purpose. */
+export async function draftCustomerEmailAction(_prev: AiState, formData: FormData): Promise<AiState> {
+  const user = await getCurrentUser();
+  if (!user || !canView(user.roles, "crm")) return { error: "Not allowed." };
+  const bpId = String(formData.get("bpId") ?? "");
+  const purpose = String(formData.get("purpose") ?? "followup");
+  if (!bpId) return { error: "No customer." };
+  const bp = await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, bpId), columns: { companyName: true, lifecycleStage: true } });
+  if (!bp) return { error: "Customer not found." };
+  const recent = await db.select({ content: activities.content }).from(activities).where(eq(activities.bpId, bpId)).orderBy(desc(activities.createdAt)).limit(6);
+
+  const res = await aiComplete({
+    system: "You are a salesperson at Great Mountain West, a commercial print & decoration company. Write a short, warm, professional email (60–110 words). Plain text, no subject line unless asked. Sign off as “The Great Mountain West team”. Don't invent specifics, prices, or promises — keep it relationship-focused. Provide only the email body.",
+    prompt: `Write ${EMAIL_PURPOSE[purpose] ?? "a follow-up"} email to ${bp.companyName}. Recent context (may be empty): ${JSON.stringify(recent.map((r) => r.content))}`,
+    maxTokens: 500,
+    temperature: 0.6,
+  });
+  if (!res.ok) return { error: res.error };
+  await audit({ userId: user.id, action: "ai.email_draft", entityType: "business_partner", entityId: bpId, metadata: { purpose } });
+  return { text: res.text };
+}
+
+// ---- Suggest a GL account for a bill line ---------------------------------
+
+export interface AccountSuggestState {
+  code?: string;
+  name?: string;
+  reason?: string;
+  error?: string;
+}
+
+/** Suggest the best expense/asset GL account for a bill-line description. */
+export async function suggestBillAccountAction(_prev: AccountSuggestState, formData: FormData): Promise<AccountSuggestState> {
+  const user = await getCurrentUser();
+  if (!user || !canEdit(user.roles, "accounting")) return { error: "Not allowed." };
+  const description = String(formData.get("description") ?? "").trim();
+  if (!description) return { error: "Enter a description first." };
+  const accounts = await db.select({ code: glAccounts.code, name: glAccounts.name, type: glAccounts.type, subtype: glAccounts.subtype })
+    .from(glAccounts).where(and(eq(glAccounts.active, true), sql`${glAccounts.type} in ('expense','asset')`));
+
+  const res = await aiComplete({
+    system: "You categorize vendor-bill line items to a general-ledger account. Choose the single best-fit account from the provided chart of accounts. Reply with ONLY the account code, a pipe, and a 6-word reason. Example: 6100|monthly office rent expense. If nothing fits, reply: NONE|no clear match.",
+    prompt: `Line item: "${description}"\n\nChart of accounts (code — name — type):\n${accounts.map((a) => `${a.code} — ${a.name} — ${a.type}${a.subtype ? ` (${a.subtype})` : ""}`).join("\n")}`,
+    maxTokens: 60,
+    temperature: 0,
+  });
+  if (!res.ok) return { error: res.error };
+  const [code, reason] = (res.text ?? "").split("|").map((s) => s.trim());
+  const match = accounts.find((a) => a.code === code);
+  if (!match) return { error: "No confident match — pick manually." };
+  await audit({ userId: user.id, action: "ai.account_suggest", entityType: "gl_account", entityId: code });
+  return { code: match.code, name: match.name, reason };
 }

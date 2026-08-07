@@ -10,6 +10,7 @@ import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { fmtDate } from "@/lib/format";
 import { updateBillMetaAction, addBillLineAction, removeBillLineAction, approveBillAction, recordBillPaymentAction, voidBillAction } from "@/lib/accounting/ap-actions";
+import { AddBillLine } from "@/components/ai/add-bill-line";
 
 export const dynamic = "force-dynamic";
 const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -94,14 +95,7 @@ export default async function BillDetailPage({ params, searchParams }: { params:
         {editable && draft && (
           <form action={addBillLineAction} className="grid gap-2 border-t border-neutral-100 p-3 sm:grid-cols-12">
             <input type="hidden" name="billId" value={bill.id} />
-            <input name="description" required placeholder="Description" className={`sm:col-span-4 ${inp}`} />
-            <select name="accountId" defaultValue={vendor?.defaultAccountId ?? ""} className={`sm:col-span-4 ${inp}`}>
-              <option value="">— account —</option>
-              {accounts.map((a) => <option key={a.id} value={a.id}>{a.code} · {a.name}</option>)}
-            </select>
-            <input name="qty" type="number" step="0.01" min="0" defaultValue="1" className={`sm:col-span-1 ${inp}`} />
-            <input name="unitPrice" type="number" step="0.01" min="0" placeholder="0.00" className={`sm:col-span-2 ${inp}`} />
-            <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700 sm:col-span-1">Add</button>
+            <AddBillLine accounts={accounts} defaultAccountId={vendor?.defaultAccountId ?? ""} />
           </form>
         )}
       </Card>
