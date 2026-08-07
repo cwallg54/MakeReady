@@ -1396,6 +1396,8 @@ export const artRequests = pgTable(
     sourcingType: text("sourcing_type"), // hard goods: in_house | domestic | import
     supplierNotes: text("supplier_notes"), // max colors, sizes, print-area limits, restrictions
     buyerSentAt: timestamp("buyer_sent_at", { withTimezone: true }), // headwear/hard-goods files sent to buyer
+    digitizerSentAt: timestamp("digitizer_sent_at", { withTimezone: true }), // embroidery files sent to digitizer
+    separationsSentAt: timestamp("separations_sent_at", { withTimezone: true }), // silkscreen seps sent to shop
     // Links: prior artwork reused, and the blank/apparel/headwear item used.
     previousDesignRef: text("previous_design_ref"),
     blankItemRef: text("blank_item_ref"),

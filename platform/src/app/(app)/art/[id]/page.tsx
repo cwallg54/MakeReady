@@ -6,7 +6,7 @@ import { artRequests, artRevisions, orders, businessPartners, orderSpecItems, or
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { canEdit } from "@/lib/rbac";
-import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, logArtRevisionAction, markProductionReadyAction } from "@/lib/art/actions";
+import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, markDigitizerSentAction, markSeparationsSentAction, uploadProductionFileAction, logArtRevisionAction, markProductionReadyAction } from "@/lib/art/actions";
 import { productionReadinessChecklist } from "@/lib/art/gate";
 import { estimateArtMinutes } from "@/lib/art/scheduling";
 import { linkExistingDesignToArtAction, unlinkDesignFromArtAction } from "@/lib/designs/actions";
@@ -28,6 +28,7 @@ const ERR_MSG: Record<string, string> = {
   exception: "A legacy/ESM design needs a reason before it can be saved.",
   nolink: "No design found with that item number.",
   notready: "Not production-ready yet — complete every item on the Production Readiness checklist first.",
+  seps: "Separations can only be sent once the artwork is customer-approved (no pending changes) and separations are marked complete.",
 };
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
@@ -67,6 +68,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
   const catalog = group("catalog");
   const customer = attachments.filter((a) => a.kind === "art" || a.kind === "reference");
   const proposed = group("mockup");
+  const productionFiles = group("production");
 
   // Production-readiness checklist (the SOP gate before an order goes to production).
   const readiness = productionReadinessChecklist({
@@ -252,16 +254,6 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
           <label className="flex items-center gap-2 text-sm text-neutral-700"><input type="checkbox" name="separationsDone" defaultChecked={req.separationsDone} className="h-4 w-4" /> Separations completed (silkscreen)</label>
           <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save details</button>
         </form>
-
-        {isHeadwearOrHard && (
-          <div className="mt-3 flex items-center gap-3 border-t border-neutral-100 pt-3">
-            {req.buyerSentAt ? (
-              <span className="text-sm text-emerald-700">✓ Production files sent to buyer · {fmtDateTime(req.buyerSentAt)}</span>
-            ) : (
-              <form action={markBuyerSentAction}><input type="hidden" name="id" value={req.id} /><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Mark files sent to buyer</button></form>
-            )}
-          </div>
-        )}
       </Card>
 
       {/* Production readiness checklist */}
@@ -287,6 +279,51 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
               <button disabled={!readiness.complete} className={`rounded-md px-4 py-2 text-sm font-semibold ${readiness.complete ? "bg-neutral-900 text-white hover:bg-neutral-700" : "cursor-not-allowed bg-neutral-100 text-neutral-400"}`}>Mark production ready</button>
             </form>
           )}
+        </div>
+      </Card>
+
+      {/* Production files & handoff */}
+      <Card>
+        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Production files &amp; handoff</h2>
+        <p className="mb-3 text-xs text-neutral-500">Upload completed production/digitized files and send them to the right place. Files are kept with the order and design.</p>
+
+        {productionFiles.length > 0 && (
+          <ul className="mb-3 flex flex-wrap gap-2">
+            {productionFiles.map((a) => (
+              <li key={a.id}><a href={`/art/attachment/${a.id}`} target="_blank" rel="noreferrer" className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs text-neutral-700 hover:bg-neutral-100">📄 {a.filename}</a></li>
+            ))}
+          </ul>
+        )}
+        <form action={uploadProductionFileAction} className="mb-3 flex items-center gap-2">
+          <input type="hidden" name="orderId" value={order.id} />
+          <input type="hidden" name="requestId" value={req.id} />
+          <input type="file" name="file" accept="image/*,.pdf,.ai,.eps,.dst,.emb,.pxf,.psd" className="text-sm text-neutral-600 file:mr-2 file:rounded file:border-0 file:bg-neutral-900 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white" />
+          <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Upload production file</button>
+        </form>
+
+        <div className="space-y-2 border-t border-neutral-100 pt-3">
+          {req.productionType === "embroidery" && (
+            <div className="flex items-center gap-3 text-sm">
+              <span className="w-40 text-neutral-500">Digitizer{req.stitchCount ? ` · ${req.stitchCount.toLocaleString()} stitches` : ""}</span>
+              {req.digitizerSentAt ? <span className="text-emerald-700">✓ Sent {fmtDateTime(req.digitizerSentAt)}</span>
+                : <form action={markDigitizerSentAction}><input type="hidden" name="id" value={req.id} /><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">Send to digitizer</button></form>}
+            </div>
+          )}
+          {req.productionType === "screen_print" && (
+            <div className="flex items-center gap-3 text-sm">
+              <span className="w-40 text-neutral-500">Silkscreen separations</span>
+              {req.separationsSentAt ? <span className="text-emerald-700">✓ Sent {fmtDateTime(req.separationsSentAt)}</span>
+                : <form action={markSeparationsSentAction}><input type="hidden" name="id" value={req.id} /><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">Send separations to shop</button></form>}
+            </div>
+          )}
+          {isHeadwearOrHard && (
+            <div className="flex items-center gap-3 text-sm">
+              <span className="w-40 text-neutral-500">Buyer</span>
+              {req.buyerSentAt ? <span className="text-emerald-700">✓ Sent {fmtDateTime(req.buyerSentAt)}</span>
+                : <form action={markBuyerSentAction}><input type="hidden" name="id" value={req.id} /><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">Send files to buyer</button></form>}
+            </div>
+          )}
+          {!req.productionType && <p className="text-xs text-neutral-400">Choose a production type above to see its handoff (digitizer, silkscreen, or buyer).</p>}
         </div>
       </Card>
 

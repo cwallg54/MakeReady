@@ -208,6 +208,56 @@ export async function markBuyerSentAction(formData: FormData): Promise<void> {
   revalidatePath(`/art/${id}`);
 }
 
+/** Embroidery: mark digitized/production files sent to the digitizer. */
+export async function markDigitizerSentAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await db.update(artRequests).set({ digitizerSentAt: new Date(), updatedAt: new Date() }).where(eq(artRequests.id, id));
+  await audit({ userId: user.id, action: "art.digitizer_sent", entityType: "art_request", entityId: id });
+  revalidatePath(`/art/${id}`);
+}
+
+/** Silkscreen: send completed separations to the Silkscreen department. Requires
+ *  the artwork to be customer-approved (no pending changes) and seps completed. */
+export async function markSeparationsSentAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const req = await db.query.artRequests.findFirst({ where: eq(artRequests.id, id) });
+  if (!req) return;
+  const proofs = await db.select({ status: orderProofs.status }).from(orderProofs).where(eq(orderProofs.orderId, req.orderId));
+  const approved = proofs.some((p) => p.status === "approved");
+  const pending = proofs.some((p) => p.status === "pending");
+  if (!req.separationsDone || !approved || pending) redirect(`/art/${id}?err=seps`);
+  await db.update(artRequests).set({ separationsSentAt: new Date(), updatedAt: new Date() }).where(eq(artRequests.id, id));
+  await notifyTeam("production", { type: "production", title: "Separations sent", body: "Silkscreen separations are ready in production.", link: "/production" }, ["production"]);
+  await audit({ userId: user.id, action: "art.seps_sent", entityType: "art_request", entityId: id });
+  revalidatePath(`/art/${id}`);
+}
+
+/** Upload a completed production/digitized file (kept with the order). */
+export async function uploadProductionFileAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const orderId = String(formData.get("orderId") ?? "");
+  const requestId = String(formData.get("requestId") ?? "");
+  if (!orderId) return;
+  const file = formData.get("file");
+  if (file && typeof file === "object" && "arrayBuffer" in file) {
+    const f = file as File;
+    if (f.size > 0 && f.size <= 20_000_000) {
+      const buf = Buffer.from(await f.arrayBuffer());
+      await db.insert(orderAttachments).values({
+        orderId, filename: f.name || "production-file", mimeType: f.type || "application/octet-stream",
+        sizeBytes: f.size, kind: "production", contentBase64: buf.toString("base64"),
+        notes: "Production/digitized file", uploadedBy: user.id,
+      });
+    }
+  }
+  await audit({ userId: user.id, action: "art.upload_production", entityType: "order", entityId: orderId });
+  if (requestId) revalidatePath(`/art/${requestId}`);
+}
+
 /** Log a revision round (customer-requested change) with time spent. */
 export async function logArtRevisionAction(formData: FormData): Promise<void> {
   const user = await requireArt();
