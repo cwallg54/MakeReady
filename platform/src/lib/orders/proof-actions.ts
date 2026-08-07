@@ -12,6 +12,7 @@ import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-li
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { notifyTracker } from "./notify";
+import { runArtHandoffAutomation } from "@/lib/art/automation";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -125,6 +126,9 @@ export async function submitProofDecisionAction(_prev: ProofDecisionState, formD
   if (artReq) {
     if (status === "approved") {
       await db.update(artRequests).set({ status: "approved", updatedAt: new Date() }).where(eq(artRequests.id, artReq.id));
+      // SOP automation: approved embroidery auto-sends to the digitizer, and
+      // silkscreen separations auto-send once complete.
+      await runArtHandoffAutomation(artReq.id, null);
     } else if (status === "changes_requested") {
       await db.insert(artRevisions).values({ requestId: artReq.id, note: notes || null });
       await db.update(artRequests).set({ status: "revisions", revisionCount: sql`${artRequests.revisionCount} + 1`, updatedAt: new Date() }).where(eq(artRequests.id, artReq.id));

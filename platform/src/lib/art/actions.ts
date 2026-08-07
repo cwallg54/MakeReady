@@ -10,10 +10,11 @@ import { orders, orderEvents, orderAttachments, orderSpecItems, orderProofs, art
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { notifyTrackerStage } from "@/lib/orders/notify";
+import { notifyTrackerStage, notifyTracker } from "@/lib/orders/notify";
 import { notifyTeam } from "@/lib/teams/notify";
 import { artReadinessChecklist, productionReadinessChecklist } from "./gate";
 import { estimateArtMinutes } from "./scheduling";
+import { runArtHandoffAutomation } from "./automation";
 import { canDoArt } from "./access";
 
 const PROD_TYPES = ["screen_print", "embroidery", "headwear", "hard_goods", "other"] as const;
@@ -168,6 +169,8 @@ export async function updateArtDetailsAction(formData: FormData): Promise<void> 
     updatedAt: new Date(),
   }).where(eq(artRequests.id, id));
   await audit({ userId: user.id, action: "art.details", entityType: "art_request", entityId: id });
+  // If separations were just completed on an already-approved job, auto-send them.
+  await runArtHandoffAutomation(id, user.id);
   revalidatePath(`/art/${id}`);
   revalidatePath("/art");
 }
@@ -386,6 +389,13 @@ export async function sendArtProofAction(formData: FormData): Promise<void> {
     await db.insert(activities).values({ bpId: order.bpId, userId: user.id, type: "other", isSystem: true, content: `Proof sent to customer for order ${order.orderNumber} — visible on their tracking link` });
     revalidatePath(`/crm/${order.bpId}`);
   }
+  // SOP step 4: notify the customer their artwork is ready to review.
+  await notifyTracker(orderId, {
+    subject: `Your proof is ready to review — order ${order?.orderNumber ?? ""}`.trim(),
+    headline: "Your proof is ready to review",
+    body: "We&rsquo;ve prepared a proof of your artwork. Please review it and approve or request changes on your order page.",
+    actionNeeded: true,
+  });
   await audit({ userId: user.id, action: "art.send_proof", entityType: "order", entityId: orderId });
   if (requestId) revalidatePath(`/art/${requestId}`);
   revalidatePath("/art");
