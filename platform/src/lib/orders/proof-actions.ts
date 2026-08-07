@@ -3,10 +3,10 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
-import { orders, orderProofs, activities, notifications, schedulingProfiles } from "@/db/schema";
+import { orders, orderProofs, activities, notifications, schedulingProfiles, artRequests, artRevisions } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { canView, canEdit } from "@/lib/rbac";
@@ -117,6 +117,18 @@ export async function submitProofDecisionAction(_prev: ProofDecisionState, formD
       isSystem: true,
       content: `Customer ${label} proof “${proof.title}” (signed: ${signedName})${notes ? ` — ${notes}` : ""}`,
     });
+  }
+
+  // Keep the art request in step: approval marks it approved (back to sales for
+  // order entry); a change request logs a revision round and reopens it.
+  const artReq = await db.query.artRequests.findFirst({ where: eq(artRequests.orderId, proof.orderId) });
+  if (artReq) {
+    if (status === "approved") {
+      await db.update(artRequests).set({ status: "approved", updatedAt: new Date() }).where(eq(artRequests.id, artReq.id));
+    } else if (status === "changes_requested") {
+      await db.insert(artRevisions).values({ requestId: artReq.id, note: notes || null });
+      await db.update(artRequests).set({ status: "revisions", revisionCount: sql`${artRequests.revisionCount} + 1`, updatedAt: new Date() }).where(eq(artRequests.id, artReq.id));
+    }
   }
 
   // For a meeting request, surface the order owner's self-serve booking link.

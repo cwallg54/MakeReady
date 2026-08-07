@@ -60,3 +60,44 @@ export function artReadinessChecklist(
   ];
   return { items, complete: items.every((i) => i.done) };
 }
+
+// ---- Production Readiness Checklist (art → production) ---------------------
+export interface ProdReadyItem { key: string; label: string; done: boolean; na?: boolean }
+
+export interface ProdReadyInput {
+  productionType: string | null;
+  stitchCount: number | null;
+  separationsDone: boolean;
+  buyerSentAt: Date | null;
+  estimatedMinutes: number | null;
+  blankItemRef: string | null;
+  designActive: boolean;
+  hasApprovedProof: boolean;
+  hasPendingProof: boolean;
+  hasArtwork: boolean;
+  hasSpec: boolean;
+  specHasDecoration: boolean;
+  hasSpecialInstructions: boolean;
+}
+
+/** The SOP's production-readiness checklist. Type-specific items (stitch count,
+ *  separations, buyer) are N/A unless the production type applies; N/A items
+ *  don't block completeness. */
+export function productionReadinessChecklist(i: ProdReadyInput): { items: ProdReadyItem[]; complete: boolean } {
+  const t = i.productionType;
+  const items: ProdReadyItem[] = [
+    { key: "approved", label: "Customer artwork approved", done: i.hasApprovedProof },
+    { key: "no_revisions", label: "No outstanding revisions", done: !i.hasPendingProof },
+    { key: "item", label: "Garment / headwear / hard goods selected", done: !!i.blankItemRef || i.hasSpec },
+    { key: "decoration", label: "Decoration method confirmed", done: !!t || i.specHasDecoration },
+    { key: "artwork", label: "Working art file linked", done: i.hasArtwork || i.designActive },
+    { key: "orderable", label: "Orderable design punched in (item # + barcode)", done: i.designActive },
+    { key: "stitch", label: "Stitch count recorded (embroidery)", done: t === "embroidery" ? (i.stitchCount ?? 0) > 0 : true, na: t !== "embroidery" },
+    { key: "seps", label: "Separations completed (silkscreen)", done: t === "screen_print" ? i.separationsDone : true, na: t !== "screen_print" },
+    { key: "buyer", label: "Buyer notified (headwear / hard goods)", done: t === "headwear" || t === "hard_goods" ? !!i.buyerSentAt : true, na: !(t === "headwear" || t === "hard_goods") },
+    { key: "instructions", label: "Special instructions documented", done: i.hasSpecialInstructions },
+    { key: "estimate", label: "Estimated production time confirmed", done: (i.estimatedMinutes ?? 0) > 0 },
+  ];
+  return { items, complete: items.every((it) => it.done) };
+}
+

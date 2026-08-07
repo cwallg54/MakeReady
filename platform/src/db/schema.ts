@@ -241,6 +241,10 @@ export const orderStageEnum = pgEnum("order_stage", ["received", "art_proof", "p
 export const proofStatusEnum = pgEnum("proof_status", ["pending", "approved", "changes_requested", "declined", "meeting_requested"]);
 // Art-request pipeline stages — these are the columns of the Art department Kanban.
 export const artStatusEnum = pgEnum("art_status", ["todo", "in_progress", "proofing", "revisions", "approved", "done"]);
+// Sales-controlled art priority: one P1 and one P2 per salesperson.
+export const artPriorityEnum = pgEnum("art_priority", ["none", "p2", "p1"]);
+// The production route an art job is headed for (drives type-specific fields).
+export const artProductionTypeEnum = pgEnum("art_production_type", ["screen_print", "embroidery", "headwear", "hard_goods", "other"]);
 // Production-job pipeline stages — the columns of the Production Kanban.
 export const productionStatusEnum = pgEnum("production_status", ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"]);
 // Stock movement reasons for the inventory ledger.
@@ -1379,8 +1383,24 @@ export const artRequests = pgTable(
     status: artStatusEnum("status").notNull().default("todo"),
     assignedTo: uuid("assigned_to").references(() => users.id, { onDelete: "set null" }),
     rush: boolean("rush").notNull().default(false),
+    // Sales-controlled priority (P1/P2) used for the artist scheduling queue.
+    priority: artPriorityEnum("priority").notNull().default("none"),
+    // Estimated minutes to complete — feeds artist scheduling & workload.
+    estimatedMinutes: integer("estimated_minutes"),
     dueDate: timestamp("due_date", { withTimezone: true }),
     brief: text("brief"), // the customization brief from the sales meeting
+    // Production routing + type-specific production details.
+    productionType: artProductionTypeEnum("production_type"),
+    stitchCount: integer("stitch_count"), // embroidery
+    separationsDone: boolean("separations_done").notNull().default(false), // silkscreen
+    sourcingType: text("sourcing_type"), // hard goods: in_house | domestic | import
+    supplierNotes: text("supplier_notes"), // max colors, sizes, print-area limits, restrictions
+    buyerSentAt: timestamp("buyer_sent_at", { withTimezone: true }), // headwear/hard-goods files sent to buyer
+    // Links: prior artwork reused, and the blank/apparel/headwear item used.
+    previousDesignRef: text("previous_design_ref"),
+    blankItemRef: text("blank_item_ref"),
+    revisionCount: integer("revision_count").notNull().default(0),
+    productionReadyAt: timestamp("production_ready_at", { withTimezone: true }),
     // The design/orderable item this art job produced. Punching this in is the
     // required gate before the art can be approved — creating it auto-makes the
     // inventory item (with art) so sales can order without SAP/Zoey re-entry.
@@ -1391,6 +1411,21 @@ export const artRequests = pgTable(
   },
   (t) => [index("art_requests_status_idx").on(t.status), index("art_requests_assigned_to_idx").on(t.assignedTo)],
 );
+
+// Revision history for an art request — each customer-requested change round.
+export const artRevisions = pgTable(
+  "art_revisions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requestId: uuid("request_id").notNull().references(() => artRequests.id, { onDelete: "cascade" }),
+    note: text("note"),
+    minutesSpent: integer("minutes_spent"),
+    byUserId: uuid("by_user_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("art_revisions_request_idx").on(t.requestId)],
+);
+export type ArtRevision = typeof artRevisions.$inferSelect;
 
 export type Order = typeof orders.$inferSelect;
 export type OrderEvent = typeof orderEvents.$inferSelect;

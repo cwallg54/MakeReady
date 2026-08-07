@@ -10,6 +10,8 @@ export interface ArtCard {
   id: string;
   status: string;
   rush: boolean;
+  priority: string;
+  estimatedMinutes: number | null;
   dueLabel: string | null;
   assignedTo: string | null;
   assigneeName: string | null;
@@ -17,6 +19,8 @@ export interface ArtCard {
   orderNumber: string;
   company: string;
 }
+
+const PRIORITY_BADGE: Record<string, string> = { p1: "bg-red-600 text-white", p2: "bg-amber-500 text-white" };
 
 const COLUMNS: { key: string; label: string }[] = [
   { key: "todo", label: "To do" },
@@ -83,12 +87,15 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
       onContextMenu={(e) => { if (draggable) e.preventDefault(); }}
       className={`rounded-lg border border-neutral-200 bg-white p-3 shadow-sm ${draggable ? "cursor-grab select-none active:cursor-grabbing" : ""} ${touch.dragId === c.id ? "opacity-40" : ""}`}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-1">
         <Link href={`/art/${c.id}`} className="text-sm font-semibold text-neutral-900 hover:underline">{c.orderNumber}</Link>
-        {c.rush && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Rush</span>}
+        <span className="flex items-center gap-1">
+          {c.priority !== "none" && <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${PRIORITY_BADGE[c.priority]}`}>{c.priority}</span>}
+          {c.rush && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Rush</span>}
+        </span>
       </div>
       <p className="truncate text-xs text-neutral-500">{c.company}</p>
-      {c.dueLabel && <p className="mt-1 text-[11px] text-neutral-400">Due {c.dueLabel}</p>}
+      <p className="mt-1 text-[11px] text-neutral-400">{c.dueLabel ? `Due ${c.dueLabel}` : "No due date"}{c.estimatedMinutes ? ` · ~${(c.estimatedMinutes / 60).toFixed(1)}h` : ""}</p>
       <div className="mt-2"><Assignee c={c} /></div>
     </div>
   );

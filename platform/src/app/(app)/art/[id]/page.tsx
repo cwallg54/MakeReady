@@ -2,14 +2,22 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { artRequests, orders, businessPartners, orderSpecItems, orderAttachments, orderProofs, designItems, designBrands, designSuffixes } from "@/db/schema";
+import { artRequests, artRevisions, orders, businessPartners, orderSpecItems, orderAttachments, orderProofs, designItems, designBrands, designSuffixes } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
-import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction } from "@/lib/art/actions";
+import { canEdit } from "@/lib/rbac";
+import { uploadArtAction, sendArtProofAction, setArtStatusAction, updateArtRequestAction, updateArtDetailsAction, setArtPriorityAction, markBuyerSentAction, logArtRevisionAction, markProductionReadyAction } from "@/lib/art/actions";
+import { productionReadinessChecklist } from "@/lib/art/gate";
 import { linkExistingDesignToArtAction, unlinkDesignFromArtAction } from "@/lib/designs/actions";
 import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ArtDesignForm } from "./art-design-form";
+
+const PROD_TYPES: { v: string; label: string }[] = [
+  { v: "screen_print", label: "Silkscreen" }, { v: "embroidery", label: "Embroidery" },
+  { v: "headwear", label: "Headwear (overseas)" }, { v: "hard_goods", label: "Hard goods" }, { v: "other", label: "Other" },
+];
+const PRIORITY_BADGE: Record<string, string> = { p1: "bg-red-100 text-red-700", p2: "bg-amber-100 text-amber-700", none: "" };
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +26,7 @@ const ERR_MSG: Record<string, string> = {
   needdesign: "Punch in the orderable design first — an art job can’t be approved or finished until its item number and barcode exist (so sales can order it).",
   exception: "A legacy/ESM design needs a reason before it can be saved.",
   nolink: "No design found with that item number.",
+  notready: "Not production-ready yet — complete every item on the Production Readiness checklist first.",
 };
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
@@ -50,10 +59,27 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
   const defaultCustNumber = bp?.legacyCode?.replace(/^C/i, "") ?? "";
   const defaultDescription = specs[0]?.product ?? "";
 
+  const revisions = await db.select().from(artRevisions).where(eq(artRevisions.requestId, id)).orderBy(desc(artRevisions.createdAt));
+  const canSales = canEdit(user.roles, "sales");
+
   const group = (k: string) => attachments.filter((a) => a.kind === k);
   const catalog = group("catalog");
   const customer = attachments.filter((a) => a.kind === "art" || a.kind === "reference");
   const proposed = group("mockup");
+
+  // Production-readiness checklist (the SOP gate before an order goes to production).
+  const readiness = productionReadinessChecklist({
+    productionType: req.productionType, stitchCount: req.stitchCount, separationsDone: req.separationsDone,
+    buyerSentAt: req.buyerSentAt, estimatedMinutes: req.estimatedMinutes, blankItemRef: req.blankItemRef,
+    designActive: design?.status === "active",
+    hasApprovedProof: proofs.some((p) => p.status === "approved"),
+    hasPendingProof: proofs.some((p) => p.status === "pending"),
+    hasArtwork: proposed.length > 0 || customer.length > 0,
+    hasSpec: specs.length > 0,
+    specHasDecoration: specs.some((s) => !!s.decorationMethod),
+    hasSpecialInstructions: !!(req.brief || order.productionNotes),
+  });
+  const isHeadwearOrHard = req.productionType === "headwear" || req.productionType === "hard_goods";
 
   const Thumb = ({ a }: { a: (typeof attachments)[number] }) => {
     const href = `/art/attachment/${a.id}`;
@@ -176,6 +202,111 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
           <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save brief</button>
         </form>
         {order.productionNotes && <p className="mt-3 text-xs text-neutral-500">Production notes: {order.productionNotes}</p>}
+      </Card>
+
+      {/* Scheduling, priority & production routing */}
+      <Card>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-neutral-900">Scheduling &amp; production routing</h2>
+          <div className="flex items-center gap-2">
+            {req.priority !== "none" && <span className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase ${PRIORITY_BADGE[req.priority]}`}>{req.priority}</span>}
+            {req.revisionCount > 0 && <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600">{req.revisionCount} rev</span>}
+          </div>
+        </div>
+
+        {canSales && (
+          <form action={setArtPriorityAction} className="mb-3 flex items-end gap-2">
+            <input type="hidden" name="id" value={req.id} />
+            <label className="text-xs text-neutral-500">Sales priority
+              <select name="priority" defaultValue={req.priority} className={`ml-2 ${input}`}>
+                <option value="none">None</option><option value="p1">Priority 1</option><option value="p2">Priority 2</option>
+              </select>
+            </label>
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50">Set priority</button>
+            <span className="text-[11px] text-neutral-400">One P1 &amp; one P2 per salesperson.</span>
+          </form>
+        )}
+
+        <form action={updateArtDetailsAction} className="space-y-3">
+          <input type="hidden" name="id" value={req.id} />
+          <div className="grid gap-2 sm:grid-cols-3">
+            <label className="text-xs text-neutral-500">Est. time (minutes)<input name="estimatedMinutes" type="number" min="0" defaultValue={req.estimatedMinutes ?? ""} className={`mt-1 w-full ${input}`} /></label>
+            <label className="text-xs text-neutral-500">Production type
+              <select name="productionType" defaultValue={req.productionType ?? ""} className={`mt-1 w-full ${input}`}>
+                <option value="">— choose —</option>
+                {PROD_TYPES.map((t) => <option key={t.v} value={t.v}>{t.label}</option>)}
+              </select>
+            </label>
+            <label className="text-xs text-neutral-500">Blank / apparel item<input name="blankItemRef" defaultValue={req.blankItemRef ?? ""} placeholder="style # or link" className={`mt-1 w-full ${input}`} /></label>
+            <label className="text-xs text-neutral-500">Previous design reused<input name="previousDesignRef" defaultValue={req.previousDesignRef ?? ""} placeholder="item # or link" className={`mt-1 w-full ${input}`} /></label>
+            <label className="text-xs text-neutral-500">Stitch count (embroidery)<input name="stitchCount" type="number" min="0" defaultValue={req.stitchCount ?? ""} className={`mt-1 w-full ${input}`} /></label>
+            <label className="text-xs text-neutral-500">Sourcing (hard goods)
+              <select name="sourcingType" defaultValue={req.sourcingType ?? ""} className={`mt-1 w-full ${input}`}>
+                <option value="">—</option><option value="in_house">In-house</option><option value="domestic">Domestic</option><option value="import">Import</option>
+              </select>
+            </label>
+          </div>
+          <label className="block text-xs text-neutral-500">Supplier limits / notes (max colors, sizes, print area, restrictions)<input name="supplierNotes" defaultValue={req.supplierNotes ?? ""} className={`mt-1 w-full ${input}`} /></label>
+          <label className="flex items-center gap-2 text-sm text-neutral-700"><input type="checkbox" name="separationsDone" defaultChecked={req.separationsDone} className="h-4 w-4" /> Separations completed (silkscreen)</label>
+          <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save details</button>
+        </form>
+
+        {isHeadwearOrHard && (
+          <div className="mt-3 flex items-center gap-3 border-t border-neutral-100 pt-3">
+            {req.buyerSentAt ? (
+              <span className="text-sm text-emerald-700">✓ Production files sent to buyer · {fmtDateTime(req.buyerSentAt)}</span>
+            ) : (
+              <form action={markBuyerSentAction}><input type="hidden" name="id" value={req.id} /><button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Mark files sent to buyer</button></form>
+            )}
+          </div>
+        )}
+      </Card>
+
+      {/* Production readiness checklist */}
+      <Card className={readiness.complete ? "border-emerald-300" : ""}>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-neutral-900">Production readiness</h2>
+          <span className={`text-xs font-semibold ${readiness.complete ? "text-emerald-600" : "text-amber-600"}`}>{readiness.items.filter((i) => i.done || i.na).length}/{readiness.items.length}</span>
+        </div>
+        <ul className="space-y-1">
+          {readiness.items.map((it) => (
+            <li key={it.key} className="flex items-start gap-2 text-sm">
+              <span className={it.na ? "text-neutral-300" : it.done ? "text-emerald-600" : "text-neutral-300"}>{it.na ? "–" : it.done ? "✓" : "○"}</span>
+              <span className={it.na ? "text-neutral-400" : it.done ? "text-neutral-700" : "text-neutral-500"}>{it.label}{it.na ? " (n/a)" : ""}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-3">
+          {req.productionReadyAt ? (
+            <span className="text-sm font-medium text-emerald-700">✓ Production ready · {fmtDateTime(req.productionReadyAt)}</span>
+          ) : (
+            <form action={markProductionReadyAction}>
+              <input type="hidden" name="id" value={req.id} />
+              <button disabled={!readiness.complete} className={`rounded-md px-4 py-2 text-sm font-semibold ${readiness.complete ? "bg-neutral-900 text-white hover:bg-neutral-700" : "cursor-not-allowed bg-neutral-100 text-neutral-400"}`}>Mark production ready</button>
+            </form>
+          )}
+        </div>
+      </Card>
+
+      {/* Revisions */}
+      <Card>
+        <h2 className="mb-2 text-sm font-semibold text-neutral-900">Revisions{req.revisionCount > 0 ? ` (${req.revisionCount})` : ""}</h2>
+        {revisions.length > 0 && (
+          <ul className="mb-3 space-y-1.5 text-sm">
+            {revisions.map((r) => (
+              <li key={r.id} className="rounded-md border border-neutral-200 px-3 py-1.5">
+                <span className="text-neutral-500">{fmtDateTime(r.createdAt)}</span>{r.minutesSpent ? ` · ${r.minutesSpent} min` : ""}
+                {r.note && <p className="text-neutral-700">{r.note}</p>}
+              </li>
+            ))}
+          </ul>
+        )}
+        <form action={logArtRevisionAction} className="flex flex-wrap items-end gap-2">
+          <input type="hidden" name="id" value={req.id} />
+          <label className="flex-1 min-w-[12rem] text-xs text-neutral-500">Revision note<input name="note" placeholder="What changed" className={`mt-1 w-full ${input}`} /></label>
+          <label className="text-xs text-neutral-500">Minutes<input name="minutesSpent" type="number" min="0" className={`mt-1 w-24 ${input}`} /></label>
+          <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Log revision</button>
+        </form>
       </Card>
 
       {/* Production spec */}
