@@ -205,6 +205,66 @@ export const HELP_ARTICLES: HelpArticle[] = [
     related: ["dashboard", "managing-an-account", "building-a-quote", "pipeline", "team-calendar"],
   },
 
+  {
+    slug: "searching",
+    title: "Searching MakeReady",
+    section: "Getting Started",
+    summary: "The AI-powered search box in the header finds anything across the platform — customers, orders, quotes, invoices, inventory, designs, and more — using plain English.",
+    who: "Everyone",
+    blocks: [
+      { k: "p", text: "There's a 🔍 search box in the top header on every page (and a dedicated /search page). It's the fastest way to jump to any record — just start typing." },
+      { k: "h", text: "Ask in plain English" },
+      { k: "p", text: "Search is AI-powered, so it understands natural language. You don't have to remember exact names or numbers — you can type a question like \"Tell me about Caddis\" or \"who is Acme\", or simply drop in a name, a company, an order number, or a phone number. MakeReady works out what you mean and finds the closest matches." },
+      { k: "h", text: "It searches the whole platform" },
+      { k: "p", text: "One search box looks across everything you work with:" },
+      {
+        k: "list",
+        items: [
+          "Business partners (customers, leads, prospects) and their contacts",
+          "Orders and quotes",
+          "Invoices and bills",
+          "Vendors",
+          "Inventory items and designs",
+          "Activity notes",
+        ],
+      },
+      { k: "p", text: "Every result links straight to that record, so you're one click from the account, order, or design you were after." },
+      { k: "h", text: "The AI answer" },
+      { k: "p", text: "At the top of the results you'll see an \"AI answer\" that interprets your query in a sentence or two and points you to the best matches — handy when you asked a question rather than searched for an exact name." },
+      { k: "tip", text: "Results are permission-scoped: you only see matches from areas you have access to. For example, someone without accounting access won't see invoices or bills in their results." },
+      { k: "h", text: "Search elsewhere too" },
+      { k: "p", text: "The customer storefront (/shop) and the Design Library (/designs) each have their own AI search boxes tuned to their content — see the storefront and Design Library articles for those." },
+    ],
+    related: ["design-library", "dashboard", "storefront-shopping", "ai-assistant"],
+  },
+
+  {
+    slug: "ai-assistant",
+    title: "AI assistant features",
+    section: "Getting Started",
+    summary: "The ✨ AI helpers throughout MakeReady — account summaries, draft emails, art briefs, and GL-account suggestions — and how to use them responsibly.",
+    who: "Everyone",
+    blocks: [
+      { k: "p", text: "MakeReady has a handful of built-in AI helpers to save you typing and give you a head start. Each one appears as a ✨ button next to the thing it helps with." },
+      { k: "warn", text: "AI can be wrong. Always read and review what it produces before you send, save, or rely on it — treat every AI output as a draft, not a final answer." },
+      { k: "h", text: "On a customer's CRM page" },
+      { k: "p", text: "Two helpers sit on the account detail page:" },
+      {
+        k: "list",
+        items: [
+          "✨ AI summary — summarizes the account in a few sentences: who they are, their buying history, their value to you, any credit flags, and recent activity. A quick way to get up to speed before a call.",
+          "✨ Draft email — drafts a short outreach email you can copy and use. Pick the intent — a follow-up, a re-engagement, a thank-you, or a nudge on an open quote — and it writes a starting point. Review and edit it, then send it from your own mail app.",
+        ],
+      },
+      { k: "h", text: "On an art request" },
+      { k: "p", text: "Open an art request and you'll find \"✨ Draft brief with AI\", which writes a clean art brief straight from the order's production spec — so the artist has a tidy summary of what's needed without you writing it by hand." },
+      { k: "h", text: "On a vendor bill line" },
+      { k: "p", text: "In Accounting → Bills, when you add a line to a bill a ✨ button suggests the best GL account for that line based on its description — so you don't have to hunt through the chart of accounts for the right expense or asset account." },
+      { k: "warn", text: "These features need AI to be enabled for your workspace. If you see a message like \"AI isn't set up yet\", an administrator needs to add the API key before the ✨ buttons will work." },
+    ],
+    related: ["searching", "art-department", "accounts-payable", "managing-an-account"],
+  },
+
   // ─────────────────────────────── Account & Security ────────────────────────
   {
     slug: "two-factor-authentication",
@@ -321,8 +381,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "Contacts & addresses" },
       { k: "p", text: "Manage multiple contacts (one marked Primary) and shipping/billing addresses in the right-hand cards. The primary contact can't be removed — reassign primary first." },
       { k: "tip", text: "If the account's owner has a booking link set up, a \"📅 Book a meeting\" link appears so you can schedule with them in one click." },
+      { k: "h", text: "AI helpers" },
+      { k: "p", text: "Two ✨ AI helpers on the account page save you time: \"✨ AI summary\" writes a quick summary of the account — who they are, buying history, value, credit flags, and recent activity — so you can get up to speed before a call, and \"✨ Draft email\" drafts a short outreach email (follow-up, re-engagement, thank-you, or a nudge on an open quote) that you copy, review, and send yourself. As always, read AI output before you rely on it — see AI assistant features." },
     ],
-    related: ["business-partners", "pipeline", "financial-intake-documents", "building-a-quote", "reports-overview"],
+    related: ["business-partners", "pipeline", "financial-intake-documents", "building-a-quote", "reports-overview", "ai-assistant"],
   },
   {
     slug: "pipeline",
@@ -643,6 +705,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Art, Production, Sales Manager, Admin",
     blocks: [
       { k: "p", text: "Once an order's details are worked out, sales hands it to the art department for design, customization, and proofing. Art picks it up on the Art board, does the work, and sends the customer a proof — which the customer approves on their tracking link." },
+      { k: "h", text: "The guided workflow strip" },
+      { k: "p", text: "Every art request now opens with a guided Workflow strip across the top — a numbered flow that shows exactly where the job stands and what's next: Request submitted → Assign artist → Artwork produced → Out for review → Customer approved → Production handoff → Production ready. The current step is highlighted, and a \"Next:\" prompt spells out exactly what to do right now and links straight to the section of the page where you do it. If you're ever unsure what to do with a request, start there." },
       { k: "h", text: "How an order reaches art" },
       { k: "p", text: "On the order page, the salesperson clicks \"Submit to art →\". That creates an art request, moves the order into the Art & Proof stage, and notifies the art team. The catalogue image the customer picked and the production spec travel with it, so art sees exactly what was ordered." },
       { k: "h", text: "The Art board — Queue and Kanban" },
@@ -656,6 +720,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
           { text: "Assign a request to yourself or a teammate with the assignee dropdown. Rush jobs are flagged." },
         ],
       },
+      { k: "tip", text: "The board cards give you an at-a-glance read on each job: a revision count shows how many change rounds it's been through, and a green \"✓ Ready\" flag appears once a job has been marked production-ready." },
+      { k: "h", text: "Assign the artist right on the request" },
+      { k: "p", text: "You no longer have to go back to the board to assign work. Open a request and you'll find an \"Assigned artist\" section with a dropdown — pick the artist there and the job is theirs. It stays in sync with the board either way." },
+      { k: "h", text: "Draft the art brief with AI" },
+      { k: "p", text: "To save writing it out by hand, click \"✨ Draft brief with AI\" on the request and MakeReady writes a clean art brief from the order's production spec. Give it a quick read and tweak as needed — see AI assistant features." },
       { k: "h", text: "Do the work & send a proof" },
       { k: "img", src: "art-request.png", caption: "An art request: order details, spec, customer + proposed images, and the send-proof panel." },
       {
@@ -666,6 +735,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
           { text: "Under \"Send a proof to the customer\", give it a title, pick the art to show, add an optional message, and click \"Send proof\". The request moves to Proofing." },
         ],
       },
+      { k: "tip", text: "When you send a proof, the customer is automatically notified on their order tracker that there's something to review — you don't have to email them separately." },
       { k: "h", text: "Punch in the design (required)" },
       { k: "p", text: "Every art job has a Design & orderable item panel. Punch the design in here — once — and MakeReady composes the item number, assigns the barcode, attaches the art, and creates the orderable inventory item automatically. No more setting the item up by hand in SAP and again in the web store: art enters it once and sales can order it immediately, with the art already attached." },
       {
@@ -684,6 +754,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "The proposed image appears on the customer's order tracking link. They approve it, request changes (with notes), decline, or request a meeting. You're notified of their decision, and it's logged to the customer's history. When they approve, the request moves to Approved and returns to sales for order entry. When they request changes, a revision round is logged automatically and the job reopens to Revisions." },
       { k: "img", src: "proof-on-tracker.png", caption: "The customer reviews and approves the proof on their tracking page." },
       { k: "tip", text: "The customer never needs a login or a separate link — the proof shows up on the same tracker they already use to follow the order." },
+      { k: "h", text: "Automatic production handoffs" },
+      { k: "p", text: "Once the customer approves the proof, MakeReady starts the handoff to production for you — no separate step to remember. Embroidery files are sent to the digitizer automatically on approval, and silkscreen separations are sent to the shop as soon as the separations are marked complete. You'll simply see a \"✓ Sent\" indicator rather than having to click anything, and the production team is notified so they know the job is coming." },
+      { k: "h", text: "Handing the job back to sales" },
+      { k: "p", text: "As soon as the customer approves, a green banner appears on the request with a \"Return to order → entry & invoicing\" button. Clicking it hands the job back to sales to finish the order and invoice it — closing the loop from lead all the way to cash. Art's part is done; sales takes it from there." },
       { k: "h", text: "Scheduling, priority & the production route" },
       { k: "p", text: "Each request has a Scheduling & production routing panel. Set the estimated time (used for the artist workload strip at the top of the board), and choose the production type — Silkscreen, Embroidery, Headwear (overseas), Hard goods, or Other — which reveals the fields that matter for it: stitch count (embroidery), separations-completed (silkscreen), sourcing and supplier limits (hard goods), and a \"mark files sent to buyer\" button (headwear/hard goods). You can also link the blank/apparel item and any prior design reused." },
       { k: "p", text: "Sales controls priority: each salesperson may flag one Priority 1 and one Priority 2 job — setting one clears their other job at that level. P1/P2 badges show on the board cards." },
@@ -694,7 +768,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "Upsell / product change" },
       { k: "p", text: "If sales upsells to a different product the design wasn't built for, they don't have to force it through the whole flow again — on the order, \"Send back to art (upsell / product change)\" reopens the art request with a reason and puts the order back in the Art & Proof stage." },
     ],
-    related: ["creating-a-design", "design-numbering", "proof-approvals", "customer-order-tracker", "orders-and-production-stages"],
+    related: ["creating-a-design", "design-numbering", "proof-approvals", "customer-order-tracker", "orders-and-production-stages", "ai-assistant"],
   },
   {
     slug: "sales-automations",
@@ -1313,7 +1387,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         k: "steps",
         items: [
           { text: "Accounting → Bills → \"New bill\". Pick the vendor and enter their invoice number, then Create bill (it opens as a draft)." },
-          { text: "Add lines — a description, the GL account to charge (an expense like Payroll or Rent, or an asset like Inventory), quantity, and unit price. The total builds as you go." },
+          { text: "Add lines — a description, the GL account to charge (an expense like Payroll or Rent, or an asset like Inventory), quantity, and unit price. The total builds as you go. Not sure which account fits? Click the ✨ button on the line and AI suggests the best GL account from the description (review it before you save)." },
           { text: "Set the due date and terms on the bill." },
         ],
       },
@@ -1565,6 +1639,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         k: "steps",
         items: [
           { text: "Open Design Library from the sidebar (under Art Department). The search box matches item number, customer, description, and design base — so “Brian Head”, “BRI010”, “4015”, or “Puffin” all work." },
+          { text: "There's also a ✨ AI catalog search: describe the design you're after in plain English and it helps surface the closest matches — useful when you don't have the number or exact name handy." },
           { text: "Use the Catalog dropdown to narrow to G54, ESM, EMB, Patches, OSH, Wood, Stain, Royalty, UVS or DTF. Tick “include archives” to search historical rows too (hidden by default)." },
           { text: "Open a row to see the full record — customer, design base, description, printing method, royalty, print location, salesperson, assignee initials, stitch count (embroidery) — and every barcode linked to it." },
         ],
@@ -1770,6 +1845,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "p", text: "The storefront lives at /shop. Anyone can browse and buy published in-stock items — no login needed — but only existing inventory, with no customization. Business Partners sign in for account pricing and any B2B-only products." },
       { k: "h", text: "Shopping" },
       { k: "p", text: "Customers filter by category or search, open a product, choose an option (if the product has variants like size or color), pick a quantity, and add it to the cart. The cart shows a running subtotal, and a promo-code box applies any active discount code. At checkout they enter contact and shipping details (signed-in Business Partners skip that — it's on their account) and place the order. No payment is taken online: your team confirms the order, calculates shipping and tax, and follows up to arrange payment or bills it to the account." },
+      { k: "tip", text: "The store search is AI-powered — customers can describe what they want in plain English and an \"AI pick\" highlights the best matches, so they don't have to know exact product names." },
       { k: "tip", text: "Signed-in Business Partners see their B2B price, minus any pricing-group discount their account is assigned to. Promo codes stack on top of that." },
       { k: "h", text: "Business Partner accounts" },
       { k: "p", text: "New customers click “Request an account,” enter their details, and wait for approval (see Running the Web Store). Once approved they sign in, see B2B pricing, and get an order history under “My account.”" },
