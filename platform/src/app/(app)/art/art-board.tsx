@@ -15,6 +15,8 @@ export interface ArtCard {
   dueLabel: string | null;
   assignedTo: string | null;
   assigneeName: string | null;
+  revisionCount: number;
+  productionReady: boolean;
   orderId: string;
   orderNumber: string;
   company: string;
@@ -90,6 +92,8 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
       <div className="flex items-center justify-between gap-1">
         <Link href={`/art/${c.id}`} className="text-sm font-semibold text-neutral-900 hover:underline">{c.orderNumber}</Link>
         <span className="flex items-center gap-1">
+          {c.productionReady && <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald-700">✓ Ready</span>}
+          {c.revisionCount > 0 && <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600" title="Revision rounds">{c.revisionCount} rev</span>}
           {c.priority !== "none" && <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${PRIORITY_BADGE[c.priority]}`}>{c.priority}</span>}
           {c.rush && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Rush</span>}
         </span>
@@ -157,6 +161,8 @@ export function ArtBoard({ cards, team, meId }: { cards: ArtCard[]; team: { id: 
                 <tr key={c.id} className="hover:bg-neutral-50">
                   <td className="px-3 py-2">
                     <Link href={`/art/${c.id}`} className="font-medium text-neutral-900 hover:underline">{c.orderNumber}</Link>
+                    {c.productionReady && <span className="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emerald-700">✓ Ready</span>}
+                    {c.revisionCount > 0 && <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600">{c.revisionCount} rev</span>}
                     {c.rush && <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Rush</span>}
                   </td>
                   <td className="px-3 py-2 text-neutral-600">{c.company}</td>
