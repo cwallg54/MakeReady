@@ -1,0 +1,97 @@
+name: Backup restore drill
+
+# Proves the nightly backups are actually RESTORABLE (not just produced):
+# downloads the latest encrypted backup artifact, decrypts it, restores it into
+# a throwaway Postgres, and asserts the core tables came back with data.
+# An untested backup isn't a backup.
+
+on:
+  schedule:
+    - cron: "30 9 1 * *" # 09:30 UTC on the 1st of each month
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: read # to list/download the backup workflow's artifacts
+
+concurrency:
+  group: db-restore-drill
+  cancel-in-progress: false
+
+jobs:
+  drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: drill
+          POSTGRES_DB: drill
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    env:
+      TARGET: postgres://postgres:drill@localhost:5432/drill
+    steps:
+      - name: Install PostgreSQL 17 client
+        run: |
+          set -euo pipefail
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Download the latest encrypted backup artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          ID="$(gh api "repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+            --jq '[.artifacts[] | select(.name | startswith("makeready-db-")) | select(.expired==false)] | sort_by(.created_at) | last | .id')"
+          if [ -z "${ID:-}" ] || [ "${ID}" = "null" ]; then
+            echo "::error::No un-expired backup artifact found — is the nightly backup running?"; exit 1
+          fi
+          echo "Using artifact id ${ID}"
+          gh api "repos/${{ github.repository }}/actions/artifacts/${ID}/zip" > artifact.zip
+          unzip -o artifact.zip
+          GPG_FILE="$(ls *.gpg | head -n1)"
+          echo "GPG_FILE=${GPG_FILE}" >> "$GITHUB_ENV"
+          ls -la "${GPG_FILE}"
+
+      - name: Decrypt and restore into the throwaway database
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_PASSPHRASE:-}" ]; then
+            echo "::error::BACKUP_PASSPHRASE secret is required."; exit 1
+          fi
+          gpg --batch --yes --passphrase "${BACKUP_PASSPHRASE}" \
+            --output restore.dump --decrypt "${GPG_FILE}"
+          echo "Decrypted $(stat -c%s restore.dump) bytes"
+          # Restore. Ignore benign errors (missing extensions/roles on vanilla PG);
+          # the verification step below is the real pass/fail gate.
+          pg_restore --no-owner --no-privileges --dbname "${TARGET}" restore.dump || true
+
+      - name: Verify the restore
+        run: |
+          set -euo pipefail
+          fail=0
+          for tbl in users business_partners historical_orders; do
+            n="$(psql "${TARGET}" -tAc "select count(*) from ${tbl}" 2>/dev/null || echo "ERR")"
+            echo "  ${tbl}: ${n} rows"
+            if [ "${n}" = "ERR" ] || [ "${n}" -lt 1 ] 2>/dev/null; then
+              echo "::error::Table ${tbl} did not restore with data (${n})"; fail=1
+            fi
+          done
+          if [ "${fail}" -ne 0 ]; then
+            echo "::error::Restore drill FAILED — the backup is not fully recoverable."; exit 1
+          fi
+          echo "Restore drill PASSED — latest backup restored and verified."
