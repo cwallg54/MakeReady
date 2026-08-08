@@ -12,6 +12,8 @@ import { fmtDateTime } from "@/lib/format";
 import { OrderInfoCard } from "@/components/orders/order-info";
 import { inArray } from "drizzle-orm";
 import { OrderTracker } from "@/components/orders/order-tracker";
+import { OrderJourney } from "@/components/orders/order-journey";
+import { computeOrderJourney } from "@/lib/orders/journey";
 import { ProductionDetails } from "@/components/orders/production-details";
 import { OrderProofs } from "@/components/orders/order-proofs";
 import { CopyLink } from "@/components/orders/copy-link";
@@ -66,6 +68,15 @@ export default async function OrderDetailPage({ params, searchParams }: { params
   const base = process.env.APP_URL ?? "https://makeready.g54.com";
   const trackUrl = `${base}/track/${order.publicToken}`;
 
+  const journey = computeOrderJourney({
+    hasQuote: !!order.quoteId,
+    stage: order.stage,
+    artApproved: proofs.some((p) => p.status === "approved"),
+    productionReady: false,
+    hasInvoice: !!existingInvoice,
+    paid: existingInvoice?.status === "paid",
+  });
+
   const contact = order.bpId
     ? await db.query.contacts.findFirst({ where: and(eq(contacts.bpId, order.bpId), eq(contacts.isPrimary, true)) })
     : undefined;
@@ -90,6 +101,10 @@ export default async function OrderDetailPage({ params, searchParams }: { params
           <span className="font-semibold">Not ready for art yet.</span> Complete the art request checklist below before submitting.
         </div>
       )}
+
+      <div className="mb-6">
+        <OrderJourney steps={journey} orderNumber={order.orderNumber} trackUrl={trackUrl} />
+      </div>
 
       <Card className="mb-6">
         <OrderTracker currentStage={order.stage} reachedAt={reachedAt} />

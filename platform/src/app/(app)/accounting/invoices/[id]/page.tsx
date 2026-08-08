@@ -4,7 +4,9 @@ import { asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { invoices, invoiceLines, payments, businessPartners } from "@/db/schema";
+import { invoices, invoiceLines, payments, businessPartners, orders, orderProofs } from "@/db/schema";
+import { OrderJourney } from "@/components/orders/order-journey";
+import { computeOrderJourney } from "@/lib/orders/journey";
 import { DateTime } from "luxon";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -38,6 +40,19 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const paid = pays.reduce((s, p) => s + Number(p.amount), 0);
   const balance = Number(inv.total) - paid;
   const voided = !!inv.voidedAt;
+
+  // Lead-to-cash journey (when this invoice is tied to an order).
+  const order = inv.orderId ? await db.query.orders.findFirst({ where: eq(orders.id, inv.orderId) }) : null;
+  const orderProofsList = order ? await db.select({ status: orderProofs.status }).from(orderProofs).where(eq(orderProofs.orderId, order.id)) : [];
+  const journey = order ? computeOrderJourney({
+    hasQuote: !!order.quoteId,
+    stage: order.stage,
+    artApproved: orderProofsList.some((p) => p.status === "approved"),
+    productionReady: false,
+    hasInvoice: true,
+    paid: inv.status === "paid" || balance <= 0.005,
+  }) : null;
+  const trackUrl = order ? `${process.env.APP_URL ?? "https://makeready.g54.com"}/track/${order.publicToken}` : undefined;
   const canAct = editable && !voided;
   const due = inv.dueDate ? DateTime.fromJSDate(inv.dueDate).setZone("America/Denver").toFormat("yyyy-LL-dd") : "";
 
@@ -51,6 +66,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       />
 
       {voided && <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"><span className="font-semibold">Voided.</span> {inv.voidReason}</div>}
+
+      {order && journey && (
+        <div className="mb-6">
+          <OrderJourney steps={journey} orderNumber={order.orderNumber} trackUrl={trackUrl} />
+        </div>
+      )}
 
       {/* Lifecycle actions */}
       {canAct && (

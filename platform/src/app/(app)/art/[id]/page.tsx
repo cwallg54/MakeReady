@@ -15,6 +15,8 @@ import { Card, PageHeader } from "@/components/ui";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ArtDesignForm } from "./art-design-form";
 import { ArtWorkflow, type WorkflowStep } from "./art-workflow";
+import { OrderJourney } from "@/components/orders/order-journey";
+import { computeOrderJourney } from "@/lib/orders/journey";
 
 const PROD_TYPES: { v: string; label: string }[] = [
   { v: "screen_print", label: "Silkscreen" }, { v: "embroidery", label: "Embroidery" },
@@ -152,6 +154,16 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
     );
   };
 
+  const journey = computeOrderJourney({
+    hasQuote: !!order.quoteId,
+    stage: order.stage,
+    artApproved: proofApproved,
+    productionReady,
+    hasInvoice: false,
+    paid: false,
+  });
+  const trackUrl = `${process.env.APP_URL ?? "https://makeready.g54.com"}/track/${order.publicToken}`;
+
   return (
     <div className="max-w-5xl space-y-6">
       <Link href="/art" className="text-sm text-neutral-500 hover:text-neutral-900">← Art department</Link>
@@ -172,6 +184,9 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
       {err && (
         <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">{ERR_MSG[err] ?? err}</div>
       )}
+
+      {/* Lead-to-cash journey + the one persistent customer link */}
+      <OrderJourney steps={journey} orderNumber={order.orderNumber} trackUrl={trackUrl} />
 
       {/* SOP flow — where the job is and what's next */}
       <ArtWorkflow steps={steps} />
