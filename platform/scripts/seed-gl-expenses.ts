@@ -1,8 +1,13 @@
 /**
+ * SUPERSEDED (2026-08-07) by scripts/import-sap-expenses.mjs, which posts the
+ * REAL expenses from the SAP backup (the backup DOES have expenses — in JDT1/
+ * OACT; this script's old assumption that it didn't was wrong). Do NOT run this
+ * anymore — it would re-add fake estimates alongside the real data. Kept for
+ * history only.
+ *
  * Post MODELED operating expenses to the general ledger, scaled to the real
- * monthly revenue already seeded from the SAP backup. These are ESTIMATES, not
- * from the backup (which has no expense data) — every entry is tagged
- * source='estimate' and is idempotently removable.
+ * monthly revenue already seeded from the SAP backup. These are ESTIMATES —
+ * every entry is tagged source='estimate' and is idempotently removable.
  *
  * One balanced entry per month:
  *   Dr COGS, Payroll, Rent, Utilities, Marketing, Bank Fees, Depreciation
