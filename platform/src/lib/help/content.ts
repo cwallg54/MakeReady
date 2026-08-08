@@ -668,6 +668,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "tip", text: "No artwork on hand yet? Even a phone photo of a napkin sketch counts as the required reference — attach it so the request isn't held up." },
       { k: "h", text: "Advancing stages" },
       { k: "p", text: "Orders move through six stages: Order Received → Art & Proof → In Production → Quality Check → Shipped → Delivered. Under \"Update stage\", click the stage the order has reached. Each change is timestamped on the tracker and logged to the customer's history." },
+      { k: "h", text: "Shipping & delivery" },
+      { k: "p", text: "Once an order reaches production, a \"Shipping & delivery\" card appears. When it ships, choose the carrier (UPS, FedEx, USPS, DHL, or Other), enter the tracking number, and click \"Mark shipped & notify\" — MakeReady moves the order to Shipped and emails the customer their tracking number with a track-your-package link. When it arrives, click \"Mark delivered\" to move it to Delivered and send a thank-you." },
+      { k: "tip", text: "The customer's tracking page shows the carrier, tracking number, and a \"Track your package →\" button that deep-links to the carrier's site — so they can follow the shipment without calling you." },
       { k: "h", text: "The sales-order PDF" },
       {
         k: "steps",
