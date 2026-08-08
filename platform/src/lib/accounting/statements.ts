@@ -67,10 +67,18 @@ export async function balanceSheet(asOf: Date): Promise<BalanceSheet> {
   const rev = totals.filter((r) => r.type === "revenue");
   const exp = totals.filter((r) => r.type === "expense");
 
-  // Net income to date rolls into equity (retained earnings not yet closed).
+  // Net income to date rolls into equity. Split it into prior fiscal years
+  // (retained earnings) and the current fiscal year (Oct–Sep) — a formal
+  // presentation, since MakeReady doesn't post year-end closing entries.
   const earnings = round2(sum(rev) - sum(exp));
+  const y = asOf.getUTCFullYear();
+  const fyStart = new Date(Date.UTC(asOf.getUTCMonth() >= 9 ? y : y - 1, 9, 1)); // fiscal year starts Oct 1
+  const cur = await accountTotals({ from: fyStart, to: asOf });
+  const currentEarnings = round2(sum(cur.filter((r) => r.type === "revenue")) - sum(cur.filter((r) => r.type === "expense")));
+  const retained = round2(earnings - currentEarnings);
   const equityLines = toLines(e);
-  if (earnings !== 0) equityLines.push({ id: "current-earnings", code: "", name: "Current-period net income", amount: earnings });
+  if (retained !== 0) equityLines.push({ id: "retained-earnings", code: "", name: "Retained earnings", amount: retained });
+  if (currentEarnings !== 0) equityLines.push({ id: "current-earnings", code: "", name: "Current-year net income", amount: currentEarnings });
 
   const assetGroups = groupBySubtype(a);
   const liabGroups = groupBySubtype(l);
