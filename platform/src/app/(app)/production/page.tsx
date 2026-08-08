@@ -1,6 +1,7 @@
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { productionJobs, orders, businessPartners, users, userRoles } from "@/db/schema";
+import Link from "next/link";
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader } from "@/components/ui";
 import { fmtDate } from "@/lib/format";
@@ -51,7 +52,10 @@ export default async function ProductionPage() {
 
   return (
     <div className="max-w-6xl">
-      <PageHeader title="Production" description="Jobs on the production floor — from queued to shipped." />
+      <div className="flex items-center justify-between">
+        <PageHeader title="Production" description="Jobs on the production floor — from queued to shipped." />
+        <Link href="/production/schedule" className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Schedule →</Link>
+      </div>
       {cards.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center text-sm text-neutral-500">
           No production jobs yet. Sales sends an order to production from the order page (or when the proof is approved).
