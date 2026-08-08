@@ -4,6 +4,7 @@ import { orders, orderEvents, businessPartners, orderProofs, customerDocuments }
 import { Logo } from "@/components/logo";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
+import { carrierTrackingUrl } from "@/lib/orders/shipping";
 import { fmtDateTime } from "@/lib/format";
 import { ProofDecisionForm } from "@/app/proof/[token]/proof-decision-form";
 import { ApplicationForm } from "@/app/apply/[token]/application-form";
@@ -95,6 +96,20 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
               <OrderTracker currentStage={order.stage} reachedAt={reachedAt} variant="customer" />
             </div>
           </div>
+
+          {(order.stage === "shipped" || order.stage === "delivered") && (order.carrier || order.trackingNumber) && (
+            <div className="mt-8 rounded-xl border border-neutral-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-ink">Shipping</p>
+              <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-neutral-700">
+                {order.carrier && <span>Carrier: <span className="font-medium text-neutral-900">{order.carrier}</span></span>}
+                {order.trackingNumber && <span>Tracking: <span className="font-mono font-medium text-neutral-900">{order.trackingNumber}</span></span>}
+              </div>
+              {order.shippedAt && <p className="mt-1 text-xs text-neutral-400">Shipped {fmtDateTime(order.shippedAt)}{order.deliveredAt ? ` · Delivered ${fmtDateTime(order.deliveredAt)}` : ""}</p>}
+              {carrierTrackingUrl(order.carrier, order.trackingNumber) && (
+                <a href={carrierTrackingUrl(order.carrier, order.trackingNumber)!} target="_blank" rel="noreferrer" className="mt-3 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Track your package →</a>
+              )}
+            </div>
+          )}
 
           {/* ---- Action needed: everything awaiting the customer, right here ---- */}
           {actionCount > 0 ? (

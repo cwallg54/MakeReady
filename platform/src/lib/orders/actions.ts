@@ -11,8 +11,9 @@ import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { sendOrderEmail } from "@/lib/email";
 import { generateOrderPdf } from "./pdf";
-import { notifyTrackerStage } from "./notify";
+import { notifyTrackerStage, notifyTracker } from "./notify";
 import { ORDER_STAGES, type OrderStage } from "./stages";
+import { carrierTrackingUrl } from "./shipping";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -40,6 +41,63 @@ export async function setOrderStageAction(formData: FormData): Promise<void> {
   }
   await audit({ userId: user.id, action: "order.stage", entityType: "order", entityId: id, metadata: { stage } });
   if (changed) await notifyTrackerStage(id, stage);
+  revalidatePath(`/sales/orders/${id}`);
+  revalidatePath("/sales/orders");
+}
+
+/** Mark an order shipped — record carrier + tracking, move to the shipped stage,
+ *  and notify the customer with a track-your-package link. */
+export async function markShippedAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const carrier = String(formData.get("carrier") ?? "").trim() || null;
+  const trackingNumber = String(formData.get("trackingNumber") ?? "").trim() || null;
+  const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
+  if (!order || order.voidedAt) return;
+
+  await db.update(orders).set({ carrier, trackingNumber, shippedAt: order.shippedAt ?? new Date(), stage: "shipped", updatedAt: new Date() }).where(eq(orders.id, id));
+  await db.insert(orderEvents).values({ orderId: id, stage: "shipped", byUserId: user.id, note: carrier && trackingNumber ? `Shipped via ${carrier} · ${trackingNumber}` : "Shipped" });
+
+  const url = carrierTrackingUrl(carrier, trackingNumber);
+  await notifyTracker(id, {
+    subject: `Your order ${order.orderNumber} has shipped`,
+    headline: "Your order is on its way",
+    body: carrier && trackingNumber
+      ? `Good news — your order shipped via ${carrier}. Tracking number: ${trackingNumber}.${url ? ` You can track it at ${url}` : ""} You can also follow it on your order page.`
+      : "Good news — your order has shipped and is on its way to you. Follow it on your order page.",
+    actionNeeded: false,
+  });
+  if (order.bpId) {
+    await db.insert(activities).values({ bpId: order.bpId, type: "other", isSystem: true, content: `Order ${order.orderNumber} shipped${carrier ? ` via ${carrier}` : ""}${trackingNumber ? ` (${trackingNumber})` : ""}` });
+    revalidatePath(`/crm/${order.bpId}`);
+  }
+  await audit({ userId: user.id, action: "order.shipped", entityType: "order", entityId: id, metadata: { carrier, trackingNumber } });
+  revalidatePath(`/sales/orders/${id}`);
+  revalidatePath("/sales/orders");
+}
+
+/** Mark an order delivered — move to the delivered stage and thank the customer. */
+export async function markDeliveredAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const order = await db.query.orders.findFirst({ where: eq(orders.id, id) });
+  if (!order || order.voidedAt) return;
+
+  await db.update(orders).set({ deliveredAt: order.deliveredAt ?? new Date(), stage: "delivered", updatedAt: new Date() }).where(eq(orders.id, id));
+  await db.insert(orderEvents).values({ orderId: id, stage: "delivered", byUserId: user.id, note: "Delivered" });
+  await notifyTracker(id, {
+    subject: `Your order ${order.orderNumber} was delivered`,
+    headline: "Delivered — thank you!",
+    body: "Your order has been delivered. Thank you for your business — we'd love to help with your next project.",
+    actionNeeded: false,
+  });
+  if (order.bpId) {
+    await db.insert(activities).values({ bpId: order.bpId, type: "other", isSystem: true, content: `Order ${order.orderNumber} delivered` });
+    revalidatePath(`/crm/${order.bpId}`);
+  }
+  await audit({ userId: user.id, action: "order.delivered", entityType: "order", entityId: id });
   revalidatePath(`/sales/orders/${id}`);
   revalidatePath("/sales/orders");
 }

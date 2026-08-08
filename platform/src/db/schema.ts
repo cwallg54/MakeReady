@@ -943,6 +943,11 @@ export const orders = pgTable(
     orderType: text("order_type"),
     poNumber: text("po_number"),
     shipVia: text("ship_via"),
+    // Shipping / delivery — captured when the order ships.
+    carrier: text("carrier"), // UPS | FedEx | USPS | DHL | Other (drives the tracking link)
+    trackingNumber: text("tracking_number"),
+    shippedAt: timestamp("shipped_at", { withTimezone: true }),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     // Fulfillment urgency: ASAP / FIRM / DATED / RUSH / EVENT.
     dateType: text("date_type").notNull().default("ASAP"),
     // Requested due date (distinct from the internal in-hands target).

@@ -18,7 +18,8 @@ import { ProductionDetails } from "@/components/orders/production-details";
 import { OrderProofs } from "@/components/orders/order-proofs";
 import { CopyLink } from "@/components/orders/copy-link";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
-import { setOrderStageAction, emailOrderPdfAction } from "@/lib/orders/actions";
+import { setOrderStageAction, emailOrderPdfAction, markShippedAction, markDeliveredAction } from "@/lib/orders/actions";
+import { CARRIERS, carrierTrackingUrl } from "@/lib/orders/shipping";
 import { submitToArtAction, reopenArtAction } from "@/lib/art/actions";
 import { artReadinessChecklist } from "@/lib/art/gate";
 import { sendToProductionAction } from "@/lib/production/actions";
@@ -109,6 +110,37 @@ export default async function OrderDetailPage({ params, searchParams }: { params
       <Card className="mb-6">
         <OrderTracker currentStage={order.stage} reachedAt={reachedAt} />
       </Card>
+
+      {canAct && ["production", "quality", "shipped", "delivered"].includes(order.stage) && (
+        <Card className="mb-6">
+          <h2 className="mb-1 text-sm font-semibold text-neutral-900">Shipping &amp; delivery</h2>
+          {order.shippedAt ? (
+            <div className="text-sm text-neutral-700">
+              <p>Shipped {fmtDateTime(order.shippedAt)}{order.carrier ? ` · ${order.carrier}` : ""}{order.trackingNumber ? ` · ${order.trackingNumber}` : ""}{order.deliveredAt ? ` · Delivered ${fmtDateTime(order.deliveredAt)}` : ""}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {carrierTrackingUrl(order.carrier, order.trackingNumber) && (
+                  <a href={carrierTrackingUrl(order.carrier, order.trackingNumber)!} target="_blank" rel="noreferrer" className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-brand-ink hover:bg-neutral-50">Track package →</a>
+                )}
+                {order.stage !== "delivered" && (
+                  <form action={markDeliveredAction}><input type="hidden" name="id" value={order.id} /><button className="rounded-md bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800">Mark delivered</button></form>
+                )}
+              </div>
+            </div>
+          ) : (
+            <form action={markShippedAction} className="flex flex-wrap items-end gap-2">
+              <input type="hidden" name="id" value={order.id} />
+              <label className="text-xs text-neutral-500">Carrier
+                <select name="carrier" className="mt-1 block rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand">
+                  {CARRIERS.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </label>
+              <label className="text-xs text-neutral-500">Tracking #<input name="trackingNumber" placeholder="1Z…" className="mt-1 block rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand" /></label>
+              <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Mark shipped &amp; notify</button>
+            </form>
+          )}
+          <p className="mt-2 text-[11px] text-neutral-400">Marking shipped or delivered updates the customer&rsquo;s tracking page and emails them.</p>
+        </Card>
+      )}
 
       <OrderInfoCard order={order} reps={repRows} editable={canAct} />
 
