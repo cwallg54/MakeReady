@@ -458,6 +458,39 @@ export const HELP_ARTICLES: HelpArticle[] = [
     related: ["business-partners", "managing-an-account"],
   },
   {
+    slug: "reorder-radar",
+    title: "Reorder radar (retention automation)",
+    section: "CRM",
+    summary: "See which accounts are overdue for their next order and reach out before they drift.",
+    who: "Admin, Sales Manager, Sales Rep (own accounts)",
+    blocks: [
+      { k: "p", text: "Every account has a natural buying rhythm — a customer who reorders shirts every eight weeks, a school that restocks each season. Reorder radar learns that rhythm from each account's full order history (both the SAP orders migrated at go-live and new orders placed in MakeReady) and flags the accounts that are now past due for their next order." },
+      { k: "p", text: "Open CRM → Reorder radar. Each account is ranked by how overdue it is and how valuable it is, so the biggest at-risk revenue floats to the top." },
+      { k: "h", text: "Reading a card" },
+      {
+        k: "list",
+        items: [
+          "How overdue — e.g. \"40% overdue\" means it's been 40% longer than this account's usual gap between orders.",
+          "Last order date and the typical reorder interval (\"reorders ~every 56 days\").",
+          "Lifetime order count and total spend, plus the account owner.",
+          "The date the next order was expected, and how many days ago that was.",
+        ],
+      },
+      { k: "h", text: "Taking action" },
+      {
+        k: "steps",
+        items: [
+          { text: "Click \"✨ Draft outreach\" to have the AI write a short, warm reorder check-in email using the account's real history (last order, cadence, usual products). Review it, then Copy it or click \"Open in email\" to send from your own mail — MakeReady never sends it for you." },
+          { text: "Click \"New quote →\" to start a quote for that account immediately, pre-filled with the customer." },
+          { text: "Call the account directly from the phone number on the card (on mobile it dials)." },
+        ],
+      },
+      { k: "tip", text: "Accounts that have gone completely quiet (no order in ~18 months) drop off the radar — they've churned rather than being simply due, and belong in a win-back campaign instead. Accounts on credit hold are also hidden. Sales Reps see only their own book here." },
+      { k: "tip", text: "The AI draft needs the Anthropic API key configured. Without it, the rest of the radar still works — you just won't get an auto-written email." },
+    ],
+    related: ["pipeline", "managing-an-account", "sales-automations", "ai-assistant"],
+  },
+  {
     slug: "financial-intake-documents",
     title: "Secure financial intake documents",
     section: "CRM",
@@ -1111,6 +1144,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
         ],
       },
       { k: "p", text: "Open any job to see the full production spec and the approved artwork, assign an operator, and set rush flags and due dates." },
+      { k: "h", text: "The shop-floor schedule" },
+      { k: "p", text: "Click \"Schedule →\" on the production board for a priority-sequenced view. Jobs are grouped by operator and ordered by rush first, then earliest due date, so each person sees exactly what to run next. Overdue jobs are outlined in red, jobs due within three days in amber, and each operator column shows its job count and overdue total." },
       { k: "tip", text: "Moving a job across the board automatically advances the stage the customer sees on their public order tracker — no separate update needed." },
     ],
     related: ["orders-and-production-stages", "art-department", "customer-order-tracker"],

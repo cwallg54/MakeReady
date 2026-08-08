@@ -36,6 +36,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     crm: [
       { key: "crm-bp", label: "Business Partners", href: "/crm", phase1: true },
       { key: "crm-pipeline", label: "Pipeline", href: "/crm/pipeline", phase1: true },
+      { key: "crm-reorders", label: "Reorder radar", href: "/crm/reorders", phase1: true },
     ],
     controlling: [
       { key: "ctrl-overview", label: "Overview", href: "/controlling", phase1: true },
