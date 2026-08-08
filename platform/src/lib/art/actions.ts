@@ -349,16 +349,25 @@ export async function uploadArtAction(formData: FormData): Promise<void> {
     const f = file as File;
     if (f.size > 0 && f.size <= 15_000_000) {
       const buf = Buffer.from(await f.arrayBuffer());
+      const b64 = buf.toString("base64");
       await db.insert(orderAttachments).values({
         orderId,
         filename: f.name || "proposed-art",
         mimeType: f.type || "application/octet-stream",
         sizeBytes: f.size,
         kind: "mockup",
-        contentBase64: buf.toString("base64"),
+        contentBase64: b64,
         notes: "Proposed art (art department)",
         uploadedBy: user.id,
       });
+      // Capture the artwork onto the linked design too — this is how the design
+      // image library builds up over time (which enables future visual search).
+      if (requestId && f.type.startsWith("image/")) {
+        const req = await db.query.artRequests.findFirst({ where: eq(artRequests.id, requestId), columns: { designItemId: true } });
+        if (req?.designItemId) {
+          await db.update(designItems).set({ imageBase64: b64, imageMimeType: f.type, updatedAt: new Date() }).where(eq(designItems.id, req.designItemId));
+        }
+      }
     }
   }
   await audit({ userId: user.id, action: "art.upload", entityType: "order", entityId: orderId });

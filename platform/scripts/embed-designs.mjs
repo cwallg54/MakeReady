@@ -17,13 +17,23 @@ const FORCE = process.argv.includes("--force");
 if (!KEY) { console.error("VOYAGE_API_KEY is not set in .env.local — get one at voyageai.com."); process.exit(1); }
 const sql = neon(DB);
 const MODEL = "voyage-multimodal-3.5";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// Free-tier (no payment method) limits are 3 RPM / 10K TPM; set THROTTLE_MS=0
+// once a payment method is added to run at full speed.
+const THROTTLE_MS = Number(get("VOYAGE_THROTTLE_MS") ?? "21000");
+const BATCH = THROTTLE_MS ? 50 : 128;
 
-async function embed(texts, inputType) {
+async function embed(texts, inputType, attempt = 0) {
   const res = await fetch("https://api.voyageai.com/v1/multimodalembeddings", {
     method: "POST",
     headers: { authorization: `Bearer ${KEY}`, "content-type": "application/json" },
     body: JSON.stringify({ model: MODEL, input_type: inputType, inputs: texts.map((t) => ({ content: [{ type: "text", text: t }] })) }),
   });
+  if (res.status === 429 && attempt < 8) {
+    console.log(`  rate-limited; waiting 30s (retry ${attempt + 1})`);
+    await sleep(30000);
+    return embed(texts, inputType, attempt + 1);
+  }
   if (!res.ok) throw new Error(`Voyage ${res.status}: ${(await res.text()).slice(0, 300)}`);
   const data = await res.json();
   return data.data.map((d) => d.embedding);
@@ -35,7 +45,7 @@ console.log(`Embedding dimension: ${dim}`);
 
 // 2. Ensure pgvector + the embeddings table + an ANN index.
 await sql`create extension if not exists vector`;
-await sql(`create table if not exists design_embeddings (
+await sql.query(`create table if not exists design_embeddings (
   design_id uuid primary key references design_items(id) on delete cascade,
   embedding vector(${dim}) not null,
   content text not null,
@@ -64,8 +74,7 @@ if (!FORCE) {
 }
 console.log(`${items.length} designs with descriptions; ${todo.length} to embed${FORCE ? " (forced)" : ""}.`);
 
-// 5. Batch-embed and upsert.
-const BATCH = 100;
+// 5. Batch-embed and upsert (throttled to respect free-tier rate limits).
 let n = 0;
 for (let i = 0; i < todo.length; i += BATCH) {
   const batch = todo.slice(i, i + BATCH);
@@ -79,5 +88,6 @@ for (let i = 0; i < todo.length; i += BATCH) {
   }
   n += batch.length;
   console.log(`  embedded ${n}/${todo.length}`);
+  if (THROTTLE_MS && i + BATCH < todo.length) await sleep(THROTTLE_MS);
 }
 console.log("Done.");

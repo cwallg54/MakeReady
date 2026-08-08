@@ -7,7 +7,7 @@ import { or } from "drizzle-orm";
 import { db } from "@/db";
 import { designItems, baseDesigns, businessPartners, designBarcodes } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
-import { activateDesignItemAction } from "@/lib/designs/actions";
+import { activateDesignItemAction, uploadDesignImageAction, removeDesignImageAction } from "@/lib/designs/actions";
 
 export const dynamic = "force-dynamic";
 const inp = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand";
@@ -51,6 +51,18 @@ export default async function DesignItemPage({ params, searchParams }: { params:
           ) : (
             <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-neutral-200 text-sm text-neutral-400">No art attached</div>
           )}
+          <form action={uploadDesignImageAction} className="mt-3 space-y-2">
+            <input type="hidden" name="id" value={item.id} />
+            <input type="file" name="file" accept="image/*" className="w-full text-xs text-neutral-600 file:mr-2 file:rounded file:border-0 file:bg-neutral-900 file:px-2 file:py-1 file:text-xs file:font-semibold file:text-white" />
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50">{item.imageBase64 ? "Replace image" : "Upload image"}</button>
+          </form>
+          {item.imageBase64 && (
+            <form action={removeDesignImageAction} className="mt-1">
+              <input type="hidden" name="id" value={item.id} />
+              <button className="text-xs font-medium text-neutral-400 hover:text-red-600">Remove image</button>
+            </form>
+          )}
+          <p className="mt-2 text-[10px] text-neutral-400">Adding artwork here builds the image library for future visual search.</p>
         </Card>
         <Card className="sm:col-span-2">
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">

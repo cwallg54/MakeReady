@@ -33,6 +33,36 @@ async function nextNumber(documentType: string, prefix: string, padding: number,
   });
 }
 
+// ---- Design artwork image -------------------------------------------------
+
+/** Attach (or replace) the artwork image on a design. Building up these images
+ *  is what makes visual/image search possible over time. */
+export async function uploadDesignImageAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const file = formData.get("file");
+  if (file && typeof file === "object" && "arrayBuffer" in file) {
+    const f = file as File;
+    if (f.size > 0 && f.size <= MAX_IMG && f.type.startsWith("image/")) {
+      const buf = Buffer.from(await f.arrayBuffer());
+      await db.update(designItems).set({ imageBase64: buf.toString("base64"), imageMimeType: f.type, updatedAt: new Date() }).where(eq(designItems.id, id));
+      await audit({ userId: user.id, action: "design.image_upload", entityType: "design_item", entityId: id });
+    }
+  }
+  revalidatePath(`/designs/${id}`);
+}
+
+/** Remove a design's artwork image. */
+export async function removeDesignImageAction(formData: FormData): Promise<void> {
+  const user = await requireArt();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await db.update(designItems).set({ imageBase64: null, imageMimeType: null, updatedAt: new Date() }).where(eq(designItems.id, id));
+  await audit({ userId: user.id, action: "design.image_remove", entityType: "design_item", entityId: id });
+  revalidatePath(`/designs/${id}`);
+}
+
 // ---- Base designs ---------------------------------------------------------
 
 export async function createBaseDesignAction(formData: FormData): Promise<void> {
