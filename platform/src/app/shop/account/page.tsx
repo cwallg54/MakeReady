@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { storeOrders, quotes, orders, invoices } from "@/db/schema";
+import { storeOrders, quotes, orders, invoices, orderProofs } from "@/db/schema";
 import { getCurrentCustomer } from "@/lib/store/customer-auth";
 import { logoutAction } from "@/lib/store/storefront-actions";
 import { ORDER_STAGES } from "@/lib/orders/stages";
+import { ProofDecisionForm } from "@/app/proof/[token]/proof-decision-form";
 import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +21,14 @@ export default async function AccountPage() {
   if (!customer) redirect("/shop/login");
   const bpId = customer.bpId;
 
-  const [quoteRows, orderRows, invoiceRows, storeOrderRows] = await Promise.all([
+  const [quoteRows, orderRows, invoiceRows, storeOrderRows, pendingProofs] = await Promise.all([
     bpId ? db.select({ id: quotes.id, quoteNumber: quotes.quoteNumber, status: quotes.status, total: quotes.total, createdAt: quotes.createdAt, publicToken: quotes.publicToken }).from(quotes).where(eq(quotes.bpId, bpId)).orderBy(desc(quotes.createdAt)).limit(20) : Promise.resolve([]),
     bpId ? db.select({ id: orders.id, orderNumber: orders.orderNumber, stage: orders.stage, publicToken: orders.publicToken, createdAt: orders.createdAt }).from(orders).where(eq(orders.bpId, bpId)).orderBy(desc(orders.createdAt)).limit(20) : Promise.resolve([]),
     bpId ? db.select({ id: invoices.id, invoiceNumber: invoices.invoiceNumber, status: invoices.status, total: invoices.total, dueDate: invoices.dueDate }).from(invoices).where(eq(invoices.bpId, bpId)).orderBy(desc(invoices.createdAt)).limit(20) : Promise.resolve([]),
     db.select().from(storeOrders).where(eq(storeOrders.customerId, customer.id)).orderBy(desc(storeOrders.createdAt)).limit(20),
+    bpId ? db.select({ id: orderProofs.id, token: orderProofs.token, title: orderProofs.title, message: orderProofs.message, attachmentId: orderProofs.attachmentId, orderNumber: orders.orderNumber })
+      .from(orderProofs).innerJoin(orders, eq(orders.id, orderProofs.orderId))
+      .where(and(eq(orders.bpId, bpId), eq(orderProofs.status, "pending"))).orderBy(desc(orderProofs.createdAt)) : Promise.resolve([]),
   ]);
 
   return (
@@ -39,6 +43,27 @@ export default async function AccountPage() {
         <p className="text-neutral-500">{customer.email}{customer.companyName ? ` · ${customer.companyName}` : ""}</p>
         <p className="mt-1 text-xs text-emerald-700">Business Partner — account pricing applied at checkout.</p>
       </div>
+
+      {/* Proofs awaiting sign-off — the action that most holds up an order */}
+      {pendingProofs.length > 0 && (
+        <section>
+          <h2 className="mb-2 text-sm font-semibold text-neutral-900">Proofs awaiting your approval</h2>
+          <div className="space-y-4">
+            {pendingProofs.map((p) => (
+              <div key={p.id} className="rounded-xl border-2 border-amber-300 bg-amber-50/60 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-ink">Order {p.orderNumber}</p>
+                <h3 className="mt-1 text-base font-semibold text-neutral-900">{p.title}</h3>
+                {p.message && <p className="mt-1 text-sm text-neutral-600">{p.message}</p>}
+                {p.attachmentId && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`/proof/${p.token}/image`} alt={p.title} className="mt-3 max-h-[26rem] w-full rounded-lg border border-neutral-200 bg-white object-contain" />
+                )}
+                <div className="mt-3"><ProofDecisionForm token={p.token} /></div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Quotes */}
       {quoteRows.length > 0 && (
