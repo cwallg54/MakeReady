@@ -1903,6 +1903,46 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
     related: ["web-store-admin"],
   },
+  {
+    slug: "customer-portal",
+    title: "Setting up the customer portal",
+    section: "CRM",
+    summary: "Give a customer a secure login to view their quotes and orders, track jobs, and pay invoices online — how to invite them and what they see.",
+    who: "Sales, Admins",
+    blocks: [
+      { k: "p", text: "The customer portal is a secure, password-protected login where a customer sees their own quotes, tracks their orders, and views and pays their invoices — all in one place. You invite each customer individually; there's no open sign-up, so only the people you choose get access." },
+      { k: "h", text: "Invite a customer" },
+      { k: "steps", items: [
+        { text: "Open the customer's Business Partner page in the CRM." },
+        { text: "Find the “Customer portal” card near the top of the page." },
+        { text: "Enter the email of the person who should have access — it defaults to the primary contact's email." },
+        { text: "Click “Invite to portal.” MakeReady emails them a secure link to set their password." },
+      ] },
+      { k: "tip", text: "The invite link is good for 7 days and can be used once. If it expires or they lose it, click “Re-send invite” on the same card to send a fresh one." },
+      { k: "h", text: "What the customer does" },
+      { k: "p", text: "The customer opens the email, clicks the link, and chooses a password. That activates their account and signs them straight in — there's no separate approval step. After that they sign in with their email and password on the store login page." },
+      { k: "h", text: "Account status" },
+      { k: "p", text: "The Customer portal card shows where things stand: “Invited” means the link has been sent but they haven't set a password yet; “Active” means they've set it up and can sign in. Re-inviting an existing customer simply sends a new set-password link." },
+      { k: "h", text: "What the customer can do in the portal" },
+      { k: "list", items: [
+        "See their quotes — number, status, and total.",
+        "See their orders and open the live tracking page for any one of them.",
+        "See their invoices and pay them online (when online payments are set up).",
+        "Review any store orders they've placed.",
+      ] },
+      { k: "tip", text: "Everything a customer sees is scoped to their own account — one customer can never see another customer's quotes, orders, or invoices." },
+      { k: "h", text: "Online payments" },
+      { k: "p", text: "When online payments are enabled, each unpaid invoice shows a “Pay” button that opens a secure card-payment page; the payment is recorded against the invoice automatically. If online payments aren't set up yet, the button says so and the customer can pay you the usual way." },
+      { k: "warn", text: "Card details are handled entirely by our payment processor — they never pass through or get stored in MakeReady. Turning on online payments is an admin task (it needs payment-processor keys); ask an administrator if the Pay button isn't available yet." },
+      { k: "h", text: "Good to know" },
+      { k: "list", items: [
+        "The portal shares the same login as the online store — one account for both.",
+        "Never forward someone else's set-password link; it sets the password for that account.",
+        "You can invite any contact by email — they don't need an existing store account first.",
+      ] },
+    ],
+    related: ["business-partners", "managing-an-account", "storefront-shopping", "invoicing-and-payments", "lead-to-cash"],
+  },
 ];
 
 export function articlesBySection(): { section: string; articles: HelpArticle[] }[] {
