@@ -21,7 +21,7 @@ export default async function AccountPage() {
   const bpId = customer.bpId;
 
   const [quoteRows, orderRows, invoiceRows, storeOrderRows] = await Promise.all([
-    bpId ? db.select({ id: quotes.id, quoteNumber: quotes.quoteNumber, status: quotes.status, total: quotes.total, createdAt: quotes.createdAt }).from(quotes).where(eq(quotes.bpId, bpId)).orderBy(desc(quotes.createdAt)).limit(20) : Promise.resolve([]),
+    bpId ? db.select({ id: quotes.id, quoteNumber: quotes.quoteNumber, status: quotes.status, total: quotes.total, createdAt: quotes.createdAt, publicToken: quotes.publicToken }).from(quotes).where(eq(quotes.bpId, bpId)).orderBy(desc(quotes.createdAt)).limit(20) : Promise.resolve([]),
     bpId ? db.select({ id: orders.id, orderNumber: orders.orderNumber, stage: orders.stage, publicToken: orders.publicToken, createdAt: orders.createdAt }).from(orders).where(eq(orders.bpId, bpId)).orderBy(desc(orders.createdAt)).limit(20) : Promise.resolve([]),
     bpId ? db.select({ id: invoices.id, invoiceNumber: invoices.invoiceNumber, status: invoices.status, total: invoices.total, dueDate: invoices.dueDate }).from(invoices).where(eq(invoices.bpId, bpId)).orderBy(desc(invoices.createdAt)).limit(20) : Promise.resolve([]),
     db.select().from(storeOrders).where(eq(storeOrders.customerId, customer.id)).orderBy(desc(storeOrders.createdAt)).limit(20),
@@ -49,11 +49,15 @@ export default async function AccountPage() {
               <li key={q.id} className="flex items-center justify-between gap-3 p-3">
                 <div>
                   <span className="text-sm font-medium text-neutral-900">{q.quoteNumber}</span>
-                  <div className="text-xs text-neutral-500">{fmtDate(q.createdAt)}</div>
+                  <div className="text-xs text-neutral-500">{fmtDate(q.createdAt)}{q.status === "sent" ? " · awaiting your approval" : ""}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-neutral-900">{money(Number(q.total))}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${QUOTE_BADGE[q.status] ?? "bg-neutral-100 text-neutral-600"}`}>{q.status}</span>
+                  {q.status === "sent" && q.publicToken ? (
+                    <Link href={`/quote/${q.publicToken}`} className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">Review &amp; approve →</Link>
+                  ) : (
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${QUOTE_BADGE[q.status] ?? "bg-neutral-100 text-neutral-600"}`}>{q.status}</span>
+                  )}
                 </div>
               </li>
             ))}
