@@ -2,8 +2,9 @@ import "server-only";
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import { eq } from "drizzle-orm";
+import { randomBytes, createHash } from "crypto";
 import { db } from "@/db";
-import { storeCustomers, storeCustomerSessions, businessPartners, type StoreCustomer } from "@/db/schema";
+import { storeCustomers, storeCustomerSessions, storeCustomerInvites, businessPartners, type StoreCustomer } from "@/db/schema";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 
 /** Storefront customer auth — a separate realm from staff `users`/RBAC, with its
@@ -17,6 +18,39 @@ function key(): Uint8Array {
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error("AUTH_SECRET is not set");
   return new TextEncoder().encode(s);
+}
+
+/** Create a signed session + cookie for a customer (shared by login & invite accept). */
+async function startCustomerSession(customerId: string): Promise<void> {
+  const expiresAt = new Date(Date.now() + SESSION_DAYS * 86_400_000);
+  const [sess] = await db.insert(storeCustomerSessions).values({ customerId, expiresAt }).returning({ id: storeCustomerSessions.id });
+  const token = await new SignJWT({ sid: sess.id, t: "store" })
+    .setProtectedHeader({ alg: "HS256" }).setSubject(customerId).setIssuedAt()
+    .setExpirationTime(Math.floor(expiresAt.getTime() / 1000)).sign(key());
+  (await cookies()).set(STORE_COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", expires: expiresAt });
+  await db.update(storeCustomers).set({ lastLoginAt: new Date() }).where(eq(storeCustomers.id, customerId));
+}
+
+const hashToken = (raw: string) => createHash("sha256").update(raw).digest("hex");
+
+/** Create a one-time set-password invite for a customer; returns the raw token
+ *  to put in the emailed link. */
+export async function createCustomerInvite(customerId: string, ttlDays = 7): Promise<string> {
+  const raw = randomBytes(32).toString("hex");
+  await db.insert(storeCustomerInvites).values({ customerId, tokenHash: hashToken(raw), expiresAt: new Date(Date.now() + ttlDays * 86_400_000) });
+  return raw;
+}
+
+/** Accept an invite: set the password, activate the account, consume the token,
+ *  and sign the customer in. */
+export async function acceptCustomerInvite(rawToken: string, password: string): Promise<{ ok: true } | { error: string }> {
+  if (password.length < 8) return { error: "Password must be at least 8 characters." };
+  const inv = await db.query.storeCustomerInvites.findFirst({ where: eq(storeCustomerInvites.tokenHash, hashToken(rawToken)) });
+  if (!inv || inv.usedAt || inv.expiresAt.getTime() < Date.now()) return { error: "This link is invalid or has expired — ask us to send a new invite." };
+  await db.update(storeCustomers).set({ passwordHash: await hashPassword(password), status: "active", updatedAt: new Date() }).where(eq(storeCustomers.id, inv.customerId));
+  await db.update(storeCustomerInvites).set({ usedAt: new Date() }).where(eq(storeCustomerInvites.id, inv.id));
+  await startCustomerSession(inv.customerId);
+  return { ok: true };
 }
 
 export async function getCurrentCustomer(): Promise<StoreCustomer | null> {
@@ -61,13 +95,7 @@ export async function loginCustomer(emailRaw: string, password: string): Promise
   if (c.status === "pending") return { error: "Your account is awaiting approval — we'll email you once it's ready.", pending: true };
   if (c.status !== "active") return { error: "This account isn't active. Please contact us." };
 
-  const expiresAt = new Date(Date.now() + SESSION_DAYS * 86_400_000);
-  const [sess] = await db.insert(storeCustomerSessions).values({ customerId: c.id, expiresAt }).returning({ id: storeCustomerSessions.id });
-  const token = await new SignJWT({ sid: sess.id, t: "store" })
-    .setProtectedHeader({ alg: "HS256" }).setSubject(c.id).setIssuedAt()
-    .setExpirationTime(Math.floor(expiresAt.getTime() / 1000)).sign(key());
-  (await cookies()).set(STORE_COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", expires: expiresAt });
-  await db.update(storeCustomers).set({ lastLoginAt: new Date() }).where(eq(storeCustomers.id, c.id));
+  await startCustomerSession(c.id);
   return { ok: true };
 }
 

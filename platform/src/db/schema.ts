@@ -1828,6 +1828,17 @@ export const storeCustomerSessions = pgTable("store_customer_sessions", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Portal invitations — a one-time set-password token for a store customer,
+// mirroring staff `passwordResetTokens`. Used for the invite-based portal.
+export const storeCustomerInvites = pgTable("store_customer_invites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  customerId: uuid("customer_id").notNull().references(() => storeCustomers.id, { onDelete: "cascade" }),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 // An order placed through the storefront. On-account/request model — no online
 // payment; staff confirm and fulfil. Guest (public) orders have no customerId.
 export const storeOrders = pgTable(

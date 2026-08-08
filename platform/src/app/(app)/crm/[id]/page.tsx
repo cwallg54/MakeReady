@@ -4,13 +4,14 @@ import { asc, desc, eq, count, sql } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit, canView, canSeeBpFinance, crmScopedToOwn } from "@/lib/rbac";
 import { db } from "@/db";
-import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, customerAttachments, schedulingProfiles, orders, quotes, historicalOrders } from "@/db/schema";
+import { businessPartners, accountGroups, contacts, activities, users, bpAddresses, crmTasks, customerDocuments, customerAttachments, schedulingProfiles, orders, quotes, historicalOrders, storeCustomers } from "@/db/schema";
 import { FinancialDocs } from "@/components/crm/financial-docs";
 import { CustomerVault } from "@/components/crm/customer-vault";
 import { getAssignableUsers } from "@/lib/crm/users";
 import { PageHeader, Card } from "@/components/ui";
 import { CustomerSummary } from "@/components/ai/customer-summary";
 import { AiEmailDraft } from "@/components/ai/email-draft";
+import { invitePortalCustomerAction } from "@/lib/store/portal-actions";
 import { ContactsManager } from "@/components/crm/contacts-manager";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -129,6 +130,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
     : [];
   const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
   const ownerSchedule = bp.ownerId ? await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, bp.ownerId) }) : null;
+  const portalAccount = await db.query.storeCustomers.findFirst({ where: eq(storeCustomers.bpId, id), columns: { email: true, status: true } });
 
   return (
     <div className="max-w-5xl">
@@ -142,6 +144,29 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
         <CustomerSummary bpId={bp.id} />
         <AiEmailDraft bpId={bp.id} />
       </div>
+
+      <Card className="mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-neutral-900">Customer portal</h2>
+            <p className="text-xs text-neutral-500">
+              {portalAccount
+                ? portalAccount.status === "active"
+                  ? `Active — ${portalAccount.email} can sign in to view quotes, orders, and invoices.`
+                  : `Invited — a set-password link was sent to ${portalAccount.email} (awaiting activation).`
+                : "Give this customer a secure login to view their quotes, orders, and invoices — and pay online."}
+            </p>
+          </div>
+          {canEdit(user.roles, "crm") && (
+            <form action={invitePortalCustomerAction} className="flex flex-wrap items-end gap-2">
+              <input type="hidden" name="bpId" value={bp.id} />
+              <input type="hidden" name="name" value={bp.companyName} />
+              <input name="email" type="email" defaultValue={portalAccount?.email ?? contactEmail ?? ""} placeholder="customer@email.com" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand" />
+              <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">{portalAccount ? "Re-send invite" : "Invite to portal"}</button>
+            </form>
+          )}
+        </div>
+      </Card>
 
       {/* Stage + owner bar */}
       <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3">
