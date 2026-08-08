@@ -47,6 +47,56 @@ export const HELP_SECTIONS = [
 export const HELP_ARTICLES: HelpArticle[] = [
   // ─────────────────────────────── Getting Started ───────────────────────────
   {
+    slug: "lead-to-cash",
+    title: "The lead-to-cash lifecycle",
+    section: "Getting Started",
+    order: 0,
+    summary: "The full journey of a job in MakeReady — from first contact to final payment — and how each stage flows into the next.",
+    who: "Everyone",
+    blocks: [
+      { k: "p", text: "Every job in MakeReady travels the same path, from the moment a lead arrives to the moment the invoice is paid. This guide walks that whole journey end to end and shows how each stage hands off to the next. Each linked article goes deeper on its stage." },
+      { k: "h", text: "The journey at a glance" },
+      { k: "list", items: [
+        "1. Capture the lead — a new contact enters the CRM.",
+        "2. Set up the account — collect documents, terms, and credit.",
+        "3. Quote the work — build and send a quote for approval.",
+        "4. Place the order — turn the approved quote into an order.",
+        "5. Design & proof — the art department creates artwork and gets customer sign-off.",
+        "6. Production — approved art is routed to production and made ready.",
+        "7. Deliver — the order ships and reaches the customer.",
+        "8. Invoice & get paid — bill the customer and collect payment.",
+      ] },
+      { k: "tip", text: "One customer link follows the whole journey. When an order is created it gets a private tracking link the customer uses from start to finish — proofs to approve, status at every stage, and anything you need from them, all on one page. You never send a different link for each step." },
+
+      { k: "h", text: "1. Capture the lead" },
+      { k: "p", text: "A lead can arrive two ways: your website form drops it straight into the CRM as a new Business Partner, or you create the Business Partner yourself. Set the account's lifecycle stage (Lead → Prospect → Customer), assign an owner, and log every call, email, and visit as an activity so the whole history lives in one place. Use the ✨ AI summary on the account page to get briefed before you reach out." },
+
+      { k: "h", text: "2. Set up the account & collect documents" },
+      { k: "p", text: "Before you sell on terms, get the paperwork in. Collect the customer's financial intake documents (credit application, resale certificate, and the like) into their finance vault, set their payment terms and account group, and run a credit check to set a credit limit. Credit holds and overdue balances then stay flagged for you throughout the rest of the flow." },
+
+      { k: "h", text: "3. Quote the work" },
+      { k: "p", text: "Build a quote in the Quote Builder — add the items, decoration, quantities, and sizes. Send it to the customer for approval; they approve (or request changes) on their own link, and you're notified the moment they do." },
+
+      { k: "h", text: "4. Place the order" },
+      { k: "p", text: "Turn the approved quote into an order. The order gets its own number and enters the production stages (Received → Art & Proof → Production → Quality → Shipped → Delivered). This is also where the customer's persistent tracking link is created — it stays valid for the entire life of the order." },
+
+      { k: "h", text: "5. Design & proof" },
+      { k: "p", text: "Hand the order to the art department with \"Submit to art\". A guided workflow then walks the job through its steps — assign an artist, produce the artwork, send the customer a proof, handle any revisions, and capture their approval. The customer reviews and approves on the same tracking link. Punching in the orderable design here creates the inventory item automatically, so sales can reorder it later without re-keying." },
+
+      { k: "h", text: "6. Production" },
+      { k: "p", text: "Once the customer approves, production handoffs happen automatically: embroidery files go to the digitizer and silkscreen separations go to the shop. Work the job through the production-readiness checklist, then mark it production-ready — a banner then hands the job back to sales to finish the order." },
+
+      { k: "h", text: "7. Deliver" },
+      { k: "p", text: "Move the order through Shipped and Delivered. Each stage change updates the customer's tracking page, so they always know where their order stands without having to call." },
+
+      { k: "h", text: "8. Invoice & get paid" },
+      { k: "p", text: "Invoice the order, then track payment. AR aging, statements, and credit control keep the money side visible — and the customer's account balance and any overdue flags feed right back to the top of the flow for the next job." },
+
+      { k: "tip", text: "The whole cycle is one continuous thread: the customer, their documents, the quote, the order, the artwork, and the invoice all stay linked to the same account — and the customer follows their order the entire way on one persistent link." },
+    ],
+    related: ["business-partners", "financial-intake-documents", "building-a-quote", "orders-and-production-stages", "art-department", "proof-approvals", "customer-order-tracker", "invoicing-and-payments"],
+  },
+  {
     slug: "signing-in",
     title: "Signing in",
     section: "Getting Started",
