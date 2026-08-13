@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { calcPriceAction, type PriceState } from "@/lib/pricing/actions";
+import { calcPriceAction, calcDtfAction, type PriceState, type DtfState } from "@/lib/pricing/actions";
 
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 const money = (n: number) => `$${n.toFixed(2)}`;
@@ -13,17 +13,49 @@ interface Props {
   freight: { vendor: string }[];
 }
 
+function DtfWidget() {
+  const [state, action, pending] = useActionState<DtfState, FormData>(calcDtfAction, {});
+  const d = state.result;
+  return (
+    <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-4">
+      <h3 className="text-sm font-semibold text-neutral-900">DTF transfer surcharge</h3>
+      <p className="mb-3 text-xs text-neutral-500">Sizes the film layout and returns the per-piece amount to add to a garment line as an extra.</p>
+      <form action={action} className="flex flex-wrap items-end gap-2">
+        <label className="text-xs font-medium text-neutral-600">Width in
+          <input name="widthIn" type="number" step="0.25" min="0" defaultValue={3} className={`mt-1 w-20 ${input}`} />
+        </label>
+        <label className="text-xs font-medium text-neutral-600">Height in
+          <input name="heightIn" type="number" step="0.25" min="0" defaultValue={3} className={`mt-1 w-20 ${input}`} />
+        </label>
+        <label className="text-xs font-medium text-neutral-600">Qty
+          <input name="qty" type="number" min="1" defaultValue={12} className={`mt-1 w-20 ${input}`} />
+        </label>
+        <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">{pending ? "…" : "Calculate"}</button>
+      </form>
+      {state.error && <p className="mt-2 text-sm text-red-600">{state.error}</p>}
+      {d && (
+        <p className="mt-3 text-sm text-neutral-700">
+          <span className="text-2xl font-bold text-neutral-900">{money(d.perPiece)}</span> / pc
+          <span className="ml-2 text-xs text-neutral-500">({d.maxPerRow}/row · {d.totalSqFt} sq ft · material {money(d.materialPerPiece)} · sale {money(d.salePerPiece)} + labor)</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function PriceCalculator({ methods, extras, royalties, freight }: Props) {
   const [state, action, pending] = useActionState<PriceState, FormData>(calcPriceAction, {});
   const r = state.result;
+  const hasDtf = methods.some((m) => m.key === "dtf");
 
   return (
+    <>
     <div className="grid gap-6 lg:grid-cols-2">
       <form action={action} className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4">
         <div className="grid grid-cols-2 gap-3">
           <label className="text-xs font-medium text-neutral-600">Method
             <select name="methodKey" className={`mt-1 w-full ${input}`} defaultValue="silkscreen">
-              {methods.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+              {methods.filter((m) => m.key !== "dtf").map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
             </select>
           </label>
           <label className="text-xs font-medium text-neutral-600">Quantity
@@ -130,5 +162,7 @@ export function PriceCalculator({ methods, extras, royalties, freight }: Props) 
         )}
       </div>
     </div>
+    {hasDtf && <DtfWidget />}
+    </>
   );
 }

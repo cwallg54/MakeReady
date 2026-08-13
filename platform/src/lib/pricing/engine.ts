@@ -184,6 +184,62 @@ export interface FreightRule {
   underThreshold: number | null;
 }
 
+// ---- DTF (direct-to-film) transfer surcharge --------------------------------
+// A geometry calc: lay the decals out on the film roll, price the film area,
+// apply a margin, add labor → a per-piece surcharge fed into the garment calc.
+export interface DtfConfig {
+  materialWidth: number; // roll width (in)
+  sideMargin: number; // usable-width margin per side
+  spacerPerSide: number; // gap between decals per side
+  header: number;
+  footer: number;
+  laborPerPiece: number;
+  costPerSqFt: [number, number][]; // [sqFt, $/sqFt] — exact match on ceil(sqFt)
+  margin: [number, number][]; // [materialPerPiece, multiplier] — step lookup
+}
+export interface DtfResult {
+  perPiece: number; // amount to add to the garment line as an extra
+  materialPerPiece: number;
+  salePerPiece: number;
+  totalSqFt: number;
+  maxPerRow: number;
+  breakdown: Record<string, number>;
+}
+
+function stepLookup(table: [number, number][], key: number): number {
+  const sorted = [...table].sort((a, b) => a[0] - b[0]);
+  let val = sorted[0]?.[1] ?? 0;
+  for (const [k, v] of sorted) if (key >= k) val = v;
+  return val;
+}
+
+/** Per-piece DTF surcharge for `qty` decals sized `widthIn` × `heightIn`. */
+export function dtfSurchargePerPiece(input: { widthIn: number; heightIn: number; qty: number }, cfg: DtfConfig): DtfResult {
+  const qty = Math.max(1, input.qty);
+  const usableWidth = cfg.materialWidth - cfg.sideMargin * 2;
+  const widthPerDecal = input.widthIn + cfg.spacerPerSide * 2;
+  const maxPerRow = Math.max(1, Math.floor(usableWidth / widthPerDecal));
+  const actualWidthUsed = widthPerDecal * maxPerRow;
+  const rows = Math.ceil(qty / maxPerRow);
+  const heightUsed = Math.ceil(cfg.header + cfg.footer + input.heightIn * rows);
+  const totalSqIn = Math.ceil(actualWidthUsed * heightUsed);
+  const totalSqFt = Math.ceil(totalSqIn / 144);
+  const costPerSqFt = stepLookup(cfg.costPerSqFt, totalSqFt);
+  const totalCost = costPerSqFt * totalSqFt;
+  const materialPerPiece = Math.round((totalCost / qty) * 100) / 100;
+  const margin = stepLookup(cfg.margin, materialPerPiece);
+  const salePerPiece = materialPerPiece * margin;
+  const perPiece = round2(salePerPiece + cfg.laborPerPiece);
+  return {
+    perPiece,
+    materialPerPiece,
+    salePerPiece: round2(salePerPiece),
+    totalSqFt,
+    maxPerRow,
+    breakdown: { maxPerRow, rows, totalSqFt, costPerSqFt, materialPerPiece, margin, labor: cfg.laborPerPiece },
+  };
+}
+
 /** Per-garment freight for a vendor, given the order's total garment cost. */
 export function freightFor(rule: FreightRule, orderGarmentCost: number): number {
   if (rule.addPerGarment == null) return 0;

@@ -8,7 +8,8 @@ import { pricingGarments, pricingExtras, pricingVendorFreight, pricingRoyalties 
 import { getCurrentUser } from "@/lib/auth/service";
 import { isAdmin } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { priceLine, type PriceRequest, type PricedLine } from "./service";
+import { priceLine, getMethod, type PriceRequest, type PricedLine } from "./service";
+import { dtfSurchargePerPiece, type DtfConfig, type DtfResult } from "./engine";
 
 async function requireAdminUser() {
   const user = await getCurrentUser();
@@ -86,6 +87,26 @@ export interface PriceState {
   result?: PricedLine;
   error?: string;
   echo?: Record<string, string>;
+}
+
+export interface DtfState {
+  result?: DtfResult;
+  error?: string;
+}
+
+/** DTF transfer surcharge preview (per-piece $ to add to a garment line). */
+export async function calcDtfAction(_prev: DtfState, formData: FormData): Promise<DtfState> {
+  try {
+    const method = await getMethod("dtf");
+    if (!method) return { error: "DTF pricing isn’t configured yet." };
+    const widthIn = Number(formData.get("widthIn") ?? 0);
+    const heightIn = Number(formData.get("heightIn") ?? 0);
+    const qty = Math.round(Number(formData.get("qty") ?? 0));
+    if (!(widthIn > 0) || !(heightIn > 0) || !(qty > 0)) return { error: "Enter width, height and quantity." };
+    return { result: dtfSurchargePerPiece({ widthIn, heightIn, qty }, method.config as DtfConfig) };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not price the DTF transfer." };
+  }
 }
 
 /** Live price preview used by the admin calculator (and reusable by the quote builder). */

@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { priceSilkscreen, priceEmbroidery } from "../src/lib/pricing/engine";
+import { priceSilkscreen, priceEmbroidery, dtfSurchargePerPiece } from "../src/lib/pricing/engine";
 
 /**
  * Parity check: run the engine on the two worked examples baked into the
@@ -34,6 +34,10 @@ const ssRoy = priceSilkscreen(
   data.silkscreen,
 );
 expect("SS royalty 7%", ssRoy.royaltyUnit ?? 0, 25.95);
+
+// DTF: 12 decals at 3"×3" → $5.60/pc (workbook N12)
+const dtf = dtfSurchargePerPiece({ widthIn: 3, heightIn: 3, qty: 12 }, data.dtf);
+expect("DTF /pc (3x3, qty 12)", dtf.perPiece, 5.6);
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);
