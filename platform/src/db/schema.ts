@@ -118,6 +118,9 @@ export const systemSettings = pgTable("system_settings", {
   glClosingNote: text("gl_closing_note"),
   // Default sales-tax rate applied to new invoices (e.g. 0.0725 = 7.25%).
   defaultTaxRate: numeric("default_tax_rate", { precision: 6, scale: 4 }).notNull().default("0"),
+  // Processing fee added when a customer pays an invoice by card (e.g. 3.00 =
+  // +3%). Bank/ACH payments never carry the fee. 0 disables the surcharge.
+  cardSurchargePct: numeric("card_surcharge_pct", { precision: 6, scale: 3 }).notNull().default("3"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });
@@ -1014,6 +1017,8 @@ export const invoices = pgTable(
     bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
     // The order this invoice bills, when raised from one (else standalone).
     orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    // Opaque token for the public pay/view link (no login). Minted when sent.
+    publicToken: text("public_token").unique(),
     status: invoiceStatusEnum("status").notNull().default("draft"),
     issueDate: timestamp("issue_date", { withTimezone: true }),
     dueDate: timestamp("due_date", { withTimezone: true }),

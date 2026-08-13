@@ -449,6 +449,13 @@
       "when": 1786650720017,
       "tag": "0063_quote_line_extras",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1786661551940,
+      "tag": "0064_invoice_paylink",
+      "breakpoints": true
     }
   ]
 }

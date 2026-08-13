@@ -20,6 +20,7 @@ export default async function ConfigPage() {
           requireMfa={settings?.requireMfa ?? false}
           creditApprovalThreshold={Number(settings?.creditApprovalThreshold ?? 5000)}
           defaultTaxRatePct={Number(settings?.defaultTaxRate ?? 0) * 100}
+          cardSurchargePct={Number(settings?.cardSurchargePct ?? 3)}
         />
       </Card>
 

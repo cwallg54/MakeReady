@@ -215,6 +215,7 @@ const settingsSchema = z.object({
   sessionTimeoutMinutes: z.coerce.number().int().min(5).max(1440),
   creditApprovalThreshold: z.coerce.number().min(0).max(10_000_000),
   defaultTaxRatePct: z.coerce.number().min(0).max(100),
+  cardSurchargePct: z.coerce.number().min(0).max(20),
 });
 
 export async function updateSettingsAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
@@ -227,12 +228,13 @@ export async function updateSettingsAction(_prev: AdminState, formData: FormData
     sessionTimeoutMinutes: formData.get("sessionTimeoutMinutes"),
     creditApprovalThreshold: formData.get("creditApprovalThreshold") ?? 5000,
     defaultTaxRatePct: formData.get("defaultTaxRatePct") ?? 0,
+    cardSurchargePct: formData.get("cardSurchargePct") ?? 3,
   });
   if (!parsed.success) return { error: "Please check the configuration values." };
 
   const requireMfa = formData.get("requireMfa") === "on";
-  const { creditApprovalThreshold, defaultTaxRatePct, ...rest } = parsed.data;
-  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold), defaultTaxRate: (defaultTaxRatePct / 100).toFixed(4) };
+  const { creditApprovalThreshold, defaultTaxRatePct, cardSurchargePct, ...rest } = parsed.data;
+  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold), defaultTaxRate: (defaultTaxRatePct / 100).toFixed(4), cardSurchargePct: cardSurchargePct.toFixed(3) };
 
   await db
     .insert(systemSettings)

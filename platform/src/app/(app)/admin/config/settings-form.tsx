@@ -19,6 +19,7 @@ export function SettingsForm({
   requireMfa,
   creditApprovalThreshold,
   defaultTaxRatePct,
+  cardSurchargePct,
 }: {
   companyName: string;
   legalName: string;
@@ -28,6 +29,7 @@ export function SettingsForm({
   requireMfa: boolean;
   creditApprovalThreshold: number;
   defaultTaxRatePct: number;
+  cardSurchargePct: number;
 }) {
   const [state, action] = useActionState<AdminState, FormData>(updateSettingsAction, {});
   return (
@@ -72,6 +74,15 @@ export function SettingsForm({
           max={100}
           defaultValue={defaultTaxRatePct}
           hint="Applied to new invoices; can be overridden per invoice"
+        />
+        <AdminField
+          label="Card payment fee (%)"
+          name="cardSurchargePct"
+          type="number"
+          min={0}
+          max={20}
+          defaultValue={cardSurchargePct}
+          hint="Surcharge added when a customer pays an invoice by card. Bank/ACH pays never carry it. 0 = no fee."
         />
       </div>
       <label className="flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">

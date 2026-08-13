@@ -2,9 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { invoices, invoiceLines, payments, numberSeries, orders, quoteLines, businessPartners, contacts, activities, systemSettings } from "@/db/schema";
+import { invoices, invoiceLines, payments, numberSeries, orders, quoteLines, businessPartners, contacts, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -183,7 +184,9 @@ export async function sendInvoiceAction(formData: FormData): Promise<void> {
   if (!inv || inv.voidedAt) return;
   const issue = inv.issueDate ?? new Date();
   const due = inv.dueDate ?? new Date(issue.getTime() + termsDays(inv.terms) * 86_400_000);
-  await db.update(invoices).set({ issueDate: issue, dueDate: due, updatedAt: new Date() }).where(eq(invoices.id, id));
+  // Mint the public pay link on send so the customer can pay online (card/ACH).
+  const payToken = inv.publicToken ?? randomBytes(18).toString("hex");
+  await db.update(invoices).set({ issueDate: issue, dueDate: due, publicToken: payToken, updatedAt: new Date() }).where(eq(invoices.id, id));
   await refreshInvoice(id);
   await postInvoiceToGl(id, user.id); // Dr AR / Cr Sales — idempotent, best-effort
   if (inv.bpId) {
@@ -234,12 +237,16 @@ export async function emailInvoiceAction(formData: FormData): Promise<void> {
     await refreshInvoice(id);
     await postInvoiceToGl(id, user.id); // issue-on-email also posts to the GL
   }
+  // Ensure a public pay link exists so the email can offer online payment.
+  const payToken = inv.publicToken ?? randomBytes(18).toString("hex");
+  if (!inv.publicToken) await db.update(invoices).set({ publicToken: payToken }).where(eq(invoices.id, id));
+  const payUrl = `${process.env.APP_URL ?? "https://makeready.g54.com"}/invoice/${payToken}`;
   const to = await recipientFor(inv.bpId);
   const pdf = await generateInvoicePdf(id);
   if (pdf && to) {
     const paidTo = await db.select({ s: sql<string>`COALESCE(SUM(${payments.amount}),0)` }).from(payments).where(eq(payments.invoiceId, id));
     const balance = Number(inv.total) - Number(paidTo[0]?.s ?? 0);
-    await sendInvoiceEmail(to, inv.invoiceNumber, inv.dueDate ? fmtDate(inv.dueDate) : "", `$${balance.toFixed(2)}`, [{ filename: pdf.filename, content: pdf.base64 }]);
+    await sendInvoiceEmail(to, inv.invoiceNumber, inv.dueDate ? fmtDate(inv.dueDate) : "", `$${balance.toFixed(2)}`, [{ filename: pdf.filename, content: pdf.base64 }], payUrl);
   }
   if (inv.bpId) {
     await db.insert(activities).values({ bpId: inv.bpId, userId: user.id, type: "email", isSystem: true, content: `Invoice ${inv.invoiceNumber} emailed to ${to || "customer (no email on file)"}` });

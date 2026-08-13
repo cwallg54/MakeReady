@@ -13,17 +13,28 @@ export function stripeConfigured(): boolean {
   return !!process.env.STRIPE_SECRET_KEY;
 }
 
-/** Create a hosted Checkout Session to pay an invoice; returns the redirect URL. */
+export type PayMethod = "card" | "ach";
+
+/**
+ * Create a hosted Checkout Session to pay an invoice; returns the redirect URL.
+ * `method` "card" allows Visa/MC/Amex (incl. virtual cards) — charge `amountCents`
+ * which may include the surcharge. "ach" allows US bank debit (Plaid-backed) with
+ * no surcharge. `arCents` is the amount that actually settles the invoice in AR
+ * (the surcharge is a processing fee on top) — the webhook books `arCents`.
+ */
 export async function createInvoiceCheckout(o: {
   invoiceId: string;
   invoiceNumber: string;
   amountCents: number;
+  arCents?: number;
+  method?: PayMethod;
   customerEmail?: string;
   successUrl: string;
   cancelUrl: string;
 }): Promise<string | null> {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
+  const method: PayMethod = o.method ?? "card";
   const b = new URLSearchParams();
   b.set("mode", "payment");
   b.set("success_url", o.successUrl);
@@ -31,10 +42,14 @@ export async function createInvoiceCheckout(o: {
   if (o.customerEmail) b.set("customer_email", o.customerEmail);
   b.set("client_reference_id", o.invoiceId);
   b.set("metadata[invoiceId]", o.invoiceId);
+  b.set("metadata[arCents]", String(o.arCents ?? o.amountCents));
+  b.set("metadata[method]", method);
+  // Card allows virtual/commercial cards; ACH is Stripe's Plaid-backed bank debit.
+  b.set("payment_method_types[0]", method === "ach" ? "us_bank_account" : "card");
   b.set("line_items[0][quantity]", "1");
   b.set("line_items[0][price_data][currency]", "usd");
   b.set("line_items[0][price_data][unit_amount]", String(o.amountCents));
-  b.set("line_items[0][price_data][product_data][name]", `Invoice ${o.invoiceNumber}`);
+  b.set("line_items[0][price_data][product_data][name]", `Invoice ${o.invoiceNumber}${method === "card" ? " (card incl. processing fee)" : ""}`);
   const res = await fetch(`${API}/checkout/sessions`, {
     method: "POST",
     headers: { authorization: `Bearer ${key}`, "content-type": "application/x-www-form-urlencoded" },

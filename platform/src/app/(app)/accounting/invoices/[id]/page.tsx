@@ -9,6 +9,7 @@ import { OrderJourney } from "@/components/orders/order-journey";
 import { computeOrderJourney } from "@/lib/orders/journey";
 import { DateTime } from "luxon";
 import { PageHeader, Card } from "@/components/ui";
+import { CopyLink } from "@/components/orders/copy-link";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
 import { fmtDate, fmtDateTime } from "@/lib/format";
@@ -93,6 +94,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               <ConfirmButton message="Void this invoice?" className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50">Void</ConfirmButton>
             </form>
           </div>
+          {inv.publicToken ? (
+            <div className="mt-3 border-t border-neutral-100 pt-3">
+              <p className="mb-1 text-xs font-medium text-neutral-600">Customer payment link <span className="font-normal text-neutral-400">— pay by bank/ACH (no fee) or card (fee applies)</span></p>
+              <CopyLink url={`${process.env.APP_URL ?? "https://makeready.g54.com"}/invoice/${inv.publicToken}`} />
+            </div>
+          ) : (
+            <p className="mt-3 border-t border-neutral-100 pt-3 text-xs text-neutral-500">Issue or email the invoice to generate a customer payment link.</p>
+          )}
         </Card>
       )}
 

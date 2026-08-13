@@ -24,9 +24,14 @@ export async function POST(req: NextRequest): Promise<Response> {
     const s = event.data?.object ?? {};
     const meta = (s.metadata ?? {}) as Record<string, string>;
     const invoiceId = meta.invoiceId || (s.client_reference_id as string | undefined);
-    const amountCents = Number(s.amount_total ?? 0);
-    if (invoiceId && s.payment_status === "paid" && amountCents > 0) {
-      await recordInvoiceCardPayment({ invoiceId, amountCents, reference: `stripe:${s.id}` });
+    const chargedCents = Number(s.amount_total ?? 0);
+    // Book the AR-settling amount (excludes any card surcharge); the surcharge is
+    // recorded as a note only. Falls back to the charged total for older sessions.
+    const arCents = Number(meta.arCents ?? chargedCents) || chargedCents;
+    const method = meta.method === "ach" ? "ach" : "card";
+    const feeCents = Math.max(0, chargedCents - arCents);
+    if (invoiceId && s.payment_status === "paid" && arCents > 0) {
+      await recordInvoiceCardPayment({ invoiceId, amountCents: arCents, reference: `stripe:${s.id}`, method, feeCents });
     }
   }
 

@@ -11,7 +11,7 @@ import { refreshInvoice } from "@/lib/accounting/ar";
  * invoice status). Idempotent on the Stripe reference so webhook retries are
  * safe. Attributed to an admin actor for the GL entry.
  */
-export async function recordInvoiceCardPayment(o: { invoiceId: string; amountCents: number; reference: string }): Promise<void> {
+export async function recordInvoiceCardPayment(o: { invoiceId: string; amountCents: number; reference: string; method?: "card" | "ach"; feeCents?: number }): Promise<void> {
   const existing = await db.query.payments.findFirst({ where: eq(payments.reference, o.reference), columns: { id: true } });
   if (existing) return; // already recorded
 
@@ -21,14 +21,18 @@ export async function recordInvoiceCardPayment(o: { invoiceId: string; amountCen
   const admin = await db.select({ id: users.id }).from(users).innerJoin(userRoles, eq(userRoles.userId, users.id)).where(eq(userRoles.role, "admin")).limit(1);
   const actorId = admin[0]?.id ?? null;
 
+  // `amountCents` is the AR-settling amount; a card surcharge (feeCents) is a
+  // processing fee the customer covered on top — noted, not applied to AR.
+  const method = o.method === "ach" ? "ach" : "card";
+  const feeNote = o.feeCents && o.feeCents > 0 ? ` (+ $${(o.feeCents / 100).toFixed(2)} card fee)` : "";
   const [pay] = await db.insert(payments).values({
     invoiceId: inv.id,
     bpId: inv.bpId,
     amount: (o.amountCents / 100).toFixed(2),
-    method: "card",
+    method,
     reference: o.reference,
     receivedDate: new Date(),
-    notes: "Online payment (Stripe)",
+    notes: `Online payment (${method === "ach" ? "bank/ACH" : "card"}, Stripe)${feeNote}`,
     createdBy: actorId,
   }).returning({ id: payments.id });
 

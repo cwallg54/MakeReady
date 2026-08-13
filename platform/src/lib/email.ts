@@ -174,13 +174,20 @@ export async function sendQuoteEmail(to: string, quoteNumber: string, total: str
 }
 
 /** Email an invoice (PDF attachment) to the customer. Returns true if sent. */
-export async function sendInvoiceEmail(to: string, invoiceNumber: string, dueLabel: string, balance: string, attachments: EmailAttachment[]): Promise<boolean> {
+export async function sendInvoiceEmail(to: string, invoiceNumber: string, dueLabel: string, balance: string, attachments: EmailAttachment[], payUrl?: string): Promise<boolean> {
+  const payBlock = payUrl
+    ? `<p style="margin:18px 0">
+         <a href="${payUrl}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:600">Pay this invoice online →</a>
+       </p>
+       <p style="font-size:12px;color:#666">Pay by bank/ACH (no fee) or card (a processing fee applies to card).</p>`
+    : "";
   return sendEmail(
     to,
     `Great Mountain West — Invoice ${invoiceNumber}`,
     `<div style="font-family:system-ui,sans-serif;max-width:520px">
        <p>Hello,</p>
        <p>Please find invoice <strong>${invoiceNumber}</strong> attached as a PDF. Balance due: <strong>${balance}</strong>${dueLabel ? `, due ${dueLabel}` : ""}.</p>
+       ${payBlock}
        <p>Thank you for your business.</p>
        <p>— Great Mountain West (G54)</p>
      </div>`,

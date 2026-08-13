@@ -1,6 +1,6 @@
-import { eq, asc, and, or, ne, isNull } from "drizzle-orm";
+import { eq, asc, and, or, ne, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderEvents, businessPartners, orderProofs, customerDocuments } from "@/db/schema";
+import { orders, orderEvents, businessPartners, orderProofs, customerDocuments, invoices, payments } from "@/db/schema";
 import { Logo } from "@/components/logo";
 import { OrderTracker } from "@/components/orders/order-tracker";
 import { ORDER_STAGES, type OrderStage } from "@/lib/orders/stages";
@@ -78,6 +78,16 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
     .orderBy(asc(customerDocuments.submittedAt));
   const hasHistory = doneProofs.length > 0 || doneDocs.length > 0;
 
+  // An unpaid invoice for this order with a public pay link → show a Pay button.
+  const orderInvoices = await db.select().from(invoices).where(and(eq(invoices.orderId, order.id), isNull(invoices.voidedAt)));
+  let payable: { token: string; number: string; balance: number } | null = null;
+  for (const iv of orderInvoices) {
+    if (!iv.publicToken || iv.status === "paid" || iv.status === "void") continue;
+    const paid = await db.select({ s: sql<string>`COALESCE(SUM(${payments.amount}),0)` }).from(payments).where(eq(payments.invoiceId, iv.id));
+    const bal = Number(iv.total) - Number(paid[0]?.s ?? 0);
+    if (bal > 0.005) { payable = { token: iv.publicToken, number: iv.invoiceNumber, balance: bal }; break; }
+  }
+
   return (
     <div className="min-h-screen bg-neutral-100 px-4 py-10">
       <div className="mx-auto max-w-3xl">
@@ -108,6 +118,15 @@ export default async function TrackPage({ params }: { params: Promise<{ token: s
               {carrierTrackingUrl(order.carrier, order.trackingNumber) && (
                 <a href={carrierTrackingUrl(order.carrier, order.trackingNumber)!} target="_blank" rel="noreferrer" className="mt-3 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Track your package →</a>
               )}
+            </div>
+          )}
+
+          {payable && (
+            <div className="mt-8 rounded-xl border border-neutral-300 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-ink">Payment</p>
+              <p className="mt-1 text-sm text-neutral-700">Invoice {payable.number} — balance due <span className="font-semibold text-neutral-900">${payable.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p>
+              <a href={`/invoice/${payable.token}`} className="mt-3 inline-block rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Pay this invoice →</a>
+              <p className="mt-2 text-[11px] text-neutral-400">Pay by bank/ACH (no fee) or card (a processing fee applies to card).</p>
             </div>
           )}
 
