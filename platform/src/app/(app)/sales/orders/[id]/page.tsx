@@ -8,7 +8,7 @@ import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, 
 import { createInvoiceFromOrderAction } from "@/lib/accounting/actions";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
-import { fmtDateTime } from "@/lib/format";
+import { fmtDateTime, fmtDate } from "@/lib/format";
 import { OrderInfoCard } from "@/components/orders/order-info";
 import { inArray } from "drizzle-orm";
 import { OrderTracker } from "@/components/orders/order-tracker";
@@ -24,6 +24,7 @@ import { submitToArtAction, reopenArtAction } from "@/lib/art/actions";
 import { artReadinessChecklist } from "@/lib/art/gate";
 import { sendToProductionAction } from "@/lib/production/actions";
 import { voidOrderAction, setReorderAction, reorderFastPathAction, updateFulfillmentAction } from "@/lib/orders/detail-actions";
+import { upcomingShipDays, setOrderShipDateAction } from "@/lib/production/ship-calendar";
 import { createDocumentRequestAction } from "@/lib/documents/actions";
 import { DOC_LABELS } from "@/lib/documents/meta";
 import { desc } from "drizzle-orm";
@@ -84,6 +85,7 @@ export default async function OrderDetailPage({ params, searchParams }: { params
   const toEmail = contact?.email ?? bp?.email ?? "";
   const mailBody = `Hello,\r\n\r\nYou can track the progress of your order ${order.orderNumber} here:\r\n${trackUrl}\r\n\r\nThank you,\r\nGreat Mountain West (G54)`;
   const mailto = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(`Track your G54 order ${order.orderNumber}`)}&body=${encodeURIComponent(mailBody)}`;
+  const shipDays = await upcomingShipDays(30);
 
   return (
     <div className="max-w-4xl">
@@ -307,6 +309,19 @@ export default async function OrderDetailPage({ params, searchParams }: { params
               </div>
             )}
             <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save fulfillment</button>
+          </form>
+
+          <form action={setOrderShipDateAction} className="mt-4 flex flex-wrap items-end gap-2 border-t border-neutral-100 pt-3">
+            <input type="hidden" name="orderId" value={order.id} />
+            <label className="text-xs font-medium text-neutral-600">Committed ship date
+              <select name="shipDate" defaultValue={order.shipDate ?? ""} className="mt-1 block rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand">
+                <option value="">— none —</option>
+                {order.shipDate && !shipDays.some((d) => d.day === order.shipDate) && <option value={order.shipDate}>{order.shipDate} (past/removed)</option>}
+                {shipDays.map((d) => <option key={d.day} value={d.day}>{fmtDate(new Date(d.day + "T12:00:00"))}{d.capacity != null ? ` · cap ${d.capacity}` : ""}</option>)}
+              </select>
+            </label>
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Set ship date</button>
+            {shipDays.length === 0 && <span className="text-xs text-amber-600">No ship dates published — Ops sets them on the Production schedule.</span>}
           </form>
         </Card>
       )}

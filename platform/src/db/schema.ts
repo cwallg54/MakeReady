@@ -967,6 +967,8 @@ export const orders = pgTable(
     nameDrop: text("name_drop"),
     upcBySize: jsonb("upc_by_size"), // { "S": "052774...", "M": "052774..." }
     fulfillmentNotes: text("fulfillment_notes"),
+    // Committed ship date, chosen from the Ops ship calendar (yyyy-MM-dd).
+    shipDate: text("ship_date"),
     // Sales employee credited with the order (defaults to the account owner).
     salesRepId: uuid("sales_rep_id").references(() => users.id, { onDelete: "set null" }),
     // Voiding an order requires a reason; a voided order is cancelled but retained.
@@ -2046,3 +2048,21 @@ export const pricingRoyalties = pgTable("pricing_royalties", {
   active: boolean("active").notNull().default(true),
 });
 export type PricingRoyalty = typeof pricingRoyalties.$inferSelect;
+
+// ───────────────────────────── Ship Calendar ───────────────────────────────
+// Ops publishes the dates the shop can ship on (Tyson's weekly schedule). Orders
+// pick their committed ship date from these. Stored as yyyy-MM-dd calendar days.
+export const shipCalendar = pgTable(
+  "ship_calendar",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    day: text("day").notNull().unique(), // yyyy-MM-dd
+    capacity: integer("capacity"), // optional daily order cap (null = unlimited)
+    note: text("note"),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("ship_calendar_day_idx").on(t.day)],
+);
+export type ShipCalendarDay = typeof shipCalendar.$inferSelect;

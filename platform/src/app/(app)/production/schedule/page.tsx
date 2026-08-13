@@ -3,16 +3,23 @@ import { eq, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { productionJobs, orders, businessPartners, users } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
+import { canEdit } from "@/lib/rbac";
 import { PageHeader } from "@/components/ui";
 import { fmtDate } from "@/lib/format";
+import { upcomingShipDays, addShipDayAction, addShipWeekdaysAction, removeShipDayAction } from "@/lib/production/ship-calendar";
 
 export const dynamic = "force-dynamic";
+
+const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
+const WEEKDAYS = [[1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"], [7, "Sun"]] as const;
 
 const STATUS_LABEL: Record<string, string> = { queued: "Queued", in_production: "In production", quality_check: "Quality check", ready_to_ship: "Ready to ship", shipped: "Shipped" };
 const STATUS_BADGE: Record<string, string> = { queued: "bg-neutral-200 text-neutral-600", in_production: "bg-blue-100 text-blue-700", quality_check: "bg-amber-100 text-amber-700", ready_to_ship: "bg-emerald-100 text-emerald-700" };
 
 export default async function ProductionSchedulePage() {
-  await requireModule("jobs");
+  const user = await requireModule("jobs");
+  const editable = canEdit(user.roles, "jobs");
+  const shipDays = await upcomingShipDays(30);
 
   const rows = await db
     .select({
@@ -31,6 +38,7 @@ export default async function ProductionSchedulePage() {
     .leftJoin(users, eq(users.id, productionJobs.assignedTo))
     .where(ne(productionJobs.status, "shipped"));
 
+  // eslint-disable-next-line react-hooks/purity -- server component; time-of-request is intended
   const now = Date.now();
   const SOON = now + 3 * 86_400_000;
 
@@ -63,6 +71,54 @@ export default async function ProductionSchedulePage() {
       <div className="mb-4 flex flex-wrap gap-2">
         <span className="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs text-neutral-600"><span className="font-medium text-neutral-900">{sorted.length}</span> active job{sorted.length === 1 ? "" : "s"}</span>
         {totalOverdue > 0 && <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-medium text-red-700">{totalOverdue} overdue</span>}
+      </div>
+
+      {/* Ship calendar — the dates the shop can ship on; orders pick from these. */}
+      <div className="mb-6 rounded-xl border border-neutral-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-neutral-900">Ship calendar</h2>
+        <p className="mb-3 text-xs text-neutral-500">The dates the shop can ship on. Orders choose their committed ship date from this list.</p>
+        {shipDays.length === 0 ? (
+          <p className="text-xs text-neutral-400">No ship dates set yet.{editable ? " Add some below." : ""}</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {shipDays.map((d) => (
+              <span key={d.day} className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs text-neutral-700" title={d.note ?? undefined}>
+                {fmtDate(new Date(d.day + "T12:00:00"))}{d.capacity != null ? ` · cap ${d.capacity}` : ""}
+                {editable && (
+                  <form action={removeShipDayAction} className="inline leading-none">
+                    <input type="hidden" name="id" value={d.id} />
+                    <button className="text-neutral-400 hover:text-red-600" title="Remove ship date">×</button>
+                  </form>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+        {editable && (
+          <div className="mt-3 grid gap-3 border-t border-neutral-100 pt-3 sm:grid-cols-2">
+            <form action={addShipDayAction} className="flex flex-wrap items-end gap-2">
+              <label className="text-xs font-medium text-neutral-600">Add a ship date
+                <input type="date" name="day" required className={`mt-1 block ${inp}`} />
+              </label>
+              <input name="capacity" type="number" min="0" placeholder="cap" className={`w-16 ${inp}`} title="Optional daily cap" />
+              <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">Add</button>
+            </form>
+            <form action={addShipWeekdaysAction} className="flex flex-wrap items-end gap-2">
+              <label className="text-xs font-medium text-neutral-600">Bulk: from
+                <input type="date" name="start" required className={`mt-1 block ${inp}`} />
+              </label>
+              <label className="text-xs font-medium text-neutral-600">to
+                <input type="date" name="end" required className={`mt-1 block ${inp}`} />
+              </label>
+              <span className="flex flex-wrap items-center gap-1 text-[11px] text-neutral-600">
+                {WEEKDAYS.map(([n, lbl]) => (
+                  <label key={n} className="flex items-center gap-0.5"><input type="checkbox" name="weekday" value={n} defaultChecked={n <= 5} className="h-3 w-3" />{lbl}</label>
+                ))}
+              </span>
+              <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Add weekdays</button>
+            </form>
+          </div>
+        )}
       </div>
 
       {sorted.length === 0 ? (
