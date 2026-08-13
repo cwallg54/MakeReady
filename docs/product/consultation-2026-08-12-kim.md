@@ -5,14 +5,14 @@ Runthrough of the current MakeReady build with Kim, executive sponsor for Sales.
 ## Build status (updated 2026-08-13)
 
 - ✅ **First-article press check** — shipped (561c3d9).
-- ✅ **Pricing Calculator Engine** (silkscreen + embroidery, verified to the cent) + **Admin → Softgoods Pricing** — shipped (b84e84b).
+- ✅ **Pricing Calculator Engine** (silkscreen + embroidery, verified to the cent) + **Admin → Softgoods Pricing** — shipped (b84e84b); **DTF** added + verified (3cd256f).
 - ✅ **Pricing engine on the quote page** — "Softgoods price check" tool in the quote builder (f98cfe0).
 - ✅ **OCR business-card capture** — shipped (824a8ee).
 - ✅ **Reorder fast-path** + **structured fulfillment fields** (barcode/hangtag/folding/name-drop/per-size UPC) — shipped (5f7996a).
 - ✅ **Pipeline transition automation** (Lead→Prospect on credit-app completion; →Customer on order) + **rep pricing lockdown** (only managers/admins discount) — shipped (5f2f61e).
 - ⛔ **Outstanding / blocked:**
   - Deep quote-builder swap so the *existing* Garments & Decoration lines price through the engine end-to-end (today the engine is a side-by-side price-check tool). Needs styles↔pricing_garments cost reconciliation.
-  - **DTF & ASI** methods in the engine (silkscreen + embroidery done). DTF = per-sq-inch surcharge fed into the garment calc; ASI = bulk lookup.
+  - **ASI** method in the engine (silkscreen + embroidery + DTF done). ASI = same shape as silkscreen with its own multiplier tables + up-to-3 print locations (distributor channel).
   - **Ship-date integration** — blocked on Tyson's weekly Monday ship-schedule format/source.
   - **Outlook calendar sync** — blocked on a Microsoft Graph app registration + credentials.
   - **SMS notifications (V2)** — blocked on an SMS provider (e.g. Twilio) account + number.
