@@ -26,6 +26,7 @@ async function main() {
     { key: "silkscreen", label: "Silkscreen", config: data.silkscreen },
     { key: "embroidery", label: "Embroidery", config: data.embroidery },
     { key: "dtf", label: "DTF transfer", config: data.dtf },
+    { key: "asi", label: "ASI silkscreen", config: data.asi },
   ];
   for (const m of methods) {
     await db

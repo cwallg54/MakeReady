@@ -112,17 +112,19 @@ export async function calcDtfAction(_prev: DtfState, formData: FormData): Promis
 /** Live price preview used by the admin calculator (and reusable by the quote builder). */
 export async function calcPriceAction(_prev: PriceState, formData: FormData): Promise<PriceState> {
   try {
-    const methodKey = (String(formData.get("methodKey") ?? "silkscreen") as "silkscreen" | "embroidery");
+    const methodKey = (String(formData.get("methodKey") ?? "silkscreen") as "silkscreen" | "embroidery" | "asi");
     const qty = Math.max(1, Math.round(Number(formData.get("qty") ?? 0)));
     if (!qty) return { error: "Enter a quantity." };
     const garmentNumber = String(formData.get("garmentNumber") ?? "").trim() || undefined;
     const garmentCostRaw = String(formData.get("garmentCost") ?? "").trim();
+    const locations = [1, 2, 3].map((i) => Number(formData.get(`loc${i}`) ?? 0)).filter((n) => n > 0);
     const req: PriceRequest = {
       methodKey,
       qty,
       garmentNumber,
       garmentCost: garmentCostRaw ? Number(garmentCostRaw.replace(/[$,]/g, "")) : undefined,
       level: (String(formData.get("level") ?? "A") as "A" | "B" | "C"),
+      locations,
       stitch1: Number(formData.get("stitch1") ?? 0) || undefined,
       stitch2: Number(formData.get("stitch2") ?? 0) || undefined,
       leftChestYoke: formData.get("leftChestYoke") === "on",

@@ -58,6 +58,11 @@ export function PriceCalculator({ methods, extras, royalties, freight }: Props) 
               {methods.filter((m) => m.key !== "dtf").map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
             </select>
           </label>
+          <label className="text-xs font-medium text-neutral-600">ASI print locations (PL#)
+            <div className="mt-1 flex gap-1">
+              {[1, 2, 3].map((i) => <input key={i} name={`loc${i}`} type="number" min="0" max="9" placeholder={`#${i}`} className={`w-full ${input}`} title={`ASI location ${i} PL#`} />)}
+            </div>
+          </label>
           <label className="text-xs font-medium text-neutral-600">Quantity
             <input name="qty" type="number" min={1} defaultValue={144} className={`mt-1 w-full ${input}`} />
           </label>

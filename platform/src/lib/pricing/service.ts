@@ -5,9 +5,11 @@ import { pricingMethods, pricingExtras, pricingVendorFreight, pricingRoyalties, 
 import {
   priceSilkscreen,
   priceEmbroidery,
+  priceAsi,
   freightFor,
   type SilkscreenConfig,
   type EmbroideryConfig,
+  type AsiConfig,
   type PriceResult,
   type Tier,
 } from "./engine";
@@ -48,11 +50,12 @@ export async function searchGarments(q: string, limit = 25) {
 }
 
 export interface PriceRequest {
-  methodKey: "silkscreen" | "embroidery";
+  methodKey: "silkscreen" | "embroidery" | "asi";
   garmentNumber?: string;
   garmentCost?: number; // override/direct cost when no catalog number
   qty: number;
   level?: "A" | "B" | "C"; // silkscreen
+  locations?: number[]; // asi PL# per location (up to 3)
   stitch1?: number; // embroidery
   stitch2?: number;
   leftChestYoke?: boolean;
@@ -120,6 +123,11 @@ export async function priceLine(req: PriceRequest): Promise<PricedLine> {
     result = priceSilkscreen(
       { garmentCost, level: req.level ?? "A", qty: req.qty, leftChestYoke: req.leftChestYoke, sleeve: req.sleeve, allOverStain: req.allOverStain, extrasAmount, royaltyPct, tier: req.tier },
       method.config as SilkscreenConfig,
+    );
+  } else if (req.methodKey === "asi") {
+    result = priceAsi(
+      { garmentCost, qty: req.qty, locations: req.locations ?? [], allOverStain: req.allOverStain, extrasAmount, royaltyPct, tier: req.tier },
+      method.config as AsiConfig,
     );
   } else {
     result = priceEmbroidery(

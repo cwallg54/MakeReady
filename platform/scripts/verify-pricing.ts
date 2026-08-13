@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { priceSilkscreen, priceEmbroidery, dtfSurchargePerPiece } from "../src/lib/pricing/engine";
+import { priceSilkscreen, priceEmbroidery, dtfSurchargePerPiece, priceAsi } from "../src/lib/pricing/engine";
 
 /**
  * Parity check: run the engine on the two worked examples baked into the
@@ -38,6 +38,11 @@ expect("SS royalty 7%", ssRoy.royaltyUnit ?? 0, 25.95);
 // DTF: 12 decals at 3"×3" → $5.60/pc (workbook N12)
 const dtf = dtfSurchargePerPiece({ widthIn: 3, heightIn: 3, qty: 12 }, data.dtf);
 expect("DTF /pc (3x3, qty 12)", dtf.perPiece, 5.6);
+
+// ASI: cost 2.26, qty 144, three PL#2 locations → 2.26×2.13 + 1.85×3 = 10.36.
+// (The workbook itself errors here on a broken VLOOKUP; this is the intended math.)
+const asi = priceAsi({ garmentCost: 2.26, qty: 144, locations: [2, 2, 2] }, data.asi);
+expect("ASI unit (2.26/144/3×PL2)", asi.unit, 10.36);
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

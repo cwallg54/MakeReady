@@ -184,6 +184,71 @@ export interface FreightRule {
   underThreshold: number | null;
 }
 
+// ---- ASI silkscreen (distributor channel) -----------------------------------
+// Same shape as silkscreen but cost-range multipliers (no A/B/C level), up to
+// three print locations priced by a "PL #" table, and HV/MV tiers of the full
+// unit. NOTE: the workbook's own multiplier VLOOKUP is broken (#N/A); we use the
+// ASI multiplier table directly, which is the intended source.
+export interface AsiPlCharge {
+  pl: number; // print-location complexity number (0–9)
+  byQty: Record<string, number | null>;
+}
+export interface AsiConfig {
+  qtyBreaks: number[];
+  multipliers: MultiplierBand[]; // cost-range only (no level)
+  plCharges: AsiPlCharge[];
+  sizeUpcharges: Record<string, number>;
+  tiers: { HV: number; MV: number };
+  stainAdder: number;
+}
+export interface AsiInput {
+  garmentCost: number;
+  qty: number;
+  locations?: number[]; // up to 3 PL# values (e.g. [2, 2, 0])
+  allOverStain?: boolean;
+  extrasAmount?: number;
+  royaltyPct?: number;
+  tier?: Tier;
+}
+
+function plChargeFor(charges: AsiPlCharge[], pl: number, qtyBreak: number): number {
+  if (!pl) return 0;
+  const row = charges.find((c) => c.pl === pl);
+  const v = row?.byQty[String(qtyBreak)];
+  return typeof v === "number" ? v : 0;
+}
+
+export function priceAsi(input: AsiInput, cfg: AsiConfig): PriceResult {
+  const warnings: string[] = [];
+  const qtyBreak = qtyBreakFor(input.qty, cfg.qtyBreaks);
+  const mult = multiplierFor(cfg.multipliers, input.garmentCost, qtyBreak, null);
+  if (mult == null) warnings.push(`No ASI multiplier at qty ${qtyBreak}.`);
+
+  const locations = (input.locations ?? []).slice(0, 3);
+  const printCharge = locations.reduce((s, pl) => s + plChargeFor(cfg.plCharges, pl, qtyBreak), 0);
+  const stain = input.allOverStain ? cfg.stainAdder : 0;
+  const extras = input.extrasAmount ?? 0;
+
+  // ASI applies the customer-tier discount to the whole unit (not just garment).
+  const pre = input.garmentCost * (mult ?? 0) + printCharge + stain + extras;
+  const unit = round2(pre * tierFactor(input.tier ?? "list", cfg.tiers));
+  const royaltyPct = input.royaltyPct ?? 0;
+  const royaltyUnit = royaltyPct > 0.0001 ? round2(unit * (1 + royaltyPct)) : null;
+
+  const bySize: Record<string, number> = { "S-XL": unit };
+  for (const [size, up] of Object.entries(cfg.sizeUpcharges)) bySize[size] = round2(unit + up);
+
+  return {
+    unit,
+    bySize,
+    royaltyUnit,
+    oneTime: 0,
+    breakdown: { garmentPortion: round2(input.garmentCost * (mult ?? 0)), printCharge: round2(printCharge), stain, extras, multiplier: mult ?? 0 },
+    qtyBreak,
+    warnings,
+  };
+}
+
 // ---- DTF (direct-to-film) transfer surcharge --------------------------------
 // A geometry calc: lay the decals out on the film roll, price the film area,
 // apply a margin, add labor → a per-piece surcharge fed into the garment calc.
