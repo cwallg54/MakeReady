@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderEvents, productionJobs, activities, quotes } from "@/db/schema";
+import { orders, orderEvents, productionJobs, activities } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { notifyTrackerStage } from "@/lib/orders/notify";
@@ -41,11 +41,7 @@ async function ensureJob(orderId: string, userId: string) {
   if (existing) return existing;
   const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
   // Straight reorders (art unchanged) skip the first-article press check by default.
-  let pressCheckRequired = true;
-  if (order?.quoteId) {
-    const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, order.quoteId) });
-    if (quote?.isReorder) pressCheckRequired = false;
-  }
+  const pressCheckRequired = !order?.isReorder;
   const [job] = await db
     .insert(productionJobs)
     .values({ orderId, dueDate: order?.inHandsDate ?? null, notes: order?.productionNotes ?? null, pressCheckRequired, createdBy: userId })

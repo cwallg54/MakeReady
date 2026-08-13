@@ -51,6 +51,7 @@ export async function createOrderFromQuote(quoteId: string, byUserId: string | n
       createdBy: byUserId,
       amount: quote.total ?? "0",
       salesRepId: repId,
+      isReorder: quote.isReorder ?? false,
     })
     .returning({ id: orders.id });
   await db.insert(orderEvents).values({ orderId: o.id, stage: "received", byUserId });

@@ -957,6 +957,16 @@ export const orders = pgTable(
     dueDate: timestamp("due_date", { withTimezone: true }),
     // Order doc total, fixed at creation from the source quote.
     amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    // Reorder of prior work — enables the fast-path (skip proof approval, still
+    // send the customer a copy; press check defaults off on the job).
+    isReorder: boolean("is_reorder").notNull().default(false),
+    // Structured fulfillment instructions (replaces free-text warehouse notes).
+    needsBarcode: boolean("needs_barcode").notNull().default(false),
+    needsHangtag: boolean("needs_hangtag").notNull().default(false),
+    needsFolding: boolean("needs_folding").notNull().default(false),
+    nameDrop: text("name_drop"),
+    upcBySize: jsonb("upc_by_size"), // { "S": "052774...", "M": "052774..." }
+    fulfillmentNotes: text("fulfillment_notes"),
     // Sales employee credited with the order (defaults to the account owner).
     salesRepId: uuid("sales_rep_id").references(() => users.id, { onDelete: "set null" }),
     // Voiding an order requires a reason; a voided order is cancelled but retained.

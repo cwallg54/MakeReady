@@ -23,7 +23,7 @@ import { CARRIERS, carrierTrackingUrl } from "@/lib/orders/shipping";
 import { submitToArtAction, reopenArtAction } from "@/lib/art/actions";
 import { artReadinessChecklist } from "@/lib/art/gate";
 import { sendToProductionAction } from "@/lib/production/actions";
-import { voidOrderAction } from "@/lib/orders/detail-actions";
+import { voidOrderAction, setReorderAction, reorderFastPathAction, updateFulfillmentAction } from "@/lib/orders/detail-actions";
 import { createDocumentRequestAction } from "@/lib/documents/actions";
 import { DOC_LABELS } from "@/lib/documents/meta";
 import { desc } from "drizzle-orm";
@@ -198,6 +198,26 @@ export default async function OrderDetailPage({ params, searchParams }: { params
             </form>
           </div>
 
+          {/* Reorder fast-path */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+            <form action={setReorderAction} className="flex items-center gap-2">
+              <input type="hidden" name="orderId" value={order.id} />
+              <label className="flex items-center gap-2 text-sm text-neutral-700">
+                <input type="checkbox" name="isReorder" defaultChecked={order.isReorder} className="h-4 w-4" />
+                Reorder (repeat of prior work — no new proof)
+              </label>
+              <button className="rounded border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50">Save</button>
+            </form>
+            {order.isReorder && order.stage === "received" && (
+              <form action={reorderFastPathAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-500" title="Skip proof approval, send the customer a copy, and start production">
+                  Fast-path reorder → production
+                </button>
+              </form>
+            )}
+          </div>
+
           {order.stage === "received" ? (
             <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
               <div className="flex items-center justify-between">
@@ -251,6 +271,45 @@ export default async function OrderDetailPage({ params, searchParams }: { params
       )}
 
       <ProductionDetails order={order} specItems={specItems} attachments={attachments} editable={canAct} />
+
+      {canAct && (
+        <Card className="mb-6">
+          <h2 className="mb-1 text-sm font-semibold text-neutral-900">Fulfillment</h2>
+          <p className="mb-3 text-xs text-neutral-500">Structured warehouse instructions — these feed pricing extras and the packing steps, instead of a free-text note.</p>
+          <form action={updateFulfillmentAction} className="space-y-3">
+            <input type="hidden" name="orderId" value={order.id} />
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-neutral-700">
+              <label className="flex items-center gap-2"><input type="checkbox" name="needsBarcode" defaultChecked={order.needsBarcode} className="h-4 w-4" /> Barcodes / UPC labels</label>
+              <label className="flex items-center gap-2"><input type="checkbox" name="needsHangtag" defaultChecked={order.needsHangtag} className="h-4 w-4" /> G54 hang tags</label>
+              <label className="flex items-center gap-2"><input type="checkbox" name="needsFolding" defaultChecked={order.needsFolding} className="h-4 w-4" /> Folding</label>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-medium text-neutral-600">Name drop
+                <input name="nameDrop" defaultValue={order.nameDrop ?? ""} placeholder="e.g. Maui" className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand" />
+              </label>
+              <label className="text-xs font-medium text-neutral-600">Fulfillment notes
+                <input name="fulfillmentNotes" defaultValue={order.fulfillmentNotes ?? ""} className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand" />
+              </label>
+            </div>
+            {order.needsBarcode && (
+              <div>
+                <p className="mb-1 text-xs font-medium text-neutral-600">Per-size UPCs</p>
+                <div className="flex flex-wrap gap-2">
+                  {["S", "M", "L", "XL", "2XL", "3XL"].map((sz) => {
+                    const existing = (order.upcBySize as Record<string, string> | null)?.[sz] ?? "";
+                    return (
+                      <label key={sz} className="w-24 text-center text-[11px] text-neutral-500">{sz}
+                        <input name={`upc_${sz}`} defaultValue={existing} placeholder="UPC" className="mt-0.5 w-full rounded border border-neutral-300 bg-white px-1.5 py-1 text-center text-xs outline-none focus:border-brand" />
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <button className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Save fulfillment</button>
+          </form>
+        </Card>
+      )}
 
       <OrderProofs order={order} proofs={proofs} attachments={attachments} editable={canAct} baseUrl={base} toEmail={toEmail} />
 

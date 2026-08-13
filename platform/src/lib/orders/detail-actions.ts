@@ -4,10 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, count } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderSpecItems, orderAttachments, activities } from "@/db/schema";
+import { orders, orderSpecItems, orderAttachments, activities, orderEvents } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { ensureJob } from "@/lib/production/actions";
+import { notifyTracker, notifyTrackerStage } from "@/lib/orders/notify";
 import { DateTime } from "luxon";
 
 // A yyyy-MM-dd form value denotes a calendar day in the business timezone, not
@@ -132,6 +134,73 @@ export async function removeSpecItemAction(formData: FormData): Promise<void> {
   await db.delete(orderSpecItems).where(and(eq(orderSpecItems.id, itemId), eq(orderSpecItems.orderId, orderId)));
   await audit({ userId: user.id, action: "order.spec_remove", entityType: "order", entityId: orderId });
   revalidatePath(`/sales/orders/${orderId}`);
+}
+
+export async function setReorderAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const orderId = String(formData.get("orderId") ?? "");
+  if (!orderId) return;
+  const isReorder = formData.get("isReorder") === "on";
+  await db.update(orders).set({ isReorder, updatedAt: new Date() }).where(eq(orders.id, orderId));
+  await audit({ userId: user.id, action: "order.set_reorder", entityType: "order", entityId: orderId, metadata: { isReorder } });
+  revalidatePath(`/sales/orders/${orderId}`);
+}
+
+export async function updateFulfillmentAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const orderId = String(formData.get("orderId") ?? "");
+  if (!orderId) return;
+  // Per-size UPC values arrive as upc_<size>; collect the non-empty ones.
+  const upc: Record<string, string> = {};
+  for (const [k, v] of formData.entries()) {
+    if (k.startsWith("upc_") && String(v).trim()) upc[k.slice(4)] = String(v).trim();
+  }
+  await db
+    .update(orders)
+    .set({
+      needsBarcode: formData.get("needsBarcode") === "on",
+      needsHangtag: formData.get("needsHangtag") === "on",
+      needsFolding: formData.get("needsFolding") === "on",
+      nameDrop: str(formData.get("nameDrop")),
+      fulfillmentNotes: str(formData.get("fulfillmentNotes")),
+      upcBySize: Object.keys(upc).length ? upc : null,
+      updatedAt: new Date(),
+    })
+    .where(eq(orders.id, orderId));
+  await audit({ userId: user.id, action: "order.fulfillment", entityType: "order", entityId: orderId });
+  revalidatePath(`/sales/orders/${orderId}`);
+}
+
+/** Reorder fast-path: skip proof approval, send the customer a copy, and start
+ *  production straight away. Only valid for orders flagged as reorders. */
+export async function reorderFastPathAction(formData: FormData): Promise<void> {
+  const user = await requireSalesEdit();
+  const orderId = String(formData.get("orderId") ?? "");
+  if (!orderId) return;
+  const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
+  if (!order || order.voidedAt) return;
+
+  // Ensure it's flagged as a reorder, then jump straight to production.
+  if (!order.isReorder) await db.update(orders).set({ isReorder: true }).where(eq(orders.id, orderId));
+  await ensureJob(orderId, user.id);
+  if (order.stage !== "production") {
+    await db.update(orders).set({ stage: "production", updatedAt: new Date() }).where(eq(orders.id, orderId));
+    await db.insert(orderEvents).values({ orderId, stage: "production", byUserId: user.id, note: "Reorder fast-path — proof skipped" });
+    await notifyTrackerStage(orderId, "production");
+  }
+  // Send the customer a copy for their records (no approval needed).
+  await notifyTracker(orderId, {
+    subject: `Your reorder is confirmed — ${order.orderNumber}`,
+    headline: "We’ve started your reorder",
+    body: "Thanks! Since this repeats a previous order, we’ve gone straight to production. Here’s your copy — no approval needed. Track progress on your order page.",
+  });
+  if (order.bpId) {
+    await db.insert(activities).values({ bpId: order.bpId, userId: user.id, type: "other", isSystem: true, content: `Reorder ${order.orderNumber} fast-pathed to production (proof skipped, copy sent)` });
+    revalidatePath(`/crm/${order.bpId}`);
+  }
+  await audit({ userId: user.id, action: "order.reorder_fastpath", entityType: "order", entityId: orderId });
+  revalidatePath(`/sales/orders/${orderId}`);
+  revalidatePath("/production");
 }
 
 export async function uploadAttachmentsAction(formData: FormData): Promise<void> {
