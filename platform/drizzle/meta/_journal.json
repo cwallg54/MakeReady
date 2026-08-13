@@ -435,6 +435,13 @@
       "when": 1786646464578,
       "tag": "0061_ship_calendar",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1786646843486,
+      "tag": "0062_user_phone",
+      "breakpoints": true
     }
   ]
 }

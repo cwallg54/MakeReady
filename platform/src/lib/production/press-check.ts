@@ -4,10 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { productionJobs, pressChecks, orderAttachments, orders, activities, notifications } from "@/db/schema";
+import { inArray } from "drizzle-orm";
+import { productionJobs, pressChecks, orderAttachments, orders, activities, notifications, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
-import { notifyTeam } from "@/lib/teams/notify";
+import { notifyTeam, teamRecipientIds } from "@/lib/teams/notify";
+import { sendSmsBatch, smsConfigured } from "@/lib/sms/client";
 import { audit } from "@/lib/audit";
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15 MB
@@ -90,6 +92,14 @@ export async function submitPressCheckAction(formData: FormData): Promise<void> 
     },
     ["art"],
   );
+  // V2: also text the art reviewers when SMS is configured (they may be off-app).
+  if (smsConfigured()) {
+    const ids = await teamRecipientIds("art", ["art"]);
+    if (ids.length) {
+      const phones = await db.select({ phone: users.phone }).from(users).where(inArray(users.id, ids));
+      await sendSmsBatch(phones.map((p) => p.phone), `Press check: first article for order ${order?.orderNumber ?? ""} needs your sign-off. ${process.env.APP_URL ?? ""}/production/${jobId}`);
+    }
+  }
   await audit({ userId: user.id, action: "presscheck.submit", entityType: "production_job", entityId: jobId, metadata: { attempt } });
   revalidatePath(`/production/${jobId}`);
   revalidatePath("/production");

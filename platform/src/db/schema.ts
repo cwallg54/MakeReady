@@ -37,6 +37,8 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
+  // Mobile number for SMS alerts (opt-in; used when SMS is configured).
+  phone: text("phone"),
   // Null until the user sets a password (invited / forced reset).
   passwordHash: text("password_hash"),
   status: userStatusEnum("status").notNull().default("active"),
