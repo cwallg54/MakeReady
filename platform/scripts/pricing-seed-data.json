@@ -1,0 +1,6976 @@
+{
+  "sourceFile": "KIM MASTER- Version 11- 2026 Softgood Pricing Calculator Tool.xlsx",
+  "costsUpdated": "2025-09-11 00:00:00",
+  "garments": [
+    {
+      "itemCode": "54-5942",
+      "garmentNumber": "5942",
+      "cost": 17.95,
+      "supplier": "ASCOLOUR",
+      "description": "TRACK PANT"
+    },
+    {
+      "itemCode": "16-5051",
+      "garmentNumber": "5051",
+      "cost": 4.4,
+      "supplier": "ASCOLOUR",
+      "description": "Wo's Classic Tee"
+    },
+    {
+      "itemCode": "16-5052",
+      "garmentNumber": "5052",
+      "cost": 4.7,
+      "supplier": "ASCOLOUR",
+      "description": "BLOCK OVERSIZED TEE."
+    },
+    {
+      "itemCode": "16-4062",
+      "garmentNumber": "4062",
+      "cost": 4.95,
+      "supplier": "ASCOLOUR",
+      "description": "WO'S CROP TEE."
+    },
+    {
+      "itemCode": "16-5001",
+      "garmentNumber": "5001",
+      "cost": 5.25,
+      "supplier": "ASCOLOUR",
+      "description": "STAPLE TEE."
+    },
+    {
+      "itemCode": "16-4001",
+      "garmentNumber": "4001",
+      "cost": 5.25,
+      "supplier": "ASCOLOUR",
+      "description": "WO'S MAPLE TEE."
+    },
+    {
+      "itemCode": "16-5076",
+      "garmentNumber": "5076",
+      "cost": 5.8,
+      "supplier": "ASCOLOUR",
+      "description": "STAPLE CURVE TEE"
+    },
+    {
+      "itemCode": "16-4021",
+      "garmentNumber": "4021",
+      "cost": 6.8,
+      "supplier": "ASCOLOUR",
+      "description": "ASCOLOUR - WO'S MAPLE CURVE LONG SLEEVE TEE. 5.3 OZ"
+    },
+    {
+      "itemCode": "16-4026",
+      "garmentNumber": "4026",
+      "cost": 7.7,
+      "supplier": "ASCOLOUR",
+      "description": "WO'S CLASSIC TEE."
+    },
+    {
+      "itemCode": "16-5026",
+      "garmentNumber": "5026",
+      "cost": 7.7,
+      "supplier": "ASCOLOUR",
+      "description": "classic tee"
+    },
+    {
+      "itemCode": "16-4073",
+      "garmentNumber": "4073",
+      "cost": 10.8,
+      "supplier": "ASCOLOUR",
+      "description": "WO'S CLASSIC L/S TEE."
+    },
+    {
+      "itemCode": "16-5071",
+      "garmentNumber": "5071",
+      "cost": 11.25,
+      "supplier": "ASCOLOUR",
+      "description": "CALSSIC LONG SLEEVE TEE"
+    },
+    {
+      "itemCode": "54-4064G",
+      "garmentNumber": "4064G",
+      "cost": 8.8,
+      "supplier": "ASCOLOUR",
+      "description": "WO TANK"
+    },
+    {
+      "itemCode": "54-5160",
+      "garmentNumber": "5160",
+      "cost": 16.5,
+      "supplier": "ASCOLOUR",
+      "description": "RELAX CREW"
+    },
+    {
+      "itemCode": "54-4168",
+      "garmentNumber": "4168",
+      "cost": 18.5,
+      "supplier": "ASCOLOUR",
+      "description": "CROP HOODIE"
+    },
+    {
+      "itemCode": "54-4932",
+      "garmentNumber": "4932",
+      "cost": 17.5,
+      "supplier": "ASCOLOUR",
+      "description": "LADIES SWEATPANTS"
+    },
+    {
+      "itemCode": "16-5027",
+      "garmentNumber": "5027",
+      "cost": 7.9,
+      "supplier": "ASCOLOUR",
+      "description": "Classic Pocket Tee"
+    },
+    {
+      "itemCode": "16-5073",
+      "garmentNumber": "5073",
+      "cost": 6.5,
+      "supplier": "ASCOLOUR",
+      "description": "Classic Tank."
+    },
+    {
+      "itemCode": "16-5069",
+      "garmentNumber": "5069",
+      "cost": 7.9,
+      "supplier": "ASCOLOUR",
+      "description": "Classic Oversized Tee"
+    },
+    {
+      "itemCode": "16-5080",
+      "garmentNumber": "5080",
+      "cost": 9.9,
+      "supplier": "ASCOLOUR",
+      "description": "HEAVY TEE."
+    },
+    {
+      "itemCode": "16-5028",
+      "garmentNumber": "5028",
+      "cost": 7.6,
+      "supplier": "ASCOLOUR",
+      "description": "Staple Stripe Tee"
+    },
+    {
+      "itemCode": "16-5065",
+      "garmentNumber": "5065",
+      "cost": 8.9,
+      "supplier": "ASCOLOUR",
+      "description": "Staple Faded Tee."
+    },
+    {
+      "itemCode": "16-4072",
+      "garmentNumber": "4072",
+      "cost": 7.3,
+      "supplier": "ASCOLOUR",
+      "description": "Wo's Classic Crop Tee"
+    },
+    {
+      "itemCode": "16-4051",
+      "garmentNumber": "4051",
+      "cost": 4.3,
+      "supplier": "ASCOLOUR",
+      "description": "Wo's Basic Tee"
+    },
+    {
+      "itemCode": "16-5050",
+      "garmentNumber": "5050",
+      "cost": 3.6,
+      "supplier": "ASCOLOUR",
+      "description": "Block Tubular Tee"
+    },
+    {
+      "itemCode": "16-4079",
+      "garmentNumber": "4079",
+      "cost": 7.7,
+      "supplier": "ASCOLOUR",
+      "description": "WOS- CLASSIC MINUS TEE."
+    },
+    {
+      "itemCode": "54-5932",
+      "garmentNumber": "5932",
+      "cost": 17.95,
+      "supplier": "ASCOLOUR",
+      "description": "RELAXED TRACK PANT"
+    },
+    {
+      "itemCode": "54-4160",
+      "garmentNumber": "4160",
+      "cost": 16.5,
+      "supplier": "ASCOULOUR",
+      "description": "LADIES SWEATSHIRT"
+    },
+    {
+      "itemCode": "20-MC1792",
+      "garmentNumber": "MC1792",
+      "cost": 3.58,
+      "supplier": "COTTON HERITAGE",
+      "description": "PREMIUM CONTRAST TRIM TANK TOP."
+    },
+    {
+      "itemCode": "20-YC1040",
+      "garmentNumber": "YC1040",
+      "cost": 1.97,
+      "supplier": "COTTON HERITAGE",
+      "description": "YOUTH T-SHIRT"
+    },
+    {
+      "itemCode": "20-MC1790",
+      "garmentNumber": "MC1790",
+      "cost": 2.92,
+      "supplier": "COTTON HERITAGE",
+      "description": "MENS PREMIUM TANK TOP."
+    },
+    {
+      "itemCode": "20-OU1964",
+      "garmentNumber": "OU1964",
+      "cost": 6.16,
+      "supplier": "COTTON HERITAGE",
+      "description": "GARMENT DYE LONG SLEEVE."
+    },
+    {
+      "itemCode": "H01",
+      "garmentNumber": "H01",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "Signature hoody - Black"
+    },
+    {
+      "itemCode": "H02",
+      "garmentNumber": "H02",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "Signature hoody - heahter charcoal"
+    },
+    {
+      "itemCode": "H03",
+      "garmentNumber": "H03",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY HEATHER GREY"
+    },
+    {
+      "itemCode": "H04",
+      "garmentNumber": "H04",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY HEATHER NAVY"
+    },
+    {
+      "itemCode": "H05",
+      "garmentNumber": "H05",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY HEATHER OATMEAL"
+    },
+    {
+      "itemCode": "H06",
+      "garmentNumber": "H06",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY HEAHTER MILITARY GREEN"
+    },
+    {
+      "itemCode": "H07",
+      "garmentNumber": "H07",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY HEATHER MAROON"
+    },
+    {
+      "itemCode": "H08",
+      "garmentNumber": "H08",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY ALMOND"
+    },
+    {
+      "itemCode": "H09",
+      "garmentNumber": "H09",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY PISTACHIO"
+    },
+    {
+      "itemCode": "H10",
+      "garmentNumber": "H10",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY DUSTY ROSE"
+    },
+    {
+      "itemCode": "H11",
+      "garmentNumber": "H11",
+      "cost": 8.25,
+      "supplier": "G54",
+      "description": "SIGNATURE HOODY LATTE"
+    },
+    {
+      "itemCode": "CAP",
+      "garmentNumber": "CAP",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "HAT",
+      "garmentNumber": "HAT",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "CAP1",
+      "garmentNumber": "CAP1",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP2",
+      "garmentNumber": "CAP2",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP3",
+      "garmentNumber": "CAP3",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP4",
+      "garmentNumber": "CAP4",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP5",
+      "garmentNumber": "CAP5",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP6",
+      "garmentNumber": "CAP6",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP7",
+      "garmentNumber": "CAP7",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP8",
+      "garmentNumber": "CAP8",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP9",
+      "garmentNumber": "CAP9",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP10",
+      "garmentNumber": "CAP10",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP11",
+      "garmentNumber": "CAP11",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP12",
+      "garmentNumber": "CAP12",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP13",
+      "garmentNumber": "CAP13",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP14",
+      "garmentNumber": "CAP14",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP15",
+      "garmentNumber": "CAP15",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP16",
+      "garmentNumber": "CAP16",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP17",
+      "garmentNumber": "CAP17",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP18",
+      "garmentNumber": "CAP18",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP19",
+      "garmentNumber": "CAP19",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP20",
+      "garmentNumber": "CAP20",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP21",
+      "garmentNumber": "CAP21",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP22",
+      "garmentNumber": "CAP22",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP23",
+      "garmentNumber": "CAP23",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP24",
+      "garmentNumber": "CAP24",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP25",
+      "garmentNumber": "CAP25",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP26",
+      "garmentNumber": "CAP26",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP27",
+      "garmentNumber": "CAP27",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP28",
+      "garmentNumber": "CAP28",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP29",
+      "garmentNumber": "CAP29",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP30",
+      "garmentNumber": "CAP30",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP31",
+      "garmentNumber": "CAP31",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP32",
+      "garmentNumber": "CAP32",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP33",
+      "garmentNumber": "CAP33",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP34",
+      "garmentNumber": "CAP34",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP35",
+      "garmentNumber": "CAP35",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP36",
+      "garmentNumber": "CAP36",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP37",
+      "garmentNumber": "CAP37",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP38",
+      "garmentNumber": "CAP38",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP39",
+      "garmentNumber": "CAP39",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP40",
+      "garmentNumber": "CAP40",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP41",
+      "garmentNumber": "CAP41",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP42",
+      "garmentNumber": "CAP42",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP43",
+      "garmentNumber": "CAP43",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP44",
+      "garmentNumber": "CAP44",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP45",
+      "garmentNumber": "CAP45",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP46",
+      "garmentNumber": "CAP46",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP47",
+      "garmentNumber": "CAP47",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP48",
+      "garmentNumber": "CAP48",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP49",
+      "garmentNumber": "CAP49",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP50",
+      "garmentNumber": "CAP50",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP51",
+      "garmentNumber": "CAP51",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP52",
+      "garmentNumber": "CAP52",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP53",
+      "garmentNumber": "CAP53",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP54",
+      "garmentNumber": "CAP54",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP55",
+      "garmentNumber": "CAP55",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP56",
+      "garmentNumber": "CAP56",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP57",
+      "garmentNumber": "CAP57",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP58",
+      "garmentNumber": "CAP58",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP59",
+      "garmentNumber": "CAP59",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP60",
+      "garmentNumber": "CAP60",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP61",
+      "garmentNumber": "CAP61",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP62",
+      "garmentNumber": "CAP62",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP63",
+      "garmentNumber": "CAP63",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP64",
+      "garmentNumber": "CAP64",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP65",
+      "garmentNumber": "CAP65",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP66",
+      "garmentNumber": "CAP66",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP67",
+      "garmentNumber": "CAP67",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP68",
+      "garmentNumber": "CAP68",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP69",
+      "garmentNumber": "CAP69",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP70",
+      "garmentNumber": "CAP70",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP71",
+      "garmentNumber": "CAP71",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP72",
+      "garmentNumber": "CAP72",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP73",
+      "garmentNumber": "CAP73",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP74",
+      "garmentNumber": "CAP74",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP75",
+      "garmentNumber": "CAP75",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP76",
+      "garmentNumber": "CAP76",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP77",
+      "garmentNumber": "CAP77",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP78",
+      "garmentNumber": "CAP78",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP79",
+      "garmentNumber": "CAP79",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP80",
+      "garmentNumber": "CAP80",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP81",
+      "garmentNumber": "CAP81",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP82",
+      "garmentNumber": "CAP82",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP83",
+      "garmentNumber": "CAP83",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP84",
+      "garmentNumber": "CAP84",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP85",
+      "garmentNumber": "CAP85",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP86",
+      "garmentNumber": "CAP86",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP87",
+      "garmentNumber": "CAP87",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP88",
+      "garmentNumber": "CAP88",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP89",
+      "garmentNumber": "CAP89",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP90",
+      "garmentNumber": "CAP90",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP91",
+      "garmentNumber": "CAP91",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP92",
+      "garmentNumber": "CAP92",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP93",
+      "garmentNumber": "CAP93",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "CAP95",
+      "garmentNumber": "CAP95",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "VINTAGE AND AMP'D CAPS"
+    },
+    {
+      "itemCode": "HAT2501",
+      "garmentNumber": "HAT2501",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2502",
+      "garmentNumber": "HAT2502",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2503",
+      "garmentNumber": "HAT2503",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2504",
+      "garmentNumber": "HAT2504",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2505",
+      "garmentNumber": "HAT2505",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2506",
+      "garmentNumber": "HAT2506",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2507",
+      "garmentNumber": "HAT2507",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2508",
+      "garmentNumber": "HAT2508",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2509",
+      "garmentNumber": "HAT2509",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2510",
+      "garmentNumber": "HAT2510",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2511",
+      "garmentNumber": "HAT2511",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2512",
+      "garmentNumber": "HAT2512",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2513",
+      "garmentNumber": "HAT2513",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "24",
+      "garmentNumber": "24",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "Dirt cap"
+    },
+    {
+      "itemCode": "HAT2514",
+      "garmentNumber": "HAT2514",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "24",
+      "garmentNumber": "24",
+      "cost": 3.35,
+      "supplier": "g54",
+      "description": "Dirt cap"
+    },
+    {
+      "itemCode": "HAT2511",
+      "garmentNumber": "HAT2511",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2512",
+      "garmentNumber": "HAT2512",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "HAT2513",
+      "garmentNumber": "HAT2513",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "24",
+      "garmentNumber": "24",
+      "cost": 3.35,
+      "supplier": "G54",
+      "description": "Dirt cap"
+    },
+    {
+      "itemCode": "HAT2514",
+      "garmentNumber": "HAT2514",
+      "cost": 4.85,
+      "supplier": "G54",
+      "description": "G54 SUMMIT CAP"
+    },
+    {
+      "itemCode": "24",
+      "garmentNumber": "24",
+      "cost": 3.35,
+      "supplier": "g54",
+      "description": "Dirt cap"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "4",
+      "cost": 5.15,
+      "supplier": "G54",
+      "description": "Dirt Tee"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "7",
+      "cost": 5.75,
+      "supplier": "G54",
+      "description": "DIRT TANK TOP ADULT"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "8",
+      "cost": 5.5,
+      "supplier": "G54",
+      "description": "LADIES V NECK DIRT TEE"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "11",
+      "cost": 7.0,
+      "supplier": "G54",
+      "description": "LONG SLEEVE DIRT TEE"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "36",
+      "cost": 5.15,
+      "supplier": "G54",
+      "description": "YOUTH DIRT TEE"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "337",
+      "cost": 5.15,
+      "supplier": "G54",
+      "description": "dirt onesie"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "6",
+      "cost": 5.15,
+      "supplier": "G54",
+      "description": "ladies crop tee"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "37",
+      "cost": 5.15,
+      "supplier": "G54",
+      "description": "infant dirt tee"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "17",
+      "cost": 14.25,
+      "supplier": "G54",
+      "description": "DIRT HOODIE"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "154",
+      "cost": 5.15,
+      "supplier": "G54",
+      "description": "LAVA SS TEE"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "159",
+      "cost": 5.75,
+      "supplier": "G54",
+      "description": "LAVA TANK TOP"
+    },
+    {
+      "itemCode": "G54",
+      "garmentNumber": "158",
+      "cost": 7.0,
+      "supplier": "G54",
+      "description": "LAVA LONG SLEEVE TEE"
+    },
+    {
+      "itemCode": "52-JHY001",
+      "garmentNumber": "JHY001",
+      "cost": 10.99,
+      "supplier": "JUST HOODS",
+      "description": "YOUTHS COLLEGE HOODIE. 100% Cotton"
+    },
+    {
+      "itemCode": "52-JHA001",
+      "garmentNumber": "JHA001",
+      "cost": 11.99,
+      "supplier": "JUST HOODS",
+      "description": "College Hoodie."
+    },
+    {
+      "itemCode": "95-6909",
+      "garmentNumber": "6909",
+      "cost": 2.84,
+      "supplier": "Mega Cap",
+      "description": "this cost is for 72 pieces not including shipping"
+    },
+    {
+      "itemCode": "95-6996D",
+      "garmentNumber": "6996D",
+      "cost": 4.0,
+      "supplier": "MEGACAP",
+      "description": "FLAT BILL SNAPBACK CAP."
+    },
+    {
+      "itemCode": "96-19-061",
+      "garmentNumber": "19-061",
+      "cost": 4.65,
+      "supplier": "OTTO CAP",
+      "description": "CAP 6 PANEL LOW PROFILE BASEBALL CAP."
+    },
+    {
+      "itemCode": "19-536",
+      "garmentNumber": "19-536",
+      "cost": 4.75,
+      "supplier": "otto cap",
+      "description": "cap"
+    },
+    {
+      "itemCode": "Baja Joe",
+      "garmentNumber": "Baja Joe",
+      "cost": 7.85,
+      "supplier": "Ramatec",
+      "description": "plus size add $1.25.  Also add $1.50 for shipping per piece"
+    },
+    {
+      "itemCode": "90-550",
+      "garmentNumber": "550",
+      "cost": 7.67,
+      "supplier": "S$S",
+      "description": "Paragon micro performace polo"
+    },
+    {
+      "itemCode": "90-5186",
+      "garmentNumber": "5186",
+      "cost": 9.05,
+      "supplier": "S&S",
+      "description": "HANES-UNISEX BEEFY-T LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-SF500B",
+      "garmentNumber": "SF500B",
+      "cost": 10.2,
+      "supplier": "S&s",
+      "description": "Youth Softstyle\u00ae Midweight Hooded Sweatshirt"
+    },
+    {
+      "itemCode": "90-T1000",
+      "garmentNumber": "T1000",
+      "cost": 2.0,
+      "supplier": "S&S",
+      "description": "THREADFAST APPAREL UNISEX TSHIRT."
+    },
+    {
+      "itemCode": "90-T1001",
+      "garmentNumber": "T1001",
+      "cost": 2.05,
+      "supplier": "S&S",
+      "description": "THREADFAST APPAREL UNISEX CVC TSHIRT."
+    },
+    {
+      "itemCode": "90-1530",
+      "garmentNumber": "1530",
+      "cost": 4.02,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-LADIES FLOW T-SHIRT"
+    },
+    {
+      "itemCode": "90-6733",
+      "garmentNumber": "6733",
+      "cost": 4.64,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-LADIES TRIBLEND RACERBACK TANK DRESS"
+    },
+    {
+      "itemCode": "90-EC7070",
+      "garmentNumber": "EC7070",
+      "cost": 5.82,
+      "supplier": "S&S",
+      "description": "eco trucker"
+    },
+    {
+      "itemCode": "90-100LS",
+      "garmentNumber": "100LS",
+      "cost": 4.25,
+      "supplier": "S&S",
+      "description": "THREADFAST LONG SLEEVE"
+    },
+    {
+      "itemCode": "90-DG562W",
+      "garmentNumber": "DG562W",
+      "cost": 15.3,
+      "supplier": "S&S",
+      "description": "DEVON & JONES- LADIES CROWN COLLECTION STRETCH PINPOINT CHAMBRAY SLEEVE BLOUSE."
+    },
+    {
+      "itemCode": "90-8622",
+      "garmentNumber": "8622",
+      "cost": 3.1,
+      "supplier": "S&S",
+      "description": "ultra club mes cool and dry performance long sleeve top"
+    },
+    {
+      "itemCode": "90-LS14001",
+      "garmentNumber": "LS14001",
+      "cost": 9.85,
+      "supplier": "S&S",
+      "description": "Lane Seven HOODED SWEATSHIRT. 100% ringspun combed cotton"
+    },
+    {
+      "itemCode": "90-98CR",
+      "garmentNumber": "98CR",
+      "cost": 8.65,
+      "supplier": "S&S",
+      "description": "JERZEES UNISEX NUBLEND BILLBOARD HOODIE"
+    },
+    {
+      "itemCode": "90-LS19001",
+      "garmentNumber": "LS19001",
+      "cost": 13.98,
+      "supplier": "S&S",
+      "description": "LANE SEVEN- UNISEX HEAVYWEIGHT PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-3901",
+      "garmentNumber": "3901",
+      "cost": 14.99,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-UNISEX SPONGE FLEECE RAGLAN SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-LST004",
+      "garmentNumber": "LST004",
+      "cost": 14.68,
+      "supplier": "S&S",
+      "description": "LANE SEVEN- UNISEX VINTAGE RAGLAN HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-NE100W",
+      "garmentNumber": "NE100W",
+      "cost": 6.9,
+      "supplier": "S&S",
+      "description": "NORTH END LADIES- STRETCH PERFORMANCE POLO."
+    },
+    {
+      "itemCode": "90-97CR",
+      "garmentNumber": "97CR",
+      "cost": 9.9,
+      "supplier": "S&S",
+      "description": "JERZEES- UNISEX NUBLEND VARSITY COLOR BLOCK HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-LS16001",
+      "garmentNumber": "LS16001",
+      "cost": 18.03,
+      "supplier": "S&S",
+      "description": "lane seven Urban pullover"
+    },
+    {
+      "itemCode": "90-1004",
+      "garmentNumber": "1004",
+      "cost": 2.05,
+      "supplier": "S&S",
+      "description": "Rabbit Skins-Infant Contrast trim Premium Jersey Bib."
+    },
+    {
+      "itemCode": "90-400",
+      "garmentNumber": "400",
+      "cost": 5.16,
+      "supplier": "S&S",
+      "description": "TULTEX- UNISEX 50/50 SPORT POLO."
+    },
+    {
+      "itemCode": "90-112",
+      "garmentNumber": "112",
+      "cost": 6.75,
+      "supplier": "S&S",
+      "description": "112 TRUCKER."
+    },
+    {
+      "itemCode": "90-511",
+      "garmentNumber": "511",
+      "cost": 8.25,
+      "supplier": "S&S",
+      "description": "511 WOOL BLEND FLATBILL TRUCKER."
+    },
+    {
+      "itemCode": "90-112P",
+      "garmentNumber": "112P",
+      "cost": 8.25,
+      "supplier": "S&S",
+      "description": "112  PrintedTRUCKER"
+    },
+    {
+      "itemCode": "90-OAD117",
+      "garmentNumber": "OAD117",
+      "cost": 1.29,
+      "supplier": "S&S",
+      "description": "OAD- LARGE CANVAS TOTE."
+    },
+    {
+      "itemCode": "90-8820",
+      "garmentNumber": "8820",
+      "cost": 1.39,
+      "supplier": "S&S",
+      "description": "ALPINE FLEECE- BLANKET STRAP."
+    },
+    {
+      "itemCode": "90-C1518GH",
+      "garmentNumber": "C1518GH",
+      "cost": 1.88,
+      "supplier": "S&S",
+      "description": "CARMEL TOWEL COMPANY."
+    },
+    {
+      "itemCode": "90-4850",
+      "garmentNumber": "4850",
+      "cost": 2.38,
+      "supplier": "S&S",
+      "description": "M&O- YOUTH SOFT TOUCH T-SHIRT"
+    },
+    {
+      "itemCode": "90-5000B",
+      "garmentNumber": "5000B",
+      "cost": 2.1,
+      "supplier": "S&S",
+      "description": "Gildan - Heavy Cotton Youth Tee. 5.3 oz 100% preshrunk cotton"
+    },
+    {
+      "itemCode": "90-4800",
+      "garmentNumber": "4800",
+      "cost": 2.12,
+      "supplier": "S&S",
+      "description": "M&O - Gold Soft Touch T-Shirt"
+    },
+    {
+      "itemCode": "90-235",
+      "garmentNumber": "235",
+      "cost": 2.71,
+      "supplier": "S&S",
+      "description": "Tultex - Youth Fine Jersey Tee. 4.3 oz 100% ring spun USA cotton .  IF LESS THEN 55 PIECES MUST ADD .75 EACH"
+    },
+    {
+      "itemCode": "90-5000",
+      "garmentNumber": "5000",
+      "cost": 2.26,
+      "supplier": "S&S",
+      "description": "Gildan - Heavy Cotton T Shirt: 5.3 oz 100% preshrunk Cotton. Heather Colors are 50/50."
+    },
+    {
+      "itemCode": "90-213",
+      "garmentNumber": "213",
+      "cost": 2.45,
+      "supplier": "S&S",
+      "description": "Tultex - 4.3 oz 100% ring-spun USA cotton Ladies Slim Fit Fine Jersey tee.  Heathers are 50/50"
+    },
+    {
+      "itemCode": "90-8136",
+      "garmentNumber": "8136",
+      "cost": 1.95,
+      "supplier": "S&S",
+      "description": "J America Women's Glitter V Neck Tee"
+    },
+    {
+      "itemCode": "90-SP12",
+      "garmentNumber": "SP12",
+      "cost": 2.8,
+      "supplier": "S&S",
+      "description": "SPORTSMAN- SOLID CUFFED BEANIE."
+    },
+    {
+      "itemCode": "90-S105",
+      "garmentNumber": "S105",
+      "cost": 2.55,
+      "supplier": "S&S",
+      "description": "TULTEX- UNISEX FINE JERSEY TANK TOP."
+    },
+    {
+      "itemCode": "90-2000",
+      "garmentNumber": "2000",
+      "cost": 2.58,
+      "supplier": "S&S",
+      "description": "GILDAN- ULTRA COTTON T-SHIRT"
+    },
+    {
+      "itemCode": "90-190",
+      "garmentNumber": "190",
+      "cost": 2.59,
+      "supplier": "S&S",
+      "description": "TULTEX-WOMENS RACEBACK TANK TOPS"
+    },
+    {
+      "itemCode": "90-5100P",
+      "garmentNumber": "5100P",
+      "cost": 2.78,
+      "supplier": "S&S",
+      "description": "Gildan Toddler Heavy Cotton\u2122 T-Shirt"
+    },
+    {
+      "itemCode": "90-29mr",
+      "garmentNumber": "29MR",
+      "cost": 2.38,
+      "supplier": "S&S",
+      "description": "JERZEES ADULT DRI POWER 50/50 TEE"
+    },
+    {
+      "itemCode": "90-202",
+      "garmentNumber": "202",
+      "cost": 2.47,
+      "supplier": "S&S",
+      "description": "Tultex - 4.3 oz 100% ring-spun USA cotton tee.  Heathers are 50/50."
+    },
+    {
+      "itemCode": "90-64000",
+      "garmentNumber": "64000",
+      "cost": 2.71,
+      "supplier": "S&S",
+      "description": "GILDAN- SOFTSTYLE T-SHIRT"
+    },
+    {
+      "itemCode": "90-8000B",
+      "garmentNumber": "8000B",
+      "cost": 2.63,
+      "supplier": "S&S",
+      "description": "GILDAN- DRYBLEND YOUTH T-SHIRT."
+    },
+    {
+      "itemCode": "90-240",
+      "garmentNumber": "240",
+      "cost": 3.45,
+      "supplier": "S&S",
+      "description": "TULTEX- WOMENS POLY RICH TSHIRT."
+    },
+    {
+      "itemCode": "90-243",
+      "garmentNumber": "243",
+      "cost": 2.74,
+      "supplier": "S&S",
+      "description": "TULTEX- WOMENS POLYRICH SCOOP NECK TSHIRT."
+    },
+    {
+      "itemCode": "90-214",
+      "garmentNumber": "214",
+      "cost": 4.16,
+      "supplier": "S&S",
+      "description": "TULTEX- WOMENS FINE JERSEY VNECK T-SHIRT."
+    },
+    {
+      "itemCode": "90-4980",
+      "garmentNumber": "4980",
+      "cost": 2.24,
+      "supplier": "S&S",
+      "description": "HANES- PERFECT TSHIRT."
+    },
+    {
+      "itemCode": "90-5170",
+      "garmentNumber": "5170",
+      "cost": 2.33,
+      "supplier": "S&S",
+      "description": "HANES- ECOSMART TSHIRT."
+    },
+    {
+      "itemCode": "90-216",
+      "garmentNumber": "216",
+      "cost": 3.49,
+      "supplier": "S&S",
+      "description": "TULTEX-WOMENS CLASSIC FIT T-SHIRT"
+    },
+    {
+      "itemCode": "90-1533",
+      "garmentNumber": "1533",
+      "cost": 2.89,
+      "supplier": "S&S",
+      "description": "Women's Ideal Racerback Tank"
+    },
+    {
+      "itemCode": "90-3712",
+      "garmentNumber": "3712",
+      "cost": 2.89,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- GIRLS CVC PRINCESS TSHIRT."
+    },
+    {
+      "itemCode": "90-3301T",
+      "garmentNumber": "3301T",
+      "cost": 3.1,
+      "supplier": "S&S",
+      "description": "RABBIT SKIN- TODDLER COTTON TEE."
+    },
+    {
+      "itemCode": "90-8000",
+      "garmentNumber": "8000",
+      "cost": 2.65,
+      "supplier": "S&S",
+      "description": "GILDAN- DRYBLEND T-SHIRT"
+    },
+    {
+      "itemCode": "90-5250",
+      "garmentNumber": "5250",
+      "cost": 2.18,
+      "supplier": "S&S",
+      "description": "HANES TEE"
+    },
+    {
+      "itemCode": "90-Q600",
+      "garmentNumber": "Q600",
+      "cost": 3.4,
+      "supplier": "S&S",
+      "description": "Q TEES- JUMBO TOTE."
+    },
+    {
+      "itemCode": "90-1510",
+      "garmentNumber": "1510",
+      "cost": 2.99,
+      "supplier": "S&S",
+      "description": "Women's Ideal Crew. 60/40 combed ringspun cotton/polyester"
+    },
+    {
+      "itemCode": "90-3401",
+      "garmentNumber": "3401",
+      "cost": 3.1,
+      "supplier": "S&S",
+      "description": "Rabbit Skins Infant Cotton Jersey T-Shirt"
+    },
+    {
+      "itemCode": "90-3710",
+      "garmentNumber": "3710",
+      "cost": 3.05,
+      "supplier": "S&S",
+      "description": "Next Level - Girls Princess Crew Tee - 4.3 oz 100% Combed Ringspun Cotton"
+    },
+    {
+      "itemCode": "90-3310",
+      "garmentNumber": "3310",
+      "cost": 3.1,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-YOUTH COTTON TSHIRT."
+    },
+    {
+      "itemCode": "90-3322",
+      "garmentNumber": "3322",
+      "cost": 3.2,
+      "supplier": "S&S",
+      "description": "RABBIT SKINS- INFANT FINE JERSEY TEE."
+    },
+    {
+      "itemCode": "90-244",
+      "garmentNumber": "244",
+      "cost": 3.09,
+      "supplier": "S&S",
+      "description": "TULTEX- WOMENS POLY RICH VNECK TSHIRT."
+    },
+    {
+      "itemCode": "90-4810",
+      "garmentNumber": "4810",
+      "cost": 3.56,
+      "supplier": "S&S",
+      "description": "M&O WOMENS GOLD SOFT TOUCH TEE SHIRT"
+    },
+    {
+      "itemCode": "90-4400",
+      "garmentNumber": "4400",
+      "cost": 4.05,
+      "supplier": "S&S",
+      "description": "rabbit skins-infant baby rib bodysuit."
+    },
+    {
+      "itemCode": "90-8800Y",
+      "garmentNumber": "8800Y",
+      "cost": 5.27,
+      "supplier": "S&S",
+      "description": "BELLA + CANVAS\u00a0- Youth Flowy Racerback Tank"
+    },
+    {
+      "itemCode": "90-241",
+      "garmentNumber": "241",
+      "cost": 3.18,
+      "supplier": "S&S",
+      "description": "Tultex - Unisex Poly-Rich T-Shirt3.6 oz./yd\u00b2, 65/35 polyester/combed ringspun USA cotton"
+    },
+    {
+      "itemCode": "90-5000L",
+      "garmentNumber": "5000L",
+      "cost": 3.65,
+      "supplier": "S&S",
+      "description": "Gildan Heavy Cotton Women's T-shirt.  5.3 oz 100% cotton.  Side seams"
+    },
+    {
+      "itemCode": "90-8869",
+      "garmentNumber": "8869",
+      "cost": 3.4,
+      "supplier": "S&S",
+      "description": "valuecap."
+    },
+    {
+      "itemCode": "90-1540",
+      "garmentNumber": "1540",
+      "cost": 3.33,
+      "supplier": "S&S",
+      "description": "Next Level Womn's Ideal V Tee.  3.9 oz 60/40 combed ringspun cotton/polyester.  Side seams, tearaway label"
+    },
+    {
+      "itemCode": "90-290",
+      "garmentNumber": "290",
+      "cost": 3.34,
+      "supplier": "S&S",
+      "description": "TULTEX-UNISEX T-SHIRT"
+    },
+    {
+      "itemCode": "Valucap",
+      "garmentNumber": "VC300A",
+      "cost": 3.75,
+      "supplier": "S&S",
+      "description": "Valucap dad hat with buckle"
+    },
+    {
+      "itemCode": "90-64000L",
+      "garmentNumber": "64000L",
+      "cost": 3.56,
+      "supplier": "S&S",
+      "description": "Gildan Softstyle  Women's Tee"
+    },
+    {
+      "itemCode": "90-3321",
+      "garmentNumber": "3321",
+      "cost": 3.2,
+      "supplier": "S&S",
+      "description": "RABBIT SKINS- TODDLER FINE JERSEY TEE."
+    },
+    {
+      "itemCode": "90-5200",
+      "garmentNumber": "5200",
+      "cost": 3.67,
+      "supplier": "S&S",
+      "description": "GILDAN- HEAVY COTTON TANK TOP"
+    },
+    {
+      "itemCode": "90-3312",
+      "garmentNumber": "3312",
+      "cost": 3.68,
+      "supplier": "S&S",
+      "description": "Next Level Apparel Youth CVC Crew. 60% combed ringspun cotton, 40% polyester jersey"
+    },
+    {
+      "itemCode": "90-207",
+      "garmentNumber": "207",
+      "cost": 3.59,
+      "supplier": "S&S",
+      "description": "TULTEX-UNISEX POLY RICH V-NECK T-SHIRT"
+    },
+    {
+      "itemCode": "90-6210",
+      "garmentNumber": "6210",
+      "cost": 3.67,
+      "supplier": "S&S",
+      "description": "Next Level - 4.3 oz 60/50 combed ring-spun cotton."
+    },
+    {
+      "itemCode": "90-5100",
+      "garmentNumber": "5100",
+      "cost": 3.61,
+      "supplier": "S&S",
+      "description": "C2 SPORT- PERFORMANCE TSHIRT."
+    },
+    {
+      "itemCode": "90-1580",
+      "garmentNumber": "1580",
+      "cost": 3.84,
+      "supplier": "S&S",
+      "description": "Next Level- Womens Ideal Crop Top."
+    },
+    {
+      "itemCode": "90-6610",
+      "garmentNumber": "6610",
+      "cost": 3.86,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- WOMENS CVC TSHIRT."
+    },
+    {
+      "itemCode": "90-SN100",
+      "garmentNumber": "SN100",
+      "cost": 4.05,
+      "supplier": "S&S",
+      "description": "KATI- SAFETY CAP."
+    },
+    {
+      "itemCode": "90-3900",
+      "garmentNumber": "3900",
+      "cost": 3.86,
+      "supplier": "S&S",
+      "description": "Next Level\u00a0- Women\u2019s Cotton T-Shirt - 3900"
+    },
+    {
+      "itemCode": "90-3001t",
+      "garmentNumber": "3001T",
+      "cost": 3.57,
+      "supplier": "S&S",
+      "description": "bella cancas-toddler jersey tee."
+    },
+    {
+      "itemCode": "90-3001",
+      "garmentNumber": "3001",
+      "cost": 3.7,
+      "supplier": "S&S",
+      "description": "BELLA+CANVAS- UNISEX JERSEY TEE."
+    },
+    {
+      "itemCode": "90-3600",
+      "garmentNumber": "3600",
+      "cost": 3.61,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- UNISEX COTTON TSHIRT."
+    },
+    {
+      "itemCode": "90-6600",
+      "garmentNumber": "6600",
+      "cost": 3.97,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- WOMENS CVC RELAXED TSHIRT."
+    },
+    {
+      "itemCode": "90-6008",
+      "garmentNumber": "6008",
+      "cost": 3.99,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- WOMENS JERSEY RACERBACK TANK."
+    },
+    {
+      "itemCode": "90-3001CVC",
+      "garmentNumber": "3001CVC",
+      "cost": 3.79,
+      "supplier": "S&S",
+      "description": "Bella Cavas T shirt"
+    },
+    {
+      "itemCode": "90-H000",
+      "garmentNumber": "H000",
+      "cost": 4.4,
+      "supplier": "S&S",
+      "description": "Gildan Hammer Tee"
+    },
+    {
+      "itemCode": "90-5V00L",
+      "garmentNumber": "5V00L",
+      "cost": 4.15,
+      "supplier": "S&S",
+      "description": "GILDAN- HEAVY COTTON WOMENS VNECK TSHIRT."
+    },
+    {
+      "itemCode": "90-6101",
+      "garmentNumber": "6101",
+      "cost": 4.2,
+      "supplier": "S&S",
+      "description": "LAT girls tee"
+    },
+    {
+      "itemCode": "90-293",
+      "garmentNumber": "293",
+      "cost": 4.05,
+      "supplier": "S&S",
+      "description": "TULTEX-HEAVYWEIGHT JERSEY POCKET TSHIRT."
+    },
+    {
+      "itemCode": "90-5013",
+      "garmentNumber": "5013",
+      "cost": 4.19,
+      "supplier": "S&S",
+      "description": "Women\u2019s Festival Muscle Tank. 65/35 polyester/combed ringspun cotton"
+    },
+    {
+      "itemCode": "90-5033",
+      "garmentNumber": "5033",
+      "cost": 4.19,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- WOMENS FESTIVAL TANK."
+    },
+    {
+      "itemCode": "90-3352",
+      "garmentNumber": "3352",
+      "cost": 2.95,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-YOUTH THREE QUARTER SLEEVE REGLAN"
+    },
+    {
+      "itemCode": "90-2616",
+      "garmentNumber": "2616",
+      "cost": 4.4,
+      "supplier": "S&S",
+      "description": "LAT-GIRLS FINE JERSEY TEE."
+    },
+    {
+      "itemCode": "90-4820",
+      "garmentNumber": "4820",
+      "cost": 4.79,
+      "supplier": "S&S",
+      "description": "M&O-SOFT TOUCH LONG SLEEVE T-SHIRT"
+    },
+    {
+      "itemCode": "90-4424",
+      "garmentNumber": "4424",
+      "cost": 3.95,
+      "supplier": "S&S",
+      "description": "RABBIT SKINS- INFANT FINE JERSEY BODYSUIT."
+    },
+    {
+      "itemCode": "90-6400",
+      "garmentNumber": "6400",
+      "cost": 4.09,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-WOMENS RELAXED JERSEY TEE."
+    },
+    {
+      "itemCode": "90-5080",
+      "garmentNumber": "5080",
+      "cost": 4.35,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- WOMENS FESTIVAL CROP TOP."
+    },
+    {
+      "itemCode": "90-5180",
+      "garmentNumber": "5180",
+      "cost": 4.35,
+      "supplier": "S&S",
+      "description": "Hanes Beefy T"
+    },
+    {
+      "itemCode": "90-5040",
+      "garmentNumber": "5040",
+      "cost": 3.3,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-WOMENS FESTIVAL SLEEVELESS"
+    },
+    {
+      "itemCode": "90-5400",
+      "garmentNumber": "5400",
+      "cost": 4.33,
+      "supplier": "S&S",
+      "description": "GILDAN- HEAVY COTTON LONG SLEEVE T-SHIRT"
+    },
+    {
+      "itemCode": "90-2200",
+      "garmentNumber": "2200",
+      "cost": 4.85,
+      "supplier": "S&S",
+      "description": "GILDAN- ULTRA COTTON TANK TOP."
+    },
+    {
+      "itemCode": "90-8503",
+      "garmentNumber": "8503",
+      "cost": 4.72,
+      "supplier": "S&S",
+      "description": "LIBERTY BAGS-ISABELLA TOTE."
+    },
+    {
+      "itemCode": "90-5300",
+      "garmentNumber": "5300",
+      "cost": 5.01,
+      "supplier": "S&S",
+      "description": "GILDAN-HEAVY COTTON TSHIRT."
+    },
+    {
+      "itemCode": "90-291",
+      "garmentNumber": "291",
+      "cost": 4.77,
+      "supplier": "S&S",
+      "description": "TULTEX- UNISEX LONG SLEEVE"
+    },
+    {
+      "itemCode": "90-242",
+      "garmentNumber": "242",
+      "cost": 5.68,
+      "supplier": "S&S",
+      "description": "Tultex- 3.6 oz./yd\u00b2, 65/35 polyester/combed ringspun USA cotton"
+    },
+    {
+      "itemCode": "90-6500M",
+      "garmentNumber": "6500M",
+      "cost": 4.94,
+      "supplier": "S&S",
+      "description": "M&O-VINTAGE GARMENT DYED TSHIRT."
+    },
+    {
+      "itemCode": "90-245",
+      "garmentNumber": "245",
+      "cost": 4.82,
+      "supplier": "S&S",
+      "description": "Tultex - Unisex Fine Jersey Raglan T-Shirt. 4.5 oz./yd\u00b2, 100% ringspun USA cotton"
+    },
+    {
+      "itemCode": "90-254",
+      "garmentNumber": "254",
+      "cost": 4.93,
+      "supplier": "S&S",
+      "description": "TULTEX- UNISEX TRI-BLEND TSHIRT."
+    },
+    {
+      "itemCode": "90-6606",
+      "garmentNumber": "6606",
+      "cost": 5.55,
+      "supplier": "S&S",
+      "description": "YP retro trucKer cap"
+    },
+    {
+      "itemCode": "90-202Y",
+      "garmentNumber": "202Y",
+      "cost": 3.85,
+      "supplier": "S&S",
+      "description": "SOFTSHIRTS YOUTH TEE"
+    },
+    {
+      "itemCode": "90-3480",
+      "garmentNumber": "3480",
+      "cost": 4.99,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- JERSEY TANK."
+    },
+    {
+      "itemCode": "90-2050",
+      "garmentNumber": "2050",
+      "cost": 5.6,
+      "supplier": "S&S",
+      "description": "SPORTSMAN- BUCKET HAT."
+    },
+    {
+      "itemCode": "90-6405",
+      "garmentNumber": "6405",
+      "cost": 4.99,
+      "supplier": "S&S",
+      "description": "BELLA + CANVAS- WOMENS V-NECK TEE"
+    },
+    {
+      "itemCode": "90-8413",
+      "garmentNumber": "8413",
+      "cost": 5.19,
+      "supplier": "S&S",
+      "description": "Bella Canvas Women's Triblend Tee"
+    },
+    {
+      "itemCode": "90-8803",
+      "garmentNumber": "8803",
+      "cost": 6.29,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- WOMENS FLOWY SCOOP MUSCLE TANK."
+    },
+    {
+      "itemCode": "90-8804",
+      "garmentNumber": "8804",
+      "cost": 6.39,
+      "supplier": "S&S",
+      "description": "BELLA + CANVAS- WOMENS FLOWY ROLLED CUFFS MUSCLE TEE"
+    },
+    {
+      "itemCode": "90-8882",
+      "garmentNumber": "8882",
+      "cost": 5.19,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- WOMENS FLOWY CROP TEE."
+    },
+    {
+      "itemCode": "90-3200Y",
+      "garmentNumber": "3200Y",
+      "cost": 5.02,
+      "supplier": "S&S",
+      "description": "Bella + Canvas Youth 3/4-Sleeve Baseball T-Shirt"
+    },
+    {
+      "itemCode": "90-2400",
+      "garmentNumber": "2400",
+      "cost": 5.19,
+      "supplier": "S&S",
+      "description": "Gildan-6 oz./yd\u00b2 (US) 10.1 oz./L yd (CA), 100% cotton"
+    },
+    {
+      "itemCode": "90-6405CVC",
+      "garmentNumber": "6405CVC",
+      "cost": 5.19,
+      "supplier": "S&S",
+      "description": "Bella Canvas - Wonen's  V Neck Tee"
+    },
+    {
+      "itemCode": "90-6760",
+      "garmentNumber": "6760",
+      "cost": 6.13,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- WOMENS TRIBLEND SHORT SLEEVE DOLMAN"
+    },
+    {
+      "itemCode": "90-3650",
+      "garmentNumber": "3650",
+      "cost": 6.66,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-SHORT SLEEVE REGLAN TEE"
+    },
+    {
+      "itemCode": "90-5700",
+      "garmentNumber": "5700",
+      "cost": 5.53,
+      "supplier": "S&S",
+      "description": "GILDAN- HEAVY COTTON THREE QUARTER SLEEVE T-SHIRT"
+    },
+    {
+      "itemCode": "90-6682",
+      "garmentNumber": "6682",
+      "cost": 5.19,
+      "supplier": "S&S",
+      "description": "Women's Racerback Crop Tank. 4.2 oz./yd\u00b2 (US) 7.1oz./L yd (CA), 52/48 Airlume combed and ring-spun cotton/polyester jersey"
+    },
+    {
+      "itemCode": "90-8400",
+      "garmentNumber": "8400",
+      "cost": 5.25,
+      "supplier": "S&S",
+      "description": "GILDAN-DRYBLEND 50/50 LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-5400B",
+      "garmentNumber": "5400B",
+      "cost": 5.72,
+      "supplier": "S&S",
+      "description": "Gildan Youth Heavy Cotton\u2122 Long-Sleeve T-Shirt"
+    },
+    {
+      "itemCode": "90-6010",
+      "garmentNumber": "6010",
+      "cost": 4.75,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- UNISEX TRIBLEND TSHIRT."
+    },
+    {
+      "itemCode": "90-3902",
+      "garmentNumber": "3902",
+      "cost": 5.9,
+      "supplier": "S&S",
+      "description": "DOOGIE SKIN TEE"
+    },
+    {
+      "itemCode": "90-307GD",
+      "garmentNumber": "307GD",
+      "cost": 5.27,
+      "supplier": "S&S",
+      "description": "AMERICAN APPAREL GARMENT DYED WOMEN'S HEAVYWEIGHT MUSCLE TEE"
+    },
+    {
+      "itemCode": "90-8300",
+      "garmentNumber": "8300",
+      "cost": 6.07,
+      "supplier": "S&S",
+      "description": "Gildan DryBlend Pocket Tee"
+    },
+    {
+      "itemCode": "90-5030",
+      "garmentNumber": "5030",
+      "cost": 5.86,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- WOMENS FESTIVAL SCOOP NECK T-SHIRT."
+    },
+    {
+      "itemCode": "90-200",
+      "garmentNumber": "200",
+      "cost": 4.9,
+      "supplier": "S&S",
+      "description": "SoftShirts - classic short sleeve tee"
+    },
+    {
+      "itemCode": "90-1717",
+      "garmentNumber": "1717",
+      "cost": 5.29,
+      "supplier": "S&S",
+      "description": "COMFORT COLORS- GARMENT DYED HEAVYWEIGHT SHIRT."
+    },
+    {
+      "itemCode": "90-M211L",
+      "garmentNumber": "M211L",
+      "cost": 20.75,
+      "supplier": "S&S",
+      "description": "Men's Advantage Long Sleeve Tactical Polo - M211L"
+    },
+    {
+      "itemCode": "90-6482",
+      "garmentNumber": "6482",
+      "cost": 5.65,
+      "supplier": "S&S",
+      "description": "womens hjersey crop tee."
+    },
+    {
+      "itemCode": "90-88MR",
+      "garmentNumber": "88MR",
+      "cost": 3.6,
+      "supplier": "S&S",
+      "description": "JERZEES- SNOW HEATHER JERSEY CREW TSHIRT."
+    },
+    {
+      "itemCode": "90-1010",
+      "garmentNumber": "1010",
+      "cost": 6.09,
+      "supplier": "S&S",
+      "description": "bella canvas-womens micro rib baby tee."
+    },
+    {
+      "itemCode": "90-5104",
+      "garmentNumber": "5104",
+      "cost": 5.93,
+      "supplier": "S&S",
+      "description": "C2 SPORT- PERFORMANCE LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-88189",
+      "garmentNumber": "88189",
+      "cost": 46.0,
+      "supplier": "S&S",
+      "description": "Men's Brisk Insulated Jacket - 88189"
+    },
+    {
+      "itemCode": "90-64400",
+      "garmentNumber": "64400",
+      "cost": 6.6,
+      "supplier": "S&S",
+      "description": "GILDAN SOFTSLYLE LONG SEEVE TEE"
+    },
+    {
+      "itemCode": "90-3413",
+      "garmentNumber": "3413",
+      "cost": 5.75,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-TRIBLEND TEE."
+    },
+    {
+      "itemCode": "90-1000",
+      "garmentNumber": "1000",
+      "cost": 6.09,
+      "supplier": "S&S",
+      "description": "Colortone Tye Dyed T-Shirt"
+    },
+    {
+      "itemCode": "90-3601",
+      "garmentNumber": "3601",
+      "cost": 6.29,
+      "supplier": "S&S",
+      "description": "Next Level Long Sleeve Tee"
+    },
+    {
+      "itemCode": "90-8838",
+      "garmentNumber": "8838",
+      "cost": 4.85,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- WOMENS SLOUCHY TANK."
+    },
+    {
+      "itemCode": "90-6211",
+      "garmentNumber": "6211",
+      "cost": 6.46,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-UNISEX LONG SLEEVE TEE"
+    },
+    {
+      "itemCode": "90-200",
+      "garmentNumber": "200",
+      "cost": 6.34,
+      "supplier": "S&S",
+      "description": "PARAGON- ISLANDER PERFORMANCE T-SHIRT."
+    },
+    {
+      "itemCode": "90-6051",
+      "garmentNumber": "6051",
+      "cost": 6.56,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- UNISEX TRIBLEND THREE-QUARTER RAGLAN TSHIRT."
+    },
+    {
+      "itemCode": "90-710",
+      "garmentNumber": "710",
+      "cost": 7.26,
+      "supplier": "S&S",
+      "description": "AUGUSTA SPORTSWEAR-50/50 RINGER TSHIRT."
+    },
+    {
+      "itemCode": "90-8800",
+      "garmentNumber": "8800",
+      "cost": 7.08,
+      "supplier": "S&S",
+      "description": "GILDAN- DRYBLEND JERSEY POLO"
+    },
+    {
+      "itemCode": "90-3200",
+      "garmentNumber": "3200",
+      "cost": 7.48,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- THREE QUARTER SLEEVE BASEBALL TEE."
+    },
+    {
+      "itemCode": "90-112FPR",
+      "garmentNumber": "112FPR",
+      "cost": 7.0,
+      "supplier": "S&S",
+      "description": "RICHARDSON-FIVE PANEL TRUCKER CAP."
+    },
+    {
+      "itemCode": "3317",
+      "garmentNumber": "3317",
+      "cost": 7.1,
+      "supplier": "S&S",
+      "description": "RABBIT SKINS-TODDLER FLEECE CREWNECK SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-18000",
+      "garmentNumber": "18000",
+      "cost": 6.75,
+      "supplier": "S&S",
+      "description": "Gildan Adult Heavy Blend\u2122 50/50 Fleece Crew"
+    },
+    {
+      "itemCode": "90-3501",
+      "garmentNumber": "3501",
+      "cost": 6.99,
+      "supplier": "S&S",
+      "description": "Bella Canvas Long Sleeve T"
+    },
+    {
+      "itemCode": "90-3511",
+      "garmentNumber": "3511",
+      "cost": 7.29,
+      "supplier": "S&S",
+      "description": "BELLA+CANVAS 6 OZ HEAVYWEIGHT LONG SLEEVE TEE"
+    },
+    {
+      "itemCode": "90-18000B",
+      "garmentNumber": "18000B",
+      "cost": 7.64,
+      "supplier": "S&S",
+      "description": "Heavy Blend\u2122 Youth Sweatshirt"
+    },
+    {
+      "itemCode": "90-6277",
+      "garmentNumber": "6277",
+      "cost": 8.15,
+      "supplier": "S&S",
+      "description": "FLEXFIT- COTTON BLEND CAP."
+    },
+    {
+      "itemCode": "90-3501CVC",
+      "garmentNumber": "3501CVC",
+      "cost": 7.19,
+      "supplier": "S&S",
+      "description": "Berlla Canvas Heather Long Sleeve Tee"
+    },
+    {
+      "itemCode": "90-562MR",
+      "garmentNumber": "562MR",
+      "cost": 5.8,
+      "supplier": "S&S",
+      "description": "Jerzees Crewneck sweatshirt"
+    },
+    {
+      "itemCode": "90-8718",
+      "garmentNumber": "8718",
+      "cost": 6.0,
+      "supplier": "S&S",
+      "description": "alpine roll up blanket"
+    },
+    {
+      "itemCode": "90-6500",
+      "garmentNumber": "6500",
+      "cost": 7.43,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- WOMENS JERSEY LONG SLEEVE TEE."
+    },
+    {
+      "itemCode": "90-C3060",
+      "garmentNumber": "C3060",
+      "cost": 9.96,
+      "supplier": "S&S",
+      "description": "CARMEL TOWEL COM-VELOUR BEACH TOWEL."
+    },
+    {
+      "itemCode": "90-110",
+      "garmentNumber": "110",
+      "cost": 8.0,
+      "supplier": "S&S",
+      "description": "RICHARDSON- FITTED TRUCKER WITH R-FLEX CAP."
+    },
+    {
+      "itemCode": "90-6210FF",
+      "garmentNumber": "6210FF",
+      "cost": 9.15,
+      "supplier": "S&S",
+      "description": "FLEXFIT- 210 FLAT BILL CAP."
+    },
+    {
+      "itemCode": "90-340",
+      "garmentNumber": "340",
+      "cost": 8.52,
+      "supplier": "S&S",
+      "description": "TULTEX-UNISEX FLEECE CREWNECK SWEATSHIRT"
+    },
+    {
+      "itemCode": "90-1193",
+      "garmentNumber": "1193",
+      "cost": 7.93,
+      "supplier": "S&S",
+      "description": "KISHIGO- HOOK AND LOOP MESH VEST."
+    },
+    {
+      "itemCode": "90-1194",
+      "garmentNumber": "1194",
+      "cost": 7.93,
+      "supplier": "S&S",
+      "description": "KISHIGO- HOOK AND LOOP MESH VEST."
+    },
+    {
+      "itemCode": "90-21mlr",
+      "garmentNumber": "21MLR",
+      "cost": 5.1,
+      "supplier": "S&S",
+      "description": "JERZEES-DRI POWER LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-6411",
+      "garmentNumber": "6411",
+      "cost": 8.28,
+      "supplier": "S&S",
+      "description": "Bella/Cavas Long Sleeve Tee"
+    },
+    {
+      "itemCode": "90-220",
+      "garmentNumber": "220",
+      "cost": 10.98,
+      "supplier": "S&S",
+      "description": "SOFTSHIRTS-CLASSIC LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-SF000",
+      "garmentNumber": "SF000",
+      "cost": 9.15,
+      "supplier": "S&S",
+      "description": "Gildan Midweight Softstyle Crew"
+    },
+    {
+      "itemCode": "90-18500B",
+      "garmentNumber": "18500B",
+      "cost": 9.14,
+      "supplier": "S&S",
+      "description": "Heavy Blend\u2122 Youth Hooded Sweatshirt"
+    },
+    {
+      "itemCode": "90-3326",
+      "garmentNumber": "3326",
+      "cost": 9.93,
+      "supplier": "S&S",
+      "description": "RABBIT SKINS- TODDLER PULLOVER FLEECE HOODIE."
+    },
+    {
+      "itemCode": "90-18500",
+      "garmentNumber": "18500",
+      "cost": 9.25,
+      "supplier": "S&S",
+      "description": "Gildan - Heavy Blend Hoody   8oz 50/50 preshrunk cotton/polyester"
+    },
+    {
+      "itemCode": "90-P170",
+      "garmentNumber": "P170",
+      "cost": 8.5,
+      "supplier": "S&S",
+      "description": "HANES- ECOSMART CREWNECK SWEATSHIRT"
+    },
+    {
+      "itemCode": "90-320Y",
+      "garmentNumber": "320Y",
+      "cost": 9.89,
+      "supplier": "S&S",
+      "description": "Tultex\u00a0- Youth Hooded Sweatshirt - 320Y"
+    },
+    {
+      "itemCode": "90-996MR",
+      "garmentNumber": "996MR",
+      "cost": 7.85,
+      "supplier": "S&S",
+      "description": "JERZEES. 50/50 cotton/polyester"
+    },
+    {
+      "itemCode": "90-SS3000",
+      "garmentNumber": "SS3000",
+      "cost": 10.08,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO-MIDWEIGHT CREWNECK SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-6014",
+      "garmentNumber": "6014",
+      "cost": 9.96,
+      "supplier": "S&S",
+      "description": "COMFORT COLORS LONG SLEEVE"
+    },
+    {
+      "itemCode": "90-320",
+      "garmentNumber": "320",
+      "cost": 9.95,
+      "supplier": "S&S",
+      "description": "Tultex - 7.5 oz unisex Fleece Hoody.  80/20"
+    },
+    {
+      "itemCode": "90-8456",
+      "garmentNumber": "8456",
+      "cost": 7.95,
+      "supplier": "S&S",
+      "description": "J AMERICA- WOMENS EPIC SHERPA FULL ZIP VEST."
+    },
+    {
+      "itemCode": "90-SS4500",
+      "garmentNumber": "SS4500",
+      "cost": 10.34,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO- MIDWEIGHT HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-973MR",
+      "garmentNumber": "973MR",
+      "cost": 7.35,
+      "supplier": "S&S",
+      "description": "JERZEES-NUBLEND SWEATPANTS."
+    },
+    {
+      "itemCode": "90-812",
+      "garmentNumber": "812",
+      "cost": 10.13,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-WOMENS LEGGINGS."
+    },
+    {
+      "itemCode": "90-3512",
+      "garmentNumber": "3512",
+      "cost": 10.79,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- JERSEY HOODED LONG SLEEVE TEE."
+    },
+    {
+      "itemCode": "90-8512",
+      "garmentNumber": "8512",
+      "cost": 9.95,
+      "supplier": "S&S",
+      "description": "BELLA + CANVAS-WOMENS TRIBLEND CROP LONG SLEEVE HOODIE"
+    },
+    {
+      "itemCode": "90-SS1000C",
+      "garmentNumber": "SS1000C",
+      "cost": 10.93,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO-ICON LIGHTWEIGHT TERRY CREWNECK SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-4662MR",
+      "garmentNumber": "4662MR",
+      "cost": 6.75,
+      "supplier": "S&S",
+      "description": "JERZEES- SUPER SWEATS NUBLEND CREWNECK SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-P473",
+      "garmentNumber": "P473",
+      "cost": 10.35,
+      "supplier": "S&S",
+      "description": "HANES- ECOSMART YOUTH HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-996YR",
+      "garmentNumber": "996YR",
+      "cost": 7.25,
+      "supplier": "S&S",
+      "description": "JERZEES YOUTH HOODIE"
+    },
+    {
+      "itemCode": "90-18400",
+      "garmentNumber": "18400",
+      "cost": 11.54,
+      "supplier": "S&S",
+      "description": "GILDAN-HEAVY BLEND SWEATPANTS."
+    },
+    {
+      "itemCode": "90-6021",
+      "garmentNumber": "6021",
+      "cost": 11.15,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-UNISEX TRIBLEND HOODED LONG SLEEVE PULLOVER"
+    },
+    {
+      "itemCode": "90-SS150J",
+      "garmentNumber": "SS150J",
+      "cost": 11.26,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO-LIGHTWEIGHT HOODED PULLOVER TSHIRT."
+    },
+    {
+      "itemCode": "90-222",
+      "garmentNumber": "222",
+      "cost": 11.93,
+      "supplier": "S&S",
+      "description": "Paragon Aruba Performance long sleeve Tee"
+    },
+    {
+      "itemCode": "90-437LR",
+      "garmentNumber": "437LR",
+      "cost": 6.55,
+      "supplier": "S&S",
+      "description": "JERZEES-DRI POWER LONG SLEEVE POLO."
+    },
+    {
+      "itemCode": "90-995MR",
+      "garmentNumber": "995MR",
+      "cost": 9.1,
+      "supplier": "S&S",
+      "description": "Jerzees Cadet Quater-Zip Swearshirt"
+    },
+    {
+      "itemCode": "90-100",
+      "garmentNumber": "100",
+      "cost": 12.69,
+      "supplier": "S&S",
+      "description": "PARAGON-SARATOGA PERFORMANCEN=MINI MESH POLO."
+    },
+    {
+      "itemCode": "90-331",
+      "garmentNumber": "331",
+      "cost": 13.37,
+      "supplier": "S&S",
+      "description": "TULTEX- UNISEX FULL ZIP HOODED SWEATSHIRTS."
+    },
+    {
+      "itemCode": "90-973BR",
+      "garmentNumber": "973BR",
+      "cost": 5.4,
+      "supplier": "S&S",
+      "description": "Nublend- Youth Sweatpants."
+    },
+    {
+      "itemCode": "90-SS4500Z",
+      "garmentNumber": "SS4500Z",
+      "cost": 14.21,
+      "supplier": "S&S",
+      "description": "Independent Trading Full mZip Hoodie"
+    },
+    {
+      "itemCode": "90-3945",
+      "garmentNumber": "3945",
+      "cost": 14.99,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-SPONGE FLLECE DROP CREWNECK SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-8707",
+      "garmentNumber": "8707",
+      "cost": 10.5,
+      "supplier": "S&S",
+      "description": "ALPINE FLEECE- MICRO CORAL FLEECE BLANKET."
+    },
+    {
+      "itemCode": "90-18600",
+      "garmentNumber": "18600",
+      "cost": 14.61,
+      "supplier": "S&S",
+      "description": "Gildan Adult Heavy Blend\u2122 8 oz., 50/50 Full-Zip Hooded Sweatshirt"
+    },
+    {
+      "itemCode": "RF491",
+      "garmentNumber": "RF491",
+      "cost": 14.73,
+      "supplier": "S&S",
+      "description": "AMERICAN APPAREL REFLEX SWEATPANT"
+    },
+    {
+      "itemCode": "90-8451",
+      "garmentNumber": "8451",
+      "cost": 9.95,
+      "supplier": "S&S",
+      "description": "J AMERICA- WOMENS EPIC SHERPA QUARTER ZIP PULLOVER."
+    },
+    {
+      "itemCode": "90-R65",
+      "garmentNumber": "R65",
+      "cost": 7.14,
+      "supplier": "S&S",
+      "description": "BOXERCRAFT- WOMENS RELAY SHORTS."
+    },
+    {
+      "itemCode": "90-Q10",
+      "garmentNumber": "Q10",
+      "cost": 13.14,
+      "supplier": "S&S",
+      "description": "Sherpa Fleece Quarter Zip"
+    },
+    {
+      "itemCode": "90-4001",
+      "garmentNumber": "4001",
+      "cost": 16.21,
+      "supplier": "S&S",
+      "description": "PARAGON-GUARDIAN SNAG PROOF POLO."
+    },
+    {
+      "itemCode": "90-3729",
+      "garmentNumber": "3729",
+      "cost": 18.2,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-SPONGE FLEECE DROP SHOULDER HOODIE."
+    },
+    {
+      "itemCode": "90-3739",
+      "garmentNumber": "3739",
+      "cost": 16.99,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS- SPONGE FLEECE FULL ZIP HOODIE."
+    },
+    {
+      "itemCode": "90-9602",
+      "garmentNumber": "9602",
+      "cost": 17.8,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- SANTA CRUZ FULL ZIP HOODIE."
+    },
+    {
+      "itemCode": "90-rf498",
+      "garmentNumber": "RF498",
+      "cost": 13.97,
+      "supplier": "S&S",
+      "description": "AMERICAN APPAREL REFLEX HOODIE"
+    },
+    {
+      "itemCode": "90-SS1000Z",
+      "garmentNumber": "SS1000Z",
+      "cost": 16.84,
+      "supplier": "S&S",
+      "description": "ICON ZIP HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-AFX64CRP",
+      "garmentNumber": "AFX64CRP",
+      "cost": 16.33,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADINC CO- WOMENS LIGHTWEIGHT CROP HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-9302",
+      "garmentNumber": "9302",
+      "cost": 17.21,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL- MALIBU HOODIE."
+    },
+    {
+      "itemCode": "90-29L",
+      "garmentNumber": "29L",
+      "cost": 16.72,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO- 29L DAY TRIPPER DUFFEL BAG."
+    },
+    {
+      "itemCode": "90-PRM2500",
+      "garmentNumber": "PRM2500",
+      "cost": 20.32,
+      "supplier": "S&S",
+      "description": "WOMENS LIGHTWEIGHT CALIFORNIA WAVE WASH HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-AFX90UN",
+      "garmentNumber": "AFX90UN",
+      "cost": 16.8,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO- LIGHTWEIGHT HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-IND4000",
+      "garmentNumber": "IND4000",
+      "cost": 16.85,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO- HEAVYWEIGHT HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-AFX90UNZ",
+      "garmentNumber": "AFX90UNZ",
+      "cost": 18.18,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO.-UNISEX LIGHTWEIGHT FULL ZIP HOODED SWEATSHIRT"
+    },
+    {
+      "itemCode": "90-EXP54LWP",
+      "garmentNumber": "EXP54LWP",
+      "cost": 17.07,
+      "supplier": "S&S",
+      "description": "Indepenant Quarter Zip Lightweight Windbreaker"
+    },
+    {
+      "itemCode": "90-S535",
+      "garmentNumber": "S535",
+      "cost": 18.49,
+      "supplier": "S&S",
+      "description": "Dickies - Industrial Short Sleeve Work Shirt."
+    },
+    {
+      "itemCode": "90-SK92",
+      "garmentNumber": "SK92",
+      "cost": 20.36,
+      "supplier": "S&S",
+      "description": "RED KAP-PERFORMANCE KNIT FLEX SERIES ACTIVE POLO."
+    },
+    {
+      "itemCode": "90-A430",
+      "garmentNumber": "A430",
+      "cost": 20.13,
+      "supplier": "S&S",
+      "description": "ADIDAS-BASIC SPORT POLO."
+    },
+    {
+      "itemCode": "90-EXP70PTZ",
+      "garmentNumber": "EXP70PTZ",
+      "cost": 20.14,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO- LIGHTWEIGHT POLY TECH FULL ZIP TRACK JACKET."
+    },
+    {
+      "itemCode": "90-PRM3500",
+      "garmentNumber": "PRM3500",
+      "cost": 20.17,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO.-UNISEX MIDWEIGHT CREWNECK SWEATSHIRT"
+    },
+    {
+      "itemCode": "90-A431",
+      "garmentNumber": "A431",
+      "cost": 20.85,
+      "supplier": "S&S",
+      "description": "ADIDAS- WOMENS BASIC SPORT POLO."
+    },
+    {
+      "itemCode": "90-425",
+      "garmentNumber": "425",
+      "cost": 21.62,
+      "supplier": "S&S",
+      "description": "CHEF DESIGNS-TEN PEARL BUTTON CHEF COAT."
+    },
+    {
+      "itemCode": "90-W17125",
+      "garmentNumber": "W17125",
+      "cost": 21.08,
+      "supplier": "S&S",
+      "description": "MV SPORT- WOMENS AMANDA PONCHO."
+    },
+    {
+      "itemCode": "90-207359",
+      "garmentNumber": "207359",
+      "cost": 21.44,
+      "supplier": "S&S",
+      "description": "Weatherproof Diamond quilted vest"
+    },
+    {
+      "itemCode": "90-L01",
+      "garmentNumber": "L01",
+      "cost": 7.14,
+      "supplier": "S&S",
+      "description": "BOXERCRAFT- WOMENS COZY PULLOVER."
+    },
+    {
+      "itemCode": "90-SP28",
+      "garmentNumber": "SP28",
+      "cost": 22.82,
+      "supplier": "S&S",
+      "description": "RED KAP-SHORT SLEEVE MOTORSPORT SHIRT."
+    },
+    {
+      "itemCode": "90-PRM4500",
+      "garmentNumber": "PRM4500",
+      "cost": 22.95,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO.-MIDWEIGHT HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-8454",
+      "garmentNumber": "8454",
+      "cost": 23.26,
+      "supplier": "S&S",
+      "description": "J. AMERICA- SHERPA QUARTER ZIP PULLOVER."
+    },
+    {
+      "itemCode": "90-SY20T",
+      "garmentNumber": "SY20T",
+      "cost": 24.5,
+      "supplier": "S&S",
+      "description": "RED KAP-SHORT SLEEVE AUTOMOTIVE CREW SHIRT."
+    },
+    {
+      "itemCode": "90-SY10",
+      "garmentNumber": "SY10",
+      "cost": 26.24,
+      "supplier": "S&S",
+      "description": "Men's Long Sleeve Automotive Crew Shirt - SY10"
+    },
+    {
+      "itemCode": "90-SY42",
+      "garmentNumber": "SY42",
+      "cost": 27.5,
+      "supplier": "S&S",
+      "description": "RED KAP- PERFORMANCE PLUS SHORT SLEEVE SHIRT WITH OILBLOK TECHNOLOGY."
+    },
+    {
+      "itemCode": "90-212468",
+      "garmentNumber": "212468",
+      "cost": 31.33,
+      "supplier": "S&S",
+      "description": "COLUMBIA- PFG TAMIAMI SHORT SLEEVE SHIRT."
+    },
+    {
+      "itemCode": "90-EXP100PFZ",
+      "garmentNumber": "EXP100PFZ",
+      "cost": 36.36,
+      "supplier": "S&S",
+      "description": "Mens puffer Jacket"
+    },
+    {
+      "itemCode": "90-212467",
+      "garmentNumber": "212467",
+      "cost": 38.25,
+      "supplier": "S&S",
+      "description": "COLUMBIA- PFG TAMIAMI LONG SLEEVE SHIRT."
+    },
+    {
+      "itemCode": "90-JS154",
+      "garmentNumber": "JS154",
+      "cost": 44.25,
+      "supplier": "S&S",
+      "description": "KISHIGO- HI VIS HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-TJ55",
+      "garmentNumber": "TJ55",
+      "cost": 48.19,
+      "supplier": "S&S",
+      "description": "Dickies - Insulated Industrial Jacket - TJ55"
+    },
+    {
+      "itemCode": "90-5350",
+      "garmentNumber": "5350",
+      "cost": 56.89,
+      "supplier": "S&S",
+      "description": "DRI DUCK- MOTION SOFT SHELL JACKET."
+    },
+    {
+      "itemCode": "90-212491",
+      "garmentNumber": "212491",
+      "cost": 67.85,
+      "supplier": "S&S",
+      "description": "COLUMBIA- POWDER LIFE VEST."
+    },
+    {
+      "itemCode": "90-JP70",
+      "garmentNumber": "JP70",
+      "cost": 108.84,
+      "supplier": "S&S",
+      "description": "RED KAP- HEAVYWEIGHT PARKA."
+    },
+    {
+      "itemCode": "90-1004",
+      "garmentNumber": "1004",
+      "cost": 2.05,
+      "supplier": "s&S",
+      "description": "bib"
+    },
+    {
+      "itemCode": "90-3301",
+      "garmentNumber": "3301",
+      "cost": 6.29,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-UNISEX SUEDED TEE."
+    },
+    {
+      "itemCode": "90-921056odm",
+      "garmentNumber": "921056odm",
+      "cost": 24.23,
+      "supplier": "S&S",
+      "description": "20L Enduro Backpack - 921056ODM"
+    },
+    {
+      "itemCode": "90-5028",
+      "garmentNumber": "5028",
+      "cost": 66.95,
+      "supplier": "S&S",
+      "description": "DRI DUCK-MENS MAVERICK BOULDER JACKET."
+    },
+    {
+      "itemCode": "90-2296",
+      "garmentNumber": "2296",
+      "cost": 11.2,
+      "supplier": "S&S",
+      "description": "LAT-YOUTH FLEECE HOODIE SWEATSHIRTS."
+    },
+    {
+      "itemCode": "90-ce10y",
+      "garmentNumber": "ce10y",
+      "cost": 2.55,
+      "supplier": "S&S",
+      "description": "CORE365-YOUTH CAOITAL PERFORMANCE TSHIRT."
+    },
+    {
+      "itemCode": "90-GDH200",
+      "garmentNumber": "GDH200",
+      "cost": 8.99,
+      "supplier": "S&S",
+      "description": "CONFORT-UNISEX GARMENT DYED LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-4329",
+      "garmentNumber": "4329",
+      "cost": 2.25,
+      "supplier": "S&S",
+      "description": "CODE FIVE-INFANT STAR PRINT BODYSUIT BABY."
+    },
+    {
+      "itemCode": "90-R1500",
+      "garmentNumber": "R1500",
+      "cost": 3.17,
+      "supplier": "S&S",
+      "description": "LIBERTY BAGS-REUSABLE SHOPPING TOTE BAG."
+    },
+    {
+      "itemCode": "90-6221",
+      "garmentNumber": "6221",
+      "cost": 7.95,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-UNISEX CVC HOODIE LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "90-973MR",
+      "garmentNumber": "973MR",
+      "cost": 7.65,
+      "supplier": "S&S",
+      "description": "JERZEES-NUBLEND SWEATPANTS."
+    },
+    {
+      "itemCode": "90-2000B",
+      "garmentNumber": "2000B",
+      "cost": 2.67,
+      "supplier": "s&s",
+      "description": "YOUTH TEE"
+    },
+    {
+      "itemCode": "90-6004",
+      "garmentNumber": "6004",
+      "cost": 4.39,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-WOMENS SLIM FIT TEE."
+    },
+    {
+      "itemCode": "90-LS14004",
+      "garmentNumber": "LS14004",
+      "cost": 9.79,
+      "supplier": "S&S",
+      "description": "LANE SEVEN PREMIUM CREWNECK SWEATSHIRT"
+    },
+    {
+      "itemCode": "90-OAD112",
+      "garmentNumber": "OAD112",
+      "cost": 2.56,
+      "supplier": "S&S",
+      "description": "double wine tote"
+    },
+    {
+      "itemCode": "90-EC8710",
+      "garmentNumber": "EC8710",
+      "cost": 13.61,
+      "supplier": "S&S",
+      "description": "grove sling bag"
+    },
+    {
+      "itemCode": "90-6002YP",
+      "garmentNumber": "6002YP",
+      "cost": 5.2,
+      "supplier": "S&S",
+      "description": "classic poplin flat cap"
+    },
+    {
+      "itemCode": "54-7502",
+      "garmentNumber": "7502",
+      "cost": 16.29,
+      "supplier": "s&s",
+      "description": "CROP HOODE"
+    },
+    {
+      "itemCode": "54-18200B",
+      "garmentNumber": "18200B",
+      "cost": 9.52,
+      "supplier": "s&s",
+      "description": "KIDS SWET PANTS"
+    },
+    {
+      "itemCode": "90-542",
+      "garmentNumber": "542",
+      "cost": 2.3,
+      "supplier": "S&S",
+      "description": "TULTEX-WOMENS PREMIUM COTTON BLEND TSHIRT."
+    },
+    {
+      "itemCode": "90-1370399",
+      "garmentNumber": "1370399",
+      "cost": 26.0,
+      "supplier": "S&S",
+      "description": "UNDER ARMOUR-MENS TECH POLO."
+    },
+    {
+      "itemCode": "90-229565",
+      "garmentNumber": "229565",
+      "cost": 31.35,
+      "supplier": "S&S",
+      "description": "HOLLOWAY-MENS ALL-AMERICAN FLEECE COLORBLOCK."
+    },
+    {
+      "itemCode": "90-222530",
+      "garmentNumber": "222530",
+      "cost": 25.21,
+      "supplier": "S&S",
+      "description": "HOLLOWAY-MENS TOO TONE AVENGER POLO."
+    },
+    {
+      "itemCode": "90-222571",
+      "garmentNumber": "222571",
+      "cost": 15.01,
+      "supplier": "S&S",
+      "description": "HOLLOWAY-MENS ELECTRIFY COOLCORE."
+    },
+    {
+      "itemCode": "90-223753",
+      "garmentNumber": "223753",
+      "cost": 30.46,
+      "supplier": "S&S",
+      "description": "HOLLOWAY-WOMENS ECO REVIVE SOFT KNIT."
+    },
+    {
+      "itemCode": "90-223245",
+      "garmentNumber": "223245",
+      "cost": 12.93,
+      "supplier": "S&S",
+      "description": "HOLLOWAY-WOMENS ECO REVIVE SOFT KNIT VNECK."
+    },
+    {
+      "itemCode": "90-1902",
+      "garmentNumber": "1902",
+      "cost": 2.99,
+      "supplier": "S&S",
+      "description": "MENS BLACKOUT POLYSTER TEE."
+    },
+    {
+      "itemCode": "90-1383264",
+      "garmentNumber": "1383264",
+      "cost": 14.95,
+      "supplier": "S&S",
+      "description": "UNDER ARMOUR-MENS ATHLETIC 2.0."
+    },
+    {
+      "itemCode": "90-8870",
+      "garmentNumber": "8870",
+      "cost": 9.59,
+      "supplier": "S&S",
+      "description": "liberty bag"
+    },
+    {
+      "itemCode": "90-WS450",
+      "garmentNumber": "WS450",
+      "cost": 12.49,
+      "supplier": "S&S",
+      "description": "DICKIES-MENS TRADITIONAL TSHIRT."
+    },
+    {
+      "itemCode": "90-SHMHSS",
+      "garmentNumber": "SHMHSS",
+      "cost": 5.49,
+      "supplier": "S&S",
+      "description": "Unisex Max Heavyweight T-Shirt"
+    },
+    {
+      "itemCode": "90-3502",
+      "garmentNumber": "3502",
+      "cost": 7.25,
+      "supplier": "S&S",
+      "description": "LAT-WOMENS VINTAGE WASH TEE."
+    },
+    {
+      "itemCode": "90-222776",
+      "garmentNumber": "222776",
+      "cost": 22.54,
+      "supplier": "S&S",
+      "description": "Women's Prism Bold Polo"
+    },
+    {
+      "itemCode": "90-64000B",
+      "garmentNumber": "64000B",
+      "cost": 3.02,
+      "supplier": "S&S",
+      "description": "GILDAN-YOUTH SOFSTYLE TSHIRT."
+    },
+    {
+      "itemCode": "90-542",
+      "garmentNumber": "542",
+      "cost": 2.3,
+      "supplier": "S&S",
+      "description": "TULTEX-Women's Premium Cotton Blend T-Shirt"
+    },
+    {
+      "itemCode": "90-202LS",
+      "garmentNumber": "202LS",
+      "cost": 5.42,
+      "supplier": "S&S",
+      "description": "TULTEX-Unisex Fine Jersey Long Sleeve T-Shirt"
+    },
+    {
+      "itemCode": "90-41870",
+      "garmentNumber": "41870",
+      "cost": 8.5,
+      "supplier": "S&S",
+      "description": "ALL PRO-Men's Pro-Lock Performance Quarter-Zip Pullover"
+    },
+    {
+      "itemCode": "90-GB880",
+      "garmentNumber": "gb880",
+      "cost": 4.65,
+      "supplier": "S&S",
+      "description": "SOFT TRUCKER CAP."
+    },
+    {
+      "itemCode": "90-sp08",
+      "garmentNumber": "SP08",
+      "cost": 2.6,
+      "supplier": "S&S",
+      "description": "8\" Beanie"
+    },
+    {
+      "itemCode": "90-BX001",
+      "garmentNumber": "BX001",
+      "cost": 2.85,
+      "supplier": "S&S",
+      "description": "Classic Brushed Twill Cap"
+    },
+    {
+      "itemCode": "90-CE10",
+      "garmentNumber": "CE10",
+      "cost": 2.85,
+      "supplier": "S&S",
+      "description": "Unisex Capital Performance T-Shirt"
+    },
+    {
+      "itemCode": "6815",
+      "garmentNumber": "6815",
+      "cost": 3.38,
+      "supplier": "S&S",
+      "description": "KNIT BEANIE."
+    },
+    {
+      "itemCode": "90-SP12",
+      "garmentNumber": "SP12",
+      "cost": 2.8,
+      "supplier": "s&s",
+      "description": "12\" Solid Cuffed Beanie"
+    },
+    {
+      "itemCode": "90-H12MR",
+      "garmentNumber": "H12MR",
+      "cost": 10.75,
+      "supplier": "s&s",
+      "description": "Unisex Rugged Hooded Sweatshirt"
+    },
+    {
+      "itemCode": "90-Z12MR",
+      "garmentNumber": "Z12MR",
+      "cost": 12.6,
+      "supplier": "s&s",
+      "description": "Unisex Rugged Full-Zip Hooded Sweatshirt"
+    },
+    {
+      "itemCode": "90-4528MR",
+      "garmentNumber": "4528MR",
+      "cost": 9.7,
+      "supplier": "s&s",
+      "description": "Unisex Super Sweats NuBlend\u00ae Quarter-Zip Cadet Collar Sweatshirt"
+    },
+    {
+      "itemCode": "90-156",
+      "garmentNumber": "156",
+      "cost": 17.13,
+      "supplier": "s&s",
+      "description": "Men's Brunswick Performance Polo"
+    },
+    {
+      "itemCode": "90-3980",
+      "garmentNumber": "3980",
+      "cost": 12.45,
+      "supplier": "S&S",
+      "description": "CODE FIVE-UNISEX REALTREE CAMO TEE."
+    },
+    {
+      "itemCode": "90-1005",
+      "garmentNumber": "1005",
+      "cost": 1.75,
+      "supplier": "S&S",
+      "description": "RABBIT SKIN-INFANT PREMIUM JERSEY BIB."
+    },
+    {
+      "itemCode": "90-3902",
+      "garmentNumber": "3902",
+      "cost": 5.9,
+      "supplier": "S&S",
+      "description": "DOGGIE SKINS-DOGGIE TANK."
+    },
+    {
+      "itemCode": "90-S5004",
+      "garmentNumber": "S5004",
+      "cost": 31.62,
+      "supplier": "S&S",
+      "description": "KISHIGO-UNISEX HIGH PERFORMANCE SURVEYOR VEST."
+    },
+    {
+      "itemCode": "90-1004",
+      "garmentNumber": "1004",
+      "cost": 2.05,
+      "supplier": "S&S",
+      "description": "RABBIT SKIN-INFANT CONTRAST TRIM PREMIUM JERSEY BIB."
+    },
+    {
+      "itemCode": "90-VC400",
+      "garmentNumber": "VC400",
+      "cost": 3.55,
+      "supplier": "S&S",
+      "description": "VALUCAP-MESH BACK TWILL TRUCKER CAP."
+    },
+    {
+      "itemCode": "90-225",
+      "garmentNumber": "225",
+      "cost": 8.0,
+      "supplier": "S&S",
+      "description": "RICHARDSON-CASUAL PERFORMANCE LITE CAP."
+    },
+    {
+      "itemCode": "90-6400CVC",
+      "garmentNumber": "6400CVC",
+      "cost": 2.98,
+      "supplier": "S&S",
+      "description": "GILDAN-UNISEX SOFTSTYLE CVC TSHIRT."
+    },
+    {
+      "itemCode": "90-3000B",
+      "garmentNumber": "3000B",
+      "cost": 2.16,
+      "supplier": "S&S",
+      "description": "GILDAN-YOUTH LIGHT COTTON TSHIRT."
+    },
+    {
+      "itemCode": "90-PRM2500Z",
+      "garmentNumber": "PRM2500Z",
+      "cost": 21.6,
+      "supplier": "S&S",
+      "description": "INDEPENDENT TRADING CO-WOMENS HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "90-203FV",
+      "garmentNumber": "203FV",
+      "cost": 4.0,
+      "supplier": "S&S",
+      "description": "THREADFAST APPAREL-WOMENS TRI BLEND FLECK VNECK."
+    },
+    {
+      "itemCode": "90-100B",
+      "garmentNumber": "100B",
+      "cost": 4.88,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-INFANT JERSEY ONE PIECE."
+    },
+    {
+      "itemCode": "90-64800",
+      "garmentNumber": "64800",
+      "cost": 6.49,
+      "supplier": "S&S",
+      "description": "GILDAN-UNISEX SOFTSTYLE PIQUE POLO."
+    },
+    {
+      "itemCode": "90-M105",
+      "garmentNumber": "m105w",
+      "cost": 4.3,
+      "supplier": "S&S",
+      "description": "HARRITON-MENS MAVERICK CVC PIQUE POLO."
+    },
+    {
+      "itemCode": "90-105W",
+      "garmentNumber": "M105W",
+      "cost": 4.5,
+      "supplier": "S&S",
+      "description": "HARRITON-WOMENS MAVERICK CVC PIQUE POLO."
+    },
+    {
+      "itemCode": "90-TT51",
+      "garmentNumber": "TT51",
+      "cost": 7.25,
+      "supplier": "S&S",
+      "description": "TEAM 365-MENS ZONE PERFORMANCE POLO."
+    },
+    {
+      "itemCode": "90-500",
+      "garmentNumber": "500",
+      "cost": 10.38,
+      "supplier": "S&S",
+      "description": "PARAGON-MENS SEBRING PERFORMANCE POLO."
+    },
+    {
+      "itemCode": "90-8711",
+      "garmentNumber": "8711",
+      "cost": 5.5,
+      "supplier": "S&S",
+      "description": "Value BLANKET."
+    },
+    {
+      "itemCode": "90-8718",
+      "garmentNumber": "8718",
+      "cost": 6.0,
+      "supplier": "S&S",
+      "description": "ROLL UP BLANKET."
+    },
+    {
+      "itemCode": "90-212477",
+      "garmentNumber": "212477",
+      "cost": 18.69,
+      "supplier": "S&S",
+      "description": "COLUMBIA-BORA BORA BOONEY."
+    },
+    {
+      "itemCode": "90-6511",
+      "garmentNumber": "6511",
+      "cost": 6.9,
+      "supplier": "S&S",
+      "description": "FLEXFIT-TRUCKER CAP."
+    },
+    {
+      "itemCode": "90-6580",
+      "garmentNumber": "6580",
+      "cost": 8.55,
+      "supplier": "S&S",
+      "description": "FLEXFIT-PRO FORMANCE CAP."
+    },
+    {
+      "itemCode": "90-PRM50STPD",
+      "garmentNumber": "PRM50STPD",
+      "cost": 14.44,
+      "supplier": "S&S",
+      "description": "UNISEX PIGMENT DYED FLEECE SHORTS."
+    },
+    {
+      "itemCode": "90-IND20SRT",
+      "garmentNumber": "IND20SRT",
+      "cost": 11.33,
+      "supplier": "S&S",
+      "description": "MENS MIDWEIGHT FLEECE SHORTS."
+    },
+    {
+      "itemCode": "90-7200",
+      "garmentNumber": "7200",
+      "cost": 6.3,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL-HEAVYWEIGHT TSHIRT."
+    },
+    {
+      "itemCode": "90-LS15001",
+      "garmentNumber": "LS15001",
+      "cost": 4.33,
+      "supplier": "S&S",
+      "description": "LANE SEVEN-UNISEX HEAVYWEIGHT TEE."
+    },
+    {
+      "itemCode": "90-75000",
+      "garmentNumber": "75000",
+      "cost": 4.8,
+      "supplier": "S&S",
+      "description": "GILDAN-UNISEX HAMMER MAXWEIGHT TSHIRT."
+    },
+    {
+      "itemCode": "90-2000T",
+      "garmentNumber": "2000T",
+      "cost": 7.27,
+      "supplier": "S&S",
+      "description": "GILDAN-MENS TALL ULTRA COTTON TSHIRT."
+    },
+    {
+      "itemCode": "90-42000",
+      "garmentNumber": "42000",
+      "cost": 4.65,
+      "supplier": "S&S",
+      "description": "GILDAN- UNISEX PERFORMANCE TSHIRT."
+    },
+    {
+      "itemCode": "90-3005",
+      "garmentNumber": "3005",
+      "cost": 5.69,
+      "supplier": "S&S",
+      "description": "BELLA CANVAS-UNISEX JERSEY VNECK TEE."
+    },
+    {
+      "itemCode": "90-DG20",
+      "garmentNumber": "DG20",
+      "cost": 13.0,
+      "supplier": "S&S",
+      "description": "DEVON JONES-MENS CROWNLUX PLAITED POLO."
+    },
+    {
+      "itemCode": "90-3301J",
+      "garmentNumber": "3301J",
+      "cost": 3.1,
+      "supplier": "S&S",
+      "description": "RABBIT SKIN-YOUTH JUVY TSHIRT."
+    },
+    {
+      "itemCode": "95CT105298",
+      "garmentNumber": "CT105298",
+      "cost": 13.04,
+      "supplier": "SAN MAR",
+      "description": "Carhartt Canvas Cap"
+    },
+    {
+      "itemCode": "95C920",
+      "garmentNumber": "C920",
+      "cost": 12.28,
+      "supplier": "SAN MAR",
+      "description": "Port Authority Outdoor Wide Brim Hat"
+    },
+    {
+      "itemCode": "99-CP90",
+      "garmentNumber": "CP90",
+      "cost": 2.12,
+      "supplier": "SAN MAR",
+      "description": "PORT COMPANY- KNIT CAP."
+    },
+    {
+      "itemCode": "99-PC54",
+      "garmentNumber": "PC54",
+      "cost": 2.12,
+      "supplier": "SAN MAR",
+      "description": "PORT AND COMPANY CORE COTTON TEE"
+    },
+    {
+      "itemCode": "99-363M",
+      "garmentNumber": "363M",
+      "cost": 2.28,
+      "supplier": "SAN MAR",
+      "description": "JERZEES-CALSSIC UNISEX COTTON TSHIRT."
+    },
+    {
+      "itemCode": "99-PC55",
+      "garmentNumber": "PC55",
+      "cost": 2.39,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- CORE BLEND TEE."
+    },
+    {
+      "itemCode": "99-29M",
+      "garmentNumber": "29M",
+      "cost": 2.63,
+      "supplier": "SAN MAR",
+      "description": "JERZEES-DRI POWER 50/50 COTTON/POLY TSHIRT."
+    },
+    {
+      "itemCode": "99-PC61",
+      "garmentNumber": "PC61",
+      "cost": 2.48,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY- ESSENTIAL TEE."
+    },
+    {
+      "itemCode": "99-CTK122",
+      "garmentNumber": "CTK122",
+      "cost": 42.0,
+      "supplier": "SAN MAR",
+      "description": "Carhartt\u00ae\u00a0Midweight Hooded Zip-Front Sweatshirt"
+    },
+    {
+      "itemCode": "99-DT6000",
+      "garmentNumber": "DT6000",
+      "cost": 2.69,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT- VERY IMPORTANT TEE."
+    },
+    {
+      "itemCode": "99-IC46M",
+      "garmentNumber": "IC46M",
+      "cost": 2.7,
+      "supplier": "SAN MAR",
+      "description": "JERZEES-ULTIMATE UNISEX RING SPUN TSHIRT."
+    },
+    {
+      "itemCode": "99-DM108",
+      "garmentNumber": "DM108",
+      "cost": 2.68,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT-PERFECT BLEND CVC TEE."
+    },
+    {
+      "itemCode": "99-pc330",
+      "garmentNumber": "PC330",
+      "cost": 3.22,
+      "supplier": "SAN MAR",
+      "description": "PORT COMPANY- TRI BLEND TEE."
+    },
+    {
+      "itemCode": "99-PC380",
+      "garmentNumber": "PC380",
+      "cost": 2.89,
+      "supplier": "SAN MAR",
+      "description": "PORT COMPANY- PERFORMANCE TEE."
+    },
+    {
+      "itemCode": "99-FS07",
+      "garmentNumber": "FS07",
+      "cost": 3.41,
+      "supplier": "SAN MAR",
+      "description": "Port Authority Fleece Gaiter"
+    },
+    {
+      "itemCode": "99-STC28",
+      "garmentNumber": "STC28",
+      "cost": 3.41,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- STRIPE POM POM BEANIE."
+    },
+    {
+      "itemCode": "99-DT6001",
+      "garmentNumber": "DT6001",
+      "cost": 2.85,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT- WOMENS FITTED VERY IMPORTANT TEE."
+    },
+    {
+      "itemCode": "99-PC54TT",
+      "garmentNumber": "PC54TT",
+      "cost": 3.27,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY- CORE COTTON TANK TOP."
+    },
+    {
+      "itemCode": "99-CP96",
+      "garmentNumber": "CP96",
+      "cost": 3.56,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY-SOFT BRUSHED CANVAS CAP."
+    },
+    {
+      "itemCode": "99-C112",
+      "garmentNumber": "C112",
+      "cost": 3.58,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- SNAPBACK TRUCKER CAP."
+    },
+    {
+      "itemCode": "99-DT5300",
+      "garmentNumber": "DT5300",
+      "cost": 3.61,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT- THE CONCERT TANK."
+    },
+    {
+      "itemCode": "99-4400",
+      "garmentNumber": "4400",
+      "cost": 3.25,
+      "supplier": "SAN MAR",
+      "description": "RABBIT SKINS- INFANT SHORT BABY RIB BODYSUIT."
+    },
+    {
+      "itemCode": "99-DT6503",
+      "garmentNumber": "DT6503",
+      "cost": 3.79,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT-WOMENS VERY IMPORTANT TEE VNECK."
+    },
+    {
+      "itemCode": "99-64200",
+      "garmentNumber": "64200",
+      "cost": 4.01,
+      "supplier": "SAN MAR",
+      "description": "GILDAN- SOFTSTYLE TANK TOP."
+    },
+    {
+      "itemCode": "99-C830",
+      "garmentNumber": "C830",
+      "cost": 4.13,
+      "supplier": "SAN MAR",
+      "description": "Cap- Port Authority Sandwich Bill"
+    },
+    {
+      "itemCode": "99-DT153",
+      "garmentNumber": "DT153",
+      "cost": 4.13,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT- WOMENS PERFECT TRI MUSCLE TANK."
+    },
+    {
+      "itemCode": "99-ST350",
+      "garmentNumber": "ST350",
+      "cost": 4.13,
+      "supplier": "SAN MAR",
+      "description": "sport tek posi charge tee"
+    },
+    {
+      "itemCode": "99-DM130L",
+      "garmentNumber": "DM130L",
+      "cost": 3.9,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT- WOMENS PERFECT TRI TEE."
+    },
+    {
+      "itemCode": "99-DM1170L",
+      "garmentNumber": "DM1170L",
+      "cost": 4.04,
+      "supplier": "SAN MAR",
+      "description": "Districk Women's Perfect weight Tee"
+    },
+    {
+      "itemCode": "99-LPC54LS",
+      "garmentNumber": "LPC54LS",
+      "cost": 4.55,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY- LADIES LONG SLEEVE CORE COTTON TEE."
+    },
+    {
+      "itemCode": "99-DT137L",
+      "garmentNumber": "DT137L",
+      "cost": 5.16,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT- WOMENS PERFECT TRI ROCKER TANK."
+    },
+    {
+      "itemCode": "99-PC61LS",
+      "garmentNumber": "PC61LS",
+      "cost": 4.39,
+      "supplier": "SAN MAR",
+      "description": "PORT AND COMPANY- LONG SLEEVE ESSENTIAL TEE."
+    },
+    {
+      "itemCode": "99-PC55LS",
+      "garmentNumber": "PC55LS",
+      "cost": 4.45,
+      "supplier": "SAN MAR",
+      "description": "PORT AND COMPANY- LONG SLEEVE CORE BLEND TEE."
+    },
+    {
+      "itemCode": "99-G2400",
+      "garmentNumber": "G2400",
+      "cost": 4.08,
+      "supplier": "SAN MAR",
+      "description": "GILDAN ULTRA COTTON- 100% US COTTON LONG SLEEVE TSHIRT."
+    },
+    {
+      "itemCode": "99-29LS",
+      "garmentNumber": "29LS",
+      "cost": 5.16,
+      "supplier": "SAN MAR",
+      "description": "JERZEE DRI POWER 50/50 COTTON POLY LONG SLEEVE T SHIRT"
+    },
+    {
+      "itemCode": "99-ST320",
+      "garmentNumber": "ST320",
+      "cost": 6.13,
+      "supplier": "SAN MAR",
+      "description": "Sport tek tough tee"
+    },
+    {
+      "itemCode": "99-TM1MU412",
+      "garmentNumber": "TM1MU412",
+      "cost": 48.0,
+      "supplier": "SAN MAR",
+      "description": "TravisMathew Oceanside Heather Polo"
+    },
+    {
+      "itemCode": "99-TM1MU416",
+      "garmentNumber": "TM1MU416",
+      "cost": 45.33,
+      "supplier": "SAN MAR",
+      "description": "TravisMathew Cabana Chest Stripe Polo"
+    },
+    {
+      "itemCode": "99-ST340LS",
+      "garmentNumber": "ST340LS",
+      "cost": 6.13,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- POSI CHARGE RACER MESH LONG SLEEVE TEE."
+    },
+    {
+      "itemCode": "99-DT6200",
+      "garmentNumber": "DT6200",
+      "cost": 5.79,
+      "supplier": "SAN MAR",
+      "description": "District Thread Very Important LOng Sleeve Tee"
+    },
+    {
+      "itemCode": "ST550",
+      "garmentNumber": "ST550",
+      "cost": 7.26,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK-POSICHARGE COMPETITOR POLO."
+    },
+    {
+      "itemCode": "99-DM139L",
+      "garmentNumber": "DM139L",
+      "cost": 7.23,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT WOMANS PERFECT TRI HOODIE"
+    },
+    {
+      "itemCode": "99-NE1000",
+      "garmentNumber": "NE1000",
+      "cost": 7.59,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA- STRUCTURED STRETCH COTTON CAP."
+    },
+    {
+      "itemCode": "99-NE1100",
+      "garmentNumber": "NE1100",
+      "cost": 5.56,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA- INTERCEPTION CAP."
+    },
+    {
+      "itemCode": "99-NE201",
+      "garmentNumber": "NE201",
+      "cost": 7.59,
+      "supplier": "SAN MAR",
+      "description": "New Era Cap"
+    },
+    {
+      "itemCode": "99-lst695",
+      "garmentNumber": "LST695",
+      "cost": 7.56,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- LADIES POSI CHARGE POLO."
+    },
+    {
+      "itemCode": "99-NE1121",
+      "garmentNumber": "NE1121",
+      "cost": 8.14,
+      "supplier": "SAN MAR",
+      "description": "New Era Cap"
+    },
+    {
+      "itemCode": "99-NE905",
+      "garmentNumber": "NE905",
+      "cost": 8.68,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA SPECKLED BEANIE"
+    },
+    {
+      "itemCode": "99-LST530",
+      "garmentNumber": "LST530",
+      "cost": 8.44,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- LADIES POSICHARGE STRIVE POLO."
+    },
+    {
+      "itemCode": "99-ST530",
+      "garmentNumber": "ST530",
+      "cost": 8.44,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- POSICHARGE POLO."
+    },
+    {
+      "itemCode": "99-lst690",
+      "garmentNumber": "LST690",
+      "cost": 8.79,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- LADIES POSICHARGE ACTIVE POLO."
+    },
+    {
+      "itemCode": "99-PC78H",
+      "garmentNumber": "PC78H",
+      "cost": 8.92,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY- CORE FLEECE PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-K500",
+      "garmentNumber": "K500",
+      "cost": 10.04,
+      "supplier": "SAN MAR",
+      "description": "port authority silk touch polo"
+    },
+    {
+      "itemCode": "99-LST660",
+      "garmentNumber": "LST660",
+      "cost": 10.04,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- LADIES HEATHER CONTENDER POLO."
+    },
+    {
+      "itemCode": "99-ST660",
+      "garmentNumber": "ST660",
+      "cost": 10.04,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- HEATHER CONTENDER POLO."
+    },
+    {
+      "itemCode": "99-NEA200",
+      "garmentNumber": "NEA200",
+      "cost": 10.39,
+      "supplier": "SAN MAR",
+      "description": "New Era Performance Crew Tee"
+    },
+    {
+      "itemCode": "99-18200",
+      "garmentNumber": "18200",
+      "cost": 10.24,
+      "supplier": "SAN MAR",
+      "description": "GILDAN- HEAVY BLEND SWEATPANTS."
+    },
+    {
+      "itemCode": "99-CS200",
+      "garmentNumber": "CS200",
+      "cost": 10.41,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE-ANSI 107 CLASS 2 MESH TEE."
+    },
+    {
+      "itemCode": "99-st695",
+      "garmentNumber": "ST695",
+      "cost": 7.56,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- POSI CHARGE ACTIVE TEXTURED COLORBLOCK POLO."
+    },
+    {
+      "itemCode": "K540LS",
+      "garmentNumber": "K540LS",
+      "cost": 11.17,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- SILK TOUCH LONG SLEEVE POLO."
+    },
+    {
+      "itemCode": "99-PC78J",
+      "garmentNumber": "PC78J",
+      "cost": 10.34,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY-CORE FLEECE JOGGER."
+    },
+    {
+      "itemCode": "99-CS4020",
+      "garmentNumber": "CS4020",
+      "cost": 11.39,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- INDUSTRIAL SNAG PROOF PIQUE POLO."
+    },
+    {
+      "itemCode": "99-K398",
+      "garmentNumber": "K398",
+      "cost": 11.73,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTORITY- PERFRORMANCE STAFF POLO."
+    },
+    {
+      "itemCode": "99-K510",
+      "garmentNumber": "K510",
+      "cost": 10.86,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- STAIN RELEASE POLO."
+    },
+    {
+      "itemCode": "99-L569",
+      "garmentNumber": "L569",
+      "cost": 11.73,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY-WOMENS DIAMOND JACQUARD POLO."
+    },
+    {
+      "itemCode": "99-LK398",
+      "garmentNumber": "LK398",
+      "cost": 11.73,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- LADIES PERFORMANCE STAFF POLO."
+    },
+    {
+      "itemCode": "99-SP24",
+      "garmentNumber": "SP24",
+      "cost": 11.4,
+      "supplier": "SAN MAR",
+      "description": "RED KAP- SHORT SLEEVE INDUSTRIAL WORK SHIRT."
+    },
+    {
+      "itemCode": "99-ST406",
+      "garmentNumber": "ST406",
+      "cost": 12.28,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK tribland long sleeve hoodie"
+    },
+    {
+      "itemCode": "99-st467",
+      "garmentNumber": "ST467",
+      "cost": 12.28,
+      "supplier": "SAN MAR",
+      "description": "SPORT PEK- ENDEAVOR POLO."
+    },
+    {
+      "itemCode": "99-SF500",
+      "garmentNumber": "SF500",
+      "cost": 11.66,
+      "supplier": "SAN MAR",
+      "description": "GILDAN SOFTSTYLE HOODY"
+    },
+    {
+      "itemCode": "99-CS421",
+      "garmentNumber": "CS421",
+      "cost": 11.6,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- MICROPIQUE GRIPPER POLO."
+    },
+    {
+      "itemCode": "99-LK583",
+      "garmentNumber": "LK583",
+      "cost": 9.26,
+      "supplier": "SAN MAR",
+      "description": "Port Authority\u00a0\u00ae\u00a0Ladies Stretch Heather Open Neck Top"
+    },
+    {
+      "itemCode": "99-J343",
+      "garmentNumber": "J343",
+      "cost": 12.84,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- ZEPHYR 1/2 ZIP PULLOVER."
+    },
+    {
+      "itemCode": "99-ST630",
+      "garmentNumber": "ST630",
+      "cost": 12.84,
+      "supplier": "SAN MAR",
+      "description": "sporttek tough polo"
+    },
+    {
+      "itemCode": "99-ST650",
+      "garmentNumber": "ST650",
+      "cost": 12.48,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- MICROPIQUE SPORT WICK POLO."
+    },
+    {
+      "itemCode": "99-DT2100",
+      "garmentNumber": "DT2100",
+      "cost": 12.41,
+      "supplier": "SAN MAR",
+      "description": "Distric Women's Full Zip Hoodie"
+    },
+    {
+      "itemCode": "99-DT810",
+      "garmentNumber": "DT810",
+      "cost": 12.41,
+      "supplier": "SAN MAR",
+      "description": "District - THE CONCERT FLEECE HOODIE."
+    },
+    {
+      "itemCode": "99-TLCS418",
+      "garmentNumber": "TLCS418",
+      "cost": 14.4,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE-TALL SELECT LIGHTWEIGHT SNAG PROOF POLO."
+    },
+    {
+      "itemCode": "99-CT105298",
+      "garmentNumber": "CT105298",
+      "cost": 13.04,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT-CANVAS MESH BACK CAP."
+    },
+    {
+      "itemCode": "99-K580",
+      "garmentNumber": "K580",
+      "cost": 12.66,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- PINPOINT MESH POLO."
+    },
+    {
+      "itemCode": "99-LST680",
+      "garmentNumber": "LST680",
+      "cost": 13.67,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- LADIES POSICHARGE MICRO MESH POLO."
+    },
+    {
+      "itemCode": "99-K500LS",
+      "garmentNumber": "K500LS",
+      "cost": 13.96,
+      "supplier": "SAN MAR",
+      "description": "port authority silk touch long sleeve polo"
+    },
+    {
+      "itemCode": "99-l224",
+      "garmentNumber": "L224",
+      "cost": 13.96,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- LADIES MICROFLEECE ZIP PULLOVER."
+    },
+    {
+      "itemCode": "99-L500LS",
+      "garmentNumber": "L500LS",
+      "cost": 13.96,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY LADIES SILK TOUCH LONG SLEEVE POLO"
+    },
+    {
+      "itemCode": "99-SP14",
+      "garmentNumber": "SP14",
+      "cost": 13.58,
+      "supplier": "SAN MAR",
+      "description": "RED KAP- LONG SLEEVE INDUSTRIAL WORK SHIRT."
+    },
+    {
+      "itemCode": "99-TST650",
+      "garmentNumber": "TST650",
+      "cost": 14.58,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- TALL MICROPIQUE SPORT WICK POLO."
+    },
+    {
+      "itemCode": "99-LPC78ZH",
+      "garmentNumber": "LPC78ZH",
+      "cost": 13.04,
+      "supplier": "SAN MAR",
+      "description": "PORT AND COMPANY LADIES CORE FLEECE FULL ZIP HOODED."
+    },
+    {
+      "itemCode": "99-NEA137",
+      "garmentNumber": "NEA137",
+      "cost": 14.52,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA- TRI BLEND HOODIE."
+    },
+    {
+      "itemCode": "99-PC850ZH",
+      "garmentNumber": "PC850ZH",
+      "cost": 14.07,
+      "supplier": "SAN MAR",
+      "description": "PORT AND CO FAN FAVORITE FLEECE FULL ZIP HOODED SWEATSHIRT"
+    },
+    {
+      "itemCode": "99-T474",
+      "garmentNumber": "T474",
+      "cost": 15.08,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- DRI MESH PRO POLO."
+    },
+    {
+      "itemCode": "99-CS412",
+      "garmentNumber": "CS412",
+      "cost": 15.2,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- SELECT SNAG PROOF POLO."
+    },
+    {
+      "itemCode": "99-CS420",
+      "garmentNumber": "CS420",
+      "cost": 15.64,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- SELECT LIGHTWEIGHT SNAP PROOF TACTICAL POLO."
+    },
+    {
+      "itemCode": "99-NEA225",
+      "garmentNumber": "NEA225",
+      "cost": 15.64,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA- POWER POLO."
+    },
+    {
+      "itemCode": "99-ST671",
+      "garmentNumber": "ST671",
+      "cost": 15.64,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- OMBRE HEATHER POLO."
+    },
+    {
+      "itemCode": "99-PC90H",
+      "garmentNumber": "PC90H",
+      "cost": 11.94,
+      "supplier": "SAN MAR",
+      "description": "PORT COMPANY- ESSENTIAL FLEECE PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-12500",
+      "garmentNumber": "12500",
+      "cost": 13.56,
+      "supplier": "SAN MAR",
+      "description": "GILDAN- DRYBLEND PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-DT800",
+      "garmentNumber": "DT800",
+      "cost": 15.51,
+      "supplier": "SAN MAR",
+      "description": "DISTRICT THE CONCERT FLEECE- FULL ZIP HOODIE."
+    },
+    {
+      "itemCode": "99-MM1006",
+      "garmentNumber": "MM1006",
+      "cost": 16.75,
+      "supplier": "SAN MAR",
+      "description": "MERCER+ METTLE- STRECTH PIQUE FULL BUTTON POLO."
+    },
+    {
+      "itemCode": "99-PC146",
+      "garmentNumber": "PC146",
+      "cost": 16.03,
+      "supplier": "SAN MAR",
+      "description": "PORT & COMPANY -TIE DYE PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-NEA300",
+      "garmentNumber": "NEA300",
+      "cost": 15.76,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA- VENUE HOME PLATE POLO."
+    },
+    {
+      "itemCode": "99-k807",
+      "garmentNumber": "K807",
+      "cost": 17.87,
+      "supplier": "SAN MAR",
+      "description": "POR AUTHORITY- INTERLOCK ZIP."
+    },
+    {
+      "itemCode": "99-NEA301",
+      "garmentNumber": "NEA301",
+      "cost": 17.87,
+      "supplier": "SAN MAR",
+      "description": "NEW ERA- SLUB TWIST POLO."
+    },
+    {
+      "itemCode": "99-S459R",
+      "garmentNumber": "S459R",
+      "cost": 8.37,
+      "supplier": "SAN MAR",
+      "description": "RUSSELL OUTDOORS- REALTREE PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-OG147",
+      "garmentNumber": "OG147",
+      "cost": 18.45,
+      "supplier": "SAN MAR",
+      "description": "OGIO- EVOLUTION POLO."
+    },
+    {
+      "itemCode": "99-LOG101",
+      "garmentNumber": "LOG101",
+      "cost": 18.73,
+      "supplier": "SAN MAR",
+      "description": "OGIO JEWEL POLO"
+    },
+    {
+      "itemCode": "OG101",
+      "garmentNumber": "OG101",
+      "cost": 18.73,
+      "supplier": "SAN MAR",
+      "description": "OGIO- CALIBER2.0 POLO."
+    },
+    {
+      "itemCode": "99-NKBFN6319",
+      "garmentNumber": "NKBFN6319",
+      "cost": 17.39,
+      "supplier": "SAN MAR",
+      "description": "NIKE SWOOSH BUCKET HAT."
+    },
+    {
+      "itemCode": "99-CS410",
+      "garmentNumber": "CS410",
+      "cost": 18.46,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- SELECT SNAG PROOF TACTICAL POLO."
+    },
+    {
+      "itemCode": "99-CS411",
+      "garmentNumber": "CS411",
+      "cost": 18.46,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- LADIES SELECT SNAG PROOF TACTICAL POLO."
+    },
+    {
+      "itemCode": "99-DT1300",
+      "garmentNumber": "DT1300",
+      "cost": 17.58,
+      "supplier": "SAN MAR",
+      "description": "Distric Thread Tri Fleece Hoodie"
+    },
+    {
+      "itemCode": "99-st253",
+      "garmentNumber": "ST253",
+      "cost": 18.63,
+      "supplier": "SAN MAR",
+      "description": "Sport-Tek\u00ae\u00a01/4-Zip Sweatshirt"
+    },
+    {
+      "itemCode": "99-ST254",
+      "garmentNumber": "ST254",
+      "cost": 18.63,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- PULLOVER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-LST274",
+      "garmentNumber": "LST274",
+      "cost": 19.38,
+      "supplier": "SAN MAR",
+      "description": "Sport Tek- Ladies lightweight French Terry Bomber"
+    },
+    {
+      "itemCode": "99-TS658",
+      "garmentNumber": "TS658",
+      "cost": 19.55,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY-TALL SUPER PRO OXFORD SHIRT."
+    },
+    {
+      "itemCode": "99-OG150",
+      "garmentNumber": "OG150",
+      "cost": 18.62,
+      "supplier": "SAN MAR",
+      "description": "OGIO- COMMAND POLO."
+    },
+    {
+      "itemCode": "99-ST850",
+      "garmentNumber": "ST850",
+      "cost": 19.74,
+      "supplier": "SAN MAR",
+      "description": "SPORT TEK- STRETCH ZIP PULLOVER."
+    },
+    {
+      "itemCode": "99-OG143",
+      "garmentNumber": "OG143",
+      "cost": 20.68,
+      "supplier": "SAN MAR",
+      "description": "Ogio Slate Polo"
+    },
+    {
+      "itemCode": "99-1566",
+      "garmentNumber": "1566",
+      "cost": 19.79,
+      "supplier": "SAN MAR",
+      "description": "Comfort Colors Ring spun Crew sweat"
+    },
+    {
+      "itemCode": "99-J325",
+      "garmentNumber": "J325",
+      "cost": 20.24,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- CORE SOFT SHELL VEST."
+    },
+    {
+      "itemCode": "99-CT106656",
+      "garmentNumber": "CT106656",
+      "cost": 21.5,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT- FORCE LONG SLEEVE POCKET TSHIRT."
+    },
+    {
+      "itemCode": "99-LOG104",
+      "garmentNumber": "LOG104",
+      "cost": 22.36,
+      "supplier": "SAN MAR",
+      "description": "LADIES HEWEL HENLEY"
+    },
+    {
+      "itemCode": "99-LOG122",
+      "garmentNumber": "LOG122",
+      "cost": 22.36,
+      "supplier": "SAN MAR",
+      "description": "OGIO- LADIES GAUGE POLO."
+    },
+    {
+      "itemCode": "99-NKDC1963",
+      "garmentNumber": "NKDC1963",
+      "cost": 24.01,
+      "supplier": "SAN MAR",
+      "description": "NIKE- DRI FIT MICRO 2.0 POLO."
+    },
+    {
+      "itemCode": "99-ST259",
+      "garmentNumber": "ST259",
+      "cost": 24.13,
+      "supplier": "SAN MAR",
+      "description": "Sport-Tek\u00ae\u00a0Full-Zip Sweatshirt"
+    },
+    {
+      "itemCode": "99-LOG111",
+      "garmentNumber": "LOG111",
+      "cost": 23.29,
+      "supplier": "SAN MAR",
+      "description": "OGIO LADIES CRUSH HENLEY"
+    },
+    {
+      "itemCode": "99-OG109",
+      "garmentNumber": "OG109",
+      "cost": 25.15,
+      "supplier": "SAN MAR",
+      "description": "OGIO- HYBRID POLO."
+    },
+    {
+      "itemCode": "99-OG137",
+      "garmentNumber": "OG137",
+      "cost": 24.26,
+      "supplier": "SAN MAR",
+      "description": "OGIO- SURGE POLO."
+    },
+    {
+      "itemCode": "99-L132",
+      "garmentNumber": "L132",
+      "cost": 24.83,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- LADIES COZY FLEECE HOODIE."
+    },
+    {
+      "itemCode": "99-266998",
+      "garmentNumber": "266998",
+      "cost": 26.45,
+      "supplier": "SAN MAR",
+      "description": "NIKE-TECH SPORT DRI FIT POLO."
+    },
+    {
+      "itemCode": "99-637167",
+      "garmentNumber": "637167",
+      "cost": 24.84,
+      "supplier": "SAN MAR",
+      "description": "NIKE- DRI FIT VERTICAL MESH POLO."
+    },
+    {
+      "itemCode": "99-LNEA540",
+      "garmentNumber": "LNEA540",
+      "cost": 25.86,
+      "supplier": "SAN MAR",
+      "description": "New Era Ladies Full Zip Hoodie"
+    },
+    {
+      "itemCode": "99-108087",
+      "garmentNumber": "108087",
+      "cost": 28.84,
+      "supplier": "SAN MAR",
+      "description": "OGIO\u00ae\u00a0- Big Dome Duffel"
+    },
+    {
+      "itemCode": "99-267020",
+      "garmentNumber": "267020",
+      "cost": 28.66,
+      "supplier": "SAN MAR",
+      "description": "NIKE- DRI FIT CLASSIC POLO."
+    },
+    {
+      "itemCode": "99-NKBV6042",
+      "garmentNumber": "NKBV6042",
+      "cost": 28.79,
+      "supplier": "SAN MAR",
+      "description": "NIKE- DRI ESSENTIAL SOLID POLO."
+    },
+    {
+      "itemCode": "99-838965",
+      "garmentNumber": "838965",
+      "cost": 27.86,
+      "supplier": "SAN MAR",
+      "description": "Nike Dri-Fit Crosshatch Polo"
+    },
+    {
+      "itemCode": "99-NKAA1854",
+      "garmentNumber": "NKAA1854",
+      "cost": 28.06,
+      "supplier": "SAN MAR",
+      "description": "NIKE-DRI FIT PRIME POLO."
+    },
+    {
+      "itemCode": "99-83864",
+      "garmentNumber": "838964",
+      "cost": 30.02,
+      "supplier": "SAN MAR",
+      "description": "NIKE-DRI EMBOSSED TRI BLADE POLO."
+    },
+    {
+      "itemCode": "99-883681",
+      "garmentNumber": "883681",
+      "cost": 31.97,
+      "supplier": "SAN MAR",
+      "description": "NIKE- DRI FIT LEGACY POLO."
+    },
+    {
+      "itemCode": "99-411092",
+      "garmentNumber": "411092",
+      "cost": 33.53,
+      "supplier": "SAN MAR",
+      "description": "OGIO-LOGAN BACKPACK."
+    },
+    {
+      "itemCode": "99-CTK121",
+      "garmentNumber": "CTK121",
+      "cost": 35.75,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT- MIDWEIGHT HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-203690",
+      "garmentNumber": "203690",
+      "cost": 36.38,
+      "supplier": "SAN MAR",
+      "description": "NIKE- TECH BASIC DRI-FIT POLO."
+    },
+    {
+      "itemCode": "99-OG823",
+      "garmentNumber": "OG823",
+      "cost": 34.67,
+      "supplier": "SAN MAR",
+      "description": "OGIO-FLUX 1/4 ZIP."
+    },
+    {
+      "itemCode": "99-417041",
+      "garmentNumber": "417041",
+      "cost": 34.78,
+      "supplier": "SAN MAR",
+      "description": "OGIO\u00ae\u00a0Sly Messenger"
+    },
+    {
+      "itemCode": "99-NKAH6266",
+      "garmentNumber": "NKAH6266",
+      "cost": 36.23,
+      "supplier": "SAN MAR",
+      "description": "NIKE-DRY FIT HEX TEXTURED POLO."
+    },
+    {
+      "itemCode": "99-J706",
+      "garmentNumber": "J706",
+      "cost": 39.9,
+      "supplier": "SAN MAR",
+      "description": "Port Authority Textured Hooded Softshell Jacket."
+    },
+    {
+      "itemCode": "99-CTK288",
+      "garmentNumber": "CTK288",
+      "cost": 39.0,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT- MIDWEIGHT HOODED LOGO SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-CTTK121",
+      "garmentNumber": "CTTK121",
+      "cost": 39.0,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT- TALL MIDWEIGHT HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99-TM1MZ344",
+      "garmentNumber": "TM1MZ344",
+      "cost": 48.75,
+      "supplier": "SAN MAR",
+      "description": "TravisMathew Sunsetters Pocket Polo"
+    },
+    {
+      "itemCode": "99-NKDC2104",
+      "garmentNumber": "NKDC2104",
+      "cost": 28.38,
+      "supplier": "SAN MAR",
+      "description": "Nike Dri-FIT Micro Pique 2.0 Long Sleeve Polo"
+    },
+    {
+      "itemCode": "99-NKBV6044",
+      "garmentNumber": "NKBV6044",
+      "cost": 40.75,
+      "supplier": "SAN MAR",
+      "description": "NIKE-DRY 1/2 ZIP COVER UP."
+    },
+    {
+      "itemCode": "99-LOG823",
+      "garmentNumber": "LOG823",
+      "cost": 39.07,
+      "supplier": "SAN MAR",
+      "description": "OGIO-LADIES FLUX FULL-ZIP HOODIE."
+    },
+    {
+      "itemCode": "99-ST657",
+      "garmentNumber": "ST657",
+      "cost": 14.66,
+      "supplier": "SAN MAR",
+      "description": "Sport-Tek\u00ae\u00a0Long Sleeve Micropique Sport-Wick\u00aePolo"
+    },
+    {
+      "itemCode": "99-BB18000",
+      "garmentNumber": "BB18000",
+      "cost": 42.92,
+      "supplier": "SAN MAR",
+      "description": "Brooks Brothers Wrinkle Free Pinpoin Shirt"
+    },
+    {
+      "itemCode": "99-BB18002",
+      "garmentNumber": "BB18002",
+      "cost": 42.92,
+      "supplier": "SAN MAR",
+      "description": "Brooks Brothers Wrinkle Free Nailhead Shirt"
+    },
+    {
+      "itemCode": "99-NKAH6418",
+      "garmentNumber": "NKAH6418",
+      "cost": 39.96,
+      "supplier": "SAN MAR",
+      "description": "NIKE- THERMA FIT FULL ZIP FLEECE."
+    },
+    {
+      "itemCode": "99-411072",
+      "garmentNumber": "411072",
+      "cost": 43.6,
+      "supplier": "SAN MAR",
+      "description": "OGIO\u00ae\u00a0Rockwell Pack"
+    },
+    {
+      "itemCode": "99TM1MU410",
+      "garmentNumber": "TM1MU410",
+      "cost": 41.4,
+      "supplier": "SAN MAR",
+      "description": "TRAVISMATHEW-COTO PERFORMANCE POLO."
+    },
+    {
+      "itemCode": "99-J304",
+      "garmentNumber": "J304",
+      "cost": 46.94,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY- ALL SEASON JACKET."
+    },
+    {
+      "itemCode": "99-91007",
+      "garmentNumber": "91007",
+      "cost": 46.95,
+      "supplier": "SAN MAR",
+      "description": "OGIO\u00a0\u00ae\u00a0Range Pack"
+    },
+    {
+      "itemCode": "99-CT100615",
+      "garmentNumber": "CT100615",
+      "cost": 45.64,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT- RAIN DEFENDER HOODED SWEATSHIRT."
+    },
+    {
+      "itemCode": "99TM1MU411",
+      "garmentNumber": "TM1MU411",
+      "cost": 45.0,
+      "supplier": "SAN MAR",
+      "description": "TRAVISMATHEW- OCEANSIDE SOLID POLO."
+    },
+    {
+      "itemCode": "99-TM1MY400",
+      "garmentNumber": "TM1MY400",
+      "cost": 44.4,
+      "supplier": "SAN MAR",
+      "description": "TRAVIS MATHEW- COTO PERFORMANCE CHEST STRIPE POLO."
+    },
+    {
+      "itemCode": "99-CSJ40",
+      "garmentNumber": "CSJ40",
+      "cost": 48.05,
+      "supplier": "SAN MAR",
+      "description": "CORNERSTONE- WASHED DUCK WORK JACKET."
+    },
+    {
+      "itemCode": "99-400099",
+      "garmentNumber": "400099",
+      "cost": 47.82,
+      "supplier": "SAN MAR",
+      "description": "NIKE-SPORT COVER UP."
+    },
+    {
+      "itemCode": "99-TM1MY399",
+      "garmentNumber": "TM1MY399",
+      "cost": 48.0,
+      "supplier": "SAN MAR",
+      "description": "Travis Matthews Bayfront Solid Polo"
+    },
+    {
+      "itemCode": "99TM1MY404",
+      "garmentNumber": "TM1MY404",
+      "cost": 46.89,
+      "supplier": "SAN MAR",
+      "description": "TRAVISMATHEW- OCEANSIDE HEATHER POCKET POLO."
+    },
+    {
+      "itemCode": "99-578673",
+      "garmentNumber": "578673",
+      "cost": 49.16,
+      "supplier": "SAN MAR",
+      "description": "NIKE-DRI FIT 1/2 ZIP COVER UP."
+    },
+    {
+      "itemCode": "99-578674",
+      "garmentNumber": "578674",
+      "cost": 44.16,
+      "supplier": "SAN MAR",
+      "description": "NIKE-WOMENS DRI FIT 1/2 ZIP COVER UP."
+    },
+    {
+      "itemCode": "99-J302",
+      "garmentNumber": "J302",
+      "cost": 67.06,
+      "supplier": "SAN MAR",
+      "description": "PORT AUTHORITY-HERRINGBONE 3 IN 1 PARKA."
+    },
+    {
+      "itemCode": "99-CT106678",
+      "garmentNumber": "CT106678",
+      "cost": 70.64,
+      "supplier": "SAN MAR",
+      "description": "CARHARTT JACKET"
+    },
+    {
+      "itemCode": "99-TM1MZ340",
+      "garmentNumber": "TM1MZ340",
+      "cost": 75.0,
+      "supplier": "SAN MAR",
+      "description": "TRAVIS MATHEW-BALBOA CHEST STRIPE 1/4 ZIP."
+    },
+    {
+      "itemCode": "99-NF0AENN",
+      "garmentNumber": "NF0A8ENN",
+      "cost": 78.25,
+      "supplier": "SAN MAR",
+      "description": "THE NORTH FACE-EDGE STRETCH SOFT SHELL JACKET."
+    },
+    {
+      "itemCode": "99-TM1MZ338",
+      "garmentNumber": "TM1MZ338",
+      "cost": 78.0,
+      "supplier": "SAN MAR",
+      "description": "TRAVIS MATHEW-BALBOA HOODED FULL ZIP JACKET."
+    },
+    {
+      "itemCode": "99-413011",
+      "garmentNumber": "413011",
+      "cost": 141.74,
+      "supplier": "SAN MAR",
+      "description": "OGIO\u00ae Utilitarian Carry-On Spinner"
+    },
+    {
+      "itemCode": "99-PC099LS",
+      "garmentNumber": "PC099LS",
+      "cost": 8.06,
+      "supplier": "SANMAR",
+      "description": "PORT & CO-BEACH WASH GARMENT DYED LONG SLEEVE TEE."
+    },
+    {
+      "itemCode": "99-SY50",
+      "garmentNumber": "SY50",
+      "cost": 11.06,
+      "supplier": "SANMAR",
+      "description": "RED KAP-LONG SLEEVE SOLID SHIRT."
+    },
+    {
+      "itemCode": "99-OG170",
+      "garmentNumber": "OG170",
+      "cost": 18.66,
+      "supplier": "SANMAR",
+      "description": "OGIO-REGAIN POLO."
+    },
+    {
+      "itemCode": "99-LK881",
+      "garmentNumber": "LK881",
+      "cost": 21.93,
+      "supplier": "SANMAR",
+      "description": "PORT AUTHORITY-WOMENS C-FREE DOUBLE KNIT FULL ZIP."
+    },
+    {
+      "itemCode": "99-TM1MAA370",
+      "garmentNumber": "TM1MAA370",
+      "cost": 45.0,
+      "supplier": "SANMAR",
+      "description": "TRAVIS MATHEW-CABANA SOLID POLO."
+    },
+    {
+      "itemCode": "66-3000",
+      "garmentNumber": "3000",
+      "cost": 2.06,
+      "supplier": "SANMAR",
+      "description": "Gildan-Light cotton tee."
+    },
+    {
+      "itemCode": "99-bg200",
+      "garmentNumber": "bg200",
+      "cost": 19.94,
+      "supplier": "SANMAR",
+      "description": "Port Authority-cyber backpack."
+    },
+    {
+      "itemCode": "99-pc90zh",
+      "garmentNumber": "pc90zh",
+      "cost": 13.12,
+      "supplier": "SANMAR",
+      "description": "port & com-essential fleece full zip hooded."
+    },
+    {
+      "itemCode": "99-CS410LS",
+      "garmentNumber": "CS410LS",
+      "cost": 21.72,
+      "supplier": "SANMAR",
+      "description": "CornerStone\u00ae\u00a0Select Long Sleeve Snag-Proof Tactical Polo"
+    },
+    {
+      "itemCode": "99-CT104078",
+      "garmentNumber": "CT104078",
+      "cost": 53.25,
+      "supplier": "SANMAR",
+      "description": "Carhartt\u00ae\u00a0Midweight Thermal-Lined Full-Zip Sweatshirt"
+    },
+    {
+      "itemCode": "99-CT100617",
+      "garmentNumber": "CT100617",
+      "cost": 49.44,
+      "supplier": "SANMAR",
+      "description": "Carhartt\u00ae\u00a0Rain Defender\u00ae\u00a0Paxton Heavyweight Hooded Zip Mock Sweatshirt"
+    },
+    {
+      "itemCode": "99-ct100614",
+      "garmentNumber": "ct100614",
+      "cost": 49.44,
+      "supplier": "SANMAR",
+      "description": "Carhartt\u00ae\u00a0Rain Defender\u00ae\u00a0Paxton Heavyweight Hooded Zip-Front Sweatshirt"
+    },
+    {
+      "itemCode": "99-CS412LS",
+      "garmentNumber": "CS412LS",
+      "cost": 18.46,
+      "supplier": "SANMAR",
+      "description": "CornerStone\u00ae\u00a0Select Snag-Proof Long Sleeve Polo"
+    },
+    {
+      "itemCode": "99-DT106",
+      "garmentNumber": "DT106",
+      "cost": 4.99,
+      "supplier": "SANMAR",
+      "description": "District\u00ae\u00a0Perfect Weight\u00ae\u00a0Icon Tee"
+    },
+    {
+      "itemCode": "99-l455",
+      "garmentNumber": "l455",
+      "cost": 14.48,
+      "supplier": "SANMAR",
+      "description": "Port Authority\u00ae\u00a0Women's Rapid Dry\u2122 Polo"
+    },
+    {
+      "itemCode": "99-I475",
+      "garmentNumber": "l475",
+      "cost": 11.39,
+      "supplier": "SANMAR",
+      "description": "Sport-Tek\u00ae\u00a0Women's Dry Zone\u00ae\u00a0Raglan Accent Polo"
+    },
+    {
+      "itemCode": "99-R102",
+      "garmentNumber": "r102",
+      "cost": 23.09,
+      "supplier": "SANMAR",
+      "description": "port authority microfllece robe"
+    },
+    {
+      "itemCode": "99-746099",
+      "garmentNumber": "746099",
+      "cost": 26.91,
+      "supplier": "SANMAR",
+      "description": "NIKE DRI FIT-SOLID ICON MODERN FIT POLO."
+    },
+    {
+      "itemCode": "99-CS410",
+      "garmentNumber": "CS410",
+      "cost": 18.46,
+      "supplier": "SANMAR",
+      "description": "CORNERSTONE-SELECT SNAG PROOF TACTICAL POLO."
+    },
+    {
+      "itemCode": "99F217",
+      "garmentNumber": "F217",
+      "cost": 17.05,
+      "supplier": "SANMAR",
+      "description": "PORT AUTHORITY-VALUE FLEECE JACKET."
+    },
+    {
+      "itemCode": "90-NKFQ4794",
+      "garmentNumber": "NKFQ4794",
+      "cost": 38.36,
+      "supplier": "SANMAR",
+      "description": "NIKE DRI FIT-SMOOTH HEATHER POLO."
+    },
+    {
+      "itemCode": "99-TM1MY402",
+      "garmentNumber": "TM1MY402",
+      "cost": 51.0,
+      "supplier": "SANMAR",
+      "description": "TRAVIS MATHEW STRIPE POLO."
+    },
+    {
+      "itemCode": "99-TM1MU410",
+      "garmentNumber": "TM1MU410",
+      "cost": 41.4,
+      "supplier": "SANMAR",
+      "description": "TravisMathew Coto Performance Polo"
+    },
+    {
+      "itemCode": "99-TM1MY397",
+      "garmentNumber": "TM1MY397",
+      "cost": 50.4,
+      "supplier": "SANMAR",
+      "description": "TravisMathew Coto Performance 1/4-Zip"
+    },
+    {
+      "itemCode": "99-TM1WX001",
+      "garmentNumber": "TM1WX001",
+      "cost": 41.4,
+      "supplier": "SANMAR",
+      "description": "TravisMathew Women's Coto Performance Sleeveless Polo"
+    },
+    {
+      "itemCode": "99-TM1LF071",
+      "garmentNumber": "TM1LF071",
+      "cost": 49.5,
+      "supplier": "SANMAR",
+      "description": "TravisMathew Women\u2019s Glenview Solid Polo"
+    },
+    {
+      "itemCode": "99-TM1MZ335",
+      "garmentNumber": "TM1MZ335",
+      "cost": 19.0,
+      "supplier": "SANMAR",
+      "description": "TravisMathew Front Icon Cap"
+    },
+    {
+      "itemCode": "99-92002",
+      "garmentNumber": "92002",
+      "cost": 19.87,
+      "supplier": "SANMAR",
+      "description": "OGIO-CROSSBODY."
+    },
+    {
+      "itemCode": "99-412046",
+      "garmentNumber": "412046",
+      "cost": 14.42,
+      "supplier": "SANMAR",
+      "description": "OGIO\u00ae\u00a0Sonic Sling Pack"
+    },
+    {
+      "itemCode": "99-97002",
+      "garmentNumber": "97002",
+      "cost": 17.11,
+      "supplier": "SANMAR",
+      "description": "OGIO\u00ae\u00a0Resistant Crossbody"
+    },
+    {
+      "itemCode": "99-OG601",
+      "garmentNumber": "OG601",
+      "cost": 7.83,
+      "supplier": "SANMAR",
+      "description": "OGIO\u00ae\u00a0Flux Cap"
+    },
+    {
+      "itemCode": "99-F239",
+      "garmentNumber": "F239",
+      "cost": 26.38,
+      "supplier": "SANMAR",
+      "description": "Port Authority\u00ae\u00a0Grid Fleece Jacket"
+    },
+    {
+      "itemCode": "90-ST430",
+      "garmentNumber": "ST430",
+      "cost": 5.68,
+      "supplier": "SANMAR",
+      "description": "Sport-Tek\u00ae\u00a0PosiCharge\u00ae\u00a0Strive Tee"
+    },
+    {
+      "itemCode": "90-L540LS",
+      "garmentNumber": "L540LS",
+      "cost": 11.17,
+      "supplier": "SANMAR",
+      "description": "Port Authority\u00ae\u00a0Women's Silk Touch\u2122\u00a0Performance Long Sleeve Polo"
+    },
+    {
+      "itemCode": "99-RU400",
+      "garmentNumber": "RU400",
+      "cost": 26.82,
+      "supplier": "SANMAR",
+      "description": "Russell Outdoors\u2122\u00a0Realtree\u00ae\u00a0Pullover Hoodie"
+    },
+    {
+      "itemCode": "99-DM139",
+      "garmentNumber": "DM139",
+      "cost": 7.23,
+      "supplier": "SANMAR",
+      "description": "District\u00ae\u00a0Perfect Tri\u00ae\u00a0Long Sleeve Hoodie"
+    },
+    {
+      "itemCode": "99-OG141",
+      "garmentNumber": "OG141",
+      "cost": 21.22,
+      "supplier": "SANMAR",
+      "description": "OGIO\u00ae\u00a0Gravitate Full-Button Polo"
+    },
+    {
+      "itemCode": "90-880",
+      "garmentNumber": "880",
+      "cost": 3.56,
+      "supplier": "SANMAR",
+      "description": "Gildan\u00ae\u00a0Women's 100% Ring Spun Cotton T-Shirt"
+    },
+    {
+      "itemCode": "99-ST350LS",
+      "garmentNumber": "ST350LS",
+      "cost": 5.16,
+      "supplier": "SANMAR",
+      "description": "Sport-Tek\u00ae\u00a0Long Sleeve PosiCharge\u00ae\u00a0Competitor\u2122 Tee"
+    },
+    {
+      "itemCode": "99-st251",
+      "garmentNumber": "ST251",
+      "cost": 20.11,
+      "supplier": "SANMAR",
+      "description": "Sport-Tek\u00ae\u00a0Sport-Wick\u00ae\u00a0Fleece Short Sleeve Hooded Pullover"
+    },
+    {
+      "itemCode": "99-k540",
+      "garmentNumber": "k540",
+      "cost": 8.93,
+      "supplier": "SANMAR",
+      "description": "Port Authority\u00ae\u00a0Silk Touch\u2122 Performance Polo"
+    },
+    {
+      "itemCode": "99-I500",
+      "garmentNumber": "l500",
+      "cost": 10.04,
+      "supplier": "SANMAR",
+      "description": "Port Authority\u00ae\u00a0Women's Silk Touch\u2122 Polo"
+    },
+    {
+      "itemCode": "99-CSJ42",
+      "garmentNumber": "CSJ42",
+      "cost": 42.11,
+      "supplier": "SANMAR",
+      "description": "CORNERSTONE- DUCK FLEECE FULL ZIP HOODED JACKET."
+    },
+    {
+      "itemCode": "99-CT106171",
+      "garmentNumber": "CT106171",
+      "cost": 19.78,
+      "supplier": "SANMAR",
+      "description": "CARHARTT-ANSI CLASS 2 MESH ZIP FRONT VEST."
+    },
+    {
+      "itemCode": "99-CSV104",
+      "garmentNumber": "CSV104",
+      "cost": 10.08,
+      "supplier": "SANMAR",
+      "description": "CORNERSTONE-ANSI 107 CLASS 2 MESH SIX POCKET ZIPPERED VEST."
+    },
+    {
+      "itemCode": "99-CSV106",
+      "garmentNumber": "CSV106",
+      "cost": 15.9,
+      "supplier": "SANMAR",
+      "description": "CORNERSTONE-ANSI 107 CLASS 3 SURVEYOR MESH ZIPPERED TWO TONE SHORT SLEEVE VEST."
+    },
+    {
+      "itemCode": "99-CSV105",
+      "garmentNumber": "CSV105",
+      "cost": 12.5,
+      "supplier": "SANMAR",
+      "description": "CORNERSTONE-ANSI 107 CLASS 2 SURVEYOR TWO TONE VEST."
+    },
+    {
+      "itemCode": "99-PC450",
+      "garmentNumber": "PC450",
+      "cost": 2.47,
+      "supplier": "SANMAR",
+      "description": "PORT & CO-FAN FAVORITE TEE."
+    },
+    {
+      "itemCode": "99-VL45",
+      "garmentNumber": "VL45",
+      "cost": 7.49,
+      "supplier": "SANMAR",
+      "description": "VOLUNTEER KNITWEAR-DAILY TEE."
+    },
+    {
+      "itemCode": "99-DM1350L",
+      "garmentNumber": "DM1350L",
+      "cost": 4.08,
+      "supplier": "SANMAR",
+      "description": "DISTRICT-WOMENS PERFECT TRI VNECK TEE."
+    },
+    {
+      "itemCode": "99-ST490",
+      "garmentNumber": "ST490",
+      "cost": 11.17,
+      "supplier": "SANMAR",
+      "description": "SPORT TEK-VERSA POLO."
+    },
+    {
+      "itemCode": "99-LST490",
+      "garmentNumber": "LST490",
+      "cost": 11.17,
+      "supplier": "SANMAR",
+      "description": "SPORT TEK -WOMENS VERSA POLO."
+    },
+    {
+      "itemCode": "99-A525",
+      "garmentNumber": "A525",
+      "cost": 3.96,
+      "supplier": "SANMAR",
+      "description": "PORT AUTHORITY-MEDIUM LENGTH APRON."
+    },
+    {
+      "itemCode": "99-ST6108",
+      "garmentNumber": "DT6108",
+      "cost": 10.34,
+      "supplier": "SANMAR",
+      "description": "DOSTRICT-VIT FLEECE SHORT."
+    },
+    {
+      "itemCode": "99-3006",
+      "garmentNumber": "3006",
+      "cost": 3.46,
+      "supplier": "SANMAR",
+      "description": "BELLA CANVAS-MENS LONG BODY URBAN TEE."
+    },
+    {
+      "itemCode": "10-CRAFTER",
+      "garmentNumber": "CRAFTER",
+      "cost": 4.93,
+      "supplier": "STANLEY/STELLA",
+      "description": "UNISEX TSHIRT."
+    },
+    {
+      "itemCode": "10-CREATOR",
+      "garmentNumber": "CREATOR",
+      "cost": 6.25,
+      "supplier": "STANLEY/STELLA",
+      "description": "THE ICONIC UNISEX MIDWEIGHT TSHIRT."
+    },
+    {
+      "itemCode": "10-FREESTYLER",
+      "garmentNumber": "FREESTYLER",
+      "cost": 9.58,
+      "supplier": "STANLEY/STELLA",
+      "description": "THE UNISEX DRY HANDFEEL TSHIRT."
+    },
+    {
+      "itemCode": "10-DRUMMER",
+      "garmentNumber": "DRUMMER",
+      "cost": 18.6,
+      "supplier": "STANLEY/STELLA",
+      "description": "THE UNISEX MIDWEIGHT HOODIE."
+    },
+    {
+      "itemCode": "10-CRUISER",
+      "garmentNumber": "CRUISER",
+      "cost": 25.21,
+      "supplier": "STANLEY/STELLA",
+      "description": "The Iconic unisex heavyweight hoodie"
+    },
+    {
+      "itemCode": "10-ROLLER",
+      "garmentNumber": "ROLLER",
+      "cost": 14.46,
+      "supplier": "STANLEY/STELLA",
+      "description": "The unisex midweight sweatshirt"
+    },
+    {
+      "itemCode": "10-CHANGER",
+      "garmentNumber": "CHANGER",
+      "cost": 18.42,
+      "supplier": "STANLEY/STELLA",
+      "description": "The Iconic unisex heavyweight sweatshirt"
+    },
+    {
+      "itemCode": "10-STELLA MUSER",
+      "garmentNumber": "STELLA MUSER",
+      "cost": 5.95,
+      "supplier": "STANLEY/STELLA",
+      "description": "The midweight women's t-shirt"
+    },
+    {
+      "itemCode": "10-STELLA NOVA",
+      "garmentNumber": "STELLA NOVA",
+      "cost": 6.34,
+      "supplier": "STANLEY/STELLA",
+      "description": "The women\u2019s boxy t-shirt"
+    },
+    {
+      "itemCode": "10-STELLA IDA",
+      "garmentNumber": "STELLA IDA",
+      "cost": 24.99,
+      "supplier": "STANLEY/STELLA",
+      "description": "The Iconic women\u2019s zip-thru hoodie"
+    },
+    {
+      "itemCode": "10-STELLA ALMA",
+      "garmentNumber": "STELLA ALMA",
+      "cost": 16.52,
+      "supplier": "STANLEY/STELLA",
+      "description": "The Iconic women\u2019s sweatshirt"
+    },
+    {
+      "itemCode": "",
+      "garmentNumber": "stella ida",
+      "cost": 24.99,
+      "supplier": "STANLEY/STELLA",
+      "description": "WOMENS MEDIUM FIT ZIP HOODIE."
+    },
+    {
+      "itemCode": "33-Y300",
+      "garmentNumber": "Y300",
+      "cost": 6.25,
+      "supplier": "THREE LAYER",
+      "description": "Three Layer - Youth Pullover Hoody. 8.8 oz 2XL add $0.70"
+    },
+    {
+      "itemCode": "33-CR280",
+      "garmentNumber": "CR280",
+      "cost": 6.5,
+      "supplier": "THREE LAYER",
+      "description": "Crewneck Sweatshirt"
+    },
+    {
+      "itemCode": "33-5108",
+      "garmentNumber": "5108",
+      "cost": 6.75,
+      "supplier": "THREE LAYER",
+      "description": "PREMIUM PULLOVER HOODIES"
+    },
+    {
+      "itemCode": "33-8801",
+      "garmentNumber": "8801",
+      "cost": 6.75,
+      "supplier": "THREE LAYER",
+      "description": "FLEECE JOGGER PANTS"
+    },
+    {
+      "itemCode": "33-P280",
+      "garmentNumber": "P280",
+      "cost": 7.75,
+      "supplier": "THREE LAYER",
+      "description": "MIDWEIGHT PULLOVER HOODIE."
+    },
+    {
+      "itemCode": "33-5109",
+      "garmentNumber": "5109",
+      "cost": 8.0,
+      "supplier": "THREE LAYER",
+      "description": "Zipper hoody"
+    },
+    {
+      "itemCode": "33-UFL-7167",
+      "garmentNumber": "UFL-7167",
+      "cost": 7.35,
+      "supplier": "US APPAREL",
+      "description": "BAGGY FLEECE PANTS."
+    },
+    {
+      "itemCode": "33-UFL-2136",
+      "garmentNumber": "UFL-2136",
+      "cost": 8.65,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE CREW."
+    },
+    {
+      "itemCode": "33-YFL-7190",
+      "garmentNumber": "YFL-7190",
+      "cost": 10.8,
+      "supplier": "US APPAREL",
+      "description": "THE JOGGER PANTS."
+    },
+    {
+      "itemCode": "51-GJY-5144",
+      "garmentNumber": "GJY-5144",
+      "cost": 2.7,
+      "supplier": "US APPAREL",
+      "description": "KNOTTED BACK TANK."
+    },
+    {
+      "itemCode": "51-MMS-200",
+      "garmentNumber": "MMS-200",
+      "cost": 3.75,
+      "supplier": "US APPAREL",
+      "description": "Garment Dyed Muscle Tee"
+    },
+    {
+      "itemCode": "51-FTS1000",
+      "garmentNumber": "FTS-1000",
+      "cost": 4.2,
+      "supplier": "US APPAREL",
+      "description": "SHORTS"
+    },
+    {
+      "itemCode": "51-MMS-500",
+      "garmentNumber": "MMS-500",
+      "cost": 4.25,
+      "supplier": "US APPAREL",
+      "description": "DAYTONA MUSCLE TEE."
+    },
+    {
+      "itemCode": "51-MTT-5093",
+      "garmentNumber": "MTT-5093",
+      "cost": 3.95,
+      "supplier": "US APPAREL",
+      "description": "OMBRE TANK."
+    },
+    {
+      "itemCode": "51-YJY-4145",
+      "garmentNumber": "YJY-4145",
+      "cost": 3.5,
+      "supplier": "US APPAREL",
+      "description": "THE CUTEE SHIRT."
+    },
+    {
+      "itemCode": "51-BLT-1001",
+      "garmentNumber": "BLT1001",
+      "cost": 4.35,
+      "supplier": "US APPAREL",
+      "description": "CONTRAST BINDING TANK."
+    },
+    {
+      "itemCode": "51-YJY-5081",
+      "garmentNumber": "YJY-5081",
+      "cost": 5.3,
+      "supplier": "US APPAREL",
+      "description": "KNOTTED BACK TANK."
+    },
+    {
+      "itemCode": "51-YJY-5082",
+      "garmentNumber": "YJY-5082",
+      "cost": 5.3,
+      "supplier": "US APPAREL",
+      "description": "STRAPPY TANK."
+    },
+    {
+      "itemCode": "51-UJY-4131",
+      "garmentNumber": "UJY-4131",
+      "cost": 5.4,
+      "supplier": "US APPAREL",
+      "description": "GARMENT DYED TEE."
+    },
+    {
+      "itemCode": "51-RGB-1021",
+      "garmentNumber": "RGB-1021",
+      "cost": 5.5,
+      "supplier": "US APPAREL",
+      "description": "SURFER LONG SLEEVE SHIRTS KIDS."
+    },
+    {
+      "itemCode": "51-UFL-6158",
+      "garmentNumber": "UFL-6158",
+      "cost": 5.5,
+      "supplier": "US APPAREL",
+      "description": "BAGGY FLLEECE SHORTS."
+    },
+    {
+      "itemCode": "51-UFL-6166",
+      "garmentNumber": "UFL-6166",
+      "cost": 5.5,
+      "supplier": "US APPAREL",
+      "description": "Baggy Fleece Shorts"
+    },
+    {
+      "itemCode": "51-MJY-4047",
+      "garmentNumber": "MJY-4047",
+      "cost": 5.95,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE CREW NECK TEE."
+    },
+    {
+      "itemCode": "51-YRY-1130",
+      "garmentNumber": "YRY-1130",
+      "cost": 6.35,
+      "supplier": "US APPAREL",
+      "description": "Hoodie Coverup"
+    },
+    {
+      "itemCode": "51-LBS-158",
+      "garmentNumber": "LBS-158",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "LA PLAYA SHORTS"
+    },
+    {
+      "itemCode": "51-LBS-172",
+      "garmentNumber": "LBS-172",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "BOARDWALK SHORTS."
+    },
+    {
+      "itemCode": "51-LBS-179",
+      "garmentNumber": "LBS-179",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "TYE DYE SHORTS."
+    },
+    {
+      "itemCode": "51-MN-009",
+      "garmentNumber": "MN-009",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "ISLANDER SWIMMING SHORTS."
+    },
+    {
+      "itemCode": "51-MN-217",
+      "garmentNumber": "MN-217",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "HORIZON SWIMMING SHORTS."
+    },
+    {
+      "itemCode": "51-MN-258",
+      "garmentNumber": "MN-258",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "PALM BEACH SWIMMING SHORTS."
+    },
+    {
+      "itemCode": "51-UJY-4157",
+      "garmentNumber": "UJY-4157",
+      "cost": 6.5,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE CREW. 60/40% cotton/poly fleece"
+    },
+    {
+      "itemCode": "51-UFL-2160",
+      "garmentNumber": "UFL-2160",
+      "cost": 7.3,
+      "supplier": "US APPAREL",
+      "description": "FLEECE CREW SWEATSHIRT."
+    },
+    {
+      "itemCode": "51-UFL-7167",
+      "garmentNumber": "UFL-7167",
+      "cost": 7.35,
+      "supplier": "US APPAREL",
+      "description": "UNISEX SWEAT PANT"
+    },
+    {
+      "itemCode": "51-RGL-1019",
+      "garmentNumber": "RGL-1019",
+      "cost": 6.9,
+      "supplier": "US APPAREL",
+      "description": "SURFER LONG SLEEVES."
+    },
+    {
+      "itemCode": "51-RGM-1014",
+      "garmentNumber": "RGM-1014",
+      "cost": 6.9,
+      "supplier": "US APPAREL",
+      "description": "WAVE RIDER SWIMMING SHIRT."
+    },
+    {
+      "itemCode": "51-KFL-1146",
+      "garmentNumber": "KFL-1146",
+      "cost": 7.0,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE HOODIE"
+    },
+    {
+      "itemCode": "51-MSE-254",
+      "garmentNumber": "MSE-254",
+      "cost": 7.0,
+      "supplier": "US APPAREL",
+      "description": "OASIS SWIMMING SHORTS"
+    },
+    {
+      "itemCode": "51-UJY-4251",
+      "garmentNumber": "UJY-4251",
+      "cost": 7.0,
+      "supplier": "US APPAREL",
+      "description": "LONG SLEEVE RAGLAN CREW."
+    },
+    {
+      "itemCode": "51-UFL-7159",
+      "garmentNumber": "UFL-7159",
+      "cost": 7.2,
+      "supplier": "US APPAREL",
+      "description": "BAGGY FLEECE PANTS."
+    },
+    {
+      "itemCode": "51-YFL-1147",
+      "garmentNumber": "YFL-1147",
+      "cost": 7.3,
+      "supplier": "US APPAREL",
+      "description": "SNUGGY FLEECE HOODIE."
+    },
+    {
+      "itemCode": "51-YJY-1165",
+      "garmentNumber": "YJY-1165",
+      "cost": 7.9,
+      "supplier": "US APPAREL",
+      "description": "DRAWSTRING  WAIST HOODIE TEE."
+    },
+    {
+      "itemCode": "51-UFL-1046",
+      "garmentNumber": "UFL-1046",
+      "cost": 8.6,
+      "supplier": "US APPAREL",
+      "description": "2-TONE PULLOVER HOODIE. 60/40% cotton/poly fleece"
+    },
+    {
+      "itemCode": "51-RGM-1017",
+      "garmentNumber": "RGM-1017",
+      "cost": 8.0,
+      "supplier": "US APPAREL",
+      "description": "SURFER LONG SLEEVE SHIRT."
+    },
+    {
+      "itemCode": "51-YFL-2171",
+      "garmentNumber": "YFL-2171",
+      "cost": 8.6,
+      "supplier": "US APPAREL",
+      "description": "GARMENT DYED FLEECE CREW."
+    },
+    {
+      "itemCode": "51-UFL-1041",
+      "garmentNumber": "UFL-1041",
+      "cost": 8.45,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE HOODIE. 60/40% cotton/poly fleece"
+    },
+    {
+      "itemCode": "UFL-2136",
+      "garmentNumber": "UFL-2136",
+      "cost": 8.65,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE CREW."
+    },
+    {
+      "itemCode": "51-UFR-1080",
+      "garmentNumber": "UFR-1080",
+      "cost": 9.15,
+      "supplier": "US APPAREL",
+      "description": "REVERSE FRENCH TERRY HOODIE."
+    },
+    {
+      "itemCode": "51-MSE-229",
+      "garmentNumber": "MSE-229",
+      "cost": 8.75,
+      "supplier": "US APPAREL",
+      "description": "SONAR SWIMMING SHORTS."
+    },
+    {
+      "itemCode": "51-BLH1034",
+      "garmentNumber": "BLH1034",
+      "cost": 8.85,
+      "supplier": "US APPAREL",
+      "description": "PRINCESS SEAM HOODIE TEE."
+    },
+    {
+      "itemCode": "51-CF-2000",
+      "garmentNumber": "CF-2000",
+      "cost": 9.6,
+      "supplier": "US APPAREL",
+      "description": "FULL ZIP HOODIE."
+    },
+    {
+      "itemCode": "51-UFL-2190",
+      "garmentNumber": "UFL-2190",
+      "cost": 9.65,
+      "supplier": "US APPAREL",
+      "description": "GARNENY DYE FLEECE CREW"
+    },
+    {
+      "itemCode": "51-YFL-2188",
+      "garmentNumber": "YFL-2188",
+      "cost": 9.35,
+      "supplier": "US APPAREL",
+      "description": "Drawstring Waist Crew"
+    },
+    {
+      "itemCode": "51-YFL-7190",
+      "garmentNumber": "YFL-7190",
+      "cost": 10.8,
+      "supplier": "US APPAREL",
+      "description": "JOGGER"
+    },
+    {
+      "itemCode": "51-YFL-1170",
+      "garmentNumber": "YFL-1170",
+      "cost": 9.5,
+      "supplier": "US APPAREL",
+      "description": "GARMENT DYED FLEECE HOODIE."
+    },
+    {
+      "itemCode": "51-BCH100",
+      "garmentNumber": "BCH100",
+      "cost": 9.7,
+      "supplier": "US APPAREL",
+      "description": ""
+    },
+    {
+      "itemCode": "51-MJP-1036",
+      "garmentNumber": "MJP-1036",
+      "cost": 9.75,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE JERSEY HOODIE."
+    },
+    {
+      "itemCode": "51-YFL-2134",
+      "garmentNumber": "YFL-2134",
+      "cost": 9.75,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE SCOOPY CREW."
+    },
+    {
+      "itemCode": "51-UFL-1189",
+      "garmentNumber": "UFL-1189",
+      "cost": 10.75,
+      "supplier": "US APPAREL",
+      "description": "GARMENT DYED FLEECE HOODIE."
+    },
+    {
+      "itemCode": "51-VCP-100",
+      "garmentNumber": "VCP-100",
+      "cost": 11.0,
+      "supplier": "US APPAREL",
+      "description": "FLEECE PANTS."
+    },
+    {
+      "itemCode": "51-YFR-1049",
+      "garmentNumber": "YFR-1049",
+      "cost": 11.95,
+      "supplier": "US APPAREL",
+      "description": "TUNIC HOODIE."
+    },
+    {
+      "itemCode": "51-UFL-2102",
+      "garmentNumber": "UFL-2102",
+      "cost": 11.9,
+      "supplier": "US APPAREL",
+      "description": "PULLOVER HOODIE. 80/20% cotton/poly fleece"
+    },
+    {
+      "itemCode": "51-YFL-1140",
+      "garmentNumber": "YFL-1140",
+      "cost": 12.5,
+      "supplier": "US APPAREL",
+      "description": "GARMENT DYED LONG SLEEVETEE"
+    },
+    {
+      "itemCode": "51-YFL-1113",
+      "garmentNumber": "YFL-1113",
+      "cost": 12.55,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLEECE TUNIC HOODIE."
+    },
+    {
+      "itemCode": "51-MFL-1044",
+      "garmentNumber": "MFL-1044",
+      "cost": 13.5,
+      "supplier": "US APPAREL",
+      "description": "VINTAGE FLLECE HOODIE."
+    },
+    {
+      "itemCode": "51-UJY1285",
+      "garmentNumber": "UJY-1285",
+      "cost": 8.3,
+      "supplier": "US APPAREL",
+      "description": "Unisex Long Sleeve Hoodie Tee"
+    },
+    {
+      "itemCode": "51-UFL3286",
+      "garmentNumber": "UFL-3286",
+      "cost": 11.85,
+      "supplier": "US APPAREL",
+      "description": "Unisex Full Zip Fleece Mock Neck"
+    },
+    {
+      "itemCode": "",
+      "garmentNumber": "WESTSIDE",
+      "cost": 3.75,
+      "supplier": "WESTSIDE",
+      "description": ""
+    },
+    {
+      "itemCode": "72-ZS1001",
+      "garmentNumber": "ZS1001",
+      "cost": 2.51,
+      "supplier": "ZUNI",
+      "description": "PREMIUM SHORT SLEEVE CREW NECK TEE."
+    },
+    {
+      "itemCode": "72-ZS1002",
+      "garmentNumber": "ZS1002",
+      "cost": 2.51,
+      "supplier": "ZUNI",
+      "description": "Premium Short Sleeve Crew Neck Tee  100% ring-spun combed cotton"
+    },
+    {
+      "itemCode": "72-ZS2103",
+      "garmentNumber": "ZS2103",
+      "cost": 1.54,
+      "supplier": "ZUNI",
+      "description": "WOMENS LONG SLEEVE CROP TEE."
+    },
+    {
+      "itemCode": "72-ZS1601",
+      "garmentNumber": "ZS1601",
+      "cost": 4.36,
+      "supplier": "ZUNI",
+      "description": "Vintage Mineral Washed T-Shirt. 100% cotton"
+    },
+    {
+      "itemCode": "72-ZS4010",
+      "garmentNumber": "ZS4010",
+      "cost": 6.41,
+      "supplier": "ZUNI",
+      "description": "OVERSIZED SHORT SLEEVE TEE."
+    },
+    {
+      "itemCode": "72-ZS9003",
+      "garmentNumber": "ZS9003",
+      "cost": 7.69,
+      "supplier": "ZUNI",
+      "description": "zuni crew neck sweatshirt"
+    },
+    {
+      "itemCode": "72-ZS5001",
+      "garmentNumber": "ZS5001",
+      "cost": 7.69,
+      "supplier": "ZUNI",
+      "description": "ZUNI HOODIE"
+    },
+    {
+      "itemCode": "72-ZS9006",
+      "garmentNumber": "ZS9006",
+      "cost": 8.46,
+      "supplier": "ZUNI",
+      "description": "ZUNI PREMIUM JOGGER"
+    },
+    {
+      "itemCode": "72-ZS9001",
+      "garmentNumber": "ZS9001",
+      "cost": 8.66,
+      "supplier": "ZUNI",
+      "description": "ZUNI PREMIUM HOODIE"
+    },
+    {
+      "itemCode": "70-ZS4060",
+      "garmentNumber": "ZS4060",
+      "cost": 13.27,
+      "supplier": "ZUNI",
+      "description": "ZUNI JOGGER HEAVY WEIGHT PANT"
+    },
+    {
+      "itemCode": "",
+      "garmentNumber": "lp101",
+      "cost": 5.9,
+      "supplier": "S&S",
+      "description": "Optimum Pigment-Dyed Dad Hat"
+    },
+    {
+      "itemCode": "",
+      "garmentNumber": "5020",
+      "cost": 8.25,
+      "supplier": "AS Colour",
+      "description": ""
+    },
+    {
+      "itemCode": "",
+      "garmentNumber": "9001",
+      "cost": 13.99,
+      "supplier": "S&S",
+      "description": "NEXT LEVEL CREW SWEAT"
+    }
+  ],
+  "silkscreen": {
+    "qtyBreaks": [
+      48,
+      72,
+      96,
+      144,
+      288,
+      432,
+      576,
+      1008,
+      1440
+    ],
+    "multipliers": [
+      {
+        "level": "A",
+        "costMin": 0,
+        "costMax": 4,
+        "byQty": {
+          "48": 2.65,
+          "72": 2.4,
+          "96": null,
+          "144": 1.9,
+          "288": 1.75,
+          "432": null,
+          "576": 1.65,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "B",
+        "costMin": 0,
+        "costMax": 4,
+        "byQty": {
+          "48": 3,
+          "72": 2.75,
+          "96": null,
+          "144": 2.08,
+          "288": 1.87,
+          "432": null,
+          "576": 1.76,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "C",
+        "costMin": 0,
+        "costMax": 4,
+        "byQty": {
+          "48": 3.25,
+          "72": 3.2,
+          "96": null,
+          "144": 2.4,
+          "288": 2.15,
+          "432": null,
+          "576": 2,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "A",
+        "costMin": 4.01,
+        "costMax": 15,
+        "byQty": {
+          "48": 1.75,
+          "72": 1.73,
+          "96": null,
+          "144": 1.55,
+          "288": 1.4,
+          "432": null,
+          "576": 1.35,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "B",
+        "costMin": 4.01,
+        "costMax": 15,
+        "byQty": {
+          "48": 1.835,
+          "72": 1.73,
+          "96": null,
+          "144": 1.55,
+          "288": 1.5,
+          "432": null,
+          "576": 1.47,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "C",
+        "costMin": 4.01,
+        "costMax": 15,
+        "byQty": {
+          "48": 1.85,
+          "72": 1.8,
+          "96": null,
+          "144": 1.65,
+          "288": 1.57,
+          "432": null,
+          "576": 1.53,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "A",
+        "costMin": 15.01,
+        "costMax": 25,
+        "byQty": {
+          "48": 1.7,
+          "72": 1.65,
+          "96": null,
+          "144": 1.5,
+          "288": 1.4,
+          "432": null,
+          "576": 1.35,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "B",
+        "costMin": 15.01,
+        "costMax": 25,
+        "byQty": {
+          "48": 1.75,
+          "72": 1.65,
+          "96": null,
+          "144": 1.5,
+          "288": 1.45,
+          "432": null,
+          "576": 1.4,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "C",
+        "costMin": 15.01,
+        "costMax": 25,
+        "byQty": {
+          "48": 1.8,
+          "72": 1.75,
+          "96": null,
+          "144": 1.55,
+          "288": 1.5,
+          "432": null,
+          "576": 1.45,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "A",
+        "costMin": 25.01,
+        "costMax": 50,
+        "byQty": {
+          "48": 1.65,
+          "72": 1.6,
+          "96": null,
+          "144": 1.5,
+          "288": 1.4,
+          "432": null,
+          "576": 1.38,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "B",
+        "costMin": 25.01,
+        "costMax": 50,
+        "byQty": {
+          "48": 1.7,
+          "72": 1.65,
+          "96": null,
+          "144": 1.5,
+          "288": 1.4,
+          "432": null,
+          "576": 1.38,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "C",
+        "costMin": 25.01,
+        "costMax": 50,
+        "byQty": {
+          "48": 1.75,
+          "72": 1.7,
+          "96": null,
+          "144": 1.52,
+          "288": 1.45,
+          "432": null,
+          "576": 1.4,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "A",
+        "costMin": 50.01,
+        "costMax": null,
+        "byQty": {
+          "48": 1.4,
+          "72": 1.38,
+          "96": null,
+          "144": 1.35,
+          "288": 1.33,
+          "432": null,
+          "576": 1.32,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "B",
+        "costMin": 50.01,
+        "costMax": null,
+        "byQty": {
+          "48": 1.4,
+          "72": 1.38,
+          "96": null,
+          "144": 1.35,
+          "288": 1.33,
+          "432": null,
+          "576": 1.32,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "C",
+        "costMin": 50.01,
+        "costMax": null,
+        "byQty": {
+          "48": 1.4,
+          "72": 1.38,
+          "96": null,
+          "144": 1.35,
+          "288": 1.33,
+          "432": null,
+          "576": 1.32,
+          "1008": null,
+          "1440": null
+        }
+      }
+    ],
+    "locationCharges": [
+      {
+        "level": "0",
+        "byQty": {
+          "48": 0,
+          "72": 0,
+          "96": null,
+          "144": 0,
+          "288": 0,
+          "432": null,
+          "576": 0,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "A",
+        "byQty": {
+          "48": 2.59,
+          "72": 2.51,
+          "96": null,
+          "144": 2.42,
+          "288": 2.39,
+          "432": null,
+          "576": 2.35,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "B",
+        "byQty": {
+          "48": 2.76,
+          "72": 2.62,
+          "96": 2.47,
+          "144": 2.42,
+          "288": 2.36,
+          "432": null,
+          "576": 2.31,
+          "1008": null,
+          "1440": null
+        }
+      },
+      {
+        "level": "C",
+        "byQty": {
+          "48": 3.02,
+          "72": 2.8,
+          "96": null,
+          "144": 2.56,
+          "288": 2.46,
+          "432": null,
+          "576": 2.38,
+          "1008": null,
+          "1440": null
+        }
+      }
+    ],
+    "sizeUpcharges": {
+      "2XL": 2,
+      "3XL": 3.5
+    },
+    "locationAdders": {
+      "leftChestYoke": 1.25,
+      "sleeve": 1.75,
+      "allOverStain": 5.2
+    },
+    "tiers": {
+      "HV": 0.97,
+      "MV": 0.95
+    },
+    "extras": [
+      {
+        "label": "Hat/Tee Combo (folding, rubber band, labor)",
+        "amount": 0.55,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Barcode on hangtags add",
+        "amount": 0.15,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Custom Hangtags",
+        "amount": null,
+        "kind": "fulfillment",
+        "manualQuote": true
+      },
+      {
+        "label": "Orders needing separation",
+        "amount": 0.25,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Tear out label & screen print label",
+        "amount": 1.15,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Tear out label & screen print label - Hoodies",
+        "amount": 1.25,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Folding only",
+        "amount": 0.15,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Folding & size strips",
+        "amount": 0.3,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Folding, size strip & poly bag",
+        "amount": 0.45,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Folding, size strip & poly bag in 3's",
+        "amount": 0.9,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Hangers - plastic",
+        "amount": 0.35,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Hangers - plastic on hoodies",
+        "amount": 0.4,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Art charges per hour",
+        "amount": 125.0,
+        "kind": "fulfillment",
+        "manualQuote": false
+      },
+      {
+        "label": "Glitter ink",
+        "amount": 0.75,
+        "kind": "decoration",
+        "manualQuote": false
+      },
+      {
+        "label": "Puff Ink (add three weeks)",
+        "amount": 0.95,
+        "kind": "decoration",
+        "manualQuote": false
+      },
+      {
+        "label": "Reflective Ink (Fashion)",
+        "amount": 1.25,
+        "kind": "decoration",
+        "manualQuote": false
+      },
+      {
+        "label": "Reflective Ink (Hazard/Construction)",
+        "amount": 2.5,
+        "kind": "decoration",
+        "manualQuote": false
+      },
+      {
+        "label": "Ink Color Change per color",
+        "amount": 15.0,
+        "kind": "decoration",
+        "manualQuote": false
+      },
+      {
+        "label": "Glow in the dark ink",
+        "amount": 1.25,
+        "kind": "decoration",
+        "manualQuote": false
+      },
+      {
+        "label": "3D (Puff Embroidery)",
+        "amount": 1.5,
+        "kind": "decoration",
+        "manualQuote": false
+      }
+    ]
+  },
+  "embroidery": {
+    "qtyBreaks": [
+      6,
+      12,
+      24,
+      36,
+      48,
+      72,
+      96,
+      144,
+      288,
+      432,
+      576
+    ],
+    "multipliers": [
+      {
+        "costMin": 0,
+        "costMax": 3,
+        "byQty": {
+          "6": 2.8,
+          "12": 2.69,
+          "24": 2.58,
+          "36": 2.47,
+          "48": 2.36,
+          "72": 2.25,
+          "96": 2.15,
+          "144": 2.03,
+          "288": 1.93,
+          "432": 1.91,
+          "576": 1.9
+        }
+      },
+      {
+        "costMin": 3.01,
+        "costMax": 5,
+        "byQty": {
+          "6": 2.77,
+          "12": 2.66,
+          "24": 2.55,
+          "36": 2.44,
+          "48": 2.33,
+          "72": 2.22,
+          "96": 2.11,
+          "144": 2,
+          "288": 1.91,
+          "432": 1.89,
+          "576": 1.87
+        }
+      },
+      {
+        "costMin": 5.01,
+        "costMax": 7,
+        "byQty": {
+          "6": 2.64,
+          "12": 2.54,
+          "24": 2.44,
+          "36": 2.34,
+          "48": 2.24,
+          "72": 2.14,
+          "96": 2.03,
+          "144": 1.97,
+          "288": 1.88,
+          "432": 1.87,
+          "576": 1.85
+        }
+      },
+      {
+        "costMin": 7.01,
+        "costMax": 13,
+        "byQty": {
+          "6": 2.26,
+          "12": 2.16,
+          "24": 2.06,
+          "36": 1.96,
+          "48": 1.86,
+          "72": 1.77,
+          "96": 1.68,
+          "144": 1.63,
+          "288": 1.59,
+          "432": 1.57,
+          "576": 1.56
+        }
+      },
+      {
+        "costMin": 13.01,
+        "costMax": null,
+        "byQty": {
+          "6": 2.2,
+          "12": 2.1,
+          "24": 2,
+          "36": 1.9,
+          "48": 1.8,
+          "72": 1.71,
+          "96": 1.61,
+          "144": 1.6,
+          "288": 1.55,
+          "432": 1.55,
+          "576": 1.55
+        }
+      }
+    ],
+    "stitchCharges": [
+      {
+        "stitchMax": 0,
+        "byQty": {
+          "6": 0,
+          "12": 0,
+          "24": 0,
+          "36": 0,
+          "48": 0,
+          "72": 0,
+          "96": 0,
+          "144": 0,
+          "288": 0,
+          "432": 0,
+          "576": 0
+        }
+      },
+      {
+        "stitchMax": 4000,
+        "byQty": {
+          "6": 5.08,
+          "12": 4.1701,
+          "24": 3.3389,
+          "36": 2.4522,
+          "48": 2.1736,
+          "72": 1.9141,
+          "96": 1.8225,
+          "144": 1.7317,
+          "288": 1.6006,
+          "432": 1.4695,
+          "576": 1.3384
+        }
+      },
+      {
+        "stitchMax": 5000,
+        "byQty": {
+          "6": 5.936,
+          "12": 4.9283,
+          "24": 4.0404,
+          "36": 3.0653,
+          "48": 2.717,
+          "72": 2.3926,
+          "96": 2.2781,
+          "144": 2.1646,
+          "288": 2.0007,
+          "432": 1.8368,
+          "576": 1.6729
+        }
+      },
+      {
+        "stitchMax": 6000,
+        "byQty": {
+          "6": 6.7872,
+          "12": 5.6865,
+          "24": 4.7286,
+          "36": 3.6783,
+          "48": 3.2604,
+          "72": 2.8711,
+          "96": 2.7337,
+          "144": 2.5975,
+          "288": 2.4008,
+          "432": 2.2042,
+          "576": 2.0075
+        }
+      },
+      {
+        "stitchMax": 7000,
+        "byQty": {
+          "6": 7.6384,
+          "12": 6.4558,
+          "24": 5.4279,
+          "36": 4.2914,
+          "48": 3.8038,
+          "72": 3.3496,
+          "96": 3.1893,
+          "144": 3.0304,
+          "288": 2.801,
+          "432": 2.5716,
+          "576": 2.3421
+        }
+      },
+      {
+        "stitchMax": 8000,
+        "byQty": {
+          "6": 8.4896,
+          "12": 7.214,
+          "24": 6.1272,
+          "36": 4.9044,
+          "48": 4.3472,
+          "72": 3.8281,
+          "96": 3.645,
+          "144": 3.4633,
+          "288": 3.2011,
+          "432": 2.9389,
+          "576": 2.6767
+        }
+      },
+      {
+        "stitchMax": 9000,
+        "byQty": {
+          "6": 9.3408,
+          "12": 7.9834,
+          "24": 6.8154,
+          "36": 5.5175,
+          "48": 4.8906,
+          "72": 4.3066,
+          "96": 4.1006,
+          "144": 3.8962,
+          "288": 3.6013,
+          "432": 3.3063,
+          "576": 3.0113
+        }
+      },
+      {
+        "stitchMax": 10000,
+        "byQty": {
+          "6": 10.192,
+          "12": 8.7416,
+          "24": 7.5147,
+          "36": 6.1305,
+          "48": 5.434,
+          "72": 4.7851,
+          "96": 4.5562,
+          "144": 4.3291,
+          "288": 4.0014,
+          "432": 3.6736,
+          "576": 3.3459
+        }
+      },
+      {
+        "stitchMax": 11000,
+        "byQty": {
+          "6": 11.0432,
+          "12": 9.4998,
+          "24": 8.214,
+          "36": 6.7436,
+          "48": 5.9774,
+          "72": 5.2637,
+          "96": 5.0118,
+          "144": 4.7621,
+          "288": 4.4015,
+          "432": 4.041,
+          "576": 3.6805
+        }
+      },
+      {
+        "stitchMax": 12000,
+        "byQty": {
+          "6": 11.8944,
+          "12": 10.2692,
+          "24": 8.9022,
+          "36": 7.3566,
+          "48": 6.5208,
+          "72": 5.7422,
+          "96": 5.4674,
+          "144": 5.195,
+          "288": 4.8017,
+          "432": 4.4084,
+          "576": 4.0151
+        }
+      },
+      {
+        "stitchMax": 13000,
+        "byQty": {
+          "6": 12.7456,
+          "12": 11.0274,
+          "24": 9.6015,
+          "36": 7.9697,
+          "48": 7.0642,
+          "72": 6.2207,
+          "96": 5.9231,
+          "144": 5.6279,
+          "288": 5.2018,
+          "432": 4.7757,
+          "576": 4.3497
+        }
+      },
+      {
+        "stitchMax": 14000,
+        "byQty": {
+          "6": 14.7168,
+          "12": 11.7967,
+          "24": 10.3008,
+          "36": 8.5828,
+          "48": 7.6076,
+          "72": 6.6992,
+          "96": 6.3787,
+          "144": 6.0608,
+          "288": 5.602,
+          "432": 5.1431,
+          "576": 4.6843
+        }
+      },
+      {
+        "stitchMax": 15000,
+        "byQty": {
+          "6": 15.568,
+          "12": 12.5549,
+          "24": 11.0001,
+          "36": 9.1958,
+          "48": 8.151,
+          "72": 7.1777,
+          "96": 6.8343,
+          "144": 6.4937,
+          "288": 6.0021,
+          "432": 5.5105,
+          "576": 5.0189
+        }
+      },
+      {
+        "stitchMax": 16000,
+        "byQty": {
+          "6": 16.4192,
+          "12": 13.3131,
+          "24": 11.6994,
+          "36": 9.8036,
+          "48": 8.69,
+          "72": 7.6595,
+          "96": 7.2921,
+          "144": 6.9277,
+          "288": 6.4017,
+          "432": 5.8757,
+          "576": 5.3496
+        }
+      },
+      {
+        "stitchMax": 17000,
+        "byQty": {
+          "6": 17.2704,
+          "12": 14.0713,
+          "24": 12.3987,
+          "36": 10.4113,
+          "48": 9.229,
+          "72": 8.1413,
+          "96": 7.7499,
+          "144": 7.3617,
+          "288": 6.8013,
+          "432": 6.2409,
+          "576": 5.6804
+        }
+      },
+      {
+        "stitchMax": 18000,
+        "byQty": {
+          "6": 18.1216,
+          "12": 14.8295,
+          "24": 13.098,
+          "36": 11.0191,
+          "48": 9.768,
+          "72": 8.6231,
+          "96": 8.2077,
+          "144": 7.7957,
+          "288": 7.2009,
+          "432": 6.6061,
+          "576": 6.0112
+        }
+      },
+      {
+        "stitchMax": 19000,
+        "byQty": {
+          "6": 18.9728,
+          "12": 15.5877,
+          "24": 13.7973,
+          "36": 11.6268,
+          "48": 10.307,
+          "72": 9.1049,
+          "96": 8.6655,
+          "144": 8.2297,
+          "288": 7.6005,
+          "432": 6.9713,
+          "576": 6.342
+        }
+      },
+      {
+        "stitchMax": 20000,
+        "byQty": {
+          "6": 19.824,
+          "12": 16.3459,
+          "24": 14.4966,
+          "36": 12.2346,
+          "48": 10.846,
+          "72": 9.5867,
+          "96": 9.1233,
+          "144": 8.6637,
+          "288": 8.0001,
+          "432": 7.3365,
+          "576": 6.6728
+        }
+      },
+      {
+        "stitchMax": 21000,
+        "byQty": {
+          "6": 20.6752,
+          "12": 17.1041,
+          "24": 15.1959,
+          "36": 12.8423,
+          "48": 11.385,
+          "72": 10.0685,
+          "96": 9.5811,
+          "144": 9.0977,
+          "288": 8.3997,
+          "432": 7.7017,
+          "576": 7.0036
+        }
+      },
+      {
+        "stitchMax": 22000,
+        "byQty": {
+          "6": 21.5264,
+          "12": 17.8623,
+          "24": 15.8952,
+          "36": 13.4501,
+          "48": 11.924,
+          "72": 10.5503,
+          "96": 10.0389,
+          "144": 9.5317,
+          "288": 8.7993,
+          "432": 8.0669,
+          "576": 7.3344
+        }
+      },
+      {
+        "stitchMax": 23000,
+        "byQty": {
+          "6": 22.3776,
+          "12": 18.6205,
+          "24": 16.5945,
+          "36": 14.0578,
+          "48": 12.463,
+          "72": 11.0321,
+          "96": 10.4967,
+          "144": 9.9657,
+          "288": 9.1989,
+          "432": 8.4321,
+          "576": 7.6652
+        }
+      },
+      {
+        "stitchMax": 24000,
+        "byQty": {
+          "6": 23.2288,
+          "12": 19.3787,
+          "24": 17.2938,
+          "36": 14.6656,
+          "48": 13.002,
+          "72": 11.5139,
+          "96": 10.9545,
+          "144": 10.3997,
+          "288": 9.5985,
+          "432": 8.7973,
+          "576": 7.996
+        }
+      },
+      {
+        "stitchMax": 25000,
+        "byQty": {
+          "6": 24.08,
+          "12": 20.1369,
+          "24": 17.9931,
+          "36": 15.2733,
+          "48": 13.541,
+          "72": 11.9957,
+          "96": 11.4123,
+          "144": 10.8337,
+          "288": 9.9981,
+          "432": 9.1625,
+          "576": 8.3268
+        }
+      },
+      {
+        "stitchMax": 26000,
+        "byQty": {
+          "6": 24.9312,
+          "12": 20.8951,
+          "24": 18.6924,
+          "36": 15.8811,
+          "48": 14.08,
+          "72": 12.4775,
+          "96": 11.8701,
+          "144": 11.2677,
+          "288": 10.3977,
+          "432": 9.5277,
+          "576": 8.6576
+        }
+      },
+      {
+        "stitchMax": 27000,
+        "byQty": {
+          "6": 25.7824,
+          "12": 21.6533,
+          "24": 19.3917,
+          "36": 16.4888,
+          "48": 14.619,
+          "72": 12.9593,
+          "96": 12.3279,
+          "144": 11.7017,
+          "288": 10.7973,
+          "432": 9.8929,
+          "576": 8.9884
+        }
+      },
+      {
+        "stitchMax": 28000,
+        "byQty": {
+          "6": 26.6336,
+          "12": 22.4115,
+          "24": 20.091,
+          "36": 17.0966,
+          "48": 15.158,
+          "72": 13.4411,
+          "96": 12.7857,
+          "144": 12.1357,
+          "288": 11.1969,
+          "432": 10.2581,
+          "576": 9.3192
+        }
+      },
+      {
+        "stitchMax": 29000,
+        "byQty": {
+          "6": 27.4848,
+          "12": 23.1697,
+          "24": 20.7903,
+          "36": 17.7043,
+          "48": 15.697,
+          "72": 13.9229,
+          "96": 13.2435,
+          "144": 12.5697,
+          "288": 11.5965,
+          "432": 10.6233,
+          "576": 9.65
+        }
+      },
+      {
+        "stitchMax": 30000,
+        "byQty": {
+          "6": 28.336,
+          "12": 23.9279,
+          "24": 21.4896,
+          "36": 18.3121,
+          "48": 16.236,
+          "72": 14.4047,
+          "96": 13.7013,
+          "144": 13.0037,
+          "288": 11.9961,
+          "432": 10.9885,
+          "576": 9.9808
+        }
+      }
+    ],
+    "sizeUpcharges": {
+      "2XL": 2,
+      "3XL": 3.5
+    },
+    "digitizingNew": 25,
+    "tiers": {
+      "HV": 0.97,
+      "MV": 0.95
+    }
+  },
+  "royalties": [
+    {
+      "name": "None",
+      "pct": 0.0
+    },
+    {
+      "name": "Advice From",
+      "pct": 0.07
+    },
+    {
+      "name": "Beaver Creek",
+      "pct": 0.12
+    },
+    {
+      "name": "Blue Sky Art",
+      "pct": 0.1
+    },
+    {
+      "name": "Breckenridge",
+      "pct": 0.12
+    },
+    {
+      "name": "Brent Todd",
+      "pct": 0.07
+    },
+    {
+      "name": "BYU",
+      "pct": 0.18
+    },
+    {
+      "name": "Cheyenne Frontier",
+      "pct": 0.12
+    },
+    {
+      "name": "Dave Mottram",
+      "pct": 0.09
+    },
+    {
+      "name": "Dick Bramwell",
+      "pct": 0.07
+    },
+    {
+      "name": "Don Stewart",
+      "pct": 0.07
+    },
+    {
+      "name": "Heavenly",
+      "pct": 0.12
+    },
+    {
+      "name": "Keystone",
+      "pct": 0.12
+    },
+    {
+      "name": "Minc.",
+      "pct": 0.09
+    },
+    {
+      "name": "Park City",
+      "pct": 0.12
+    },
+    {
+      "name": "Sun Valley",
+      "pct": 0.07
+    },
+    {
+      "name": "U of U",
+      "pct": 0.22
+    },
+    {
+      "name": "U of W",
+      "pct": 0.15
+    },
+    {
+      "name": "USU",
+      "pct": 0.16
+    },
+    {
+      "name": "Utah Life Elevated",
+      "pct": 0.14
+    },
+    {
+      "name": "Vail",
+      "pct": 0.12
+    }
+  ],
+  "vendorFreight": [
+    {
+      "vendor": "Outdoor Cap",
+      "addPerGarment": 0.5,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "MegaCap",
+      "addPerGarment": 0.5,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Westside Cotton",
+      "addPerGarment": 0.5,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "SanMar if order is under $200.00 add per",
+      "addPerGarment": 1.0,
+      "freeOverCost": null,
+      "underThreshold": 200.0
+    },
+    {
+      "vendor": "Cotton Heritage must add per garment",
+      "addPerGarment": 1.0,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Three Layer (free shipping over $250)",
+      "addPerGarment": 1.0,
+      "freeOverCost": 250.0,
+      "underThreshold": null
+    },
+    {
+      "vendor": "US Apparel must add for Fleece",
+      "addPerGarment": 2.0,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "US Apparel must add for Tees",
+      "addPerGarment": 1.5,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Smart Blanks must add per garment",
+      "addPerGarment": 1.5,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Zuni must add per garment",
+      "addPerGarment": 1.0,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "ASColour (free shipping over $500)",
+      "addPerGarment": 1.0,
+      "freeOverCost": 500.0,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Ramatex Baja's Joes",
+      "addPerGarment": 2.0,
+      "freeOverCost": null,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Just Hoods (free shipping over $300)",
+      "addPerGarment": 1.0,
+      "freeOverCost": 300.0,
+      "underThreshold": null
+    },
+    {
+      "vendor": "Stanley /Stella (Free shipping over $350)",
+      "addPerGarment": 1.0,
+      "freeOverCost": 350.0,
+      "underThreshold": null
+    }
+  ]
+}

@@ -9,6 +9,7 @@ const TABS = [
   { href: "/admin/account-groups", label: "Account Groups" },
   { href: "/admin/templates", label: "Order Templates" },
   { href: "/admin/catalog", label: "Catalog & Pricing" },
+  { href: "/admin/pricing", label: "Softgoods Pricing" },
   { href: "/admin/config", label: "Configuration" },
   { href: "/admin/audit", label: "Audit Log" },
 ];

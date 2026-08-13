@@ -1968,3 +1968,71 @@ export const storePromos = pgTable(
 );
 
 export type StorePromo = typeof storePromos.$inferSelect;
+
+// ─────────────────────────── Softgoods Pricing Engine ──────────────────────
+// Reverse-engineered from "Version 11 – 2026 Softgood Pricing Calculator Tool".
+// Replaces the hand-maintained spreadsheet. Reference band matrices live as JSON
+// on pricing_methods (edited rarely); the lists people actually change twice a
+// year — garment costs, extras, vendor freight, royalties — are normalized rows.
+
+// A decoration method (silkscreen, embroidery, …) and its rate matrices.
+export const pricingMethods = pgTable("pricing_methods", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(), // silkscreen | embroidery | dtf | asi
+  label: text("label").notNull(),
+  active: boolean("active").notNull().default(true),
+  // { qtyBreaks:[], multipliers:[], locationCharges:[]|stitchCharges:[],
+  //   sizeUpcharges:{}, tiers:{}, locationAdders:{}, digitizingNew:number }
+  config: jsonb("config").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export type PricingMethod = typeof pricingMethods.$inferSelect;
+
+// Garment cost catalog (the calculator's garment-number → cost lookup).
+export const pricingGarments = pgTable(
+  "pricing_garments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    garmentNumber: text("garment_number").notNull().unique(),
+    itemCode: text("item_code"),
+    cost: numeric("cost", { precision: 12, scale: 4 }).notNull().default("0"),
+    supplier: text("supplier"),
+    description: text("description"),
+    active: boolean("active").notNull().default(true),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("pricing_garments_number_idx").on(t.garmentNumber), index("pricing_garments_supplier_idx").on(t.supplier)],
+);
+export type PricingGarment = typeof pricingGarments.$inferSelect;
+
+// Fulfillment / decoration add-on charges (barcode, folding, glitter ink, …).
+export const pricingExtras = pgTable("pricing_extras", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  label: text("label").notNull(),
+  kind: text("kind").notNull().default("fulfillment"), // fulfillment | decoration
+  amount: numeric("amount", { precision: 12, scale: 4 }), // null = quote/manual
+  manualQuote: boolean("manual_quote").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+export type PricingExtra = typeof pricingExtras.$inferSelect;
+
+// Per-vendor apparel freight rules (auto-applied to garment cost).
+export const pricingVendorFreight = pgTable("pricing_vendor_freight", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  vendor: text("vendor").notNull(),
+  addPerGarment: numeric("add_per_garment", { precision: 12, scale: 4 }),
+  freeOverCost: numeric("free_over_cost", { precision: 12, scale: 2 }), // waive if order cost ≥ this
+  underThreshold: numeric("under_threshold", { precision: 12, scale: 2 }), // charge only if order cost < this
+  active: boolean("active").notNull().default(true),
+});
+export type PricingVendorFreight = typeof pricingVendorFreight.$inferSelect;
+
+// Artist royalty rates (added as a % on top of the decorated price).
+export const pricingRoyalties = pgTable("pricing_royalties", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  pct: numeric("pct", { precision: 6, scale: 4 }).notNull().default("0"),
+  active: boolean("active").notNull().default(true),
+});
+export type PricingRoyalty = typeof pricingRoyalties.$inferSelect;
