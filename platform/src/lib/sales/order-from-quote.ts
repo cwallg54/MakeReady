@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { advanceLifecycle } from "@/lib/crm/lifecycle";
 import {
   quotes, quoteLines, quoteAttachments, orders, orderEvents, orderAttachments, orderSpecItems,
-  businessPartners, numberSeries, templateItems, printLocations, decorationMethods, activities,
+  businessPartners, numberSeries, templateItems, printLocations, decorationMethods, activities, pricingExtras,
 } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import type { DecorationInput } from "./pricing";
@@ -62,34 +62,63 @@ export async function createOrderFromQuote(quoteId: string, byUserId: string | n
   // Turn each garment line's decorations into order spec items so the art &
   // production teams get the placements, methods, colors, and size breakdown.
   const garmentQLines = qLines.filter((l) => l.styleId || (Array.isArray(l.decorations) && (l.decorations as unknown[]).length > 0) || (l.sizeBreakdown != null && Object.keys(l.sizeBreakdown as object).length > 0));
+  // Aggregate the per-garment extras chosen on the quote into the order's
+  // structured fulfillment flags + notes, so the shop floor and PDF see them.
+  let needsBarcode = false, needsHangtag = false, needsFolding = false;
+  const extraLabelSet = new Set<string>();
   if (garmentQLines.length) {
-    const [locRows, methRows] = await Promise.all([db.select().from(printLocations), db.select().from(decorationMethods)]);
+    const [locRows, methRows, extraRows] = await Promise.all([
+      db.select().from(printLocations),
+      db.select().from(decorationMethods),
+      db.select().from(pricingExtras),
+    ]);
     const locName = new Map(locRows.map((l) => [l.code, l.name]));
     const methName = new Map(methRows.map((mm) => [mm.code, mm.name]));
+    const extraById = new Map(extraRows.map((e) => [e.id, e.label]));
     const specRows: (typeof orderSpecItems.$inferInsert)[] = [];
     let sort = 0;
     for (const l of garmentQLines) {
       const decos = (l.decorations as DecorationInput[] | null) ?? [];
       const sb = (l.sizeBreakdown as Record<string, number> | null) ?? {};
       const sizeStr = Object.entries(sb).filter(([, q]) => Number(q) > 0).map(([s, q]) => `${s}:${q}`).join(" ");
+      // Resolve this line's extras → labels + fulfillment flags.
+      const lineExtraLabels = ((l.extras as string[] | null) ?? []).map((id) => extraById.get(id)).filter((x): x is string => !!x);
+      for (const label of lineExtraLabels) {
+        extraLabelSet.add(label);
+        const low = label.toLowerCase();
+        if (low.includes("barcode")) needsBarcode = true;
+        if (low.includes("fold")) needsFolding = true;
+        if (low.includes("hangtag") || low.includes("hang tag") || low.includes("tear out label")) needsHangtag = true;
+      }
+      const extrasNote = lineExtraLabels.length ? `Extras: ${lineExtraLabels.join(", ")}` : null;
       if (decos.length === 0) {
-        specRows.push({ orderId: o.id, product: l.description, sizeBreakdown: sizeStr || null, sortOrder: sort++ });
+        specRows.push({ orderId: o.id, product: l.description, sizeBreakdown: sizeStr || null, notes: extrasNote, sortOrder: sort++ });
       } else {
-        for (const d of decos) {
+        decos.forEach((d, di) => {
+          const level = !d.stitchTier && d.level ? `Level ${d.level}` : null;
           specRows.push({
             orderId: o.id,
             product: l.description,
             decorationMethod: methName.get(d.method) ?? d.method,
             placement: locName.get(d.location) ?? d.location,
             colorCount: d.stitchTier ? null : d.colorCount ?? null,
-            colors: d.stitchTier ? `${d.stitchTier} stitch` : null,
+            colors: d.stitchTier ? `${d.stitchTier} stitch` : level,
             sizeBreakdown: sizeStr || null,
+            // Put the extras note once per line (on its first decoration row).
+            notes: di === 0 ? extrasNote : null,
             sortOrder: sort++,
           });
-        }
+        });
       }
     }
     if (specRows.length) await db.insert(orderSpecItems).values(specRows);
+  }
+  // Persist the aggregated fulfillment flags on the order.
+  if (needsBarcode || needsHangtag || needsFolding || extraLabelSet.size) {
+    await db.update(orders).set({
+      needsBarcode, needsHangtag, needsFolding,
+      fulfillmentNotes: extraLabelSet.size ? Array.from(extraLabelSet).join(", ") : null,
+    }).where(eq(orders.id, o.id));
   }
 
   // Carry catalogue images of the quoted items onto the order for the art dept.
