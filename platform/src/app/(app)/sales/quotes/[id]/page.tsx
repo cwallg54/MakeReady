@@ -15,60 +15,11 @@ import { uploadQuoteAttachmentsAction, removeQuoteAttachmentAction } from "@/lib
 import type { ChargeRule, GarmentLineData, DecorationInput, MethodRef, SizeEntry } from "@/lib/sales/pricing";
 import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
-import { EmailQuoteButton } from "./email-quote-button";
 import { pricingMethods, pricingGarments } from "@/db/schema";
 import { inArray } from "drizzle-orm";
 import type { SilkscreenConfig } from "@/lib/pricing/engine";
 import { listExtras, listFreight, listRoyalties } from "@/lib/pricing/service";
 import { PriceCalculator } from "@/app/(app)/admin/pricing/price-calculator";
-
-const m = (n: number) => `$${n.toFixed(2)}`;
-
-function buildMailto(q: {
-  to: string;
-  quoteNumber: string;
-  company: string | null;
-  contactName: string | null;
-  lines: { description: string; qty: number; unitPrice: number; extended: number }[];
-  charges: { label: string; amount: number }[];
-  subtotal: number;
-  chargesTotal: number;
-  discount: number;
-  total: number;
-  notes: string;
-}): string {
-  const subject = `G54 Sales Quote ${q.quoteNumber}`;
-  const L: string[] = [];
-  L.push(`Hello${q.contactName ? ` ${q.contactName}` : ""},`);
-  L.push("");
-  L.push(`Please find your quote from Great Mountain West below.`);
-  L.push("");
-  L.push(`Quote: ${q.quoteNumber}`);
-  if (q.company) L.push(`Customer: ${q.company}`);
-  L.push("");
-  L.push("Items:");
-  if (q.lines.length === 0) L.push("  (none)");
-  for (const l of q.lines) L.push(`  - ${l.description} — ${l.qty} x ${m(l.unitPrice)} = ${m(l.extended)}`);
-  if (q.charges.length) {
-    L.push("");
-    L.push("Charges:");
-    for (const c of q.charges) L.push(`  - ${c.label}: ${m(c.amount)}`);
-  }
-  L.push("");
-  L.push(`Subtotal: ${m(q.subtotal)}`);
-  L.push(`Charges: ${m(q.chargesTotal)}`);
-  if (q.discount) L.push(`Discount: -${m(q.discount)}`);
-  L.push(`Total: ${m(q.total)}`);
-  if (q.notes) {
-    L.push("");
-    L.push(`Notes: ${q.notes}`);
-  }
-  L.push("");
-  L.push("Thank you,");
-  L.push("Great Mountain West (G54)");
-  const body = L.join("\r\n");
-  return `mailto:${encodeURIComponent(q.to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
 
 const STATUS_BADGE: Record<string, string> = {
   draft: "bg-neutral-200 text-neutral-700",
@@ -159,20 +110,6 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     ? await db.query.contacts.findFirst({ where: and(eq(contacts.bpId, quote.bpId), eq(contacts.isPrimary, true)) })
     : undefined;
   const toEmail = primaryContact?.email ?? bp?.email ?? "";
-  const mailtoHref = buildMailto({
-    to: toEmail,
-    quoteNumber: quote.quoteNumber,
-    company: bp?.companyName ?? null,
-    contactName: [primaryContact?.firstName, primaryContact?.lastName].filter(Boolean).join(" ") || null,
-    lines: lines.map((l) => ({ description: l.description, qty: l.qty, unitPrice: Number(l.unitPrice), extended: Number(l.extended) })),
-    charges: charges.map((c) => ({ label: c.label, amount: Number(c.amount) })),
-    subtotal: Number(quote.subtotal),
-    chargesTotal: Number(quote.chargesTotal),
-    discount: Number(quote.discount),
-    total: Number(quote.total),
-    notes: quote.notes ?? "",
-  });
-
   const rules = (template?.charges as ChargeRule[] | null) ?? [];
   const canStatus = editable && quote.status !== "converted";
   const base = process.env.APP_URL ?? "https://makeready.g54.com";
@@ -201,7 +138,6 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
                 <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-neutral-700">✉ Email for approval</button>
               </form>
             )}
-            <EmailQuoteButton quoteId={quote.id} href={mailtoHref} toEmail={toEmail} />
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_BADGE[quote.status]}`}>{quote.status}</span>
             {canStatus && (NEXT_STATUS[quote.status] ?? []).map((n) => (
               <form key={n.to} action={setQuoteStatusAction}>
