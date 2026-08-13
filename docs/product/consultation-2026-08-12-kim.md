@@ -4,10 +4,18 @@ Runthrough of the current MakeReady build with Kim, executive sponsor for Sales.
 
 ## Build status (updated 2026-08-13)
 
-- ✅ **First-article press check** — shipped (commit 561c3d9).
-- ✅ **Pricing Calculator Engine** — shipped (commit b84e84b): silkscreen + embroidery, verified to the cent; admin at `/admin/pricing`. *Not yet wired into the quote builder; DTF/ASI methods pending.*
-- ✅ **OCR business-card capture** — shipped (commit 824a8ee).
-- ⛔ **Outstanding:** Garments & Decoration quote builder (+ wiring the pricing engine into it), rep pricing lockdown, reorder fast-path (proof-skip; press-check default-off already done), structured fulfillment fields + barcode/UPC engine, ship-date integration, Outlook calendar sync, SMS (V2), pipeline transition automation, embroidery/DTF/ASI calculators in the engine.
+- ✅ **First-article press check** — shipped (561c3d9).
+- ✅ **Pricing Calculator Engine** (silkscreen + embroidery, verified to the cent) + **Admin → Softgoods Pricing** — shipped (b84e84b).
+- ✅ **Pricing engine on the quote page** — "Softgoods price check" tool in the quote builder (f98cfe0).
+- ✅ **OCR business-card capture** — shipped (824a8ee).
+- ✅ **Reorder fast-path** + **structured fulfillment fields** (barcode/hangtag/folding/name-drop/per-size UPC) — shipped (5f7996a).
+- ✅ **Pipeline transition automation** (Lead→Prospect on credit-app completion; →Customer on order) + **rep pricing lockdown** (only managers/admins discount) — shipped (5f2f61e).
+- ⛔ **Outstanding / blocked:**
+  - Deep quote-builder swap so the *existing* Garments & Decoration lines price through the engine end-to-end (today the engine is a side-by-side price-check tool). Needs styles↔pricing_garments cost reconciliation.
+  - **DTF & ASI** methods in the engine (silkscreen + embroidery done). DTF = per-sq-inch surcharge fed into the garment calc; ASI = bulk lookup.
+  - **Ship-date integration** — blocked on Tyson's weekly Monday ship-schedule format/source.
+  - **Outlook calendar sync** — blocked on a Microsoft Graph app registration + credentials.
+  - **SMS notifications (V2)** — blocked on an SMS provider (e.g. Twilio) account + number.
 
 ---
 
