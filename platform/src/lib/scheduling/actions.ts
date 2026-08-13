@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { and, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
-import { schedulingProfiles, availabilityBlocks, meetings, meetingTypes, notifications } from "@/db/schema";
+import { schedulingProfiles, availabilityBlocks, meetings, meetingTypes, notifications, users } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
+import { graphConfigured, getBusyTimes, createCalendarEvent } from "@/lib/integrations/msgraph";
 import { audit } from "@/lib/audit";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { computeSlots, slotIsValid, type AvailBlock } from "./slots";
@@ -20,10 +21,21 @@ export interface SchedState {
 }
 
 async function busyFor(userId: string): Promise<{ start: Date; end: Date }[]> {
+  const now = new Date();
   const rows = await db
     .select({ start: meetings.startAt, end: meetings.endAt })
     .from(meetings)
-    .where(and(eq(meetings.hostUserId, userId), eq(meetings.status, "scheduled"), gte(meetings.endAt, new Date())));
+    .where(and(eq(meetings.hostUserId, userId), eq(meetings.status, "scheduled"), gte(meetings.endAt, now)));
+  // Also fold in the host's Outlook busy times when the Graph integration is on,
+  // so reps' internal/personal meetings block their booking availability too.
+  if (graphConfigured()) {
+    const host = await db.query.users.findFirst({ where: eq(users.id, userId), columns: { email: true } });
+    if (host?.email) {
+      const end = new Date(now.getTime() + 60 * 86_400_000);
+      const graphBusy = await getBusyTimes(host.email, now.toISOString().slice(0, 19), end.toISOString().slice(0, 19));
+      return [...rows, ...graphBusy];
+    }
+  }
   return rows;
 }
 
@@ -122,6 +134,20 @@ export async function bookMeetingAction(_prev: BookState, formData: FormData): P
     body: `${attendeeName} booked a ${type.name}.`,
     link: "/calendar",
   });
+  // Push to the host's Outlook calendar when the Graph integration is on.
+  if (graphConfigured()) {
+    const host = await db.query.users.findFirst({ where: eq(users.id, profile.userId), columns: { email: true } });
+    if (host?.email) {
+      await createCalendarEvent(host.email, {
+        subject: `${type.name} — ${attendeeName}`,
+        bodyHtml: String(formData.get("notes") ?? "").trim() || undefined,
+        startIso: startIso.slice(0, 19),
+        endIso: check.endIso.slice(0, 19),
+        attendeeEmail: attendeeEmail || undefined,
+        attendeeName,
+      });
+    }
+  }
   await audit({ userId: profile.userId, action: "meeting.booked", entityType: "meeting", metadata: { type: type.name, attendeeName } });
   redirect(`/schedule/${slug}?booked=1`);
 }
