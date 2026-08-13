@@ -9,6 +9,7 @@ import { useTouchKanban, DragGhost } from "@/components/kanban-touch";
 export interface JobCard {
   id: string;
   status: string;
+  pressBlocked?: boolean;
   rush: boolean;
   dueLabel: string | null;
   assignedTo: string | null;
@@ -80,6 +81,7 @@ export function ProductionBoard({ cards, team, meId }: { cards: JobCard[]; team:
         {c.rush && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Rush</span>}
       </div>
       <p className="truncate text-xs text-neutral-500">{c.company}</p>
+      {c.pressBlocked && <p className="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700" title="Needs a first-article press check before the run can start">Press check</p>}
       {c.dueLabel && <p className="mt-1 text-[11px] text-neutral-400">Due {c.dueLabel}</p>}
       <div className="mt-2"><Assignee c={c} /></div>
     </div>

@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, orderEvents, productionJobs, activities } from "@/db/schema";
+import { orders, orderEvents, productionJobs, activities, quotes } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { notifyTrackerStage } from "@/lib/orders/notify";
 import { notifyTeam } from "@/lib/teams/notify";
+import { pressCheckApproved } from "./press-check";
 import { audit } from "@/lib/audit";
 
 const PROD_STATUSES = ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"] as const;
@@ -39,9 +40,15 @@ async function ensureJob(orderId: string, userId: string) {
   const existing = await db.query.productionJobs.findFirst({ where: eq(productionJobs.orderId, orderId) });
   if (existing) return existing;
   const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
+  // Straight reorders (art unchanged) skip the first-article press check by default.
+  let pressCheckRequired = true;
+  if (order?.quoteId) {
+    const quote = await db.query.quotes.findFirst({ where: eq(quotes.id, order.quoteId) });
+    if (quote?.isReorder) pressCheckRequired = false;
+  }
   const [job] = await db
     .insert(productionJobs)
-    .values({ orderId, dueDate: order?.inHandsDate ?? null, notes: order?.productionNotes ?? null, createdBy: userId })
+    .values({ orderId, dueDate: order?.inHandsDate ?? null, notes: order?.productionNotes ?? null, pressCheckRequired, createdBy: userId })
     .returning();
   return job;
 }
@@ -84,6 +91,12 @@ export async function setJobStatusAction(formData: FormData): Promise<void> {
   if (!id || !PROD_STATUSES.includes(status)) return;
   const job = await db.query.productionJobs.findFirst({ where: eq(productionJobs.id, id) });
   if (!job) return;
+  // Press-check gate: a job that requires a first-article sign-off cannot leave
+  // the queue (start the full run) until Art has approved the press check.
+  if (job.status === "queued" && status !== "queued" && job.pressCheckRequired) {
+    const approved = await pressCheckApproved(job.id);
+    if (!approved) redirect(`/production/${id}?gate=presscheck`);
+  }
   await db.update(productionJobs).set({ status, updatedAt: new Date() }).where(eq(productionJobs.id, id));
   await syncOrderStage(job.orderId, STATUS_TO_ORDER_STAGE[status], user.id);
   await audit({ userId: user.id, action: "production.status", entityType: "production_job", entityId: id, metadata: { status } });

@@ -1,6 +1,6 @@
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { productionJobs, orders, businessPartners, users, userRoles } from "@/db/schema";
+import { productionJobs, orders, businessPartners, users, userRoles, pressChecks } from "@/db/schema";
 import Link from "next/link";
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader } from "@/components/ui";
@@ -16,6 +16,7 @@ export default async function ProductionPage() {
     .select({
       id: productionJobs.id,
       status: productionJobs.status,
+      pressCheckRequired: productionJobs.pressCheckRequired,
       rush: productionJobs.rush,
       dueDate: productionJobs.dueDate,
       assignedTo: productionJobs.assignedTo,
@@ -31,6 +32,9 @@ export default async function ProductionPage() {
     .leftJoin(users, eq(users.id, productionJobs.assignedTo))
     .orderBy(desc(productionJobs.updatedAt));
 
+  const approvedRows = await db.select({ jobId: pressChecks.jobId }).from(pressChecks).where(eq(pressChecks.status, "approved"));
+  const approvedSet = new Set(approvedRows.map((r) => r.jobId));
+
   const teamRaw = await db
     .select({ id: users.id, name: users.name })
     .from(users)
@@ -41,6 +45,7 @@ export default async function ProductionPage() {
   const cards = rows.map((r) => ({
     id: r.id,
     status: r.status,
+    pressBlocked: r.pressCheckRequired && r.status === "queued" && !approvedSet.has(r.id),
     rush: r.rush,
     dueLabel: r.dueDate ? fmtDate(r.dueDate) : null,
     assignedTo: r.assignedTo,

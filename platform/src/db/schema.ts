@@ -247,6 +247,9 @@ export const artPriorityEnum = pgEnum("art_priority", ["none", "p2", "p1"]);
 export const artProductionTypeEnum = pgEnum("art_production_type", ["screen_print", "embroidery", "headwear", "hard_goods", "other"]);
 // Production-job pipeline stages — the columns of the Production Kanban.
 export const productionStatusEnum = pgEnum("production_status", ["queued", "in_production", "quality_check", "ready_to_ship", "shipped"]);
+// First-article "press check": Production runs one item, photographs it, and Art
+// signs off before the full run is released. One row per attempt.
+export const pressCheckStatusEnum = pgEnum("press_check_status", ["pending", "approved", "rejected"]);
 // Stock movement reasons for the inventory ledger.
 export const stockReasonEnum = pgEnum("stock_reason", ["receive", "consume", "adjust", "count", "transfer"]);
 export const customerDocTypeEnum = pgEnum("customer_doc_type", ["terms_application", "credit_card_application"]);
@@ -1453,6 +1456,9 @@ export const productionJobs = pgTable(
       .unique()
       .references(() => orders.id, { onDelete: "cascade" }),
     status: productionStatusEnum("status").notNull().default("queued"),
+    // When true, the full run cannot start until a first-article press check is
+    // approved by Art (see pressChecks). Defaults on; cleared for reorders.
+    pressCheckRequired: boolean("press_check_required").notNull().default(true),
     assignedTo: uuid("assigned_to").references(() => users.id, { onDelete: "set null" }),
     rush: boolean("rush").notNull().default(false),
     dueDate: timestamp("due_date", { withTimezone: true }),
@@ -1464,6 +1470,34 @@ export const productionJobs = pgTable(
   (t) => [index("production_jobs_status_idx").on(t.status), index("production_jobs_assigned_to_idx").on(t.assignedTo)],
 );
 export type ProductionJob = typeof productionJobs.$inferSelect;
+
+// First-article press check: one row per attempt. Production submits a photo of
+// the single test print; Art approves (releasing the full run) or requests
+// changes (Production re-shoots). Every attempt and decision is retained.
+export const pressChecks = pgTable(
+  "press_checks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    jobId: uuid("job_id")
+      .notNull()
+      .references(() => productionJobs.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    attempt: integer("attempt").notNull().default(1),
+    // The first-article photo, stored as an order attachment (kind "press_check").
+    photoAttachmentId: uuid("photo_attachment_id").references(() => orderAttachments.id, { onDelete: "set null" }),
+    status: pressCheckStatusEnum("status").notNull().default("pending"),
+    submittedBy: uuid("submitted_by").references(() => users.id, { onDelete: "set null" }),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+    reviewedBy: uuid("reviewed_by").references(() => users.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewNote: text("review_note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("press_checks_job_id_idx").on(t.jobId), index("press_checks_status_idx").on(t.status)],
+);
+export type PressCheck = typeof pressChecks.$inferSelect;
 
 // ---- Inventory (item master + stock ledger) -------------------------------
 export const inventoryItems = pgTable(
