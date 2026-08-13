@@ -10,12 +10,13 @@ Runthrough of the current MakeReady build with Kim, executive sponsor for Sales.
 - ✅ **OCR business-card capture** — shipped (824a8ee).
 - ✅ **Reorder fast-path** + **structured fulfillment fields** (barcode/hangtag/folding/name-drop/per-size UPC) — shipped (5f7996a).
 - ✅ **Pipeline transition automation** (Lead→Prospect on credit-app completion; →Customer on order) + **rep pricing lockdown** (only managers/admins discount) — shipped (5f2f61e).
-- ⛔ **Outstanding / blocked:**
-  - Deep quote-builder swap so the *existing* Garments & Decoration lines price through the engine end-to-end (today the engine is a side-by-side price-check tool). Needs styles↔pricing_garments cost reconciliation.
-  - **ASI** method in the engine (silkscreen + embroidery + DTF done). ASI = same shape as silkscreen with its own multiplier tables + up-to-3 print locations (distributor channel).
-  - **Ship-date integration** — blocked on Tyson's weekly Monday ship-schedule format/source.
-  - **Outlook calendar sync** — blocked on a Microsoft Graph app registration + credentials.
-  - **SMS notifications (V2)** — blocked on an SMS provider (e.g. Twilio) account + number.
+- ✅ **ASI silkscreen** method in the engine — shipped (5131682). Silkscreen + embroidery + DTF + ASI all live.
+- ✅ **Deep quote-builder swap** — silkscreen garment lines price through the engine (garment cost from supplier cost / pricing_garments, A/B/C level, chest/sleeve mapping, size upcharges); non-destructive fallback (9e8aeed).
+- ✅ **Ship-date scheduling** — Ops ship calendar on the Production schedule; orders pick a committed ship date (93c31b6).
+- ✅ **SMS notifications** — graceful Twilio client wired to customer stage alerts + press-check requests (e217dac). *Activate:* set `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM`; staff need a `users.phone`.
+- ✅ **Outlook calendar sync** — graceful Microsoft Graph client; folds Outlook busy times into booking availability + pushes booked meetings to the host's calendar (b12c659). *Activate:* register an Entra app with Calendars.ReadWrite (admin consent), set `MS_GRAPH_TENANT_ID` / `MS_GRAPH_CLIENT_ID` / `MS_GRAPH_CLIENT_SECRET`.
+
+**Remaining polish (optional):** embroidery garment lines still use the tier model (engine covers silkscreen lines); validate engine numbers against a few live quotes before relying; add a staff-phone field to the user admin form.
 
 ---
 
