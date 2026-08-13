@@ -1,14 +1,26 @@
 # CRM — Customer Relationship Management
 
 **Wireframe:** https://g54-platform.vercel.app/crm.html
-**Epic refs:** 2.1–2.5
-**Stakeholders:** Kim Lund (Sales), Chase de Jong (CRM)
+**Epic refs:** 2.1–2.7
+**Stakeholders:** Kim Lund (Sales, executive sponsor), Chase de Jong (CRM)
 
 ---
 
 ## Overview
 
 The CRM module manages G54's Business Partners (customers). Every customer account in MakeReady is a Business Partner (BP), mirroring the SAP Business One entity model. BPs are the anchor point for Sales Orders, AR Invoices, and Web Store accounts. The Account Group assigned to a BP controls what pricing and catalog the customer sees in the Web Store.
+
+### Pipeline stage definitions (from Kim call, 2026-08-12)
+
+The CRM pipeline has three swim lanes. Records move along them as the relationship gets more real:
+
+| Stage | Definition | Typical trigger |
+|---|---|---|
+| **Lead** | Cold/early contact. A scanned business card, a trade-show fishbowl drop, a name from a road trip. | Card scanned (OCR), web-lead form, manual add |
+| **Prospect** | Has expressed a real need; a conversation or meeting is underway. | Customer starts interacting / a meeting is scheduled; credit/terms application sent |
+| **Customer** | Credit/terms approved and a customer number assigned. | AR (e.g., Stacy) reviews the credit app, assigns a customer number, and assigns a sales rep |
+
+Movement between lanes is manual today (the triggers exist for later automation). The credit/terms application is completed **in-system** via a link (email or public website link), never via an emailed form.
 
 ---
 
@@ -88,6 +100,23 @@ The CRM module manages G54's Business Partners (customers). Every customer accou
 - Given a BP record, then the Web Store status shows: Published / Not Published / Pending
 - Given a BP is published to the Web Store, then their Account Group, price list, and storefront status are visible on the BP record
 - Publishing/unpublishing a BP to the Web Store is controlled from the Web Store module, not CRM
+
+---
+
+### US-CRM-07: OCR business-card capture
+**As a** Sales Rep in the field
+**I want to** snap a photo of a business card and have the system auto-create a Lead from it
+**So that** the stack of cards I collect on the road turns into CRM records without me typing every field
+
+> **From the Kim call.** Reps still collect and hand out a lot of business cards. Today they sit down at the end of the day and type card details into the system by hand. Kim and Chris agreed: add OCR so a phone/tablet photo populates as much of the record as possible.
+
+**Acceptance Criteria:**
+- Given I am on CRM on a phone or tablet, when I tap **New from business card**, then I can take a photo or pick one from the device (iOS + Android; the app must be granted photo/camera access)
+- Given a card photo is captured, then OCR extracts and pre-fills as many fields as it can: company name, contact first/last name, title, email, phone, address, website
+- Given OCR pre-fills the form, then I can review and correct fields before saving (OCR is a draft, not a commit)
+- Given I save, then a new record is created as a **Lead** by default (rep can promote to Prospect if the conversation warranted it)
+- Given the original card photo, then it is attached to the record for reference
+- **[Nice-to-have]** Batch mode: capture several cards in a row, then review the resulting Leads as a list
 
 ---
 

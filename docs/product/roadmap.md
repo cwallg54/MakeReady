@@ -34,7 +34,11 @@ MakeReady is delivered in phases. Each phase produces working, deployable softwa
 | Account Groups | 2.2 |
 | Contact Management | 2.3 |
 | Activity Log | 2.4 |
+| Sales Pipeline View (Lead → Prospect → Customer) | 2.6 |
 | Quotes / Estimates | 3.1 |
+| Garment & Decoration Quote Builder | 3.9 |
+| Pricing Calculator Engine | 3.10 |
+| Reorder Fast-Path | 3.11 |
 | Sales Orders (manual creation) | 3.2 |
 | Delivery | 3.4 |
 | AR Invoice | 3.5 |
@@ -77,13 +81,14 @@ MakeReady is delivered in phases. Each phase produces working, deployable softwa
 | Production Queue | 5.2 |
 | Job Status Tracking | 5.3 |
 | Artwork Attachment | 5.4 |
+| First-Article Proof (Press Check) | 5.8 |
 | Item Master | 6.1 |
 | Stock Levels | 6.2 |
 | Web Store Publishing (inventory) | 6.3 |
 | Quality Management | (from /quality.html) |
 | Equipment Maintenance | (from /maintenance.html) |
 
-**Acceptance:** Sales Order created in Phase 2 automatically creates a job in the production queue. Job moves through status stages. Completion triggers delivery creation.
+**Acceptance:** Sales Order created in Phase 2 automatically creates a job in the production queue. Job moves through status stages. Jobs flagged *Press check required* cannot advance to Printing until Art signs off on an in-system first-article photo. Completion triggers delivery creation.
 
 ---
 
@@ -145,6 +150,7 @@ MakeReady is delivered in phases. Each phase produces working, deployable softwa
 | Mobile-Responsive Field Sales View | 3.7 |
 | Order Upload from Field | 3.7 |
 | Client Artwork Upload | 8.1 (role-filtered) |
+| OCR Business-Card Capture | 2.7 |
 | Sales Manager Oversight View | 1.2 |
 
 **Acceptance:** A field sales rep on a tablet can log in, find their client's BP, create a sales order with line items, attach artwork, and submit — all within 5 minutes, without asking anyone for help.
@@ -172,5 +178,5 @@ MakeReady is delivered in phases. Each phase produces working, deployable softwa
 - Custom report builder (10.6)
 - Drag-and-drop workflow designer (9.7)
 - Job costing (5.6)
-- Customer proof approval portal (5.7)
 - Purchase Orders and Goods Receipts (6.4, 6.6)
+- SMS notifications (press-check requests, approvals, drip alerts) — platform-wide V2

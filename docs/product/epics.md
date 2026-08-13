@@ -32,7 +32,8 @@ Full feature tree for MakeReady. Each epic maps to one or more wireframe pages. 
 | 2.3 Contact Management | Multiple contacts per BP, role, phone, email, primary flag | /crm.html |
 | 2.4 Activity Log | Notes, calls, emails, visits logged per BP with timestamps | /crm.html |
 | 2.5 BP — Web Store Link | CRM account group controls which products/prices customer sees in Web Store | /crm.html + /ecommerce.html |
-| 2.6 Sales Pipeline View | Opportunity tracking per BP [PHASE 2] | — |
+| 2.6 Sales Pipeline View | Opportunity tracking per BP: Lead → Prospect → Customer swim lanes | /crm.html |
+| 2.7 OCR Business-Card Capture | Snap a business card from phone/tablet; OCR auto-fills a new Lead | /crm.html |
 
 ---
 
@@ -50,6 +51,10 @@ Full feature tree for MakeReady. Each epic maps to one or more wireframe pages. 
 | 3.6 Incoming Payment | Record payment against invoice; mark closed | /sales.html |
 | 3.7 Field Sales Upload | Sales reps upload client orders and artwork from field | /auth.html (role view) |
 | 3.8 Web Store Status Sync | Order status changes in MakeReady pushed back to Web Store | /sales.html + /ecommerce.html |
+| 3.9 Garment & Decoration Quote Builder | Catalog-driven garment + color + size-run entry with decoration lines; print counts auto-validated against garment quantities; no separate line-item section | /sales.html |
+| 3.10 Pricing Calculator Engine | Replaces the SS Silk Screen spreadsheet: qty price bands, size upcharges, extras (barcode, fold, hang tag, UPC, name drop), vendor freight thresholds, artist royalties; admin-maintained cost tables | /sales.html + /admin.html |
+| 3.11 Reorder Fast-Path | Mark an order as a reorder to skip proof approval/press check while still sending the customer a copy | /sales.html |
+| 3.12 Embroidery Pricing | Separate embroidery pricing model (stitch-count based) alongside silk-screen | /sales.html + /admin.html |
 
 ---
 
@@ -81,7 +86,8 @@ Full feature tree for MakeReady. Each epic maps to one or more wireframe pages. 
 | 5.4 Artwork Attachment | Link Content Library assets to jobs; upload artwork per job | /jobs.html |
 | 5.5 Press / Equipment Assignment | Assign job to specific press or finishing equipment [PHASE 2] | — |
 | 5.6 Job Costing | Track materials and time against job budget [PHASE 2] | — |
-| 5.7 Customer Proof Approval | Send proof link to customer; capture approval [PHASE 2] | — |
+| 5.7 Customer Proof Approval | Send proof link to customer; capture approval | /jobs.html + /portal |
+| 5.8 First-Article Proof (Press Check) | Production runs a single item, photographs it in-system, and routes to Art for sign-off before the full run is released | /jobs.html |
 
 ---
 

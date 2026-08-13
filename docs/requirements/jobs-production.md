@@ -1,8 +1,8 @@
 # Jobs & Production
 
 **Wireframe:** https://g54-platform.vercel.app/jobs.html
-**Epic refs:** 5.1–5.4
-**Stakeholders (Operations/Production):** Tyson Johnson
+**Epic refs:** 5.1–5.4, 5.7, 5.8
+**Stakeholders (Operations/Production):** Tyson Johnson, Cody (Production readiness)
 
 ---
 
@@ -15,11 +15,14 @@ The Jobs & Production module is the production floor's view of MakeReady. Every 
 ## Job Status Pipeline
 
 ```
-New → Prepress → Printing → Finishing → Ready to Ship → Shipped
-                                                        └─► Triggers Delivery in Sales
+New → Prepress → Press Check → Printing → Finishing → Ready to Ship → Shipped
+                     │                                               └─► Triggers Delivery in Sales
+                     └─► (gate) full run blocked until Art signs off on the first-article proof
 ```
 
 Jobs can also be: On Hold | Cancelled
+
+**Press Check gate.** For jobs flagged **Press check required** (see US-SALES for the order-level flag; typically all new silk-screen jobs), the job cannot advance from Press Check to Printing until Art has approved the first-article proof (US-JOB-07). Jobs not flagged for a press check skip the gate and move Prepress → Printing directly. Reorders default to *no press check* unless the customer or the artwork changed.
 
 ---
 
@@ -98,3 +101,27 @@ Jobs can also be: On Hold | Cancelled
 **Acceptance Criteria:**
 - Given I am on a Sales Order record, when I click the linked Job number, then I navigate to the Job record
 - Given I am on a Job record, when I click the linked SO number, then I navigate back to the Sales Order
+
+---
+
+### US-JOB-07: First-article proof (press check) sign-off
+**As a** Production member
+**I want to** capture a photo of the first printed item and get Art's sign-off in-system before I run the rest of the order
+**So that** we catch color/registration/placement errors on one garment instead of the whole run — without texting photos from personal cell phones
+
+> **Replaces today's manual process.** Today Production prints one item, photographs it on their **personal cell phone**, and **texts it to someone in Art** to confirm it looks right before running the full order. That handoff lives outside any system — no record of who approved, when, or against which proof. This story moves the entire loop in-system so it is logged, tied to the job, and auditable.
+
+**Acceptance Criteria:**
+- Given a job is flagged **Press check required**, when it reaches the **Press Check** stage, then Production cannot advance it to **Printing** until a first-article proof has been approved
+- Given I am on a Job at the Press Check stage, when I tap **Capture first-article proof**, then I can take or upload a photo directly from a phone/tablet camera (iOS + Android) and it attaches to the job
+- Given I submit the first-article photo, then a **press-check review** notification is routed to the Art Department (the artist who owns the design, if known), and the job shows status "Awaiting press-check approval"
+- Given an Art member opens the press-check review, then they see side-by-side: the **approved customer proof / artwork** and the **first-article photo**, plus job number, customer, design number, and print locations
+- Given an Art member reviews the first-article, when they click **Approve**, then the job is released to **Printing** and the approval is logged with reviewer name, timestamp, and the photo compared
+- Given an Art member clicks **Reject / needs changes**, then they must enter a reason, the job stays at Press Check, Production is notified, and they can capture a new first-article photo (each attempt is retained as a version)
+- Given the press check is complete, then the full history (each photo, each decision, each reviewer, timestamps) is visible on the job and cannot be edited or deleted
+- **[V2]** Given the Art reviewer is out of the app, then the press-check request can also be delivered via SMS with a secure link to approve/reject (ties to the platform SMS notification track)
+
+**Open questions / definitions (TBD with Cody + Tyson):**
+- Which job types always require a press check vs. never (default: new silk-screen = yes; reorders with unchanged art = no; embroidery = TBD)
+- Whether more than one Art approver is acceptable, or it must be the design's owning artist
+- Whether a rejected press check should also alert the Sales rep / Production lead
