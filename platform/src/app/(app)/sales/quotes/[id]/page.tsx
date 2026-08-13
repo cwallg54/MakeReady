@@ -16,6 +16,9 @@ import type { ChargeRule, PriceBreak, GarmentLineData, DecorationInput, MethodRe
 import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
+import { pricingMethods } from "@/db/schema";
+import { listExtras, listFreight, listRoyalties } from "@/lib/pricing/service";
+import { PriceCalculator } from "@/app/(app)/admin/pricing/price-calculator";
 
 const m = (n: number) => `$${n.toFixed(2)}`;
 
@@ -160,6 +163,14 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
   // A pending finance credit review parks the conversion (reps never see the numbers).
   const pendingCredit = await db.query.creditApprovalRequests.findFirst({ where: and(eq(creditApprovalRequests.quoteId, id), eq(creditApprovalRequests.status, "pending")), columns: { id: true } });
 
+  // Softgoods pricing engine refs (Kim's spreadsheet math, live) for the price-check tool.
+  const [pMethods, pExtras, pFreight, pRoyalties] = await Promise.all([
+    db.select().from(pricingMethods).orderBy(asc(pricingMethods.label)),
+    listExtras(),
+    listFreight(),
+    listRoyalties(),
+  ]);
+
   return (
     <div className="max-w-5xl">
       <Link href="/sales" className="text-sm text-neutral-500 hover:text-neutral-900">← Quotes</Link>
@@ -255,6 +266,21 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
         initialNotes={quote.notes ?? ""}
         canDiscount={user.roles.some((r) => r === "admin" || r === "sales_manager")}
       />
+
+      {pMethods.length > 0 && (
+        <Card className="mt-6">
+          <details>
+            <summary className="cursor-pointer text-sm font-semibold text-neutral-900">Softgoods price check <span className="font-normal text-neutral-500">— exact silkscreen / embroidery pricing from the calculator engine</span></summary>
+            <p className="mb-3 mt-2 text-xs text-neutral-500">Enter a garment #, quantity, print level and options to get the precise per-piece price (garment cost × qty-band multiplier + screen charges + extras + freight + royalty), then key it into the line above. Costs are managed in Admin → Softgoods Pricing.</p>
+            <PriceCalculator
+              methods={pMethods.map((mm) => ({ key: mm.key, label: mm.label }))}
+              extras={pExtras.map((e) => ({ id: e.id, label: e.label, amount: e.amount, kind: e.kind }))}
+              royalties={pRoyalties.map((r) => ({ name: r.name, pct: r.pct }))}
+              freight={pFreight.map((f) => ({ vendor: f.vendor }))}
+            />
+          </details>
+        </Card>
+      )}
 
       {/* Customer intake files — carried onto the order for the art department. */}
       <Card className="mt-6">
