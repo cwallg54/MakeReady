@@ -1,6 +1,38 @@
 "use client";
 
+import { useState } from "react";
 import { priceGarmentLine, type DecorationInput, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry, type EngineConfigs } from "@/lib/sales/pricing";
+
+// Standard blank-apparel colors, used when a garment has no specific colors on
+// file (every imported softgoods garment). Per-garment colors set in Admin →
+// Catalog override this. tierCode drives the dark-garment upcharge in the older
+// markup model; the softgoods engine prices by cost + level and ignores it.
+const DEFAULT_COLOR_PALETTE: { name: string; tierCode: string | null; hex: string | null }[] = [
+  { name: "White", tierCode: "light", hex: "#ffffff" },
+  { name: "Natural", tierCode: "light", hex: "#efe8d8" },
+  { name: "Sand", tierCode: "light", hex: "#d9c9a3" },
+  { name: "Ash", tierCode: "light", hex: "#d5d5d0" },
+  { name: "Sport Grey", tierCode: "light", hex: "#b0b0b0" },
+  { name: "Light Blue", tierCode: "light", hex: "#a9c7dd" },
+  { name: "Yellow", tierCode: "light", hex: "#f4d03f" },
+  { name: "Gold", tierCode: "light", hex: "#e8b923" },
+  { name: "Pink", tierCode: "light", hex: "#f4a7c0" },
+  { name: "Black", tierCode: "dark", hex: "#111111" },
+  { name: "Charcoal", tierCode: "dark", hex: "#41474d" },
+  { name: "Dark Heather", tierCode: "dark", hex: "#585c60" },
+  { name: "Navy", tierCode: "dark", hex: "#1f2a44" },
+  { name: "Royal", tierCode: "dark", hex: "#1e4fa3" },
+  { name: "Red", tierCode: "dark", hex: "#b42025" },
+  { name: "Cardinal", tierCode: "dark", hex: "#8a1f2b" },
+  { name: "Maroon", tierCode: "dark", hex: "#5c1a2b" },
+  { name: "Orange", tierCode: "dark", hex: "#e3610f" },
+  { name: "Forest Green", tierCode: "dark", hex: "#1f3d2b" },
+  { name: "Kelly Green", tierCode: "dark", hex: "#1f7a44" },
+  { name: "Military Green", tierCode: "dark", hex: "#4b5320" },
+  { name: "Purple", tierCode: "dark", hex: "#4b2e83" },
+  { name: "Brown", tierCode: "dark", hex: "#4a3526" },
+  { name: "Teal", tierCode: "dark", hex: "#1c6b6b" },
+];
 
 export interface StyleOption {
   id: string;
@@ -24,6 +56,42 @@ export interface CatalogRefs {
 
 const money = (n: number) => `$${n.toFixed(2)}`;
 const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
+
+/** Type-to-search garment picker over the in-memory catalog (handles 800+ blanks). */
+function GarmentCombo({ styles, value, disabled, onPick }: { styles: StyleOption[]; value: string | null; disabled?: boolean; onPick: (id: string) => void }) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const selected = styles.find((s) => s.id === value);
+  const label = (s: StyleOption) => `${[s.brand, s.styleNumber].filter(Boolean).join(" ")} ${s.name}`.trim();
+  const ql = q.trim().toLowerCase();
+  const matches = (ql ? styles.filter((s) => label(s).toLowerCase().includes(ql)) : styles).slice(0, 30);
+  return (
+    <div className="relative">
+      <input
+        disabled={disabled}
+        value={open ? q : selected ? label(selected) : ""}
+        placeholder="Search garment — name, brand, or style #…"
+        onFocus={() => { setOpen(true); setQ(""); }}
+        onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className={`mt-1 w-full ${inp}`}
+      />
+      {open && (
+        <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-md border border-neutral-200 bg-white text-sm shadow-lg">
+          {matches.length === 0 && <li className="px-3 py-2 text-neutral-400">No matches</li>}
+          {matches.map((s) => (
+            <li key={s.id}>
+              <button type="button" onMouseDown={(e) => { e.preventDefault(); onPick(s.id); setOpen(false); setQ(""); }} className="block w-full px-3 py-1.5 text-left hover:bg-neutral-50">
+                {label(s)}
+              </button>
+            </li>
+          ))}
+          {matches.length === 30 && <li className="px-3 py-1.5 text-[11px] text-neutral-400">Keep typing to narrow…</li>}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export function refMaps(refs: CatalogRefs) {
   const methods = new Map<string, MethodRef>(refs.methods.map((m) => [m.code, m]));
@@ -99,8 +167,9 @@ export function GarmentLineCard({
     const s = refs.styles.find((x) => x.id === id);
     onChange({ styleId: id || null, description: s?.name ?? "", color: null, colorTier: null, sizeBreakdown: {} });
   }
+  const colorOptions = style?.colors && style.colors.length > 0 ? style.colors : DEFAULT_COLOR_PALETTE;
   function pickColor(name: string) {
-    const c = style?.colors.find((x) => x.name === name);
+    const c = colorOptions.find((x) => x.name === name);
     onChange({ color: name || null, colorTier: c?.tierCode ?? null });
   }
   function setSizeQty(size: string, qty: number) {
@@ -126,15 +195,12 @@ export function GarmentLineCard({
     <div className="rounded-lg border border-neutral-200 bg-white p-3">
       <div className="grid gap-2 sm:grid-cols-3">
         <label className="sm:col-span-2 text-xs text-neutral-500">Garment
-          <select disabled={!editable} value={line.styleId ?? ""} onChange={(e) => pickStyle(e.target.value)} className={`mt-1 w-full ${inp}`}>
-            <option value="">— pick a blank —</option>
-            {refs.styles.map((s) => <option key={s.id} value={s.id}>{[s.brand, s.styleNumber].filter(Boolean).join(" ")} {s.name} ({money(s.basePrice)})</option>)}
-          </select>
+          <GarmentCombo styles={refs.styles} value={line.styleId ?? null} disabled={!editable} onPick={pickStyle} />
         </label>
         <label className="text-xs text-neutral-500">Color
           <select disabled={!editable || !style} value={line.color ?? ""} onChange={(e) => pickColor(e.target.value)} className={`mt-1 w-full ${inp}`}>
             <option value="">— color —</option>
-            {style?.colors.map((c) => <option key={c.name} value={c.name}>{c.name}{c.tierCode ? ` (${c.tierCode})` : ""}</option>)}
+            {colorOptions.map((c) => <option key={c.name} value={c.name}>{c.name}{c.tierCode ? ` (${c.tierCode})` : ""}</option>)}
           </select>
         </label>
       </div>
