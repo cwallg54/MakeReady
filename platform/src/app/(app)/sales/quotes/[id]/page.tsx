@@ -16,7 +16,9 @@ import type { ChargeRule, PriceBreak, GarmentLineData, DecorationInput, MethodRe
 import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
-import { pricingMethods } from "@/db/schema";
+import { pricingMethods, pricingGarments } from "@/db/schema";
+import { inArray } from "drizzle-orm";
+import type { SilkscreenConfig } from "@/lib/pricing/engine";
 import { listExtras, listFreight, listRoyalties } from "@/lib/pricing/service";
 import { PriceCalculator } from "@/app/(app)/admin/pricing/price-calculator";
 
@@ -118,12 +120,27 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     arr.push({ name: c.name, tierCode: c.tierCode, hex: c.hex });
     colorsByStyle.set(c.styleId, arr);
   }
+  // Softgoods engine config + per-style garment cost (supplier cost, else the
+  // seeded pricing_garments cost by style number) so silkscreen lines price via
+  // Kim's spreadsheet math.
+  const ssMethod = await db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") });
+  const styleNums = styleRows.map((s) => s.styleNumber).filter((x): x is string => !!x);
+  const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
+  const costByNum = new Map(pgRows.map((r) => [r.garmentNumber, Number(r.cost)]));
+  const garmentCostByStyleId: Record<string, number> = {};
+  for (const s of styleRows) {
+    const c = s.supplierCost != null ? Number(s.supplierCost) : s.styleNumber ? costByNum.get(s.styleNumber) : undefined;
+    if (c != null && c > 0) garmentCostByStyleId[s.id] = c;
+  }
+
   const catalogRefs: CatalogRefs = {
     styles: styleRows.map((s) => ({ id: s.id, name: s.name, brand: s.brand, styleNumber: s.styleNumber, basePrice: Number(s.basePrice), sizeClassCode: s.sizeClassCode, colors: colorsByStyle.get(s.id) ?? [] })),
     sizeClassByCode: Object.fromEntries(classRows.map((c) => [c.code, (c.sizes as SizeEntry[] | null) ?? []])),
     methods: methodRows.map((m) => ({ code: m.code, name: m.name, priceMode: m.priceMode, pricing: (m.pricing as MethodRef["pricing"]) ?? null })),
     locations: locationRows.map((l) => ({ code: l.code, name: l.name })),
     embTiers: embRows.map((e) => ({ code: e.code, name: e.name, pricePerUnit: Number(e.pricePerUnit) })),
+    engine: ssMethod ? { silkscreen: ssMethod.config as SilkscreenConfig } : undefined,
+    garmentCostByStyleId,
   };
 
   // Split saved lines: garment lines carry a styleId or decorations; the rest are simple.

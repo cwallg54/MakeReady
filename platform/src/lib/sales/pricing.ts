@@ -3,6 +3,28 @@
  * no DB — so it runs identically on server (persist) and client (live preview).
  */
 
+import { priceSilkscreen, type SilkscreenConfig } from "@/lib/pricing/engine";
+
+// When the softgoods pricing engine is available (garment cost + method config),
+// a garment line's decorated unit price is computed from Kim's spreadsheet math
+// (garment cost × qty-band multiplier + screen charge by print level) instead of
+// the older markup model. Falls back to the markup model when cost/config is
+// absent, so styles without a cost are unaffected.
+export interface EngineConfigs {
+  silkscreen?: SilkscreenConfig;
+}
+const CHEST_YOKE = new Set(["left_chest", "right_chest", "center_chest", "front_yoke", "back_yoke"]);
+const SLEEVE = new Set(["left_sleeve", "right_sleeve", "cuff"]);
+const LEVELS = ["A", "B", "C"] as const;
+function maxLevel(decos: { level?: string }[]): "A" | "B" | "C" {
+  let idx = 1; // default B
+  for (const d of decos) {
+    const i = LEVELS.indexOf((d.level ?? "B") as "A" | "B" | "C");
+    if (i > idx) idx = i;
+  }
+  return LEVELS[idx];
+}
+
 export type ChargeType = "flat" | "per_unit" | "per_color" | "per_hour" | "percent";
 export type ChargeCondition = "always" | "new" | "reorder";
 
@@ -130,6 +152,7 @@ export interface DecorationInput {
   method: string; // decoration_methods.code
   colorCount?: number; // for per_color methods
   stitchTier?: string; // embroidery_tiers.code, for stitch methods
+  level?: "A" | "B" | "C"; // silkscreen screen-color class (softgoods engine)
 }
 
 /** A full garment quote line as sent from the builder / persisted on a quote. */
@@ -220,6 +243,39 @@ export interface GarmentLinePrice {
  * breakdown, a color tier, and a set of decorations. Pure — the quote builder
  * (live preview) and the server (persist) both call this so they agree.
  */
+/**
+ * Engine (Kim's spreadsheet) decorated unit price for a silkscreen line, or null
+ * when it doesn't apply (no config, no garment cost, or no screen-print
+ * decoration). Maps decoration placements to the engine's model: the primary
+ * print carries the level, chest/yoke → left-chest adder, sleeve → sleeve adder.
+ */
+export function engineSilkscreenUnit(opts: {
+  garmentCost?: number;
+  totalUnits: number;
+  decorations: DecorationInput[];
+  methods: Map<string, MethodRef>;
+  engine?: EngineConfigs;
+  tier?: "list" | "HV" | "MV";
+}): { unit: number; sizeUpcharges: Record<string, number> } | null {
+  const cfg = opts.engine?.silkscreen;
+  if (!cfg || !opts.garmentCost || opts.garmentCost <= 0 || opts.totalUnits <= 0) return null;
+  const perColor = opts.decorations.filter((d) => opts.methods.get(d.method)?.priceMode === "per_color");
+  if (perColor.length === 0) return null; // not a screen-print line — leave to the markup model
+
+  const main = perColor.filter((d) => !CHEST_YOKE.has(d.location) && !SLEEVE.has(d.location));
+  const hasMain = main.length > 0;
+  const primary = hasMain ? main : [perColor[0]];
+  const level = maxLevel(primary);
+  const leftChestYoke = hasMain && perColor.some((d) => CHEST_YOKE.has(d.location));
+  const sleeve = hasMain && perColor.some((d) => SLEEVE.has(d.location));
+
+  const res = priceSilkscreen(
+    { garmentCost: opts.garmentCost, level, qty: opts.totalUnits, leftChestYoke, sleeve, tier: opts.tier },
+    cfg,
+  );
+  return { unit: res.unit, sizeUpcharges: cfg.sizeUpcharges };
+}
+
 export function priceGarmentLine(opts: {
   basePrice: number;
   sizeClassSizes: SizeEntry[] | null;
@@ -229,18 +285,47 @@ export function priceGarmentLine(opts: {
   methods: Map<string, MethodRef>;
   embTiers: Map<string, EmbTierRef>;
   isReorder: boolean;
-}): GarmentLinePrice {
-  const runPerUnit = decorationRunPerUnit(opts.decorations, opts.methods, opts.embTiers, opts.colorTier);
+  // Softgoods engine context — when supplied, silkscreen lines price via the engine.
+  engine?: EngineConfigs;
+  garmentCost?: number;
+  tier?: "list" | "HV" | "MV";
+}): GarmentLinePrice & { enginePriced: boolean } {
   let totalUnits = 0;
-  let garmentSubtotal = 0;
-  for (const [size, qtyRaw] of Object.entries(opts.sizeBreakdown ?? {})) {
+  for (const qtyRaw of Object.values(opts.sizeBreakdown ?? {})) {
     const qty = Number(qtyRaw) || 0;
-    if (qty <= 0) continue;
-    totalUnits += qty;
-    garmentSubtotal += qty * (round2(opts.basePrice || 0) + sizeClassUpcharge(opts.sizeClassSizes, size));
+    if (qty > 0) totalUnits += qty;
+  }
+
+  const eng = engineSilkscreenUnit({
+    garmentCost: opts.garmentCost,
+    totalUnits,
+    decorations: opts.decorations,
+    methods: opts.methods,
+    engine: opts.engine,
+    tier: opts.tier,
+  });
+
+  let garmentSubtotal = 0;
+  let runSubtotal = 0;
+  if (eng) {
+    // Engine unit already includes the garment + decoration; add per-size upcharges
+    // (engine's 2XL/3XL first, else the size class's).
+    for (const [size, qtyRaw] of Object.entries(opts.sizeBreakdown ?? {})) {
+      const qty = Number(qtyRaw) || 0;
+      if (qty <= 0) continue;
+      const up = eng.sizeUpcharges[size] ?? sizeClassUpcharge(opts.sizeClassSizes, size);
+      garmentSubtotal += qty * (eng.unit + up);
+    }
+  } else {
+    const runPerUnit = decorationRunPerUnit(opts.decorations, opts.methods, opts.embTiers, opts.colorTier);
+    for (const [size, qtyRaw] of Object.entries(opts.sizeBreakdown ?? {})) {
+      const qty = Number(qtyRaw) || 0;
+      if (qty <= 0) continue;
+      garmentSubtotal += qty * (round2(opts.basePrice || 0) + sizeClassUpcharge(opts.sizeClassSizes, size));
+    }
+    runSubtotal = round2(totalUnits * runPerUnit);
   }
   garmentSubtotal = round2(garmentSubtotal);
-  const runSubtotal = round2(totalUnits * runPerUnit);
   const extended = round2(garmentSubtotal + runSubtotal);
   return {
     totalUnits,
@@ -249,6 +334,7 @@ export function priceGarmentLine(opts: {
     extended,
     blendedUnitPrice: totalUnits ? round2(extended / totalUnits) : 0,
     setups: decorationSetups(opts.decorations, opts.methods, opts.isReorder),
+    enginePriced: !!eng,
   };
 }
 

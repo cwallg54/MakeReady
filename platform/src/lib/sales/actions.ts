@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments } from "@/db/schema";
+import type { SilkscreenConfig } from "@/lib/pricing/engine";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -148,6 +149,15 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
     const embRows = await db.select().from(embroideryTiers);
     const embTiers = new Map<string, EmbTierRef>(embRows.map((e) => [e.code, { code: e.code, pricePerUnit: Number(e.pricePerUnit) }]));
 
+    // Softgoods engine config + per-style garment cost (must match the client preview).
+    const ssMethod = await db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") });
+    const engine = ssMethod ? { silkscreen: ssMethod.config as SilkscreenConfig } : undefined;
+    const styleNums = styles.map((s) => s.styleNumber).filter((x): x is string => !!x);
+    const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
+    const costByNum = new Map(pgRows.map((r) => [r.garmentNumber, Number(r.cost)]));
+    const garmentCostOf = (s: typeof styles[number] | undefined) =>
+      s ? (s.supplierCost != null ? Number(s.supplierCost) : s.styleNumber ? costByNum.get(s.styleNumber) : undefined) : undefined;
+
     garmentInputs.forEach((g, gi) => {
       const style = g.styleId ? styleById.get(g.styleId) : undefined;
       const sizes = style?.sizeClassCode ? classByCode.get(style.sizeClassCode) ?? null : null;
@@ -160,6 +170,8 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
         methods,
         embTiers,
         isReorder: payload.isReorder,
+        engine,
+        garmentCost: garmentCostOf(style),
       });
       garmentSubtotal += res.extended;
       const baseDesc = style?.name || g.description || "(garment)";

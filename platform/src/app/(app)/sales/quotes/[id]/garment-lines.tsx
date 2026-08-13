@@ -1,6 +1,6 @@
 "use client";
 
-import { priceGarmentLine, type DecorationInput, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry } from "@/lib/sales/pricing";
+import { priceGarmentLine, type DecorationInput, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry, type EngineConfigs } from "@/lib/sales/pricing";
 
 export interface StyleOption {
   id: string;
@@ -17,6 +17,8 @@ export interface CatalogRefs {
   methods: MethodRef[];
   locations: { code: string; name: string }[];
   embTiers: { code: string; name: string; pricePerUnit: number }[];
+  engine?: EngineConfigs; // softgoods pricing engine config (silkscreen)
+  garmentCostByStyleId?: Record<string, number>; // supplier cost per style
 }
 
 const money = (n: number) => `$${n.toFixed(2)}`;
@@ -42,6 +44,8 @@ export function priceGarment(line: GarmentLineData, refs: CatalogRefs) {
     methods,
     embTiers,
     isReorder: false, // setups recomputed with reorder flag at save; preview uses new
+    engine: refs.engine,
+    garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
   });
 }
 
@@ -72,6 +76,8 @@ export function GarmentLineCard({
     methods,
     embTiers,
     isReorder,
+    engine: refs.engine,
+    garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
   });
 
   function pickStyle(id: string) {
@@ -158,9 +164,20 @@ export function GarmentLineCard({
                     {refs.embTiers.map((t) => <option key={t.code} value={t.code}>{t.name} ({money(t.pricePerUnit)})</option>)}
                   </select>
                 ) : (
-                  <label className="flex items-center gap-1 text-xs text-neutral-500"># colors
-                    <input disabled={!editable} type="number" min="1" value={d.colorCount ?? 1} onChange={(e) => patchDeco(i, { colorCount: Number(e.target.value) })} className={`w-16 ${inp}`} />
-                  </label>
+                  <>
+                    <label className="flex items-center gap-1 text-xs text-neutral-500"># colors
+                      <input disabled={!editable} type="number" min="1" value={d.colorCount ?? 1} onChange={(e) => patchDeco(i, { colorCount: Number(e.target.value) })} className={`w-16 ${inp}`} />
+                    </label>
+                    {refs.engine?.silkscreen && (
+                      <label className="flex items-center gap-1 text-xs text-neutral-500" title="Screen-color class (A/B/C) — drives engine pricing">level
+                        <select disabled={!editable} value={d.level ?? "B"} onChange={(e) => patchDeco(i, { level: e.target.value as "A" | "B" | "C" })} className={inp}>
+                          <option value="A">A</option>
+                          <option value="B">B</option>
+                          <option value="C">C</option>
+                        </select>
+                      </label>
+                    )}
+                  </>
                 )}
                 {editable && <button type="button" onClick={() => removeDeco(i)} className="text-neutral-400 hover:text-red-600" title="Remove">×</button>}
               </div>
@@ -172,9 +189,10 @@ export function GarmentLineCard({
       {/* Line price */}
       <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-2 text-sm">
         <div className="text-xs text-neutral-500">
-          {price.totalUnits} pc{price.totalUnits === 1 ? "" : "s"} · blank {money(price.garmentSubtotal)}
+          {price.totalUnits} pc{price.totalUnits === 1 ? "" : "s"} · {price.enginePriced ? "decorated" : "blank"} {money(price.garmentSubtotal)}
           {price.runSubtotal > 0 && ` · decoration ${money(price.runSubtotal)}`}
           {price.setups.length > 0 && ` · setup ${money(price.setups.reduce((s, x) => s + x.amount, 0))}`}
+          {price.enginePriced && <span className="ml-1 rounded bg-emerald-100 px-1 py-0.5 text-[10px] font-semibold text-emerald-700">engine</span>}
         </div>
         <div className="flex items-center gap-3">
           <span className="font-semibold text-neutral-900">{money(price.extended)}</span>
