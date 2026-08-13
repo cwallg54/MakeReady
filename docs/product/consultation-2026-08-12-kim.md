@@ -2,6 +2,13 @@
 
 Runthrough of the current MakeReady build with Kim, executive sponsor for Sales. Below are the decisions and the resulting scope changes. Items are cross-referenced to the requirements docs where they now live.
 
+## Build status (updated 2026-08-13)
+
+- ✅ **First-article press check** — shipped (commit 561c3d9).
+- ✅ **Pricing Calculator Engine** — shipped (commit b84e84b): silkscreen + embroidery, verified to the cent; admin at `/admin/pricing`. *Not yet wired into the quote builder; DTF/ASI methods pending.*
+- ✅ **OCR business-card capture** — shipped (commit 824a8ee).
+- ⛔ **Outstanding:** Garments & Decoration quote builder (+ wiring the pricing engine into it), rep pricing lockdown, reorder fast-path (proof-skip; press-check default-off already done), structured fulfillment fields + barcode/UPC engine, ship-date integration, Outlook calendar sync, SMS (V2), pipeline transition automation, embroidery/DTF/ASI calculators in the engine.
+
 ---
 
 ## Decisions & resulting scope
