@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments, pricingExtras } from "@/db/schema";
 import type { SilkscreenConfig } from "@/lib/pricing/engine";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
@@ -158,6 +158,11 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
     const garmentCostOf = (s: typeof styles[number] | undefined) =>
       s ? (s.supplierCost != null ? Number(s.supplierCost) : s.styleNumber ? costByNum.get(s.styleNumber) : undefined) : undefined;
 
+    // Per-garment extras (barcode, folding…) — amounts from pricing_extras.
+    const extraRows = await db.select({ id: pricingExtras.id, amount: pricingExtras.amount }).from(pricingExtras);
+    const extraAmt = new Map(extraRows.map((e) => [e.id, e.amount == null ? 0 : Number(e.amount)]));
+    const extrasPerUnitOf = (ids: string[] | undefined) => (ids ?? []).reduce((s, id) => s + (extraAmt.get(id) ?? 0), 0);
+
     garmentInputs.forEach((g, gi) => {
       const style = g.styleId ? styleById.get(g.styleId) : undefined;
       const sizes = style?.sizeClassCode ? classByCode.get(style.sizeClassCode) ?? null : null;
@@ -172,6 +177,7 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
         isReorder: payload.isReorder,
         engine,
         garmentCost: garmentCostOf(style),
+        extrasPerUnit: extrasPerUnitOf(g.extras),
       });
       garmentSubtotal += res.extended;
       const baseDesc = style?.name || g.description || "(garment)";
@@ -183,6 +189,7 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
         colorTier: g.colorTier ?? null,
         sizeBreakdown: g.sizeBreakdown ?? {},
         decorations: g.decorations ?? [],
+        extras: g.extras ?? [],
         qty: res.totalUnits,
         unitPrice: String(res.blendedUnitPrice),
         extended: String(res.extended),

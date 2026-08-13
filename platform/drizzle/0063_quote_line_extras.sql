@@ -1,0 +1,1 @@
+ALTER TABLE "quote_lines" ADD COLUMN "extras" jsonb;

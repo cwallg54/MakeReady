@@ -1,35 +1,19 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { priceQuote, resolveUnitPrice, sizeUpcharge, type ChargeRule, type PriceBreak, type GarmentLineData } from "@/lib/sales/pricing";
+import { priceQuote, type ChargeRule, type GarmentLineData } from "@/lib/sales/pricing";
 import { saveQuoteAction } from "@/lib/sales/actions";
 import { GarmentLineCard, priceGarment, type CatalogRefs } from "./garment-lines";
 
-interface Item {
-  code: string | null;
-  name: string;
-  unitPrice: number;
-  priceBreaks: PriceBreak[] | null;
-  minQty: number;
-  sizeUpcharges: Record<string, number> | null;
-}
-interface Line { itemCode?: string; description: string; size?: string; qty: number; unitPrice: number }
-
 const money = (n: number) => `$${n.toFixed(2)}`;
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
-const hasBands = (it?: Item) => !!it && !!it.priceBreaks && it.priceBreaks.length > 0;
-const hasSizeUpcharges = (it?: Item) => !!it && !!it.sizeUpcharges && Object.keys(it.sizeUpcharges).length > 0;
-const isAutoPriced = (it?: Item) => hasBands(it) || hasSizeUpcharges(it);
 const inputCls = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-brand";
 
 export function QuoteBuilder({
   quoteId,
   editable,
-  catalog,
-  sizeOptions,
   rules,
   catalogRefs,
-  initialLines,
   initialGarmentLines,
   initialApplied,
   initialReorder,
@@ -39,11 +23,8 @@ export function QuoteBuilder({
 }: {
   quoteId: string;
   editable: boolean;
-  catalog: Item[];
-  sizeOptions: string[];
   rules: ChargeRule[];
   catalogRefs?: CatalogRefs;
-  initialLines: Line[];
   initialGarmentLines?: GarmentLineData[];
   initialApplied: { key: string; inputQty: number }[];
   initialReorder: boolean;
@@ -51,10 +32,6 @@ export function QuoteBuilder({
   initialNotes: string;
   canDiscount?: boolean;
 }) {
-  const showSize = sizeOptions.length > 0 && catalog.some((c) => hasSizeUpcharges(c));
-  const catalogItem = (l: Line): Item | undefined =>
-    catalog.find((c) => (c.code ?? c.name) === (l.itemCode ?? l.description));
-  const [lines, setLines] = useState<Line[]>(initialLines.length ? initialLines : [{ description: "", qty: 0, unitPrice: 0 }]);
   const [applied, setApplied] = useState<Record<string, { on: boolean; inputQty: number }>>(() => {
     const m: Record<string, { on: boolean; inputQty: number }> = {};
     for (const r of rules) {
@@ -72,18 +49,18 @@ export function QuoteBuilder({
 
   const hasCatalog = !!catalogRefs && catalogRefs.styles.length > 0;
 
-  // priceQuote runs with discount 0; discount is applied once across simple +
-  // garment lines to match the server's authoritative math.
+  // Charges/discount math (garment lines carry their own pricing). priceQuote
+  // runs with no simple lines and discount 0; totals are combined below.
   const priced = useMemo(
     () =>
       priceQuote({
-        lines,
+        lines: [],
         rules,
         applied: Object.entries(applied).filter(([, v]) => v.on).map(([key, v]) => ({ key, inputQty: v.inputQty })),
         isReorder,
         discount: 0,
       }),
-    [lines, rules, applied, isReorder],
+    [rules, applied, isReorder],
   );
 
   const garmentPrice = useMemo(() => {
@@ -98,7 +75,7 @@ export function QuoteBuilder({
     return { subtotal: round2(subtotal), setups: round2(setups) };
   }, [garmentLines, catalogRefs]);
 
-  const subtotal = round2(priced.subtotal + garmentPrice.subtotal);
+  const subtotal = round2(garmentPrice.subtotal);
   const chargesTotal = round2(priced.chargesTotal + garmentPrice.setups);
   const total = round2(subtotal + chargesTotal - (discount || 0));
 
@@ -107,7 +84,7 @@ export function QuoteBuilder({
     setSaved(false);
   }
   function addGarment() {
-    setGarmentLines((prev) => [...prev, { styleId: null, description: "", color: null, colorTier: null, sizeBreakdown: {}, decorations: [] }]);
+    setGarmentLines((prev) => [...prev, { styleId: null, description: "", color: null, colorTier: null, sizeBreakdown: {}, decorations: [], extras: [] }]);
     setSaved(false);
   }
   function removeGarment(i: number) {
@@ -115,44 +92,11 @@ export function QuoteBuilder({
     setSaved(false);
   }
 
-  function updateLine(i: number, patch: Partial<Line>) {
-    setLines((prev) =>
-      prev.map((l, idx) => {
-        if (idx !== i) return l;
-        const merged = { ...l, ...patch };
-        // Auto-price catalog items from their quantity band + size upcharge, unless
-        // the unit price was set explicitly in this same patch (manual override on
-        // free/custom items). Catalog band items are always server-authoritative.
-        const item = catalogItem(merged);
-        if (isAutoPriced(item) && !("unitPrice" in patch)) {
-          merged.unitPrice = round2(
-            resolveUnitPrice(item!.priceBreaks, merged.qty, item!.unitPrice) +
-              sizeUpcharge(item!.sizeUpcharges, merged.size),
-          );
-        }
-        return merged;
-      }),
-    );
-    setSaved(false);
-  }
-  function pickItem(i: number, code: string) {
-    const item = catalog.find((c) => (c.code ?? c.name) === code);
-    if (!item) {
-      updateLine(i, { itemCode: undefined });
-      return;
-    }
-    const qty = lines[i]?.qty ?? 0;
-    const unitPrice = isAutoPriced(item)
-      ? round2(resolveUnitPrice(item.priceBreaks, qty, item.unitPrice))
-      : item.unitPrice;
-    updateLine(i, { itemCode: item.code ?? undefined, description: item.name, size: undefined, unitPrice });
-  }
-
   function save() {
     setSaved(false);
     startTransition(async () => {
       await saveQuoteAction(quoteId, {
-        lines,
+        lines: [],
         garmentLines,
         applied: Object.entries(applied).filter(([, v]) => v.on).map(([key, v]) => ({ key, inputQty: v.inputQty })),
         isReorder,
@@ -166,106 +110,18 @@ export function QuoteBuilder({
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
-        {/* Line items */}
+        {/* Garments & decoration — the single line-item builder, priced by the engine */}
         <div className="rounded-xl border border-neutral-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-neutral-900">Line items</h2>
-            {editable && (
-              <button onClick={() => { setLines((p) => [...p, { description: "", qty: 0, unitPrice: 0 }]); setSaved(false); }} className="text-sm font-medium text-neutral-700 hover:text-neutral-900">+ Add line</button>
-            )}
-          </div>
-          <div className="space-y-2">
-            {lines.map((l, i) => {
-              const item = catalogItem(l);
-              const auto = isAutoPriced(item);
-              const belowMin = !!item && item.minQty > 0 && (l.qty || 0) > 0 && (l.qty || 0) < item.minQty;
-              const gridCls = showSize
-                ? "hidden items-center gap-2 lg:grid lg:grid-cols-[1fr_74px_60px_84px_70px_24px]"
-                : "hidden items-center gap-2 lg:grid lg:grid-cols-[1fr_70px_90px_90px_28px]";
-              return (
-                <div key={i}>
-                  {/* Mobile stacked line */}
-                  <div className="space-y-2 rounded-lg border border-neutral-200 p-3 lg:hidden">
-                    {catalog.length > 0 ? (
-                      <select disabled={!editable} value={l.itemCode ?? (catalog.find((c) => c.name === l.description) ? (catalog.find((c) => c.name === l.description)!.code ?? l.description) : "__custom")} onChange={(e) => pickItem(i, e.target.value)} className={`w-full ${inputCls}`}>
-                        <option value="__custom">— custom / type below —</option>
-                        {catalog.map((c) => (
-                          <option key={c.code ?? c.name} value={c.code ?? c.name}>{c.name}{c.unitPrice && !hasBands(c) ? ` (${money(c.unitPrice)})` : hasBands(c) ? " (qty-priced)" : ""}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input disabled={!editable} value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} placeholder="Description" className={`w-full ${inputCls}`} />
-                    )}
-                    <div className={`grid gap-2 ${showSize && hasSizeUpcharges(item) ? "grid-cols-3" : "grid-cols-2"}`}>
-                      {showSize && hasSizeUpcharges(item) && (
-                        <select disabled={!editable} value={l.size ?? ""} onChange={(e) => updateLine(i, { size: e.target.value || undefined })} className={inputCls} title="Size">
-                          <option value="">size</option>
-                          {sizeOptions.map((s) => (
-                            <option key={s} value={s}>{s}{item!.sizeUpcharges![s] ? ` (+${money(item!.sizeUpcharges![s])})` : ""}</option>
-                          ))}
-                        </select>
-                      )}
-                      <input disabled={!editable} type="number" inputMode="numeric" value={l.qty || ""} onChange={(e) => updateLine(i, { qty: Number(e.target.value) })} placeholder="Qty" className={inputCls} />
-                      <input disabled={!editable || auto} readOnly={auto} type="number" inputMode="decimal" step="0.01" value={l.unitPrice || ""} onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })} placeholder="Unit $" className={`${inputCls}${auto ? " bg-neutral-100 text-neutral-500" : ""}`} />
-                    </div>
-                    <div className="flex items-center justify-between pt-0.5">
-                      <span className="text-sm text-neutral-500">Line total <span className="font-semibold text-neutral-800">{money((l.qty || 0) * (l.unitPrice || 0))}</span></span>
-                      {editable && <button onClick={() => { setLines((p) => p.filter((_, idx) => idx !== i)); setSaved(false); }} className="text-sm font-medium text-red-600">Remove</button>}
-                    </div>
-                  </div>
-
-                  {/* Desktop grid line */}
-                  <div className={gridCls}>
-                    {catalog.length > 0 ? (
-                      <select disabled={!editable} value={l.itemCode ?? (catalog.find((c) => c.name === l.description) ? (catalog.find((c) => c.name === l.description)!.code ?? l.description) : "__custom")} onChange={(e) => pickItem(i, e.target.value)} className={inputCls}>
-                        <option value="__custom">— custom / type below —</option>
-                        {catalog.map((c) => (
-                          <option key={c.code ?? c.name} value={c.code ?? c.name}>{c.name}{c.unitPrice && !hasBands(c) ? ` (${money(c.unitPrice)})` : hasBands(c) ? " (qty-priced)" : ""}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input disabled={!editable} value={l.description} onChange={(e) => updateLine(i, { description: e.target.value })} placeholder="Description" className={inputCls} />
-                    )}
-                    {showSize && (
-                      hasSizeUpcharges(item) ? (
-                        <select disabled={!editable} value={l.size ?? ""} onChange={(e) => updateLine(i, { size: e.target.value || undefined })} className={inputCls} title="Size">
-                          <option value="">size</option>
-                          {sizeOptions.map((s) => (
-                            <option key={s} value={s}>{s}{item!.sizeUpcharges![s] ? ` (+${money(item!.sizeUpcharges![s])})` : ""}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span />
-                      )
-                    )}
-                    <input disabled={!editable} type="number" value={l.qty || ""} onChange={(e) => updateLine(i, { qty: Number(e.target.value) })} placeholder="Qty" className={inputCls} />
-                    <input disabled={!editable || auto} readOnly={auto} type="number" step="0.01" value={l.unitPrice || ""} onChange={(e) => updateLine(i, { unitPrice: Number(e.target.value) })} placeholder="Unit $" className={`${inputCls}${auto ? " bg-neutral-100 text-neutral-500" : ""}`} title={auto ? "Auto-priced from quantity band / size" : "Unit price"} />
-                    <span className="text-right text-sm text-neutral-700">{money((l.qty || 0) * (l.unitPrice || 0))}</span>
-                    {editable && <button onClick={() => { setLines((p) => p.filter((_, idx) => idx !== i)); setSaved(false); }} className="text-neutral-400 hover:text-red-600">×</button>}
-                  </div>
-                  {(auto || belowMin) && (
-                    <p className="mt-0.5 pl-1 text-[11px]">
-                      {auto && <span className="text-neutral-400">auto-priced{hasBands(item) ? " by quantity band" : ""}{l.size ? ` · ${l.size}` : ""}</span>}
-                      {belowMin && <span className="ml-2 font-medium text-amber-600">below {item!.minQty} minimum</span>}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {catalog.length > 0 && <p className="mt-2 text-xs text-neutral-400">Pick a catalog item to auto-fill its price. Quantity-priced items (e.g. caps) recalculate from the order quantity and chosen size — the unit price is set automatically. Choose “custom” to type a free line.</p>}
-        </div>
-
-        {/* Garments (full quoting calculator) */}
-        {hasCatalog && (
-          <div className="rounded-xl border border-neutral-200 bg-white p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-semibold text-neutral-900">Garments &amp; decoration</h2>
-                <p className="text-xs text-neutral-500">Pick a blank, enter sizes, and add print/embroidery — priced automatically.</p>
-              </div>
-              {editable && <button onClick={addGarment} className="text-sm font-medium text-neutral-700 hover:text-neutral-900">+ Add garment</button>}
+            <div>
+              <h2 className="text-sm font-semibold text-neutral-900">Garments &amp; decoration</h2>
+              <p className="text-xs text-neutral-500">Add each garment — pick the blank, sizes, decoration and extras. Priced automatically by the softgoods engine.</p>
             </div>
+            {editable && hasCatalog && <button onClick={addGarment} className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">+ Add garment</button>}
+          </div>
+          {!hasCatalog ? (
+            <p className="text-sm text-neutral-500">No garment catalog is set up yet. An admin adds blanks in Administration → Catalog &amp; Pricing.</p>
+          ) : (
             <div className="space-y-3">
               {garmentLines.length === 0 && <p className="text-sm text-neutral-400">No garments yet. Click “Add garment” to build a screen-print or embroidery line.</p>}
               {garmentLines.map((g, i) => (
@@ -280,8 +136,8 @@ export function QuoteBuilder({
                 />
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Charges */}
         {rules.length > 0 && (

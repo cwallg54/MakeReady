@@ -813,6 +813,7 @@ export const quoteLines = pgTable(
     colorTier: text("color_tier"),
     sizeBreakdown: jsonb("size_breakdown"), // Record<size, qty>
     decorations: jsonb("decorations"), // DecorationInput[]
+    extras: jsonb("extras"), // string[] of pricing_extras ids applied per garment (barcode, folding…)
     sortOrder: integer("sort_order").notNull().default(0),
   },
   (t) => [index("quote_lines_quote_id_idx").on(t.quoteId)],

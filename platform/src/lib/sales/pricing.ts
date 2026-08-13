@@ -163,6 +163,7 @@ export interface GarmentLineData {
   colorTier?: string | null;
   sizeBreakdown: Record<string, number>;
   decorations: DecorationInput[];
+  extras?: string[]; // pricing_extras ids applied per garment (barcode, folding…)
 }
 
 /** A method resolved with its price mode + rate config. */
@@ -256,6 +257,7 @@ export function engineSilkscreenUnit(opts: {
   methods: Map<string, MethodRef>;
   engine?: EngineConfigs;
   tier?: "list" | "HV" | "MV";
+  extrasPerUnit?: number;
 }): { unit: number; sizeUpcharges: Record<string, number> } | null {
   const cfg = opts.engine?.silkscreen;
   if (!cfg || !opts.garmentCost || opts.garmentCost <= 0 || opts.totalUnits <= 0) return null;
@@ -270,7 +272,7 @@ export function engineSilkscreenUnit(opts: {
   const sleeve = hasMain && perColor.some((d) => SLEEVE.has(d.location));
 
   const res = priceSilkscreen(
-    { garmentCost: opts.garmentCost, level, qty: opts.totalUnits, leftChestYoke, sleeve, tier: opts.tier },
+    { garmentCost: opts.garmentCost, level, qty: opts.totalUnits, leftChestYoke, sleeve, extrasAmount: opts.extrasPerUnit ?? 0, tier: opts.tier },
     cfg,
   );
   return { unit: res.unit, sizeUpcharges: cfg.sizeUpcharges };
@@ -289,12 +291,14 @@ export function priceGarmentLine(opts: {
   engine?: EngineConfigs;
   garmentCost?: number;
   tier?: "list" | "HV" | "MV";
+  extrasPerUnit?: number; // summed per-garment extras (barcode, folding…)
 }): GarmentLinePrice & { enginePriced: boolean } {
   let totalUnits = 0;
   for (const qtyRaw of Object.values(opts.sizeBreakdown ?? {})) {
     const qty = Number(qtyRaw) || 0;
     if (qty > 0) totalUnits += qty;
   }
+  const extrasPerUnit = round2(opts.extrasPerUnit ?? 0);
 
   const eng = engineSilkscreenUnit({
     garmentCost: opts.garmentCost,
@@ -303,13 +307,14 @@ export function priceGarmentLine(opts: {
     methods: opts.methods,
     engine: opts.engine,
     tier: opts.tier,
+    extrasPerUnit,
   });
 
   let garmentSubtotal = 0;
   let runSubtotal = 0;
   if (eng) {
-    // Engine unit already includes the garment + decoration; add per-size upcharges
-    // (engine's 2XL/3XL first, else the size class's).
+    // Engine unit already includes the garment + decoration + extras; add per-size
+    // upcharges (engine's 2XL/3XL first, else the size class's).
     for (const [size, qtyRaw] of Object.entries(opts.sizeBreakdown ?? {})) {
       const qty = Number(qtyRaw) || 0;
       if (qty <= 0) continue;
@@ -321,7 +326,7 @@ export function priceGarmentLine(opts: {
     for (const [size, qtyRaw] of Object.entries(opts.sizeBreakdown ?? {})) {
       const qty = Number(qtyRaw) || 0;
       if (qty <= 0) continue;
-      garmentSubtotal += qty * (round2(opts.basePrice || 0) + sizeClassUpcharge(opts.sizeClassSizes, size));
+      garmentSubtotal += qty * (round2(opts.basePrice || 0) + sizeClassUpcharge(opts.sizeClassSizes, size) + extrasPerUnit);
     }
     runSubtotal = round2(totalUnits * runPerUnit);
   }

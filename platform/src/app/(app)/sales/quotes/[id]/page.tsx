@@ -4,7 +4,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, templateItems, businessPartners, contacts, catalogStyles, catalogColors, sizeClasses, decorationMethods, printLocations, embroideryTiers, creditApprovalRequests } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, quoteAttachments, orderFormTemplates, businessPartners, contacts, catalogStyles, catalogColors, sizeClasses, decorationMethods, printLocations, embroideryTiers, creditApprovalRequests } from "@/db/schema";
 import { PageHeader, Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
@@ -12,7 +12,7 @@ import { setQuoteStatusAction, setQuoteCustomerAction, deleteQuoteAction } from 
 import { emailQuoteToCustomerAction } from "@/lib/sales/quote-approval-actions";
 import { fmtDateTime } from "@/lib/format";
 import { uploadQuoteAttachmentsAction, removeQuoteAttachmentAction } from "@/lib/sales/attachment-actions";
-import type { ChargeRule, PriceBreak, GarmentLineData, DecorationInput, MethodRef, SizeEntry } from "@/lib/sales/pricing";
+import type { ChargeRule, GarmentLineData, DecorationInput, MethodRef, SizeEntry } from "@/lib/sales/pricing";
 import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
 import { EmailQuoteButton } from "./email-quote-button";
@@ -101,9 +101,6 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     quote.bpId ? db.query.businessPartners.findFirst({ where: eq(businessPartners.id, quote.bpId) }) : Promise.resolve(undefined),
     db.select().from(quoteAttachments).where(eq(quoteAttachments.quoteId, id)).orderBy(asc(quoteAttachments.createdAt)),
   ]);
-  const catalog = template
-    ? await db.select().from(templateItems).where(eq(templateItems.templateId, template.id)).orderBy(asc(templateItems.sortOrder))
-    : [];
 
   // Full quoting-calculator reference data (blank catalog + decoration config).
   const [styleRows, colorRows, classRows, methodRows, locationRows, embRows] = await Promise.all([
@@ -124,6 +121,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
   // seeded pricing_garments cost by style number) so silkscreen lines price via
   // Kim's spreadsheet math.
   const ssMethod = await db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") });
+  const engineExtras = await listExtras();
   const styleNums = styleRows.map((s) => s.styleNumber).filter((x): x is string => !!x);
   const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
   const costByNum = new Map(pgRows.map((r) => [r.garmentNumber, Number(r.cost)]));
@@ -141,11 +139,11 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     embTiers: embRows.map((e) => ({ code: e.code, name: e.name, pricePerUnit: Number(e.pricePerUnit) })),
     engine: ssMethod ? { silkscreen: ssMethod.config as SilkscreenConfig } : undefined,
     garmentCostByStyleId,
+    extras: engineExtras.map((e) => ({ id: e.id, label: e.label, amount: e.amount == null ? null : Number(e.amount), kind: e.kind })),
   };
 
   // Split saved lines: garment lines carry a styleId or decorations; the rest are simple.
   const isGarment = (l: typeof lines[number]) => !!l.styleId || (Array.isArray(l.decorations) && (l.decorations as unknown[]).length > 0) || (l.sizeBreakdown != null && Object.keys(l.sizeBreakdown as object).length > 0);
-  const simpleLines = lines.filter((l) => !isGarment(l));
   const garmentLineData: GarmentLineData[] = lines.filter(isGarment).map((l) => ({
     styleId: l.styleId,
     description: l.description,
@@ -153,6 +151,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     colorTier: l.colorTier,
     sizeBreakdown: (l.sizeBreakdown as Record<string, number> | null) ?? {},
     decorations: (l.decorations as DecorationInput[] | null) ?? [],
+    extras: (l.extras as string[] | null) ?? [],
   }));
 
   // Recipient for the mailto: primary contact email, else the BP's email.
@@ -264,18 +263,8 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
       <QuoteBuilder
         quoteId={quote.id}
         editable={editable && quote.status !== "converted"}
-        sizeOptions={template?.sizeOptions ?? []}
-        catalog={catalog.map((c) => ({
-          code: c.code,
-          name: c.name,
-          unitPrice: Number(c.unitPrice),
-          priceBreaks: (c.priceBreaks as PriceBreak[] | null) ?? null,
-          minQty: c.minQty,
-          sizeUpcharges: (c.sizeUpcharges as Record<string, number> | null) ?? null,
-        }))}
         rules={rules}
         catalogRefs={catalogRefs}
-        initialLines={simpleLines.map((l) => ({ itemCode: l.itemCode ?? undefined, description: l.description, size: l.size ?? undefined, qty: l.qty, unitPrice: Number(l.unitPrice) }))}
         initialGarmentLines={garmentLineData}
         initialApplied={charges.filter((c) => !c.key.startsWith("deco-")).map((c) => ({ key: c.key, inputQty: Number(c.inputQty) }))}
         initialReorder={quote.isReorder}

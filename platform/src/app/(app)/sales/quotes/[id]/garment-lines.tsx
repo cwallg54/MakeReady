@@ -19,6 +19,7 @@ export interface CatalogRefs {
   embTiers: { code: string; name: string; pricePerUnit: number }[];
   engine?: EngineConfigs; // softgoods pricing engine config (silkscreen)
   garmentCostByStyleId?: Record<string, number>; // supplier cost per style
+  extras?: { id: string; label: string; amount: number | null; kind: string }[]; // barcode, folding, hang tags…
 }
 
 const money = (n: number) => `$${n.toFixed(2)}`;
@@ -28,6 +29,12 @@ export function refMaps(refs: CatalogRefs) {
   const methods = new Map<string, MethodRef>(refs.methods.map((m) => [m.code, m]));
   const embTiers = new Map<string, EmbTierRef>(refs.embTiers.map((e) => [e.code, { code: e.code, pricePerUnit: e.pricePerUnit }]));
   return { methods, embTiers };
+}
+
+/** Summed per-garment extras cost for a line (barcode, folding…). */
+export function extrasPerUnitOf(line: GarmentLineData, refs: CatalogRefs): number {
+  const chosen = new Set(line.extras ?? []);
+  return (refs.extras ?? []).filter((e) => chosen.has(e.id) && e.amount != null).reduce((s, e) => s + (e.amount ?? 0), 0);
 }
 
 /** Price one garment line with the client-side copy of the pricing engine. */
@@ -46,6 +53,7 @@ export function priceGarment(line: GarmentLineData, refs: CatalogRefs) {
     isReorder: false, // setups recomputed with reorder flag at save; preview uses new
     engine: refs.engine,
     garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
+    extrasPerUnit: extrasPerUnitOf(line, refs),
   });
 }
 
@@ -78,7 +86,14 @@ export function GarmentLineCard({
     isReorder,
     engine: refs.engine,
     garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
+    extrasPerUnit: extrasPerUnitOf(line, refs),
   });
+
+  function toggleExtra(id: string, on: boolean) {
+    const cur = new Set(line.extras ?? []);
+    if (on) cur.add(id); else cur.delete(id);
+    onChange({ extras: [...cur] });
+  }
 
   function pickStyle(id: string) {
     const s = refs.styles.find((x) => x.id === id);
@@ -186,13 +201,31 @@ export function GarmentLineCard({
         </div>
       </div>
 
+      {/* Extras (barcodes, folding, hang tags…) — priced per garment by the engine */}
+      {(refs.extras?.length ?? 0) > 0 && (
+        <div className="mt-3">
+          <div className="mb-1 text-xs text-neutral-500">Extras <span className="text-neutral-400">(per garment)</span></div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {refs.extras!.map((e) => (
+              <label key={e.id} className="flex items-center gap-1.5 text-xs text-neutral-700">
+                <input type="checkbox" disabled={!editable || e.amount == null} checked={(line.extras ?? []).includes(e.id)} onChange={(ev) => toggleExtra(e.id, ev.target.checked)} className="h-3.5 w-3.5" />
+                {e.label}{e.amount != null ? ` (${money(e.amount)})` : " (quote)"}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Line price */}
       <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-2 text-sm">
         <div className="text-xs text-neutral-500">
           {price.totalUnits} pc{price.totalUnits === 1 ? "" : "s"} · {price.enginePriced ? "decorated" : "blank"} {money(price.garmentSubtotal)}
           {price.runSubtotal > 0 && ` · decoration ${money(price.runSubtotal)}`}
+          {extrasPerUnitOf(line, refs) > 0 && ` · extras ${money(extrasPerUnitOf(line, refs))}/pc`}
           {price.setups.length > 0 && ` · setup ${money(price.setups.reduce((s, x) => s + x.amount, 0))}`}
-          {price.enginePriced && <span className="ml-1 rounded bg-emerald-100 px-1 py-0.5 text-[10px] font-semibold text-emerald-700">engine</span>}
+          {price.enginePriced
+            ? <span className="ml-1 rounded bg-emerald-100 px-1 py-0.5 text-[10px] font-semibold text-emerald-700">engine</span>
+            : (refs.engine?.silkscreen && style && !refs.garmentCostByStyleId?.[style.id]) ? <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-semibold text-amber-700" title="No garment cost on file — add a supplier cost to this style (Admin → Catalog) to price via the engine">no cost</span> : null}
         </div>
         <div className="flex items-center gap-3">
           <span className="font-semibold text-neutral-900">{money(price.extended)}</span>
