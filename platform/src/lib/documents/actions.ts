@@ -12,6 +12,7 @@ import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { consumeRateLimit, clientIp, retryMessage } from "@/lib/security/rate-limit";
 import { notifyTracker } from "@/lib/orders/notify";
+import { advanceLifecycle } from "@/lib/crm/lifecycle";
 import { DOC_LABELS } from "./meta";
 
 async function requireCrmEdit() {
@@ -91,6 +92,8 @@ export async function submitDocumentAction(_prev: DocState, formData: FormData):
     isSystem: true,
     content: `Customer completed ${DOC_LABELS[doc.docType]} (signed: ${signedName})`,
   });
+  // A completed credit/terms application is real engagement — move Lead → Prospect.
+  await advanceLifecycle(doc.bpId, "prospect", `completed ${DOC_LABELS[doc.docType]}`);
   await audit({ action: "document.submitted", entityType: "business_partner", entityId: doc.bpId, metadata: { docType: doc.docType } });
   revalidatePath(`/crm/${doc.bpId}`);
   return { ok: true };

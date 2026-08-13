@@ -253,6 +253,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
         initialReorder={quote.isReorder}
         initialDiscount={Number(quote.discount)}
         initialNotes={quote.notes ?? ""}
+        canDiscount={user.roles.some((r) => r === "admin" || r === "sales_manager")}
       />
 
       {/* Customer intake files — carried onto the order for the art department. */}

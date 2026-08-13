@@ -186,7 +186,11 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
   const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
   const subtotal = round2(priced.subtotal + garmentSubtotal);
   const chargesTotal = round2(priced.chargesTotal + garmentChargeTotal);
-  const discount = round2(payload.discount || 0);
+  // Pricing discretion is locked down: only a Sales Manager or Admin can discount
+  // (Kim call). A Sales Rep's discount is ignored server-side, never trusted from
+  // the client. Preserve any existing discount a manager already set.
+  const canDiscount = user.roles.some((r) => r === "admin" || r === "sales_manager");
+  const discount = round2(canDiscount ? payload.discount || 0 : Number(quote.discount) || 0);
   const total = round2(subtotal + chargesTotal - discount);
 
   await db.transaction(async (tx) => {

@@ -35,6 +35,7 @@ export function QuoteBuilder({
   initialReorder,
   initialDiscount,
   initialNotes,
+  canDiscount = true,
 }: {
   quoteId: string;
   editable: boolean;
@@ -48,6 +49,7 @@ export function QuoteBuilder({
   initialReorder: boolean;
   initialDiscount: number;
   initialNotes: string;
+  canDiscount?: boolean;
 }) {
   const showSize = sizeOptions.length > 0 && catalog.some((c) => hasSizeUpcharges(c));
   const catalogItem = (l: Line): Item | undefined =>
@@ -321,8 +323,8 @@ export function QuoteBuilder({
             <Row label="Subtotal" value={money(subtotal)} />
             <Row label="Charges" value={money(chargesTotal)} />
             <div className="flex items-center justify-between">
-              <span className="text-neutral-600">Discount</span>
-              <input disabled={!editable} type="number" step="0.01" value={discount || ""} onChange={(e) => { setDiscount(Number(e.target.value)); setSaved(false); }} placeholder="0.00" className={`w-24 text-right ${inputCls}`} />
+              <span className="text-neutral-600">Discount{!canDiscount && <span className="ml-1 text-[11px] text-neutral-400">(manager only)</span>}</span>
+              <input disabled={!editable || !canDiscount} type="number" step="0.01" value={discount || ""} onChange={(e) => { setDiscount(Number(e.target.value)); setSaved(false); }} placeholder="0.00" title={canDiscount ? "Discount" : "Only a Sales Manager or Admin can discount"} className={`w-24 text-right ${inputCls}${!canDiscount ? " bg-neutral-100 text-neutral-400" : ""}`} />
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-neutral-200 pt-2 text-base font-semibold text-neutral-900">
               <span>Total</span><span>{money(total)}</span>

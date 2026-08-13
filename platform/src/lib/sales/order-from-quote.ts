@@ -2,6 +2,7 @@ import "server-only";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { db } from "@/db";
+import { advanceLifecycle } from "@/lib/crm/lifecycle";
 import {
   quotes, quoteLines, quoteAttachments, orders, orderEvents, orderAttachments, orderSpecItems,
   businessPartners, numberSeries, templateItems, printLocations, decorationMethods, activities,
@@ -129,6 +130,8 @@ export async function createOrderFromQuote(quoteId: string, byUserId: string | n
   }
   if (quote.bpId) {
     await db.insert(activities).values({ bpId: quote.bpId, userId: byUserId, type: "other", isSystem: true, content: `Order ${orderNumber} created from quote ${quote.quoteNumber}` });
+    // Placing an order makes them a customer — advance the pipeline (forward-only).
+    await advanceLifecycle(quote.bpId, "customer", `placed order ${orderNumber}`, byUserId ?? undefined);
   }
   await audit({ userId: byUserId, action: "order.create", entityType: "order", entityId: o.id, metadata: { orderNumber } });
   return o.id;
