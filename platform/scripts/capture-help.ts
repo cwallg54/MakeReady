@@ -13,7 +13,7 @@ import { db } from "../src/db";
 import {
   users, sessions, businessPartners, contacts, accountGroups, activities,
   quotes, quoteLines, quoteCharges, quoteAttachments, orders, orderEvents, orderSpecItems, orderAttachments, orderProofs, artRequests, customerDocuments,
-  meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings, designItems,
+  meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings, designItems, productionJobs,
 } from "../src/db/schema";
 
 const DEMO_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
@@ -103,6 +103,14 @@ async function main() {
     title: "Front & back proof — SO-DEMO1", message: "Please confirm spelling, colors, and placement before we print.",
     requestedBy: admin.id,
   });
+  // A production job for the shop-floor + press-check screenshots.
+  const [job] = await db.insert(productionJobs).values({
+    orderId: order.id, status: "queued", rush: false,
+    dueDate: new Date(Date.now() + 10 * 86400000),
+    notes: "Fold + individually poly-bag. Approved proof attached.",
+    createdBy: admin.id,
+  }).returning({ id: productionJobs.id });
+
   const [artReq] = await db.insert(artRequests).values({
     orderId: order.id, status: "proofing", assignedTo: admin.id, rush: false,
     dueDate: new Date(Date.now() + 10 * 86400000),
@@ -154,6 +162,12 @@ async function main() {
     ["art-board", "/art"],
     ["art-request", `/art/${artReq.id}`],
     ["order-detail", `/sales/orders/${order.id}`],
+    ["production-board", "/production"],
+    ["production-schedule", "/production/schedule"],
+    ["production-job", `/production/${job.id}`],
+    ["pricing-calculator", "/admin/pricing"],
+    ["pricing-garments", "/admin/pricing?t=garments"],
+    ["catalog", "/admin/catalog"],
     ["automations", "/sales/automations"],
     ["calendar", "/calendar"],
     ["meeting-detail", `/calendar/${meeting.id}`],
