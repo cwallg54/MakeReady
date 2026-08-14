@@ -16,9 +16,18 @@ Runthrough of the current MakeReady build with Kim, executive sponsor for Sales.
 - ✅ **SMS notifications** — graceful Twilio client wired to customer stage alerts + press-check requests (e217dac). *Activate:* set `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM`; staff need a `users.phone`.
 - ✅ **Outlook calendar sync** — graceful Microsoft Graph client; folds Outlook busy times into booking availability + pushes booked meetings to the host's calendar (b12c659). *Activate:* register an Entra app with Calendars.ReadWrite (admin consent), set `MS_GRAPH_TENANT_ID` / `MS_GRAPH_CLIENT_ID` / `MS_GRAPH_CLIENT_SECRET`.
 
-- ✅ **Embroidery quote lines through the engine** — stitch lines now price via the embroidery engine (garment cost × qty multiplier + per-location stitch charge); decorations carry a stitch count (0059f09). Silkscreen/DTF/foil/softhand route through the silkscreen engine.
+- ✅ **Embroidery quote lines through the engine** — stitch lines price via the embroidery engine (garment cost × qty multiplier + per-location stitch charge); decorations carry a stitch count (0059f09). Silkscreen/DTF/foil/softhand route through the silkscreen engine.
+- ✅ **Rep price adjustment** — capped % (default 2%, from commission), enforced server-side; managers uncapped (0f02e57). Setting in Admin → Config.
+- ✅ **ASI distributor-channel pricing** — "ASI order" toggle routes screen lines through the ASI engine (209c268). *PL# = level A/B/C → 1/2/3 approximation; confirm vs real ASI orders.*
+- ✅ **Staff mobile-phone field** on the user form (for SMS) (6e87e9c).
 
-**Remaining for Sales:** ASI channel pricing in the builder (needs an order-type/channel selector); rep "price adjustment" (~2% from commission); per-garment vendor-specific colors/sizes (global palette in place); conditional order-form fields by order type; contract/special-pricing exceptions (Plan B); barcode/UPC generation engine. Activation-only: SMS (Twilio + a staff-phone field on the user form), Outlook sync (Graph app registration). Validate engine numbers against a few live quotes before relying.
+**Sales is functionally complete.** What's left is not net-new Sales quoting:
+- **Conditional order-form fields** — effectively handled: the size grid shows only when the garment has a size class (non-apparel like mugs → none), and the decoration method drives level (screen) vs stitch (embroidery) fields.
+- **Per-garment vendor colors/sizes** — supported per style in Admin → Catalog (overrides the standard palette); a *bulk* vendor-color import needs the vendors' color files.
+- **Contract/special-pricing exceptions** — deferred by Kim as "Plan B" (whales like the Pilot fixed-price program); use the rep/price-adjustment + per-customer templates when needed.
+- **Barcode/UPC generation engine** — structured fields exist; auto-generating UPCs needs the Barcode Book numbering import (a fulfillment task, not quoting).
+- **Activation-only:** SMS (Twilio creds), Outlook sync (Entra/Graph app registration).
+- Validate engine numbers (embroidery stitch brackets, ASI PL# mapping) against a few real quotes before fully relying.
 
 ---
 
