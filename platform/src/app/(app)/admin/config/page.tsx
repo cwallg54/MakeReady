@@ -21,6 +21,7 @@ export default async function ConfigPage() {
           creditApprovalThreshold={Number(settings?.creditApprovalThreshold ?? 5000)}
           defaultTaxRatePct={Number(settings?.defaultTaxRate ?? 0) * 100}
           cardSurchargePct={Number(settings?.cardSurchargePct ?? 3)}
+          repDiscountCapPct={Number(settings?.repDiscountCapPct ?? 2)}
         />
       </Card>
 

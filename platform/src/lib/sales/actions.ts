@@ -210,11 +210,19 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
   const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
   const subtotal = round2(priced.subtotal + garmentSubtotal);
   const chargesTotal = round2(priced.chargesTotal + garmentChargeTotal);
-  // Pricing discretion is locked down: only a Sales Manager or Admin can discount
-  // (Kim call). A Sales Rep's discount is ignored server-side, never trusted from
-  // the client. Preserve any existing discount a manager already set.
+  // Pricing discretion: Managers/Admins discount freely; a Sales Rep may apply a
+  // small "price adjustment" up to the configured cap (% of subtotal) — it comes
+  // out of their commission. Enforced server-side; never trust the client figure.
   const canDiscount = user.roles.some((r) => r === "admin" || r === "sales_manager");
-  const discount = round2(canDiscount ? payload.discount || 0 : Number(quote.discount) || 0);
+  const requested = round2(payload.discount || 0);
+  let discount: number;
+  if (canDiscount) {
+    discount = requested;
+  } else {
+    const capPct = Number((await db.query.systemSettings.findFirst({ columns: { repDiscountCapPct: true } }))?.repDiscountCapPct ?? 0);
+    const capAmount = round2(subtotal * (capPct / 100));
+    discount = Math.min(Math.max(0, requested), capAmount);
+  }
   const total = round2(subtotal + chargesTotal - discount);
 
   await db.transaction(async (tx) => {

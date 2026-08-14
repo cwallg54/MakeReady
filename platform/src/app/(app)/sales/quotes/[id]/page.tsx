@@ -76,6 +76,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "embroidery") }),
   ]);
   const engineExtras = await listExtras();
+  const appSettings = await db.query.systemSettings.findFirst({ columns: { repDiscountCapPct: true } });
   const styleNums = styleRows.map((s) => s.styleNumber).filter((x): x is string => !!x);
   const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
   const costByNum = new Map(pgRows.map((r) => [r.garmentNumber, Number(r.cost)]));
@@ -212,6 +213,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
         initialDiscount={Number(quote.discount)}
         initialNotes={quote.notes ?? ""}
         canDiscount={user.roles.some((r) => r === "admin" || r === "sales_manager")}
+        repDiscountCapPct={Number(appSettings?.repDiscountCapPct ?? 0)}
       />
 
       {pMethods.length > 0 && (

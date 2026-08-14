@@ -121,6 +121,9 @@ export const systemSettings = pgTable("system_settings", {
   // Processing fee added when a customer pays an invoice by card (e.g. 3.00 =
   // +3%). Bank/ACH payments never carry the fee. 0 disables the surcharge.
   cardSurchargePct: numeric("card_surcharge_pct", { precision: 6, scale: 3 }).notNull().default("3"),
+  // Max discount a Sales Rep can apply to a quote (% of subtotal); it comes out
+  // of their commission. Managers/Admins are uncapped. 0 = reps can't discount.
+  repDiscountCapPct: numeric("rep_discount_cap_pct", { precision: 6, scale: 3 }).notNull().default("2"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });

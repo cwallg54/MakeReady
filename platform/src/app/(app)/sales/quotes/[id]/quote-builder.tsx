@@ -20,6 +20,7 @@ export function QuoteBuilder({
   initialDiscount,
   initialNotes,
   canDiscount = true,
+  repDiscountCapPct = 0,
 }: {
   quoteId: string;
   editable: boolean;
@@ -31,6 +32,7 @@ export function QuoteBuilder({
   initialDiscount: number;
   initialNotes: string;
   canDiscount?: boolean;
+  repDiscountCapPct?: number;
 }) {
   const [applied, setApplied] = useState<Record<string, { on: boolean; inputQty: number }>>(() => {
     const m: Record<string, { on: boolean; inputQty: number }> = {};
@@ -178,10 +180,29 @@ export function QuoteBuilder({
           <div className="mt-4 space-y-1.5 text-sm">
             <Row label="Subtotal" value={money(subtotal)} />
             <Row label="Charges" value={money(chargesTotal)} />
-            <div className="flex items-center justify-between">
-              <span className="text-neutral-600">Discount{!canDiscount && <span className="ml-1 text-[11px] text-neutral-400">(manager only)</span>}</span>
-              <input disabled={!editable || !canDiscount} type="number" step="0.01" value={discount || ""} onChange={(e) => { setDiscount(Number(e.target.value)); setSaved(false); }} placeholder="0.00" title={canDiscount ? "Discount" : "Only a Sales Manager or Admin can discount"} className={`w-24 text-right ${inputCls}${!canDiscount ? " bg-neutral-100 text-neutral-400" : ""}`} />
-            </div>
+            {(() => {
+              const repCap = !canDiscount && repDiscountCapPct > 0 ? round2(subtotal * (repDiscountCapPct / 100)) : 0;
+              const locked = !canDiscount && repDiscountCapPct <= 0;
+              const clamp = (v: number) => (canDiscount ? v : Math.min(Math.max(0, v), repCap));
+              return (
+                <div className="flex items-center justify-between">
+                  <span className="text-neutral-600">
+                    {canDiscount ? "Discount" : "Price adjustment"}
+                    {locked && <span className="ml-1 text-[11px] text-neutral-400">(manager only)</span>}
+                    {!canDiscount && repCap > 0 && <span className="ml-1 text-[11px] text-amber-600">up to {money(repCap)} · from your commission</span>}
+                  </span>
+                  <input
+                    disabled={!editable || locked}
+                    type="number" step="0.01" max={canDiscount ? undefined : repCap}
+                    value={discount || ""}
+                    onChange={(e) => { setDiscount(clamp(Number(e.target.value))); setSaved(false); }}
+                    placeholder="0.00"
+                    title={locked ? "Only a Sales Manager or Admin can discount" : canDiscount ? "Discount" : `Up to ${money(repCap)} (${repDiscountCapPct}% of subtotal) — comes out of your commission`}
+                    className={`w-24 text-right ${inputCls}${locked ? " bg-neutral-100 text-neutral-400" : ""}`}
+                  />
+                </div>
+              );
+            })()}
             <div className="mt-2 flex items-center justify-between border-t border-neutral-200 pt-2 text-base font-semibold text-neutral-900">
               <span>Total</span><span>{money(total)}</span>
             </div>

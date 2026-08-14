@@ -1,0 +1,1 @@
+ALTER TABLE "system_settings" ADD COLUMN "rep_discount_cap_pct" numeric(6, 3) DEFAULT '2' NOT NULL;

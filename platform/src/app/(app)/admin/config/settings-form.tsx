@@ -20,6 +20,7 @@ export function SettingsForm({
   creditApprovalThreshold,
   defaultTaxRatePct,
   cardSurchargePct,
+  repDiscountCapPct,
 }: {
   companyName: string;
   legalName: string;
@@ -30,6 +31,7 @@ export function SettingsForm({
   creditApprovalThreshold: number;
   defaultTaxRatePct: number;
   cardSurchargePct: number;
+  repDiscountCapPct: number;
 }) {
   const [state, action] = useActionState<AdminState, FormData>(updateSettingsAction, {});
   return (
@@ -83,6 +85,15 @@ export function SettingsForm({
           max={20}
           defaultValue={cardSurchargePct}
           hint="Surcharge added when a customer pays an invoice by card. Bank/ACH pays never carry it. 0 = no fee."
+        />
+        <AdminField
+          label="Rep price-adjustment cap (%)"
+          name="repDiscountCapPct"
+          type="number"
+          min={0}
+          max={100}
+          defaultValue={repDiscountCapPct}
+          hint="Max discount a Sales Rep can apply to a quote (% of subtotal) — it comes out of their commission. Managers/Admins are uncapped. 0 = reps can't discount."
         />
       </div>
       <label className="flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
