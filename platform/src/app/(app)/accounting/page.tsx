@@ -112,6 +112,7 @@ export default async function AccountingHome() {
       <Section title="General Ledger" tiles={[
         { href: "/accounting/chart", label: "Chart of Accounts", desc: "The account structure the books post to." },
         { href: "/accounting/journal", label: "Journal Entries", desc: "Manual double-entry postings & adjustments." },
+        { href: "/accounting/recurring", label: "Recurring Entries", desc: "Templates that auto-post the same entry each month." },
         { href: "/accounting/ledger", label: "Account Ledger", desc: "Every posting for one account, with a running balance." },
         { href: "/accounting/trial-balance", label: "Trial Balance", desc: "All account balances — debits equal credits." },
       ]} />

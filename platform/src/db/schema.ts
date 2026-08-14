@@ -2170,3 +2170,33 @@ export const productionOrderLines = pgTable(
 );
 export type ProductionOrder = typeof productionOrders.$inferSelect;
 export type ProductionOrderLine = typeof productionOrderLines.$inferSelect;
+
+// ─────────────────────── Recurring journal entries ─────────────────────────
+// A saved journal template that auto-posts once per month (rent, insurance,
+// recurring accruals) so finance doesn't re-key the same entry every period.
+export const recurringJournals = pgTable("recurring_journals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  dayOfMonth: integer("day_of_month").notNull().default(1), // 1–28
+  memo: text("memo"),
+  active: boolean("active").notNull().default(true),
+  lastPostedYm: text("last_posted_ym"), // "YYYY-MM" of the last auto-post
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+export const recurringJournalLines = pgTable(
+  "recurring_journal_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id").notNull().references(() => recurringJournals.id, { onDelete: "cascade" }),
+    accountId: uuid("account_id").notNull().references(() => glAccounts.id, { onDelete: "cascade" }),
+    debit: numeric("debit", { precision: 14, scale: 2 }).notNull().default("0"),
+    credit: numeric("credit", { precision: 14, scale: 2 }).notNull().default("0"),
+    memo: text("memo"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("recurring_journal_lines_template_id_idx").on(t.templateId)],
+);
+export type RecurringJournal = typeof recurringJournals.$inferSelect;
+export type RecurringJournalLine = typeof recurringJournalLines.$inferSelect;
