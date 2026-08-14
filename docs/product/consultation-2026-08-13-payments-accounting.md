@@ -38,11 +38,12 @@ customer, and payment info stays in-system.
   report is the WIP view. **GRNI** (goods received, not invoiced) on the AP side.
 - **Recurring journal entries** — auto-post the same monthly entries to the GL
   (rent, etc.) without re-keying.
-- **In-house production order** — today an in-house job needs a manual SO **and**
-  PO to move blanks out of stock and finished goods in, plus a ~$20–30k/mo manual
-  COGS journal entry through a clearing account ("we don't invoice ourselves").
-  Replace with a single **production order** that knows blanks come out and
-  finished goods go in, and posts the COGS automatically.
+- ✅ **In-house production order** — SHIPPED (2e3846b). `/inventory/production`: one
+  document with blank (consume) + finished-good (produce) lines by SKU + bin.
+  Posting moves real stock, rolls the blank cost (+ optional capitalized labor)
+  into each finished item's cost, and posts Dr Inventory / Cr Production Labor
+  Applied for added labor. Blank value transfers within inventory (no COGS until
+  sale) — replaces the manual SO+PO and the ~$20–30k/mo COGS journal.
 - **Sales-tax report** (quarterly) — exempt sales + taxable + taxable freight,
   with **drill-down** to the source transactions.
 - **Commission report** — monthly, by salesperson (pulled ~1st for the 10th
