@@ -36,20 +36,23 @@ customer, and payment info stays in-system.
 - **Invoicing, AR, AP** — core exists; confirm month-end views.
 - **WIP / open orders** ("goods not yet sold; work in progress") — an open-orders
   report is the WIP view. **GRNI** (goods received, not invoiced) on the AP side.
-- **Recurring journal entries** — auto-post the same monthly entries to the GL
-  (rent, etc.) without re-keying.
+- ✅ **Recurring journal entries** — SHIPPED (b57f5fa). `/accounting/recurring`:
+  save a balanced template + day-of-month; a daily cron auto-posts it once per
+  month (post-now button too). Retires the manual monthly re-keying.
 - ✅ **In-house production order** — SHIPPED (2e3846b). `/inventory/production`: one
   document with blank (consume) + finished-good (produce) lines by SKU + bin.
   Posting moves real stock, rolls the blank cost (+ optional capitalized labor)
   into each finished item's cost, and posts Dr Inventory / Cr Production Labor
   Applied for added labor. Blank value transfers within inventory (no COGS until
   sale) — replaces the manual SO+PO and the ~$20–30k/mo COGS journal.
-- **Sales-tax report** (quarterly) — exempt sales + taxable + taxable freight,
-  with **drill-down** to the source transactions.
-- **Commission report** — monthly, by salesperson (pulled ~1st for the 10th
-  payroll).
-- **Open orders by type** — in-house vs in-country, soft goods vs other, with
-  **status** (e.g. past-due but on-hold). Report already partly built.
+- ✅ **Sales-tax report** — SHIPPED (eca6d59). `/accounting/sales-tax`: taxable
+  vs exempt sales + tax collected for a period (defaults to the quarter), with a
+  drill-down invoice list. *(Taxable-freight line not separated — invoices don't
+  carry a distinct freight line yet.)*
+- ✅ **Commission report** — SHIPPED (eca6d59). `/accounting/commission`: order
+  sales by salesperson for a period, expandable to the per-rep orders. Apply
+  each rep's commission rate to their total.
+- ✅ **Open orders by type** — already built (Reports → Open Orders by Type).
 
 ## Reporting & drill-down (a recurring theme)
 - **Drill-down everywhere**: click a number in a report → see its source rows;
