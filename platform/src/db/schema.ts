@@ -2200,3 +2200,68 @@ export const recurringJournalLines = pgTable(
 );
 export type RecurringJournal = typeof recurringJournals.$inferSelect;
 export type RecurringJournalLine = typeof recurringJournalLines.$inferSelect;
+
+// ───────────────────── Purchase orders & goods receipts ────────────────────
+// Procurement: raise a PO to a vendor, receive goods against it (into stock),
+// and let the vendor bill clear the GRNI (goods received, not invoiced) balance.
+export const purchaseOrders = pgTable(
+  "purchase_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    poNumber: text("po_number").notNull().unique(), // PO-#####
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    status: text("status").notNull().default("draft"), // draft | open | received | closed | void
+    orderDate: timestamp("order_date", { withTimezone: true }),
+    expectedDate: timestamp("expected_date", { withTimezone: true }),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("purchase_orders_status_idx").on(t.status), index("purchase_orders_vendor_idx").on(t.vendorId)],
+);
+export const purchaseOrderLines = pgTable(
+  "purchase_order_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    poId: uuid("po_id").notNull().references(() => purchaseOrders.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
+    sku: text("sku"),
+    description: text("description"),
+    qty: numeric("qty", { precision: 14, scale: 2 }).notNull().default("0"),
+    unitCost: numeric("unit_cost", { precision: 14, scale: 4 }).notNull().default("0"),
+    receivedQty: numeric("received_qty", { precision: 14, scale: 2 }).notNull().default("0"),
+    binId: uuid("bin_id").references(() => bins.id, { onDelete: "set null" }),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("purchase_order_lines_po_idx").on(t.poId), index("purchase_order_lines_item_idx").on(t.itemId)],
+);
+export const goodsReceipts = pgTable(
+  "goods_receipts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    grNumber: text("gr_number").notNull().unique(), // GR-#####
+    poId: uuid("po_id").references(() => purchaseOrders.id, { onDelete: "set null" }),
+    receivedDate: timestamp("received_date", { withTimezone: true }).notNull().defaultNow(),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("goods_receipts_po_idx").on(t.poId)],
+);
+export const goodsReceiptLines = pgTable(
+  "goods_receipt_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    grId: uuid("gr_id").notNull().references(() => goodsReceipts.id, { onDelete: "cascade" }),
+    poLineId: uuid("po_line_id").references(() => purchaseOrderLines.id, { onDelete: "set null" }),
+    itemId: uuid("item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
+    qty: numeric("qty", { precision: 14, scale: 2 }).notNull().default("0"),
+    unitCost: numeric("unit_cost", { precision: 14, scale: 4 }).notNull().default("0"),
+    binId: uuid("bin_id").references(() => bins.id, { onDelete: "set null" }),
+  },
+  (t) => [index("goods_receipt_lines_gr_idx").on(t.grId)],
+);
+export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+export type PurchaseOrderLine = typeof purchaseOrderLines.$inferSelect;
+export type GoodsReceipt = typeof goodsReceipts.$inferSelect;

@@ -35,7 +35,14 @@ customer, and payment info stays in-system.
 ## Accounting / month-end wishlist (to build)
 - **Invoicing, AR, AP** — core exists; confirm month-end views.
 - **WIP / open orders** ("goods not yet sold; work in progress") — an open-orders
-  report is the WIP view. **GRNI** (goods received, not invoiced) on the AP side.
+  report is the WIP view.
+- ✅ **Purchase orders + goods receipt / GRNI** — SHIPPED. `/inventory/purchase-orders`:
+  raise a PO to a vendor, issue it, then **receive goods into stock** (moving stock
+  in, revaluing item cost, advancing the PO to received). Receiving posts **Dr
+  Inventory / Cr GRNI** (goods received, not invoiced — auto-created clearing
+  liability); code the vendor's A/P bill to GRNI to clear it. Each inventory item
+  now shows its **purchase orders** (spot the open ones + qty on order) — the
+  item→PO drill-down.
 - ✅ **Recurring journal entries** — SHIPPED (b57f5fa). `/accounting/recurring`:
   save a balanced template + day-of-month; a daily cron auto-posts it once per
   month (post-now button too). Retires the manual monthly re-keying.
@@ -56,10 +63,9 @@ customer, and payment info stays in-system.
 
 ## Reporting & drill-down (a recurring theme)
 - **Drill-down everywhere**: click a number in a report → see its source rows;
-  from an item → its **inventory audit** (every in/out movement) → drill into the
-  delivery / goods receipt; from an item → every **PO** (spot the open ones).
-  Like SAP's drill-down but **without 40 pop-up windows** (one screen, click to
-  expand).
+  from an item → its **inventory audit** (every in/out movement); from an item →
+  every **PO** (spot the open ones) — ✅ shipped on the item page. Like SAP's
+  drill-down but **without 40 pop-up windows** (one screen, click to expand).
 - **Clean house**: don't replicate unused SAP reports; build the ones actually
   used (Leslie to confirm the priority list).
 

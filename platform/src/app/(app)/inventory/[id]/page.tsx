@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { and, asc, desc, eq, gt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { inventoryItems, stockMovements, bins, warehouses, itemBinStock } from "@/db/schema";
+import { inventoryItems, stockMovements, bins, warehouses, itemBinStock, purchaseOrders, purchaseOrderLines, vendors } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { Card, PageHeader } from "@/components/ui";
@@ -41,6 +41,16 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
   ]);
   const low = Number(item.onHand) <= Number(item.reorderPoint) && Number(item.reorderPoint) > 0;
 
+  // Purchase orders that include this item (spot the open ones on order).
+  const poRows = await db
+    .select({ id: purchaseOrders.id, poNumber: purchaseOrders.poNumber, status: purchaseOrders.status, expectedDate: purchaseOrders.expectedDate, vendor: vendors.name, qty: purchaseOrderLines.qty, receivedQty: purchaseOrderLines.receivedQty })
+    .from(purchaseOrderLines)
+    .innerJoin(purchaseOrders, eq(purchaseOrders.id, purchaseOrderLines.poId))
+    .leftJoin(vendors, eq(vendors.id, purchaseOrders.vendorId))
+    .where(and(eq(purchaseOrderLines.itemId, id), ne(purchaseOrders.status, "void")))
+    .orderBy(desc(purchaseOrders.createdAt)).limit(20);
+  const onOrder = poRows.filter((p) => p.status === "open").reduce((s, p) => s + (Number(p.qty) - Number(p.receivedQty)), 0);
+
   // Bins grouped by warehouse for the <select> option groups.
   const byWhs = new Map<string, { code: string; id: string }[]>();
   for (const b of allBins) {
@@ -48,7 +58,7 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
     if (!byWhs.has(key)) byWhs.set(key, []);
     byWhs.get(key)!.push({ code: b.code, id: b.id });
   }
-  const BinOptions = () => (
+  const binOptions = () => (
     <>
       {[...byWhs.entries()].map(([label, bs]) => (
         <optgroup key={label} label={label}>
@@ -95,7 +105,7 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
             <form action={binAdjustAction} className="space-y-2">
               <input type="hidden" name="itemId" value={item.id} />
               <div className="grid grid-cols-2 gap-2">
-                <label className="flex flex-col text-xs text-neutral-500">Bin<select name="binId" className={`mt-1 ${input}`}><BinOptions /></select></label>
+                <label className="flex flex-col text-xs text-neutral-500">Bin<select name="binId" className={`mt-1 ${input}`}>{binOptions()}</select></label>
                 <label className="flex flex-col text-xs text-neutral-500">Action
                   <select name="reason" className={`mt-1 ${input}`}>
                     <option value="receive">Receive (+)</option>
@@ -117,7 +127,7 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
               <input type="hidden" name="itemId" value={item.id} />
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col text-xs text-neutral-500">From<select name="fromBinId" className={`mt-1 ${input}`}>{stock.map((s) => <option key={s.binId} value={s.binId}>{s.binCode} ({Number(s.qty)})</option>)}</select></label>
-                <label className="flex flex-col text-xs text-neutral-500">To<select name="toBinId" className={`mt-1 ${input}`}><BinOptions /></select></label>
+                <label className="flex flex-col text-xs text-neutral-500">To<select name="toBinId" className={`mt-1 ${input}`}>{binOptions()}</select></label>
               </div>
               <label className="flex flex-col text-xs text-neutral-500">Quantity<input name="qty" type="number" step="0.01" className={`mt-1 ${input}`} /></label>
               <label className="flex flex-col text-xs text-neutral-500">Note<input name="note" className={`mt-1 ${input}`} /></label>
@@ -167,6 +177,30 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
             <div><dt className="text-neutral-400">Units landed (365d)</dt><dd className="text-neutral-700">{landed.qtyCurrent}</dd></div>
           </div>
           <p className="mt-2 text-xs text-neutral-400">Weighted average of applied landed-cost sheets over the last year — not an all-time average.</p>
+        </Card>
+      )}
+
+      {poRows.length > 0 && (
+        <Card>
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-neutral-900">Purchase orders</h2>
+            {onOrder > 0 && <span className="text-xs text-neutral-500">On order: <span className="font-semibold text-neutral-900">{onOrder} {item.unit}</span></span>}
+          </div>
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase text-neutral-400"><tr><th className="py-1">PO</th><th>Vendor</th><th>Expected</th><th className="text-right">Ordered</th><th className="text-right">Received</th><th>Status</th></tr></thead>
+            <tbody className="divide-y divide-neutral-100">
+              {poRows.map((p) => (
+                <tr key={p.id + p.qty}>
+                  <td className="py-1.5"><Link href={`/inventory/purchase-orders/${p.id}`} className="font-medium text-neutral-800 hover:underline">{p.poNumber}</Link></td>
+                  <td className="py-1.5 text-neutral-600">{p.vendor ?? "—"}</td>
+                  <td className="py-1.5 text-neutral-500">{p.expectedDate ? fmtDateTime(p.expectedDate).split(",")[0] : "—"}</td>
+                  <td className="py-1.5 text-right">{Number(p.qty)}</td>
+                  <td className="py-1.5 text-right text-neutral-500">{Number(p.receivedQty)}</td>
+                  <td className="py-1.5"><span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.status === "received" ? "bg-emerald-100 text-emerald-700" : p.status === "open" ? "bg-blue-100 text-blue-700" : "bg-neutral-200 text-neutral-500"}`}>{p.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </Card>
       )}
 

@@ -284,6 +284,52 @@ export async function postProductionToGl(docId: string, addedCost: number, userI
   }
 }
 
+/** Ensure the GRNI (goods received, not invoiced) clearing liability exists. */
+async function ensureGrniAccount(): Promise<string | null> {
+  const existing = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "grni"), columns: { id: true } });
+  if (existing) return existing.id;
+  let code = "2150";
+  for (let i = 0; i < 30; i++) {
+    const c = String(2150 + i);
+    const hit = await db.query.glAccounts.findFirst({ where: eq(glAccounts.code, c), columns: { id: true } });
+    if (!hit) { code = c; break; }
+  }
+  try {
+    const [row] = await db.insert(glAccounts).values({
+      code, name: "Goods Received Not Invoiced", type: "liability", subtype: "Current Liability",
+      description: "Value of goods received against a PO but not yet billed by the vendor. Code the vendor's A/P bill here to clear it.", systemKey: "grni", active: true,
+    }).returning({ id: glAccounts.id });
+    return row?.id ?? null;
+  } catch {
+    const again = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "grni"), columns: { id: true } });
+    return again?.id ?? null;
+  }
+}
+
+/** Post a goods receipt to the GL: Dr Inventory / Cr GRNI for the received value.
+ *  The vendor's A/P bill, coded to GRNI, later clears the liability. Idempotent,
+ *  best-effort — never throws into the receiving flow. */
+export async function postGoodsReceiptToGl(grId: string, receivedValue: number, userId: string): Promise<void> {
+  try {
+    if (await alreadyPosted("goods_receipt", grId)) return;
+    if (receivedValue <= 0.005) return;
+    const acc = await systemAccounts(["inventory"]);
+    if (!acc.inventory) return;
+    const grniId = await ensureGrniAccount();
+    if (!grniId) return;
+    await createJournal({
+      date: new Date(), memo: `Goods receipt ${grId.slice(0, 8)} — received into stock`,
+      lines: [
+        { accountId: acc.inventory, debit: round2(receivedValue), credit: 0, memo: "Goods received into inventory" },
+        { accountId: grniId, debit: 0, credit: round2(receivedValue), memo: "Goods received not invoiced" },
+      ],
+      source: "goods_receipt", sourceId: grId, post: true,
+    }, userId);
+  } catch (e) {
+    console.error("postGoodsReceiptToGl failed", e);
+  }
+}
+
 /** Void the GL entries posted from a source document (e.g. a voided invoice). */
 export async function reverseGlForSource(source: string, sourceId: string, userId: string, reason: string): Promise<void> {
   try {

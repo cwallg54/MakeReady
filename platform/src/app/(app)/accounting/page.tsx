@@ -106,6 +106,7 @@ export default async function AccountingHome() {
       <Section title="Payables (A/P)" tiles={[
         { href: "/accounting/bills", label: "Bills", desc: "Enter, approve, and pay vendor bills." },
         { href: "/accounting/vendors", label: "Vendors", desc: "Your suppliers and their terms." },
+        { href: "/inventory/purchase-orders", label: "Purchase Orders", desc: "Raise POs, receive goods into stock, and track GRNI." },
         { href: "/accounting/landed-cost", label: "Landed Cost", desc: "Spread freight across a shipment into each item's true landed cost." },
       ]} />
 
