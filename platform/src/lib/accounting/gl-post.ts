@@ -4,6 +4,8 @@ import { db } from "@/db";
 import { glAccounts, journalEntries, invoices, payments, bills, billLines, billPayments } from "@/db/schema";
 import { createJournal, voidJournal, type DraftLine } from "./journal";
 
+const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+
 /** Resolve system GL accounts (by system_key) that are active. */
 async function systemAccounts(keys: string[]): Promise<Record<string, string>> {
   const rows = await db.select({ id: glAccounts.id, key: glAccounts.systemKey })
@@ -159,20 +161,30 @@ export async function postLandedCostToGl(docId: string, userId: string): Promise
     const doc = await db.query.landedCostDocs.findFirst({ where: eq(landedCostDocs.id, docId) });
     if (!doc || doc.status !== "applied") return;
     const lines = await db.select().from(landedCostLines).where(eq(landedCostLines.docId, docId));
-    // Only freight allocated to matched items can be capitalized to Inventory.
-    const capitalized = lines.filter((l) => l.itemId).reduce((s, l) => s + Number(l.allocated), 0);
-    if (capitalized <= 0.005) return;
-    const acc = await systemAccounts(["inventory"]);
+    // Freight on matched items is capitalized to Inventory; freight on unmatched
+    // lines (no inventory record to carry it) is expensed to COGS/freight-in — so
+    // the clearing account still nets to zero. Falls back to capitalizing only
+    // matched freight if there's no COGS account.
+    const capitalized = round2(lines.filter((l) => l.itemId).reduce((s, l) => s + Number(l.allocated), 0));
+    const unmatched = round2(lines.filter((l) => !l.itemId).reduce((s, l) => s + Number(l.allocated), 0));
+    if (capitalized <= 0.005 && unmatched <= 0.005) return;
+    const acc = await systemAccounts(["inventory", "cogs"]);
     if (!acc.inventory) return; // GL not configured — skip gracefully
     const clearingId = await ensureLandedClearingAccount();
     if (!clearingId) return;
+
+    const debits: DraftLine[] = [];
+    if (capitalized > 0.005) debits.push({ accountId: acc.inventory, debit: capitalized, credit: 0, memo: `Freight capitalized — ${doc.docNumber}` });
+    // Only expense the unmatched freight when a COGS account exists; otherwise it
+    // stays in clearing for finance to resolve (never silently misposted).
+    const expensed = acc.cogs && unmatched > 0.005 ? unmatched : 0;
+    if (expensed > 0) debits.push({ accountId: acc.cogs, debit: expensed, credit: 0, memo: `Freight (unmatched items) — ${doc.docNumber}` });
+    if (!debits.length) return;
+    const clearTotal = round2(capitalized + expensed);
     await createJournal({
       date: doc.appliedAt ?? new Date(),
       memo: `Landed cost ${doc.docNumber}${doc.shipmentRef ? ` (${doc.shipmentRef})` : ""}`,
-      lines: [
-        { accountId: acc.inventory, debit: Number(capitalized.toFixed(2)), credit: 0, memo: `Freight capitalized — ${doc.docNumber}` },
-        { accountId: clearingId, debit: 0, credit: Number(capitalized.toFixed(2)), memo: `Clear freight — ${doc.docNumber}` },
-      ],
+      lines: [...debits, { accountId: clearingId, debit: 0, credit: clearTotal, memo: `Clear freight — ${doc.docNumber}` }],
       source: "landed_cost", sourceId: docId, post: true,
     }, userId);
   } catch (e) {

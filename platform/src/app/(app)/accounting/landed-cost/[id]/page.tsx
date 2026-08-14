@@ -29,6 +29,9 @@ export default async function LandedCostDocPage({ params, searchParams }: { para
   const preview = allocateLanded(lines.map((l) => ({ qty: Number(l.qty), baseUnitCost: Number(l.baseUnitCost) })), charges, basis);
   const totalQty = lines.reduce((s, l) => s + Number(l.qty), 0);
   const totalVal = lines.reduce((s, l) => s + Number(l.qty) * Number(l.baseUnitCost), 0);
+  // Unmatched lines (no inventory item) — their freight is expensed to COGS, not capitalized.
+  const unmatchedCount = lines.filter((l) => !l.itemId).length;
+  const unmatchedFreight = lines.reduce((s, l, i) => s + (l.itemId ? 0 : (doc.status === "applied" ? Number(l.allocated) : preview[i]?.allocated ?? 0)), 0);
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -40,6 +43,11 @@ export default async function LandedCostDocPage({ params, searchParams }: { para
       />
 
       {err === "empty" && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">Add at least one item line before applying.</p>}
+      {unmatchedCount > 0 && (
+        <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          {unmatchedCount} line{unmatchedCount === 1 ? "" : "s"} {unmatchedCount === 1 ? "isn't" : "aren't"} matched to an inventory item. Their freight ({money(unmatchedFreight)}) will be <span className="font-medium">expensed to COGS</span>, not capitalized into inventory. Enter a valid SKU to capitalize it instead.
+        </p>
+      )}
 
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Shipment &amp; charges</h2>
