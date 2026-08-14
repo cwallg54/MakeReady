@@ -240,10 +240,16 @@ export function GarmentLineCard({
                   {refs.methods.map((m) => <option key={m.code} value={m.code}>{m.name}</option>)}
                 </select>
                 {isStitch ? (
-                  <select disabled={!editable} value={d.stitchTier ?? ""} onChange={(e) => patchDeco(i, { stitchTier: e.target.value })} className={inp} title="Stitch tier">
-                    <option value="">— stitch tier —</option>
-                    {refs.embTiers.map((t) => <option key={t.code} value={t.code}>{t.name} ({money(t.pricePerUnit)})</option>)}
-                  </select>
+                  refs.engine?.embroidery ? (
+                    <label className="flex items-center gap-1 text-xs text-neutral-500" title="Stitch count — drives engine embroidery pricing">stitches
+                      <input disabled={!editable} type="number" min="0" step="500" value={d.stitchCount ?? ""} placeholder="e.g. 8000" onChange={(e) => patchDeco(i, { stitchCount: Number(e.target.value) })} className={`w-24 ${inp}`} />
+                    </label>
+                  ) : (
+                    <select disabled={!editable} value={d.stitchTier ?? ""} onChange={(e) => patchDeco(i, { stitchTier: e.target.value })} className={inp} title="Stitch tier">
+                      <option value="">— stitch tier —</option>
+                      {refs.embTiers.map((t) => <option key={t.code} value={t.code}>{t.name} ({money(t.pricePerUnit)})</option>)}
+                    </select>
+                  )
                 ) : (
                   <>
                     <label className="flex items-center gap-1 text-xs text-neutral-500"># colors

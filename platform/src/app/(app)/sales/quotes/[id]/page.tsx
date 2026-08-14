@@ -17,7 +17,7 @@ import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
 import { pricingMethods, pricingGarments } from "@/db/schema";
 import { inArray } from "drizzle-orm";
-import type { SilkscreenConfig } from "@/lib/pricing/engine";
+import type { SilkscreenConfig, EmbroideryConfig } from "@/lib/pricing/engine";
 import { listExtras, listFreight, listRoyalties } from "@/lib/pricing/service";
 import { PriceCalculator } from "@/app/(app)/admin/pricing/price-calculator";
 
@@ -71,7 +71,10 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
   // Softgoods engine config + per-style garment cost (supplier cost, else the
   // seeded pricing_garments cost by style number) so silkscreen lines price via
   // Kim's spreadsheet math.
-  const ssMethod = await db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") });
+  const [ssMethod, embMethod] = await Promise.all([
+    db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") }),
+    db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "embroidery") }),
+  ]);
   const engineExtras = await listExtras();
   const styleNums = styleRows.map((s) => s.styleNumber).filter((x): x is string => !!x);
   const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
@@ -88,7 +91,9 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     methods: methodRows.map((m) => ({ code: m.code, name: m.name, priceMode: m.priceMode, pricing: (m.pricing as MethodRef["pricing"]) ?? null })),
     locations: locationRows.map((l) => ({ code: l.code, name: l.name })),
     embTiers: embRows.map((e) => ({ code: e.code, name: e.name, pricePerUnit: Number(e.pricePerUnit) })),
-    engine: ssMethod ? { silkscreen: ssMethod.config as SilkscreenConfig } : undefined,
+    engine: (ssMethod || embMethod)
+      ? { silkscreen: ssMethod?.config as SilkscreenConfig | undefined, embroidery: embMethod?.config as EmbroideryConfig | undefined }
+      : undefined,
     garmentCostByStyleId,
     extras: engineExtras.map((e) => ({ id: e.id, label: e.label, amount: e.amount == null ? null : Number(e.amount), kind: e.kind })),
   };

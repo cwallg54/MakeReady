@@ -3,16 +3,20 @@
  * no DB — so it runs identically on server (persist) and client (live preview).
  */
 
-import { priceSilkscreen, type SilkscreenConfig } from "@/lib/pricing/engine";
+import { priceSilkscreen, priceEmbroidery, type SilkscreenConfig, type EmbroideryConfig } from "@/lib/pricing/engine";
 
 // When the softgoods pricing engine is available (garment cost + method config),
 // a garment line's decorated unit price is computed from Kim's spreadsheet math
-// (garment cost × qty-band multiplier + screen charge by print level) instead of
-// the older markup model. Falls back to the markup model when cost/config is
-// absent, so styles without a cost are unaffected.
+// (garment cost × qty-band multiplier + screen/stitch charges) instead of the
+// older markup model. Falls back to the markup model when cost/config is absent,
+// so styles without a cost are unaffected.
 export interface EngineConfigs {
   silkscreen?: SilkscreenConfig;
+  embroidery?: EmbroideryConfig;
 }
+// Map an embroidery tier to a representative stitch count (from the tier names)
+// when a decoration doesn't carry an explicit stitch count.
+const TIER_STITCHES: Record<string, number> = { LC: 8000, A: 5000, B: 10000, C: 15000 };
 const CHEST_YOKE = new Set(["left_chest", "right_chest", "center_chest", "front_yoke", "back_yoke"]);
 const SLEEVE = new Set(["left_sleeve", "right_sleeve", "cuff"]);
 const LEVELS = ["A", "B", "C"] as const;
@@ -152,6 +156,7 @@ export interface DecorationInput {
   method: string; // decoration_methods.code
   colorCount?: number; // for per_color methods
   stitchTier?: string; // embroidery_tiers.code, for stitch methods
+  stitchCount?: number; // explicit stitch count (softgoods embroidery engine)
   level?: "A" | "B" | "C"; // silkscreen screen-color class (softgoods engine)
 }
 
@@ -278,6 +283,32 @@ export function engineSilkscreenUnit(opts: {
   return { unit: res.unit, sizeUpcharges: cfg.sizeUpcharges };
 }
 
+/** Engine embroidery unit price, or null when it doesn't apply. Prices the
+ *  garment via the embroidery multiplier plus a per-location stitch charge for up
+ *  to two stitch decorations (their stitch count, or the tier's representative). */
+export function engineEmbroideryUnit(opts: {
+  garmentCost?: number;
+  totalUnits: number;
+  decorations: DecorationInput[];
+  methods: Map<string, MethodRef>;
+  engine?: EngineConfigs;
+  tier?: "list" | "HV" | "MV";
+  extrasPerUnit?: number;
+}): { unit: number; sizeUpcharges: Record<string, number> } | null {
+  const cfg = opts.engine?.embroidery;
+  if (!cfg || !opts.garmentCost || opts.garmentCost <= 0 || opts.totalUnits <= 0) return null;
+  const stitchDecos = opts.decorations.filter((d) => opts.methods.get(d.method)?.priceMode === "stitch");
+  if (stitchDecos.length === 0) return null; // not an embroidery line
+  const stitchOf = (d: DecorationInput) => d.stitchCount && d.stitchCount > 0 ? d.stitchCount : TIER_STITCHES[d.stitchTier ?? ""] ?? 5000;
+  const [stitch1, stitch2] = [stitchDecos[0] ? stitchOf(stitchDecos[0]) : 0, stitchDecos[1] ? stitchOf(stitchDecos[1]) : 0];
+
+  const res = priceEmbroidery(
+    { garmentCost: opts.garmentCost, qty: opts.totalUnits, stitch1, stitch2, extrasAmount: opts.extrasPerUnit ?? 0, tier: opts.tier },
+    cfg,
+  );
+  return { unit: res.unit, sizeUpcharges: cfg.sizeUpcharges };
+}
+
 export function priceGarmentLine(opts: {
   basePrice: number;
   sizeClassSizes: SizeEntry[] | null;
@@ -300,7 +331,7 @@ export function priceGarmentLine(opts: {
   }
   const extrasPerUnit = round2(opts.extrasPerUnit ?? 0);
 
-  const eng = engineSilkscreenUnit({
+  const engArgs = {
     garmentCost: opts.garmentCost,
     totalUnits,
     decorations: opts.decorations,
@@ -308,7 +339,11 @@ export function priceGarmentLine(opts: {
     engine: opts.engine,
     tier: opts.tier,
     extrasPerUnit,
-  });
+  };
+  // Embroidery (stitch) lines price via the embroidery engine; screen/DTF/foil/
+  // softhand (per_color) via the silkscreen engine. Embroidery takes precedence
+  // when a line has stitch decorations.
+  const eng = engineEmbroideryUnit(engArgs) ?? engineSilkscreenUnit(engArgs);
 
   let garmentSubtotal = 0;
   let runSubtotal = 0;

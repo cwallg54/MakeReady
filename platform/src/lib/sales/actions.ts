@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments, pricingExtras } from "@/db/schema";
-import type { SilkscreenConfig } from "@/lib/pricing/engine";
+import type { SilkscreenConfig, EmbroideryConfig } from "@/lib/pricing/engine";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -150,8 +150,13 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
     const embTiers = new Map<string, EmbTierRef>(embRows.map((e) => [e.code, { code: e.code, pricePerUnit: Number(e.pricePerUnit) }]));
 
     // Softgoods engine config + per-style garment cost (must match the client preview).
-    const ssMethod = await db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") });
-    const engine = ssMethod ? { silkscreen: ssMethod.config as SilkscreenConfig } : undefined;
+    const [ssMethod, embMethod] = await Promise.all([
+      db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") }),
+      db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "embroidery") }),
+    ]);
+    const engine = (ssMethod || embMethod)
+      ? { silkscreen: ssMethod?.config as SilkscreenConfig | undefined, embroidery: embMethod?.config as EmbroideryConfig | undefined }
+      : undefined;
     const styleNums = styles.map((s) => s.styleNumber).filter((x): x is string => !!x);
     const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
     const costByNum = new Map(pgRows.map((r) => [r.garmentNumber, Number(r.cost)]));
