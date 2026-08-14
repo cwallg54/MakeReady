@@ -238,6 +238,52 @@ export async function postLateFeeToGl(invoiceId: string, feeAmount: number, user
   }
 }
 
+/** Ensure a "Production Labor Applied" (contra-expense) account; returns its id. */
+async function ensureProductionAppliedAccount(): Promise<string | null> {
+  const existing = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "production_applied"), columns: { id: true } });
+  if (existing) return existing.id;
+  let code = "5990";
+  for (let i = 0; i < 30; i++) {
+    const c = String(5990 + i);
+    const hit = await db.query.glAccounts.findFirst({ where: eq(glAccounts.code, c), columns: { id: true } });
+    if (!hit) { code = c; break; }
+  }
+  try {
+    const [row] = await db.insert(glAccounts).values({
+      code, name: "Production Labor Applied", type: "expense", subtype: "Production",
+      description: "Labor/overhead capitalized into finished goods by in-house production (contra to payroll).", systemKey: "production_applied", active: true,
+    }).returning({ id: glAccounts.id });
+    return row?.id ?? null;
+  } catch {
+    const again = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "production_applied"), columns: { id: true } });
+    return again?.id ?? null;
+  }
+}
+
+/** Post an in-house production order's capitalized labor/overhead: Dr Inventory /
+ *  Cr Production Labor Applied. The blank→finished value stays within inventory
+ *  (no COGS until sale), so only added labor hits the GL. Idempotent, best-effort. */
+export async function postProductionToGl(docId: string, addedCost: number, userId: string): Promise<void> {
+  try {
+    if (await alreadyPosted("production_order", docId)) return;
+    if (addedCost <= 0.005) return;
+    const acc = await systemAccounts(["inventory"]);
+    if (!acc.inventory) return;
+    const appliedId = await ensureProductionAppliedAccount();
+    if (!appliedId) return;
+    await createJournal({
+      date: new Date(), memo: `Production ${docId.slice(0, 8)} — labor capitalized`,
+      lines: [
+        { accountId: acc.inventory, debit: round2(addedCost), credit: 0, memo: "Labor capitalized to finished goods" },
+        { accountId: appliedId, debit: 0, credit: round2(addedCost), memo: "Production labor applied" },
+      ],
+      source: "production_order", sourceId: docId, post: true,
+    }, userId);
+  } catch (e) {
+    console.error("postProductionToGl failed", e);
+  }
+}
+
 /** Void the GL entries posted from a source document (e.g. a voided invoice). */
 export async function reverseGlForSource(source: string, sourceId: string, userId: string, reason: string): Promise<void> {
   try {

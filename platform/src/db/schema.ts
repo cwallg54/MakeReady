@@ -2130,3 +2130,43 @@ export const landedCostLines = pgTable(
 );
 export type LandedCostDoc = typeof landedCostDocs.$inferSelect;
 export type LandedCostLine = typeof landedCostLines.$inferSelect;
+
+// ───────────────────── In-house production order (build) ────────────────────
+// One document that consumes blank inventory and produces finished-good
+// inventory — replacing the manual SO+PO dance and the monthly COGS journal.
+// Posting moves stock (blanks out, finished in) and rolls the blank cost (plus
+// any capitalized added labor/overhead) into the finished item's cost.
+export const productionOrders = pgTable(
+  "production_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    docNumber: text("doc_number").notNull().unique(), // PRD-#####
+    status: text("status").notNull().default("draft"), // draft | posted
+    // Labor/overhead to capitalize into the produced goods (0 = blanks only).
+    addedCost: numeric("added_cost", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    postedAt: timestamp("posted_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("production_orders_status_idx").on(t.status)],
+);
+export const productionOrderLines = pgTable(
+  "production_order_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    docId: uuid("doc_id").notNull().references(() => productionOrders.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(), // consume | produce
+    itemId: uuid("item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
+    sku: text("sku"),
+    description: text("description"),
+    qty: numeric("qty", { precision: 14, scale: 2 }).notNull().default("0"),
+    binId: uuid("bin_id").references(() => bins.id, { onDelete: "set null" }),
+    unitCost: numeric("unit_cost", { precision: 14, scale: 4 }).notNull().default("0"), // frozen at post
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("production_order_lines_doc_id_idx").on(t.docId)],
+);
+export type ProductionOrder = typeof productionOrders.$inferSelect;
+export type ProductionOrderLine = typeof productionOrderLines.$inferSelect;
