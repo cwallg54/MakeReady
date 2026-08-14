@@ -44,11 +44,12 @@ export interface AdminState {
 const userSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   email: z.string().trim().toLowerCase().email("Valid email required"),
+  phone: z.string().trim().max(30).optional(),
 });
 
 export async function createUserAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
   const admin = await assertAdmin();
-  const parsed = userSchema.safeParse({ name: formData.get("name"), email: formData.get("email") });
+  const parsed = userSchema.safeParse({ name: formData.get("name"), email: formData.get("email"), phone: formData.get("phone") });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
   const roles = parseRoles(formData);
@@ -60,7 +61,7 @@ export async function createUserAction(_prev: AdminState, formData: FormData): P
   const newUserId = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(users)
-      .values({ name: parsed.data.name, email: parsed.data.email, mustResetPassword: true })
+      .values({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone || null, mustResetPassword: true })
       .returning({ id: users.id });
     await tx.insert(userRoles).values(roles.map((role) => ({ userId: created.id, role })));
     await audit(
@@ -89,7 +90,7 @@ export async function createUserAction(_prev: AdminState, formData: FormData): P
 export async function updateUserAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
   const admin = await assertAdmin();
   const id = String(formData.get("id") ?? "");
-  const parsed = userSchema.safeParse({ name: formData.get("name"), email: formData.get("email") });
+  const parsed = userSchema.safeParse({ name: formData.get("name"), email: formData.get("email"), phone: formData.get("phone") });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
 
   const target = await db.query.users.findFirst({ where: eq(users.id, id) });
@@ -117,7 +118,7 @@ export async function updateUserAction(_prev: AdminState, formData: FormData): P
   await db.transaction(async (tx) => {
     await tx
       .update(users)
-      .set({ name: parsed.data.name, email: parsed.data.email, updatedAt: new Date() })
+      .set({ name: parsed.data.name, email: parsed.data.email, phone: parsed.data.phone || null, updatedAt: new Date() })
       .where(eq(users.id, id));
     await tx.delete(userRoles).where(eq(userRoles.userId, id));
     await tx.insert(userRoles).values(roles.map((role) => ({ userId: id, role })));

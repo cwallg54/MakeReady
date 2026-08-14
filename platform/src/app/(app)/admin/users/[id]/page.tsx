@@ -20,7 +20,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
       </Link>
       <Card>
         <h2 className="mb-4 text-sm font-semibold text-neutral-900">Edit user</h2>
-        <UserEditForm id={user.id} name={user.name} email={user.email} roles={roles.map((r) => r.role)} />
+        <UserEditForm id={user.id} name={user.name} email={user.email} phone={user.phone ?? ""} roles={roles.map((r) => r.role)} />
       </Card>
     </div>
   );
