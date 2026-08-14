@@ -10,6 +10,7 @@ import { ConfirmButton } from "@/components/confirm-button";
 import { updateItemAction, deleteItemAction } from "@/lib/inventory/actions";
 import { binAdjustAction, binTransferAction } from "@/lib/inventory/bin-actions";
 import { fmtDateTime } from "@/lib/format";
+import { rollingLandedAverage } from "@/lib/inventory/landed-cost";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,8 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
 
   const item = await db.query.inventoryItems.findFirst({ where: eq(inventoryItems.id, id) });
   if (!item) notFound();
+
+  const landed = await rollingLandedAverage(id, 365);
 
   const [movements, allBins, stock] = await Promise.all([
     db.select().from(stockMovements).where(eq(stockMovements.itemId, id)).orderBy(desc(stockMovements.createdAt)).limit(50),
@@ -151,6 +154,21 @@ export default async function InventoryItemPage({ params }: { params: Promise<{ 
           </dl>
         )}
       </Card>
+
+      {landed.current != null && (
+        <Card>
+          <h2 className="mb-2 text-sm font-semibold text-neutral-900">Landed cost <span className="font-normal text-neutral-400">(rolling 365 days)</span></h2>
+          <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+            <div><dt className="text-neutral-400">365-day avg landed</dt><dd className="text-lg font-bold text-neutral-900">${landed.current.toFixed(4)}</dd></div>
+            <div><dt className="text-neutral-400">Prior year</dt><dd className="text-neutral-700">{landed.priorYear != null ? `$${landed.priorYear.toFixed(4)}` : "—"}</dd></div>
+            {landed.priorYear != null && landed.priorYear > 0 && (
+              <div><dt className="text-neutral-400">YoY</dt><dd className={landed.current >= landed.priorYear ? "text-red-600" : "text-emerald-600"}>{landed.current >= landed.priorYear ? "▲" : "▼"} {(Math.abs((landed.current - landed.priorYear) / landed.priorYear) * 100).toFixed(1)}%</dd></div>
+            )}
+            <div><dt className="text-neutral-400">Units landed (365d)</dt><dd className="text-neutral-700">{landed.qtyCurrent}</dd></div>
+          </div>
+          <p className="mt-2 text-xs text-neutral-400">Weighted average of applied landed-cost sheets over the last year — not an all-time average.</p>
+        </Card>
+      )}
 
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Movement history</h2>

@@ -2074,3 +2074,48 @@ export const shipCalendar = pgTable(
   (t) => [index("ship_calendar_day_idx").on(t.day)],
 );
 export type ShipCalendarDay = typeof shipCalendar.$inferSelect;
+
+// ───────────────────────── Landed cost (freight spreading) ─────────────────
+// Spread a shipment's freight (and other landed charges) across the items on
+// it so each item's cost reflects true landed cost (PO cost + freight share).
+// Applying updates each item's moving-average cost; a rolling 365-day landed
+// average is computed from applied lines for the inventory-costing report.
+export const landedCostDocs = pgTable(
+  "landed_cost_docs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    docNumber: text("doc_number").notNull().unique(), // LC-#####
+    vendor: text("vendor"), // freight company
+    shipmentRef: text("shipment_ref"), // container / BOL / packet ref
+    freightAmount: numeric("freight_amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    otherCharges: numeric("other_charges", { precision: 14, scale: 2 }).notNull().default("0"),
+    otherLabel: text("other_label"), // e.g. duty, brokerage
+    basis: text("basis").notNull().default("quantity"), // quantity | value
+    status: text("status").notNull().default("draft"), // draft | applied
+    notes: text("notes"),
+    appliedAt: timestamp("applied_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("landed_cost_docs_status_idx").on(t.status)],
+);
+export const landedCostLines = pgTable(
+  "landed_cost_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    docId: uuid("doc_id").notNull().references(() => landedCostDocs.id, { onDelete: "cascade" }),
+    itemId: uuid("item_id").references(() => inventoryItems.id, { onDelete: "set null" }),
+    sku: text("sku"),
+    description: text("description"),
+    qty: numeric("qty", { precision: 14, scale: 2 }).notNull().default("0"),
+    baseUnitCost: numeric("base_unit_cost", { precision: 14, scale: 4 }).notNull().default("0"),
+    // Frozen at apply: freight+other allocated to this line, and the landed unit.
+    allocated: numeric("allocated", { precision: 14, scale: 2 }).notNull().default("0"),
+    landedUnitCost: numeric("landed_unit_cost", { precision: 14, scale: 4 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("landed_cost_lines_doc_id_idx").on(t.docId), index("landed_cost_lines_item_id_idx").on(t.itemId)],
+);
+export type LandedCostDoc = typeof landedCostDocs.$inferSelect;
+export type LandedCostLine = typeof landedCostLines.$inferSelect;

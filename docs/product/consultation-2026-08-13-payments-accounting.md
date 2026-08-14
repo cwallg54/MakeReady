@@ -59,13 +59,17 @@ customer, and payment info stays in-system.
 - **Clean house**: don't replicate unused SAP reports; build the ones actually
   used (Leslie to confirm the priority list).
 
-## Inventory costing — landed cost / freight spreading
-- **Spread freight** across a shipment: freight invoice posts to a landed-cost
-  clearing account (SAP acct 2398), then the freight is **spread over the
-  quantity** of everything on the shipment so item cost = PO cost + freight
-  share. Today's average reaches back to 2008 — **too long**. Use a **rolling
-  365-day average + year-over-year** (optionally month-over-month) so seasonality
-  and China-tariff spikes are visible.
+## Inventory costing — landed cost / freight spreading  ✅ SHIPPED
+Built at **Accounting → Landed Cost** (`/accounting/landed-cost`). A worksheet:
+enter the shipment (freight company, container ref, freight + duty/brokerage),
+add the items (SKU auto-resolves the inventory item + base cost), choose to spread
+**by quantity or value**, and see each line's landed unit cost. **Apply** freezes
+the allocation and revalues each matched item's cost to its landed cost (base +
+freight share); on-hand is left to the receiving/bin flow to avoid desync. Each
+inventory item shows a **rolling 365-day landed average + year-over-year** (from
+applied sheets — not the all-time "back-to-2008" average). GL posting deferred
+(needs a landed-cost clearing account so the separate freight A/P bill isn't
+double-counted).
 
 ## Pricing / discounts (continues the Kim thread)
 - **Price adjustment** (not "discount") on the order form — reps can adjust up to
