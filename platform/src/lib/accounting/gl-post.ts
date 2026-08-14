@@ -124,6 +124,62 @@ export async function postBillPaymentToGl(paymentId: string, userId: string): Pr
   }
 }
 
+/** Ensure the Landed Cost Clearing account exists (their SAP acct 2398 analog),
+ *  returning its id. A current-asset clearing account that the freight A/P bill
+ *  is coded to; the landed allocation moves it into Inventory so it nets to zero. */
+async function ensureLandedClearingAccount(): Promise<string | null> {
+  const existing = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "landed_clearing"), columns: { id: true } });
+  if (existing) return existing.id;
+  // Pick a free code in the current-asset range.
+  let code = "1498";
+  for (let i = 0; i < 30; i++) {
+    const c = String(1498 + i);
+    const hit = await db.query.glAccounts.findFirst({ where: eq(glAccounts.code, c), columns: { id: true } });
+    if (!hit) { code = c; break; }
+  }
+  try {
+    const [row] = await db.insert(glAccounts).values({
+      code, name: "Landed Cost Clearing", type: "asset", subtype: "Current Asset",
+      description: "Freight/duty awaiting capitalization into inventory (landed cost).", systemKey: "landed_clearing", active: true,
+    }).returning({ id: glAccounts.id });
+    return row?.id ?? null;
+  } catch {
+    const again = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "landed_clearing"), columns: { id: true } });
+    return again?.id ?? null;
+  }
+}
+
+/** Post an applied landed-cost sheet: Dr Inventory / Cr Landed Cost Clearing for
+ *  the freight+duty allocated to matched inventory items. The freight A/P bill is
+ *  coded to the same clearing account, so it nets to zero. Idempotent, best-effort. */
+export async function postLandedCostToGl(docId: string, userId: string): Promise<void> {
+  try {
+    if (await alreadyPosted("landed_cost", docId)) return;
+    const { landedCostDocs, landedCostLines } = await import("@/db/schema");
+    const doc = await db.query.landedCostDocs.findFirst({ where: eq(landedCostDocs.id, docId) });
+    if (!doc || doc.status !== "applied") return;
+    const lines = await db.select().from(landedCostLines).where(eq(landedCostLines.docId, docId));
+    // Only freight allocated to matched items can be capitalized to Inventory.
+    const capitalized = lines.filter((l) => l.itemId).reduce((s, l) => s + Number(l.allocated), 0);
+    if (capitalized <= 0.005) return;
+    const acc = await systemAccounts(["inventory"]);
+    if (!acc.inventory) return; // GL not configured — skip gracefully
+    const clearingId = await ensureLandedClearingAccount();
+    if (!clearingId) return;
+    await createJournal({
+      date: doc.appliedAt ?? new Date(),
+      memo: `Landed cost ${doc.docNumber}${doc.shipmentRef ? ` (${doc.shipmentRef})` : ""}`,
+      lines: [
+        { accountId: acc.inventory, debit: Number(capitalized.toFixed(2)), credit: 0, memo: `Freight capitalized — ${doc.docNumber}` },
+        { accountId: clearingId, debit: 0, credit: Number(capitalized.toFixed(2)), memo: `Clear freight — ${doc.docNumber}` },
+      ],
+      source: "landed_cost", sourceId: docId, post: true,
+    }, userId);
+  } catch (e) {
+    console.error("postLandedCostToGl failed", e);
+  }
+}
+
 /** Void the GL entries posted from a source document (e.g. a voided invoice). */
 export async function reverseGlForSource(source: string, sourceId: string, userId: string, reason: string): Promise<void> {
   try {

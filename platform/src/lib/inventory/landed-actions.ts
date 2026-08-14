@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { canView, canEdit } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
 import { allocateLanded, nextLandedNumber } from "./landed-cost";
+import { postLandedCostToGl } from "@/lib/accounting/gl-post";
 
 async function requireLandedEdit() {
   const user = await getCurrentUser();
@@ -114,6 +115,8 @@ export async function applyLandedDocAction(formData: FormData): Promise<void> {
   }
 
   await db.update(landedCostDocs).set({ status: "applied", appliedAt: new Date(), updatedAt: new Date() }).where(eq(landedCostDocs.id, id));
+  // Post Dr Inventory / Cr Landed Cost Clearing (best-effort; skips if GL unset).
+  await postLandedCostToGl(id, user.id);
   await audit({ userId: user.id, action: "landed.apply", entityType: "landed_cost_doc", entityId: id, metadata: { charges } });
   revalidatePath(`/accounting/landed-cost/${id}`);
   revalidatePath("/accounting/landed-cost");

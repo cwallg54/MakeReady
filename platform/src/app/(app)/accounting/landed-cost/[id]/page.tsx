@@ -123,13 +123,16 @@ export default async function LandedCostDocPage({ params, searchParams }: { para
         <form action={applyLandedDocAction} className="rounded-xl border border-neutral-200 bg-white p-4">
           <input type="hidden" name="id" value={doc.id} />
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-neutral-600">Applying freezes the allocation and updates each matched item&rsquo;s cost to its landed cost (base + freight share). On-hand quantities are unchanged.</p>
+            <p className="text-sm text-neutral-600">Applying freezes the allocation, updates each matched item&rsquo;s cost to its landed cost (base + freight share), and posts <span className="font-medium">Dr Inventory / Cr Landed Cost Clearing</span> to the GL. On-hand quantities are unchanged.</p>
             <button className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500">Apply landed cost →</button>
           </div>
         </form>
       )}
       {doc.status === "applied" && (
-        <p className="text-sm text-emerald-700">Applied{doc.appliedAt ? ` ${doc.appliedAt.toLocaleDateString("en-US")}` : ""}. Matched items&rsquo; costs were revalued to their landed cost.</p>
+        <div className="rounded-md bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
+          <p>Applied{doc.appliedAt ? ` ${doc.appliedAt.toLocaleDateString("en-US")}` : ""}. Matched items&rsquo; costs were revalued to their landed cost, and <span className="font-medium">Dr Inventory / Cr Landed Cost Clearing</span> was posted to the GL.</p>
+          <p className="mt-1 text-xs text-emerald-700">Code the freight/duty A/P bill to <span className="font-medium">Landed Cost Clearing</span> so the clearing account nets to zero.</p>
+        </div>
       )}
     </div>
   );

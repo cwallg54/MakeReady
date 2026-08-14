@@ -67,9 +67,10 @@ add the items (SKU auto-resolves the inventory item + base cost), choose to spre
 the allocation and revalues each matched item's cost to its landed cost (base +
 freight share); on-hand is left to the receiving/bin flow to avoid desync. Each
 inventory item shows a **rolling 365-day landed average + year-over-year** (from
-applied sheets — not the all-time "back-to-2008" average). GL posting deferred
-(needs a landed-cost clearing account so the separate freight A/P bill isn't
-double-counted).
+applied sheets — not the all-time "back-to-2008" average). **GL posting is live**:
+apply posts **Dr Inventory / Cr Landed Cost Clearing** (the clearing account is
+auto-created = their SAP 2398 analog). Code the freight/duty A/P bill to the same
+Landed Cost Clearing account so it nets to zero — no double-counting.
 
 ## Pricing / discounts (continues the Kim thread)
 - **Price adjustment** (not "discount") on the order form — reps can adjust up to
