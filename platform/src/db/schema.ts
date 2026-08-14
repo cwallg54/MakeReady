@@ -124,6 +124,10 @@ export const systemSettings = pgTable("system_settings", {
   // Max discount a Sales Rep can apply to a quote (% of subtotal); it comes out
   // of their commission. Managers/Admins are uncapped. 0 = reps can't discount.
   repDiscountCapPct: numeric("rep_discount_cap_pct", { precision: 6, scale: 3 }).notNull().default("2"),
+  // AR late fee: % of the overdue balance applied once when an invoice is this
+  // many days past due. 0% disables late fees.
+  lateFeePct: numeric("late_fee_pct", { precision: 6, scale: 3 }).notNull().default("1.5"),
+  lateFeeDays: integer("late_fee_days").notNull().default(15),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id),
 });
@@ -1024,6 +1028,8 @@ export const invoices = pgTable(
     orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
     // Opaque token for the public pay/view link (no login). Minted when sent.
     publicToken: text("public_token").unique(),
+    // AR reminder milestones already sent (e.g. ["before","duesoon","overdue","latefee"]).
+    remindersSent: jsonb("reminders_sent"),
     status: invoiceStatusEnum("status").notNull().default("draft"),
     issueDate: timestamp("issue_date", { withTimezone: true }),
     dueDate: timestamp("due_date", { withTimezone: true }),

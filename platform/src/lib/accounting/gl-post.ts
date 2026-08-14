@@ -192,6 +192,52 @@ export async function postLandedCostToGl(docId: string, userId: string): Promise
   }
 }
 
+/** Ensure a Late Fee Income (revenue) account exists; returns its id. */
+async function ensureLateFeeIncomeAccount(): Promise<string | null> {
+  const existing = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "late_fee_income"), columns: { id: true } });
+  if (existing) return existing.id;
+  let code = "4900";
+  for (let i = 0; i < 30; i++) {
+    const c = String(4900 + i);
+    const hit = await db.query.glAccounts.findFirst({ where: eq(glAccounts.code, c), columns: { id: true } });
+    if (!hit) { code = c; break; }
+  }
+  try {
+    const [row] = await db.insert(glAccounts).values({
+      code, name: "Late Fee Income", type: "revenue", subtype: "Other Income",
+      description: "Late-payment fees charged on overdue invoices.", systemKey: "late_fee_income", active: true,
+    }).returning({ id: glAccounts.id });
+    return row?.id ?? null;
+  } catch {
+    const again = await db.query.glAccounts.findFirst({ where: eq(glAccounts.systemKey, "late_fee_income"), columns: { id: true } });
+    return again?.id ?? null;
+  }
+}
+
+/** Post a late fee applied to an invoice: Dr AR / Cr Late Fee Income. Idempotent
+ *  per (invoice, fee) reference; best-effort. */
+export async function postLateFeeToGl(invoiceId: string, feeAmount: number, userId: string): Promise<void> {
+  try {
+    const src = `latefee:${invoiceId}`;
+    if (await alreadyPosted("late_fee", invoiceId)) return;
+    if (feeAmount <= 0.005) return;
+    const acc = await systemAccounts(["ar"]);
+    if (!acc.ar) return;
+    const incomeId = await ensureLateFeeIncomeAccount();
+    if (!incomeId) return;
+    await createJournal({
+      date: new Date(), memo: `Late fee — invoice ${invoiceId.slice(0, 8)}`,
+      lines: [
+        { accountId: acc.ar, debit: round2(feeAmount), credit: 0, memo: src },
+        { accountId: incomeId, debit: 0, credit: round2(feeAmount), memo: "Late fee income" },
+      ],
+      source: "late_fee", sourceId: invoiceId, post: true,
+    }, userId);
+  } catch (e) {
+    console.error("postLateFeeToGl failed", e);
+  }
+}
+
 /** Void the GL entries posted from a source document (e.g. a voided invoice). */
 export async function reverseGlForSource(source: string, sourceId: string, userId: string, reason: string): Promise<void> {
   try {

@@ -21,6 +21,8 @@ export function SettingsForm({
   defaultTaxRatePct,
   cardSurchargePct,
   repDiscountCapPct,
+  lateFeePct,
+  lateFeeDays,
 }: {
   companyName: string;
   legalName: string;
@@ -32,6 +34,8 @@ export function SettingsForm({
   defaultTaxRatePct: number;
   cardSurchargePct: number;
   repDiscountCapPct: number;
+  lateFeePct: number;
+  lateFeeDays: number;
 }) {
   const [state, action] = useActionState<AdminState, FormData>(updateSettingsAction, {});
   return (
@@ -94,6 +98,24 @@ export function SettingsForm({
           max={100}
           defaultValue={repDiscountCapPct}
           hint="Max discount a Sales Rep can apply to a quote (% of subtotal) — it comes out of their commission. Managers/Admins are uncapped. 0 = reps can't discount."
+        />
+        <AdminField
+          label="Late fee (%)"
+          name="lateFeePct"
+          type="number"
+          min={0}
+          max={50}
+          defaultValue={lateFeePct}
+          hint="Fee applied once to an overdue invoice's balance. 0 = no late fees."
+        />
+        <AdminField
+          label="Late fee — days past due"
+          name="lateFeeDays"
+          type="number"
+          min={1}
+          max={365}
+          defaultValue={lateFeeDays}
+          hint="How many days past the due date before the late fee is applied."
         />
       </div>
       <label className="flex items-start gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">

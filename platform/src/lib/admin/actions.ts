@@ -218,6 +218,8 @@ const settingsSchema = z.object({
   defaultTaxRatePct: z.coerce.number().min(0).max(100),
   cardSurchargePct: z.coerce.number().min(0).max(20),
   repDiscountCapPct: z.coerce.number().min(0).max(100),
+  lateFeePct: z.coerce.number().min(0).max(50),
+  lateFeeDays: z.coerce.number().int().min(1).max(365),
 });
 
 export async function updateSettingsAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
@@ -232,12 +234,14 @@ export async function updateSettingsAction(_prev: AdminState, formData: FormData
     defaultTaxRatePct: formData.get("defaultTaxRatePct") ?? 0,
     cardSurchargePct: formData.get("cardSurchargePct") ?? 3,
     repDiscountCapPct: formData.get("repDiscountCapPct") ?? 2,
+    lateFeePct: formData.get("lateFeePct") ?? 1.5,
+    lateFeeDays: formData.get("lateFeeDays") ?? 15,
   });
   if (!parsed.success) return { error: "Please check the configuration values." };
 
   const requireMfa = formData.get("requireMfa") === "on";
-  const { creditApprovalThreshold, defaultTaxRatePct, cardSurchargePct, repDiscountCapPct, ...rest } = parsed.data;
-  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold), defaultTaxRate: (defaultTaxRatePct / 100).toFixed(4), cardSurchargePct: cardSurchargePct.toFixed(3), repDiscountCapPct: repDiscountCapPct.toFixed(3) };
+  const { creditApprovalThreshold, defaultTaxRatePct, cardSurchargePct, repDiscountCapPct, lateFeePct, lateFeeDays, ...rest } = parsed.data;
+  const data = { ...rest, creditApprovalThreshold: String(creditApprovalThreshold), defaultTaxRate: (defaultTaxRatePct / 100).toFixed(4), cardSurchargePct: cardSurchargePct.toFixed(3), repDiscountCapPct: repDiscountCapPct.toFixed(3), lateFeePct: lateFeePct.toFixed(3), lateFeeDays };
 
   await db
     .insert(systemSettings)

@@ -22,6 +22,8 @@ export default async function ConfigPage() {
           defaultTaxRatePct={Number(settings?.defaultTaxRate ?? 0) * 100}
           cardSurchargePct={Number(settings?.cardSurchargePct ?? 3)}
           repDiscountCapPct={Number(settings?.repDiscountCapPct ?? 2)}
+          lateFeePct={Number(settings?.lateFeePct ?? 1.5)}
+          lateFeeDays={Number(settings?.lateFeeDays ?? 15)}
         />
       </Card>
 

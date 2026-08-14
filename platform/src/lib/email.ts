@@ -195,6 +195,24 @@ export async function sendInvoiceEmail(to: string, invoiceNumber: string, dueLab
   );
 }
 
+/** Payment reminder for an open invoice, with the online pay link. */
+export async function sendInvoiceReminderEmail(to: string, invoiceNumber: string, headline: string, balance: string, dueLabel: string, payUrl: string): Promise<boolean> {
+  return sendEmail(
+    to,
+    `Great Mountain West — Invoice ${invoiceNumber} ${headline}`,
+    `<div style="font-family:system-ui,sans-serif;max-width:520px">
+       <p>Hello,</p>
+       <p>${headline} — invoice <strong>${invoiceNumber}</strong>, balance due <strong>${balance}</strong>${dueLabel ? ` (due ${dueLabel})` : ""}.</p>
+       <p style="margin:18px 0">
+         <a href="${payUrl}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:10px 18px;border-radius:6px;font-weight:600">Pay this invoice online →</a>
+       </p>
+       <p style="font-size:12px;color:#666">Pay by bank/ACH (no fee) or card (a processing fee applies to card). If you've already paid, please disregard.</p>
+       <p>Thank you,<br/>Great Mountain West (G54)</p>
+     </div>`,
+    [],
+  );
+}
+
 /** Email an AR statement (PDF attachment) to the customer. Returns true if sent. */
 export async function sendStatementEmail(to: string, company: string, balance: string, attachments: EmailAttachment[]): Promise<boolean> {
   return sendEmail(
