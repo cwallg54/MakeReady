@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments, pricingExtras } from "@/db/schema";
-import type { SilkscreenConfig, EmbroideryConfig } from "@/lib/pricing/engine";
+import type { SilkscreenConfig, EmbroideryConfig, AsiConfig } from "@/lib/pricing/engine";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
@@ -79,6 +79,7 @@ export interface SaveQuotePayload {
   garmentLines?: GarmentLineData[];
   applied: { key: string; inputQty?: number }[];
   isReorder: boolean;
+  isAsi?: boolean;
   discount: number;
   notes: string;
 }
@@ -154,8 +155,9 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
       db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") }),
       db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "embroidery") }),
     ]);
-    const engine = (ssMethod || embMethod)
-      ? { silkscreen: ssMethod?.config as SilkscreenConfig | undefined, embroidery: embMethod?.config as EmbroideryConfig | undefined }
+    const asiMethod = await db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "asi") });
+    const engine = (ssMethod || embMethod || asiMethod)
+      ? { silkscreen: ssMethod?.config as SilkscreenConfig | undefined, embroidery: embMethod?.config as EmbroideryConfig | undefined, asi: asiMethod?.config as AsiConfig | undefined }
       : undefined;
     const styleNums = styles.map((s) => s.styleNumber).filter((x): x is string => !!x);
     const pgRows = styleNums.length ? await db.select({ garmentNumber: pricingGarments.garmentNumber, cost: pricingGarments.cost }).from(pricingGarments).where(inArray(pricingGarments.garmentNumber, styleNums)) : [];
@@ -183,6 +185,7 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
         engine,
         garmentCost: garmentCostOf(style),
         extrasPerUnit: extrasPerUnitOf(g.extras),
+        asiChannel: !!payload.isAsi,
       });
       garmentSubtotal += res.extended;
       const baseDesc = style?.name || g.description || "(garment)";
@@ -259,6 +262,7 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
       .update(quotes)
       .set({
         isReorder: payload.isReorder,
+        isAsi: !!payload.isAsi,
         discount: String(discount),
         subtotal: String(subtotal),
         chargesTotal: String(chargesTotal),

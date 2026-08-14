@@ -19,6 +19,7 @@ export function QuoteBuilder({
   initialReorder,
   initialDiscount,
   initialNotes,
+  initialAsi = false,
   canDiscount = true,
   repDiscountCapPct = 0,
 }: {
@@ -31,6 +32,7 @@ export function QuoteBuilder({
   initialReorder: boolean;
   initialDiscount: number;
   initialNotes: string;
+  initialAsi?: boolean;
   canDiscount?: boolean;
   repDiscountCapPct?: number;
 }) {
@@ -43,6 +45,7 @@ export function QuoteBuilder({
     return m;
   });
   const [isReorder, setIsReorder] = useState(initialReorder);
+  const [isAsi, setIsAsi] = useState(initialAsi);
   const [discount, setDiscount] = useState(initialDiscount);
   const [notes, setNotes] = useState(initialNotes);
   const [garmentLines, setGarmentLines] = useState<GarmentLineData[]>(initialGarmentLines ?? []);
@@ -70,12 +73,12 @@ export function QuoteBuilder({
     let subtotal = 0;
     let setups = 0;
     for (const g of garmentLines) {
-      const p = priceGarment(g, catalogRefs);
+      const p = priceGarment(g, catalogRefs, isAsi);
       subtotal += p.extended;
       setups += p.setups.reduce((s, x) => s + x.amount, 0);
     }
     return { subtotal: round2(subtotal), setups: round2(setups) };
-  }, [garmentLines, catalogRefs]);
+  }, [garmentLines, catalogRefs, isAsi]);
 
   const subtotal = round2(garmentPrice.subtotal);
   const chargesTotal = round2(priced.chargesTotal + garmentPrice.setups);
@@ -102,6 +105,7 @@ export function QuoteBuilder({
         garmentLines,
         applied: Object.entries(applied).filter(([, v]) => v.on).map(([key, v]) => ({ key, inputQty: v.inputQty })),
         isReorder,
+        isAsi,
         discount,
         notes,
       });
@@ -133,6 +137,7 @@ export function QuoteBuilder({
                   refs={catalogRefs!}
                   editable={editable}
                   isReorder={isReorder}
+                  asiChannel={isAsi}
                   onChange={(patch) => updateGarment(i, patch)}
                   onRemove={() => removeGarment(i)}
                 />
@@ -177,6 +182,12 @@ export function QuoteBuilder({
             <input type="checkbox" disabled={!editable} checked={isReorder} onChange={(e) => { setIsReorder(e.target.checked); setSaved(false); }} className="h-4 w-4" />
             Reorder (affects new-only setup charges)
           </label>
+          {catalogRefs?.engine?.asi && (
+            <label className="mt-2 flex items-center gap-2 text-sm text-neutral-700">
+              <input type="checkbox" disabled={!editable} checked={isAsi} onChange={(e) => { setIsAsi(e.target.checked); setSaved(false); }} className="h-4 w-4" />
+              ASI order (distributor-channel pricing)
+            </label>
+          )}
           <div className="mt-4 space-y-1.5 text-sm">
             <Row label="Subtotal" value={money(subtotal)} />
             <Row label="Charges" value={money(chargesTotal)} />

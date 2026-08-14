@@ -3,7 +3,7 @@
  * no DB — so it runs identically on server (persist) and client (live preview).
  */
 
-import { priceSilkscreen, priceEmbroidery, type SilkscreenConfig, type EmbroideryConfig } from "@/lib/pricing/engine";
+import { priceSilkscreen, priceEmbroidery, priceAsi, type SilkscreenConfig, type EmbroideryConfig, type AsiConfig } from "@/lib/pricing/engine";
 
 // When the softgoods pricing engine is available (garment cost + method config),
 // a garment line's decorated unit price is computed from Kim's spreadsheet math
@@ -13,10 +13,14 @@ import { priceSilkscreen, priceEmbroidery, type SilkscreenConfig, type Embroider
 export interface EngineConfigs {
   silkscreen?: SilkscreenConfig;
   embroidery?: EmbroideryConfig;
+  asi?: AsiConfig;
 }
 // Map an embroidery tier to a representative stitch count (from the tier names)
 // when a decoration doesn't carry an explicit stitch count.
 const TIER_STITCHES: Record<string, number> = { LC: 8000, A: 5000, B: 10000, C: 15000 };
+// ASI prices each print location by a "PL #" (complexity). Map the silkscreen
+// screen-color level to a PL#: A→1, B→2, C→3.
+const LEVEL_PL: Record<string, number> = { A: 1, B: 2, C: 3 };
 const CHEST_YOKE = new Set(["left_chest", "right_chest", "center_chest", "front_yoke", "back_yoke"]);
 const SLEEVE = new Set(["left_sleeve", "right_sleeve", "cuff"]);
 const LEVELS = ["A", "B", "C"] as const;
@@ -309,6 +313,31 @@ export function engineEmbroideryUnit(opts: {
   return { unit: res.unit, sizeUpcharges: cfg.sizeUpcharges };
 }
 
+/** Engine ASI (distributor-channel) unit price for a screen-print line, or null.
+ *  Each per_color decoration is a print location priced by a PL# (from its level).
+ *  NOTE: the level→PL# mapping (A/B/C → 1/2/3) is an approximation to confirm
+ *  against real ASI orders. */
+export function engineAsiUnit(opts: {
+  garmentCost?: number;
+  totalUnits: number;
+  decorations: DecorationInput[];
+  methods: Map<string, MethodRef>;
+  engine?: EngineConfigs;
+  tier?: "list" | "HV" | "MV";
+  extrasPerUnit?: number;
+}): { unit: number; sizeUpcharges: Record<string, number> } | null {
+  const cfg = opts.engine?.asi;
+  if (!cfg || !opts.garmentCost || opts.garmentCost <= 0 || opts.totalUnits <= 0) return null;
+  const perColor = opts.decorations.filter((d) => opts.methods.get(d.method)?.priceMode === "per_color");
+  if (perColor.length === 0) return null;
+  const locations = perColor.slice(0, 3).map((d) => LEVEL_PL[d.level ?? "B"] ?? 2);
+  const res = priceAsi(
+    { garmentCost: opts.garmentCost, qty: opts.totalUnits, locations, extrasAmount: opts.extrasPerUnit ?? 0, tier: opts.tier },
+    cfg,
+  );
+  return { unit: res.unit, sizeUpcharges: cfg.sizeUpcharges };
+}
+
 export function priceGarmentLine(opts: {
   basePrice: number;
   sizeClassSizes: SizeEntry[] | null;
@@ -323,6 +352,7 @@ export function priceGarmentLine(opts: {
   garmentCost?: number;
   tier?: "list" | "HV" | "MV";
   extrasPerUnit?: number; // summed per-garment extras (barcode, folding…)
+  asiChannel?: boolean; // ASI distributor-channel order → price screen lines via the ASI engine
 }): GarmentLinePrice & { enginePriced: boolean } {
   let totalUnits = 0;
   for (const qtyRaw of Object.values(opts.sizeBreakdown ?? {})) {
@@ -340,10 +370,12 @@ export function priceGarmentLine(opts: {
     tier: opts.tier,
     extrasPerUnit,
   };
-  // Embroidery (stitch) lines price via the embroidery engine; screen/DTF/foil/
-  // softhand (per_color) via the silkscreen engine. Embroidery takes precedence
-  // when a line has stitch decorations.
-  const eng = engineEmbroideryUnit(engArgs) ?? engineSilkscreenUnit(engArgs);
+  // Embroidery (stitch) lines price via the embroidery engine. Screen/DTF/foil/
+  // softhand (per_color) price via the silkscreen engine — or, on an ASI-channel
+  // order, via the ASI engine. Embroidery takes precedence when stitch decos exist.
+  const eng = engineEmbroideryUnit(engArgs)
+    ?? (opts.asiChannel ? engineAsiUnit(engArgs) : null)
+    ?? engineSilkscreenUnit(engArgs);
 
   let garmentSubtotal = 0;
   let runSubtotal = 0;

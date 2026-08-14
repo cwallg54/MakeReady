@@ -777,6 +777,8 @@ export const quotes = pgTable(
     templateId: uuid("template_id").references(() => orderFormTemplates.id),
     status: quoteStatusEnum("status").notNull().default("draft"),
     isReorder: boolean("is_reorder").notNull().default(false),
+    // ASI distributor-channel order — silkscreen lines price via the ASI engine.
+    isAsi: boolean("is_asi").notNull().default(false),
     // Opaque token for the public customer approve/decline page (minted on send).
     publicToken: text("public_token").unique(),
     // The customer's approve/decline response captured on the public page.

@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" ADD COLUMN "is_asi" boolean DEFAULT false NOT NULL;

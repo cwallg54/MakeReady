@@ -106,7 +106,7 @@ export function extrasPerUnitOf(line: GarmentLineData, refs: CatalogRefs): numbe
 }
 
 /** Price one garment line with the client-side copy of the pricing engine. */
-export function priceGarment(line: GarmentLineData, refs: CatalogRefs) {
+export function priceGarment(line: GarmentLineData, refs: CatalogRefs, asiChannel = false) {
   const style = refs.styles.find((s) => s.id === line.styleId);
   const sizes = style?.sizeClassCode ? refs.sizeClassByCode[style.sizeClassCode] ?? null : null;
   const { methods, embTiers } = refMaps(refs);
@@ -122,6 +122,7 @@ export function priceGarment(line: GarmentLineData, refs: CatalogRefs) {
     engine: refs.engine,
     garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
     extrasPerUnit: extrasPerUnitOf(line, refs),
+    asiChannel,
   });
 }
 
@@ -130,6 +131,7 @@ export function GarmentLineCard({
   refs,
   editable,
   isReorder,
+  asiChannel = false,
   onChange,
   onRemove,
 }: {
@@ -137,6 +139,7 @@ export function GarmentLineCard({
   refs: CatalogRefs;
   editable: boolean;
   isReorder: boolean;
+  asiChannel?: boolean;
   onChange: (patch: Partial<GarmentLineData>) => void;
   onRemove: () => void;
 }) {
@@ -155,6 +158,7 @@ export function GarmentLineCard({
     engine: refs.engine,
     garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
     extrasPerUnit: extrasPerUnitOf(line, refs),
+    asiChannel,
   });
 
   function toggleExtra(id: string, on: boolean) {

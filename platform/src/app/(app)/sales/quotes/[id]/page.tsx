@@ -17,7 +17,7 @@ import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
 import { pricingMethods, pricingGarments } from "@/db/schema";
 import { inArray } from "drizzle-orm";
-import type { SilkscreenConfig, EmbroideryConfig } from "@/lib/pricing/engine";
+import type { SilkscreenConfig, EmbroideryConfig, AsiConfig } from "@/lib/pricing/engine";
 import { listExtras, listFreight, listRoyalties } from "@/lib/pricing/service";
 import { PriceCalculator } from "@/app/(app)/admin/pricing/price-calculator";
 
@@ -71,9 +71,10 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
   // Softgoods engine config + per-style garment cost (supplier cost, else the
   // seeded pricing_garments cost by style number) so silkscreen lines price via
   // Kim's spreadsheet math.
-  const [ssMethod, embMethod] = await Promise.all([
+  const [ssMethod, embMethod, asiMethod] = await Promise.all([
     db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "silkscreen") }),
     db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "embroidery") }),
+    db.query.pricingMethods.findFirst({ where: eq(pricingMethods.key, "asi") }),
   ]);
   const engineExtras = await listExtras();
   const appSettings = await db.query.systemSettings.findFirst({ columns: { repDiscountCapPct: true } });
@@ -92,8 +93,8 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     methods: methodRows.map((m) => ({ code: m.code, name: m.name, priceMode: m.priceMode, pricing: (m.pricing as MethodRef["pricing"]) ?? null })),
     locations: locationRows.map((l) => ({ code: l.code, name: l.name })),
     embTiers: embRows.map((e) => ({ code: e.code, name: e.name, pricePerUnit: Number(e.pricePerUnit) })),
-    engine: (ssMethod || embMethod)
-      ? { silkscreen: ssMethod?.config as SilkscreenConfig | undefined, embroidery: embMethod?.config as EmbroideryConfig | undefined }
+    engine: (ssMethod || embMethod || asiMethod)
+      ? { silkscreen: ssMethod?.config as SilkscreenConfig | undefined, embroidery: embMethod?.config as EmbroideryConfig | undefined, asi: asiMethod?.config as AsiConfig | undefined }
       : undefined,
     garmentCostByStyleId,
     extras: engineExtras.map((e) => ({ id: e.id, label: e.label, amount: e.amount == null ? null : Number(e.amount), kind: e.kind })),
@@ -210,6 +211,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
         initialGarmentLines={garmentLineData}
         initialApplied={charges.filter((c) => !c.key.startsWith("deco-")).map((c) => ({ key: c.key, inputQty: Number(c.inputQty) }))}
         initialReorder={quote.isReorder}
+        initialAsi={quote.isAsi}
         initialDiscount={Number(quote.discount)}
         initialNotes={quote.notes ?? ""}
         canDiscount={user.roles.some((r) => r === "admin" || r === "sales_manager")}
