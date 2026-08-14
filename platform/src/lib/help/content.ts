@@ -1497,6 +1497,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         { text: "Choose how to spread the charges: by quantity (each unit gets an equal share) or by value (bigger-dollar items absorb more). The sheet shows each line's freight share and resulting landed unit cost live." },
         { text: "Click “Apply landed cost”. This freezes the allocation and updates each matched item's cost to its landed cost. On-hand quantities aren't touched — receiving stays in the inventory/bin flow." },
       ] },
+      { k: "img", src: "landed-cost-doc.png", caption: "A landed-cost sheet: enter freight + duty, add the shipment's items, and each line's freight share and landed unit cost calculate automatically." },
       { k: "h", text: "What it posts to the GL" },
       { k: "p", text: "Applying posts a journal: Dr Inventory / Cr Landed Cost Clearing for the freight capitalized onto matched items. So it nets to zero, code the freight/duty vendor bill (in Accounts Payable) to the Landed Cost Clearing account — the bill debits clearing, the landed sheet credits it, and the account returns to zero." },
       { k: "tip", text: "The Landed Cost Clearing account is created automatically the first time you apply a sheet (it's the equivalent of the old SAP 2398 clearing account)." },

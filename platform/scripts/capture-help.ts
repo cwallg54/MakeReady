@@ -14,6 +14,7 @@ import {
   users, sessions, businessPartners, contacts, accountGroups, activities,
   quotes, quoteLines, quoteCharges, quoteAttachments, orders, orderEvents, orderSpecItems, orderAttachments, orderProofs, artRequests, customerDocuments,
   meetings, meetingTypes, orderFormTemplates, automationCampaigns, systemSettings, designItems, productionJobs,
+  landedCostDocs, landedCostLines, inventoryItems,
 } from "../src/db/schema";
 
 const DEMO_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
@@ -111,6 +112,23 @@ async function main() {
     createdBy: admin.id,
   }).returning({ id: productionJobs.id });
 
+  // A draft landed-cost sheet (real inventory items) for the help screenshot.
+  const invForLanded = await db.select().from(inventoryItems).where(eq(inventoryItems.active, true)).orderBy(asc(inventoryItems.name)).limit(3);
+  const [landedDoc] = await db.insert(landedCostDocs).values({
+    docNumber: "LC-DEMO1", vendor: "Pacific Ocean Freight", shipmentRef: "MSKU-7788123",
+    freightAmount: "1850.00", otherCharges: "420.00", otherLabel: "Duty", basis: "quantity", status: "draft", createdBy: admin.id,
+  }).returning({ id: landedCostDocs.id });
+  if (invForLanded.length) {
+    await db.insert(landedCostLines).values(
+      invForLanded.map((it, i) => ({
+        docId: landedDoc.id, itemId: it.id, sku: it.sku, description: it.name,
+        qty: [500, 300, 200][i]?.toFixed(2) ?? "100.00",
+        baseUnitCost: (Number(it.cost) > 0 ? Number(it.cost) : [4.25, 6.5, 9.0][i] ?? 5).toFixed(4),
+        sortOrder: i,
+      })),
+    );
+  }
+
   const [artReq] = await db.insert(artRequests).values({
     orderId: order.id, status: "proofing", assignedTo: admin.id, rush: false,
     dueDate: new Date(Date.now() + 10 * 86400000),
@@ -168,6 +186,8 @@ async function main() {
     ["pricing-calculator", "/admin/pricing"],
     ["pricing-garments", "/admin/pricing?t=garments"],
     ["catalog", "/admin/catalog"],
+    ["landed-cost", "/accounting/landed-cost"],
+    ["landed-cost-doc", `/accounting/landed-cost/${landedDoc.id}`],
     ["automations", "/sales/automations"],
     ["calendar", "/calendar"],
     ["meeting-detail", `/calendar/${meeting.id}`],
@@ -260,6 +280,7 @@ async function main() {
 
   // ---- Cleanup -------------------------------------------------------------
   await db.delete(sessions).where(eq(sessions.id, sid));
+  await db.delete(landedCostDocs).where(eq(landedCostDocs.id, landedDoc.id)); // lines cascade
   await db.delete(meetings).where(eq(meetings.id, meeting.id));
   await db.delete(customerDocuments).where(eq(customerDocuments.id, pendingDoc.id));
   await db.delete(customerDocuments).where(eq(customerDocuments.id, doneDoc.id));
