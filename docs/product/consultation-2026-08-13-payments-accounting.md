@@ -22,15 +22,15 @@ into customers' portals**; instead have customers **pay on our portal**. Offer
 bank/ACH (no fee) and card (fee shown). Keeps liability and data entry on the
 customer, and payment info stays in-system.
 
-## Terms, invoicing & reminders (next)
-- Invoices carry **terms** (Net 30/60, or prepay/credit-card-before-ship). Send
-  the pay link **at invoice**. *(Invoice terms + due date + pay link already
-  exist; the automated reminder cadence is the remaining piece.)*
-- **Automated reminders** off the due date: ~15 days before, ~5 days before,
-  day-1 past due, then **late-fee** application at a configured day. Build on the
-  existing sales/AR automation engine.
-- **Manual payment posting** for checks (Stacey posts a batch of ~30 to each
-  account → shows paid) — already exists in Accounting → Payments.
+## Terms, invoicing & reminders  ✅ SHIPPED
+- Invoices carry **terms** (Net 30/60…) + due date + the online pay link.
+- **Automated reminders** — daily cron (`/api/cron/ar-reminders`) sends one
+  escalating reminder per milestone (due-soon ≤15d, ≤5d/today, past-due), each
+  with the pay link, by **email + SMS** (when configured), deduped per invoice.
+- **Late fee** — applied once when an invoice is past due by the configured days
+  (default 15): adds a late-fee line, bumps the total, posts Dr AR / Cr Late Fee
+  Income. %/days set in Admin → Config.
+- **Manual payment posting** for checks — already in Accounting → Payments.
 
 ## Accounting / month-end wishlist (to build)
 - **Invoicing, AR, AP** — core exists; confirm month-end views.
