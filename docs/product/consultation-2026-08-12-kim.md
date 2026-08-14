@@ -16,7 +16,9 @@ Runthrough of the current MakeReady build with Kim, executive sponsor for Sales.
 - ✅ **SMS notifications** — graceful Twilio client wired to customer stage alerts + press-check requests (e217dac). *Activate:* set `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM`; staff need a `users.phone`.
 - ✅ **Outlook calendar sync** — graceful Microsoft Graph client; folds Outlook busy times into booking availability + pushes booked meetings to the host's calendar (b12c659). *Activate:* register an Entra app with Calendars.ReadWrite (admin consent), set `MS_GRAPH_TENANT_ID` / `MS_GRAPH_CLIENT_ID` / `MS_GRAPH_CLIENT_SECRET`.
 
-**Remaining polish (optional):** embroidery garment lines still use the tier model (engine covers silkscreen lines); validate engine numbers against a few live quotes before relying; add a staff-phone field to the user admin form.
+- ✅ **Embroidery quote lines through the engine** — stitch lines now price via the embroidery engine (garment cost × qty multiplier + per-location stitch charge); decorations carry a stitch count (0059f09). Silkscreen/DTF/foil/softhand route through the silkscreen engine.
+
+**Remaining for Sales:** ASI channel pricing in the builder (needs an order-type/channel selector); rep "price adjustment" (~2% from commission); per-garment vendor-specific colors/sizes (global palette in place); conditional order-form fields by order type; contract/special-pricing exceptions (Plan B); barcode/UPC generation engine. Activation-only: SMS (Twilio + a staff-phone field on the user form), Outlook sync (Graph app registration). Validate engine numbers against a few live quotes before relying.
 
 ---
 
