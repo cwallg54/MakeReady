@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { priceGarmentLine, type DecorationInput, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry, type EngineConfigs } from "@/lib/sales/pricing";
+import { priceGarmentLine, applyContract, pickContractRule, type DecorationInput, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry, type EngineConfigs, type ContractRule } from "@/lib/sales/pricing";
 
 // Standard blank-apparel colors, used when a garment has no specific colors on
 // file (every imported softgoods garment). Per-garment colors set in Admin →
@@ -52,6 +52,7 @@ export interface CatalogRefs {
   engine?: EngineConfigs; // softgoods pricing engine config (silkscreen)
   garmentCostByStyleId?: Record<string, number>; // supplier cost per style
   extras?: { id: string; label: string; amount: number | null; kind: string }[]; // barcode, folding, hang tags…
+  contractRules?: ContractRule[]; // this customer's negotiated contract/special pricing
 }
 
 const money = (n: number) => `$${n.toFixed(2)}`;
@@ -110,7 +111,7 @@ export function priceGarment(line: GarmentLineData, refs: CatalogRefs, asiChanne
   const style = refs.styles.find((s) => s.id === line.styleId);
   const sizes = style?.sizeClassCode ? refs.sizeClassByCode[style.sizeClassCode] ?? null : null;
   const { methods, embTiers } = refMaps(refs);
-  return priceGarmentLine({
+  const base = priceGarmentLine({
     basePrice: style?.basePrice ?? 0,
     sizeClassSizes: sizes,
     sizeBreakdown: line.sizeBreakdown ?? {},
@@ -124,6 +125,7 @@ export function priceGarment(line: GarmentLineData, refs: CatalogRefs, asiChanne
     extrasPerUnit: extrasPerUnitOf(line, refs),
     asiChannel,
   });
+  return applyContract(base, pickContractRule(refs.contractRules, line.styleId ?? null));
 }
 
 export function GarmentLineCard({
@@ -146,7 +148,7 @@ export function GarmentLineCard({
   const style = refs.styles.find((s) => s.id === line.styleId);
   const sizes = style?.sizeClassCode ? refs.sizeClassByCode[style.sizeClassCode] ?? [] : [];
   const { methods, embTiers } = refMaps(refs);
-  const price = priceGarmentLine({
+  const price = applyContract(priceGarmentLine({
     basePrice: style?.basePrice ?? 0,
     sizeClassSizes: sizes,
     sizeBreakdown: line.sizeBreakdown ?? {},
@@ -159,7 +161,7 @@ export function GarmentLineCard({
     garmentCost: style ? refs.garmentCostByStyleId?.[style.id] : undefined,
     extrasPerUnit: extrasPerUnitOf(line, refs),
     asiChannel,
-  });
+  }), pickContractRule(refs.contractRules, line.styleId ?? null));
 
   function toggleExtra(id: string, on: boolean) {
     const cur = new Set(line.extras ?? []);
@@ -304,7 +306,15 @@ export function GarmentLineCard({
             : (refs.engine?.silkscreen && style && !refs.garmentCostByStyleId?.[style.id]) ? <span className="ml-1 rounded bg-amber-100 px-1 py-0.5 text-[10px] font-semibold text-amber-700" title="No garment cost on file — add a supplier cost to this style (Admin → Catalog) to price via the engine">no cost</span> : null}
         </div>
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-neutral-900">{money(price.extended)}</span>
+          {price.contractSavings > 0 ? (
+            <span className="text-right">
+              <span className="mr-2 text-xs text-neutral-400 line-through">{money(price.listExtended)}</span>
+              <span className="font-semibold text-neutral-900">{money(price.extended)}</span>
+              <span className="ml-1 rounded bg-emerald-100 px-1 py-0.5 text-[10px] font-semibold text-emerald-700">contract · save {money(price.contractSavings)}</span>
+            </span>
+          ) : (
+            <span className="font-semibold text-neutral-900">{money(price.extended)}</span>
+          )}
           {editable && <button type="button" onClick={onRemove} className="text-xs font-medium text-red-600 hover:text-red-800">Remove</button>}
         </div>
       </div>

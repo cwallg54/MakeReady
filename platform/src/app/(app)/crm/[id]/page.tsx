@@ -245,7 +245,10 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <h2 className="mb-4 text-sm font-semibold text-neutral-900">Account details</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-neutral-900">Account details</h2>
+              <Link href={`/crm/${bp.id}/pricing`} className="text-xs font-medium text-brand-ink hover:underline">Contract pricing →</Link>
+            </div>
             {editable ? (
               <BpEditForm
                 bp={{

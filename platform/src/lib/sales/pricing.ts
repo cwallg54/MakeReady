@@ -410,6 +410,41 @@ export function priceGarmentLine(opts: {
   };
 }
 
+// ── Customer contract / special pricing ────────────────────────────────────
+export interface ContractRule {
+  styleId: string | null; // null = applies to every garment
+  type: "pct_off" | "fixed_unit";
+  value: number; // pct_off: percent (0–100); fixed_unit: all-in $/unit
+}
+
+/** Pick the contract rule that governs a line: a style-specific rule wins over a
+ *  blanket (styleId null) rule; returns null when none apply. */
+export function pickContractRule(rules: ContractRule[] | undefined, styleId: string | null): ContractRule | null {
+  if (!rules || rules.length === 0) return null;
+  return (styleId ? rules.find((r) => r.styleId === styleId) : undefined) ?? rules.find((r) => !r.styleId) ?? null;
+}
+
+export type ContractPriced = GarmentLinePrice & { enginePriced: boolean; listExtended: number; contractSavings: number };
+
+/** Apply a contract rule to a priced garment line: `pct_off` discounts the line
+ *  extended by a percentage; `fixed_unit` sets an all-in unit price. Records the
+ *  pre-discount list total and the savings for display. Pure. */
+export function applyContract(price: GarmentLinePrice & { enginePriced: boolean }, rule: ContractRule | null): ContractPriced {
+  const listExtended = price.extended;
+  if (!rule || price.totalUnits <= 0) return { ...price, listExtended, contractSavings: 0 };
+  let extended = listExtended;
+  if (rule.type === "pct_off") extended = round2(listExtended * (1 - (rule.value || 0) / 100));
+  else if (rule.type === "fixed_unit") extended = round2((rule.value || 0) * price.totalUnits);
+  if (extended < 0) extended = 0;
+  return {
+    ...price,
+    extended,
+    blendedUnitPrice: price.totalUnits ? round2(extended / price.totalUnits) : 0,
+    listExtended,
+    contractSavings: round2(listExtended - extended),
+  };
+}
+
 export function priceQuote(opts: {
   lines: QuoteLineInput[];
   rules: ChargeRule[];

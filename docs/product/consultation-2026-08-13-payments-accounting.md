@@ -85,10 +85,17 @@ Landed Cost Clearing account so it nets to zero — no double-counting.
 ## Pricing / discounts (continues the Kim thread)
 - **Price adjustment** (not "discount") on the order form — reps can adjust up to
   a small cap (**2%**, comes out of their commission); larger discounts eat more
-  commission; hard cap enforced. Contract/special pricing = a **% off list**
-  showing the savings, not a separate catalog. Whale exceptions (e.g. Pilot
-  hoodies fixed $18.95) handled as **exceptions/templates (Plan B)**, not a core
-  feature. Keep 80% standard; add exceptions after.
+  commission; hard cap enforced. ✅ shipped.
+- ✅ **Contract / special pricing (Plan B)** — SHIPPED. Per-customer negotiated
+  pricing at `/crm/[id]/pricing` (linked from the customer's Account details):
+  a **% off list** (blanket or per style) or a **fixed $/unit** whale exception
+  (e.g. Pilot hoodies at $18.95). A style-specific rule beats a blanket rate.
+  Applied automatically in the quote builder on top of the pricing engine — the
+  line shows the **list price struck through with the savings**; the discounted
+  price is baked into the saved quote/order/PDF. Rules can be paused or removed.
+  `customer_pricing` table (migration 0072); `applyContract`/`pickContractRule`
+  in pricing.ts drive both the live preview and the server-side save so they
+  agree to the cent.
 - **Garment-specific colors & sizes** — each garment should carry its own color
   and size list (vendor-driven) rather than one global list. *(A standard color
   palette + catalog import already shipped; per-garment vendor color lists are

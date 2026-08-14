@@ -2,14 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments, pricingExtras } from "@/db/schema";
+import { quotes, quoteLines, quoteCharges, orderFormTemplates, templateItems, numberSeries, activities, businessPartners, catalogStyles, sizeClasses, decorationMethods, embroideryTiers, pricingMethods, pricingGarments, pricingExtras, customerPricing } from "@/db/schema";
 import type { SilkscreenConfig, EmbroideryConfig, AsiConfig } from "@/lib/pricing/engine";
 import { getCurrentUser } from "@/lib/auth/service";
 import { canEdit, canView } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
-import { priceQuote, resolveUnitPrice, sizeUpcharge, priceGarmentLine, type ChargeRule, type PriceBreak, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry } from "./pricing";
+import { priceQuote, resolveUnitPrice, sizeUpcharge, priceGarmentLine, applyContract, pickContractRule, type ChargeRule, type PriceBreak, type GarmentLineData, type MethodRef, type EmbTierRef, type SizeEntry, type ContractRule } from "./pricing";
 import { createOrderFromQuote } from "./order-from-quote";
 import { assessCredit, openCreditRequest } from "./credit";
 
@@ -170,10 +170,17 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
     const extraAmt = new Map(extraRows.map((e) => [e.id, e.amount == null ? 0 : Number(e.amount)]));
     const extrasPerUnitOf = (ids: string[] | undefined) => (ids ?? []).reduce((s, id) => s + (extraAmt.get(id) ?? 0), 0);
 
+    // Customer contract/special pricing (must match the client preview).
+    const contractRules: ContractRule[] = quote.bpId
+      ? (await db.select({ styleId: customerPricing.styleId, type: customerPricing.type, value: customerPricing.value })
+          .from(customerPricing).where(and(eq(customerPricing.bpId, quote.bpId), eq(customerPricing.active, true))))
+          .map((r) => ({ styleId: r.styleId, type: r.type as "pct_off" | "fixed_unit", value: Number(r.value) }))
+      : [];
+
     garmentInputs.forEach((g, gi) => {
       const style = g.styleId ? styleById.get(g.styleId) : undefined;
       const sizes = style?.sizeClassCode ? classByCode.get(style.sizeClassCode) ?? null : null;
-      const res = priceGarmentLine({
+      const res = applyContract(priceGarmentLine({
         basePrice: style ? Number(style.basePrice) : 0,
         sizeClassSizes: sizes,
         sizeBreakdown: g.sizeBreakdown ?? {},
@@ -186,7 +193,7 @@ export async function saveQuoteAction(quoteId: string, payload: SaveQuotePayload
         garmentCost: garmentCostOf(style),
         extrasPerUnit: extrasPerUnitOf(g.extras),
         asiChannel: !!payload.isAsi,
-      });
+      }), pickContractRule(contractRules, g.styleId ?? null));
       garmentSubtotal += res.extended;
       const baseDesc = style?.name || g.description || "(garment)";
       garmentRows.push({

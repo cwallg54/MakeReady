@@ -2265,3 +2265,24 @@ export const goodsReceiptLines = pgTable(
 export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
 export type PurchaseOrderLine = typeof purchaseOrderLines.$inferSelect;
 export type GoodsReceipt = typeof goodsReceipts.$inferSelect;
+
+// ───────────────────── Customer contract / special pricing ─────────────────
+// Per-customer negotiated pricing: a blanket % off list, or a fixed all-in unit
+// price for a specific garment style (the "whale exception", e.g. Pilot hoodies
+// at $18.95). Applied on top of the pricing engine in the quote builder.
+export const customerPricing = pgTable(
+  "customer_pricing",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bpId: uuid("bp_id").notNull().references(() => businessPartners.id, { onDelete: "cascade" }),
+    styleId: uuid("style_id").references(() => catalogStyles.id, { onDelete: "cascade" }), // null = applies to every garment
+    type: text("type").notNull(), // pct_off | fixed_unit
+    value: numeric("value", { precision: 12, scale: 4 }).notNull().default("0"), // pct_off: percent; fixed_unit: $/unit
+    note: text("note"),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("customer_pricing_bp_idx").on(t.bpId)],
+);
+export type CustomerPricing = typeof customerPricing.$inferSelect;

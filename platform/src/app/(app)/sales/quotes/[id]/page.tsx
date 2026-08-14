@@ -15,7 +15,7 @@ import { uploadQuoteAttachmentsAction, removeQuoteAttachmentAction } from "@/lib
 import type { ChargeRule, GarmentLineData, DecorationInput, MethodRef, SizeEntry } from "@/lib/sales/pricing";
 import type { CatalogRefs } from "./garment-lines";
 import { QuoteBuilder } from "./quote-builder";
-import { pricingMethods, pricingGarments } from "@/db/schema";
+import { pricingMethods, pricingGarments, customerPricing } from "@/db/schema";
 import { inArray } from "drizzle-orm";
 import type { SilkscreenConfig, EmbroideryConfig, AsiConfig } from "@/lib/pricing/engine";
 import { listExtras, listFreight, listRoyalties } from "@/lib/pricing/service";
@@ -87,6 +87,13 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
     if (c != null && c > 0) garmentCostByStyleId[s.id] = c;
   }
 
+  const contractRules = quote.bpId
+    ? (await db.select({ styleId: customerPricing.styleId, type: customerPricing.type, value: customerPricing.value })
+        .from(customerPricing)
+        .where(and(eq(customerPricing.bpId, quote.bpId), eq(customerPricing.active, true))))
+        .map((r) => ({ styleId: r.styleId, type: r.type as "pct_off" | "fixed_unit", value: Number(r.value) }))
+    : [];
+
   const catalogRefs: CatalogRefs = {
     styles: styleRows.map((s) => ({ id: s.id, name: s.name, brand: s.brand, styleNumber: s.styleNumber, basePrice: Number(s.basePrice), sizeClassCode: s.sizeClassCode, colors: colorsByStyle.get(s.id) ?? [] })),
     sizeClassByCode: Object.fromEntries(classRows.map((c) => [c.code, (c.sizes as SizeEntry[] | null) ?? []])),
@@ -98,6 +105,7 @@ export default async function QuoteDetailPage({ params, searchParams }: { params
       : undefined,
     garmentCostByStyleId,
     extras: engineExtras.map((e) => ({ id: e.id, label: e.label, amount: e.amount == null ? null : Number(e.amount), kind: e.kind })),
+    contractRules,
   };
 
   // Split saved lines: garment lines carry a styleId or decorations; the rest are simple.
