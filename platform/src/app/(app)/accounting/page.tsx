@@ -123,6 +123,11 @@ export default async function AccountingHome() {
         { href: "/accounting/cash-flow", label: "Cash Flow", desc: "Cash in and out by activity." },
       ]} />
 
+      <Section title="Tax & Commissions" tiles={[
+        { href: "/accounting/sales-tax", label: "Sales Tax Report", desc: "Taxable vs exempt sales and tax collected, by period." },
+        { href: "/accounting/commission", label: "Commission Report", desc: "Order sales by salesperson — the commissionable base." },
+      ]} />
+
       <Section title="Close & Setup" tiles={[
         { href: "/accounting/reconcile", label: "Bank Reconciliation", desc: "Match a bank statement to the cash ledger." },
         { href: "/accounting/close", label: "Period Close", desc: "Lock closed periods so the books can't change." },
