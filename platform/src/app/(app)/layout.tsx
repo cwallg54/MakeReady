@@ -38,9 +38,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "crm-pipeline", label: "Pipeline", href: "/crm/pipeline", phase1: true },
       { key: "crm-reorders", label: "Reorder radar", href: "/crm/reorders", phase1: true },
     ],
+    workflows: [
+      { key: "wf-home", label: "Workflows", href: "/workflows", phase1: true },
+      { key: "wf-approvals", label: "Approvals Inbox", href: "/workflows/approvals", phase1: true },
+    ],
     controlling: [
       { key: "ctrl-overview", label: "Overview", href: "/controlling", phase1: true },
       { key: "ctrl-profit", label: "Profitability", href: "/controlling/profitability", phase1: true },
+      { key: "ctrl-jobcost", label: "Job Costing", href: "/controlling/job-costing", phase1: true },
+      { key: "ctrl-cc", label: "Cost Centers", href: "/controlling/cost-centers", phase1: true },
       { key: "ctrl-budget", label: "Budget vs Actual", href: "/controlling/budget", phase1: true },
     ],
     sales: [
@@ -69,6 +75,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "acct-pl", label: "Income Statement", href: "/accounting/income-statement", phase1: true },
       { key: "acct-bs", label: "Balance Sheet", href: "/accounting/balance-sheet", phase1: true },
       { key: "acct-cf", label: "Cash Flow", href: "/accounting/cash-flow", phase1: true },
+      { key: "acct-h-assets", label: "Fixed Assets", phase1: true, header: true },
+      { key: "acct-assets", label: "Asset Register", href: "/accounting/assets", phase1: true },
+      { key: "acct-depr", label: "Depreciation", href: "/accounting/assets/depreciation", phase1: true },
       { key: "acct-h-close", label: "Close & Setup", phase1: true, header: true },
       { key: "acct-reconcile", label: "Bank Reconciliation", href: "/accounting/reconcile", phase1: true },
       { key: "acct-close", label: "Period Close", href: "/accounting/close", phase1: true },
@@ -80,7 +89,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // cluster below Sales, so exclude their base modules from the auto list.
   // Controlling and Asset Accounting are unbuilt finance placeholders — their
   // scope is surfaced on the Accounting hub instead of as empty sidebar items.
-  const HIDDEN_MODULES = new Set(["jobs", "inventory", "asset_accounting"]);
+  const HIDDEN_MODULES = new Set(["jobs", "inventory", "asset_accounting", "quality", "maintenance", "content_library"]);
   const visible = visibleModules(user.roles).filter((m) => !HIDDEN_MODULES.has(m.key));
   const items: NavItem[] = visible
     .filter((m) => m.phase1)
@@ -93,7 +102,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const ops: NavItem[] = [];
   if (canDoArt(user.roles)) ops.push({ key: "art", label: "Art Department", href: "/art", phase1: true });
   if (canDoArt(user.roles)) ops.push({ key: "designs", label: "Design Library", href: "/designs", phase1: true });
+  if (canView(user.roles, "content_library")) ops.push({ key: "content", label: "Content Library", href: "/content-library", phase1: true });
   if (canView(user.roles, "jobs")) ops.push({ key: "production", label: "Production", href: "/production", phase1: true });
+  if (canView(user.roles, "quality")) ops.push({ key: "quality", label: "Quality", href: "/quality", phase1: true });
+  if (canView(user.roles, "maintenance")) ops.push({ key: "maintenance", label: "Maintenance", href: "/maintenance", phase1: true });
   if (canView(user.roles, "inventory")) ops.push({ key: "inventory", label: "Inventory", href: "/inventory", phase1: true });
   if (ops.length) {
     const salesIdx = items.findIndex((i) => i.key === "sales");

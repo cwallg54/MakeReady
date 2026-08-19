@@ -97,6 +97,139 @@ export const HELP_ARTICLES: HelpArticle[] = [
     related: ["business-partners", "financial-intake-documents", "building-a-quote", "orders-and-production-stages", "art-department", "proof-approvals", "customer-order-tracker", "invoicing-and-payments"],
   },
   {
+    slug: "lead-to-cash-walkthrough",
+    title: "End-to-end training: taking a customer from Lead to Cash",
+    section: "Getting Started",
+    order: 1,
+    summary: "A complete, click-by-click training walkthrough of one job through the whole platform — capture the lead, open the account, quote, order, art, production, ship, invoice, and collect payment. Follow it start to finish or jump to your stage.",
+    who: "Everyone (each stage notes which role does it)",
+    blocks: [
+      { k: "p", text: "This is the hands-on companion to \"The lead-to-cash lifecycle.\" That article explains the journey; this one walks you through it screen by screen with the exact buttons to click. It follows one imaginary job — a new prospect, \"Summit Trading Co.,\" ordering 144 embroidered jackets — from first contact all the way to a paid invoice. Work through it in order to learn the whole platform, or jump straight to the stage you own." },
+      { k: "tip", text: "You don't need every role to complete a job, but you do need to know where your part hands off. Each stage below is labelled with the role that normally does it and the screen it happens on. The one thing that ties it all together: once an order exists, the customer follows the whole job on a single private tracking link — you never send a different link per step." },
+
+      { k: "h", text: "Before you start — what you'll need" },
+      { k: "list", items: [
+        "An account with the right role. Sales reps and managers do stages 1–4 and 7; Art does stage 5; Production does stage 6; Finance/AR does stages 2 (credit) and 8.",
+        "The customer's basic details (company, contact, email) for the lead.",
+        "For a real quote: the garment/style, decoration method (silk screen, embroidery, DTF), quantities, and sizes.",
+        "Nothing leaves the system by email that can't be done in-app — credit apps, quotes, proofs, tracking, and payment all happen on links inside MakeReady.",
+      ] },
+
+      { k: "h", text: "Stage 1 — Capture the lead  ·  Sales rep  ·  CRM" },
+      { k: "p", text: "A lead is anyone who's shown up but isn't yet an approved customer — a business card, a fishbowl drop, a website inquiry. Get them into the CRM as a Business Partner at the Lead stage so every call and email lives on one record from day one." },
+      {
+        k: "steps",
+        items: [
+          { text: "Go to CRM in the left nav, then click \"New\" (top right of the Business Partner list) to open the new-partner form." },
+          { text: "Fill in the company name, primary contact, email and phone. Set Lifecycle stage to \"Lead\", assign the Owner (usually you), and add an Account group and any Tags. Save." },
+          { text: "Fast path from a business card: on the New Business Partner screen use \"Scan business card\" — snap or upload the card photo and the OCR auto-fills the name, company, phone and email into a new Lead for you to review before saving. The card image stays attached." },
+          { text: "On the new account's page, log your first touch: use the Activity feed to record the call, email or visit. Every future interaction gets logged here too, so the account's whole history is in one place." },
+          { text: "Before you reach out, click the ✨ AI summary on the account page to get a quick brief of who they are and where things stand." },
+        ],
+      },
+      { k: "tip", text: "Leads from your public website form land in the CRM automatically as new Business Partners — you don't have to re-key them. They arrive at the Lead stage waiting for an owner." },
+
+      { k: "h", text: "Stage 2 — Open the account: documents, terms & credit  ·  Sales rep + Finance/AR  ·  CRM" },
+      { k: "p", text: "Before you sell on terms, the paperwork goes in and Finance sets a credit limit. This is what moves the account from Prospect to Customer. Completing the credit application is also the trigger that advances the lifecycle stage automatically." },
+      {
+        k: "steps",
+        items: [
+          { text: "As interest firms up, set the account's Lifecycle stage to \"Prospect\" (meeting scheduled, need expressed, or credit app sent). You can also book the first sales meeting on the spot from the account using the scheduling link." },
+          { text: "Send the customer the in-system credit/terms application — a link they complete themselves. Their uploaded financial documents (credit application, resale/exemption certificate, bank and trade references) land in the account's finance vault, tied to the Business Partner. Nothing is emailed back and forth." },
+          { text: "Finance/AR reviews the documents, sets the customer's Payment terms (Net 30 / 60…), assigns the Account group, and sets a Credit limit on the account. AR assigns the customer number here." },
+          { text: "When the credit application is completed and approved, the account advances to \"Customer\" automatically. From now on, credit holds and overdue balances stay flagged on this account everywhere it appears." },
+        ],
+      },
+      { k: "warn", text: "Keep sensitive personal and financial data (SSNs, card/bank numbers) out of AI-assisted email. Those documents belong in the finance vault on the account, not in a drafted message." },
+
+      { k: "h", text: "Stage 3 — Quote the work  ·  Sales rep  ·  Sales → Quotes" },
+      { k: "p", text: "Quotes are built in the Garments & Decoration builder, which prices itself from the softgoods pricing engine. You pick garments, sizes, decoration and extras; the engine sets the price to the cent." },
+      {
+        k: "steps",
+        items: [
+          { text: "Go to Sales → Quotes and click \"New quote\". Search for the customer (Summit Trading Co.), pick a Product template, and click \"Create & open builder\"." },
+          { text: "Click \"+ Add garment\", search the catalog for the blank (by name, brand or style #), pick the Color, and enter quantities on the size grid. Size upcharges (2XL/3XL) are added automatically." },
+          { text: "Click \"+ Add decoration\" for each location. Choose the placement and method (Silk Screen / Embroidery / DTF). For silk screen set the print level A/B/C; for embroidery set the stitch tier. Tick any Extras (barcode, folding, hang tag, name drop)." },
+          { text: "Attach anything the customer sent under \"Customer artwork & reference images\" — it will carry onto the order and to the art department automatically, so no one re-uploads it." },
+          { text: "Review the totals (each engine-priced line shows a green \"engine\" badge), then Save. Click \"Send\" to deliver it to the customer, who approves or requests changes on their own link — you're notified the moment they act." },
+        ],
+      },
+      { k: "tip", text: "Reps can't change engine prices or discount — only a Sales Manager or Admin can, and only up to the configured cap. Negotiated whale pricing is set per customer under the account's Pricing tab and applies in the builder automatically (list price struck through with the savings shown)." },
+
+      { k: "h", text: "Stage 4 — Turn the quote into an order  ·  Sales rep  ·  Sales → Quotes / Orders" },
+      { k: "p", text: "Once the customer approves, convert the quote to an order. The order gets its own number, enters the production stages, and — importantly — creates the customer's persistent tracking link." },
+      {
+        k: "steps",
+        items: [
+          { text: "On the approved quote, click \"Convert to order\". The new order opens at the \"Received\" stage and inherits the customer, lines, pricing and any attached artwork." },
+          { text: "Confirm the fulfillment details on the order — the structured fields for barcodes/UPCs, hang tags, folding and name drop, plus the committed ship date from the Ops weekly ship calendar." },
+          { text: "The order now carries the customer's private tracking link. This one link stays valid for the entire life of the order — proofs, status, and anything you need from them all live on it." },
+          { text: "Reorder shortcut: if the customer just wants \"the usual again\" with unchanged art, use the reorder fast-path from their previous order — it skips customer proof approval and defaults to no press check, but still files an in-system copy. Changed art or garment is treated as a brand-new job." },
+        ],
+      },
+
+      { k: "h", text: "Stage 5 — Design & proof  ·  Art department  ·  Art" },
+      { k: "p", text: "The order hands off to Art, who create or attach the artwork, pin the exact approved file to the order, and capture the customer's sign-off — all on the same tracking link the customer already has." },
+      {
+        k: "steps",
+        items: [
+          { text: "From the order, click \"Submit to art\". The job appears on the Art board (Art in the left nav) as a new art request with the brief and any customer files attached." },
+          { text: "Open the art request. Use the ✨ AI art brief to summarize the decoration, placement, colors and sizing, assign an artist, then upload the design. Manage revisions here — each version is kept." },
+          { text: "Assign the design/customer number and pin the specific approved file to the order. Punching in the orderable design here creates the inventory item automatically, so sales can reorder it later without re-keying." },
+          { text: "Send the customer a proof. They review and Approve or Request changes on their tracking link; revisions loop back here until approved. You're notified on their decision." },
+        ],
+      },
+      { k: "tip", text: "On approval, production handoffs fire automatically — embroidery files route to the digitizer and silkscreen separations route to the shop. No one has to remember to forward files." },
+
+      { k: "h", text: "Stage 6 — Production  ·  Production floor  ·  Production" },
+      { k: "p", text: "Approved jobs land on the production board. Production works them through the readiness checklist and, where required, an in-system first-article press check before the full run." },
+      {
+        k: "steps",
+        items: [
+          { text: "Open Production. The job sits in the queue (Queued → In production → Quality check → Ready to ship → Shipped). Assign a team and flag it Rush if needed." },
+          { text: "If the order is flagged \"Press check required\", Production runs one item, photographs it in-system, and Art signs off on that first-article photo before the job can advance to the full run — replacing the old \"text a cell-phone photo\" step." },
+          { text: "Work the production-readiness checklist. When every item is satisfied, mark the job production-ready — a banner hands it back to sales to finish the order." },
+        ],
+      },
+
+      { k: "h", text: "Stage 7 — Deliver  ·  Sales / Ops  ·  Sales → Orders" },
+      { k: "p", text: "Move the order through Shipped and Delivered. Each stage change updates the customer's tracking page automatically, so they can follow it \"Amazon-style\" without calling in." },
+      {
+        k: "steps",
+        items: [
+          { text: "On the order, advance the stage to \"Shipped\" and add tracking/shipment info; the customer's tracker updates the moment you do." },
+          { text: "When it arrives, move the order to \"Delivered\". This closes out the fulfillment side and readies the order for invoicing." },
+        ],
+      },
+
+      { k: "h", text: "Stage 8 — Invoice & get paid  ·  Finance/AR  ·  Accounting" },
+      { k: "p", text: "Bill the order, then collect. The customer can pay online with no surcharge by bank/ACH, and AR aging and reminders keep the money side visible until it's paid." },
+      {
+        k: "steps",
+        items: [
+          { text: "Go to Accounting → Invoices → \"New\" and create the invoice from the delivered order (or open the order and invoice it). The invoice carries the customer's terms, due date and an online \"Pay online\" link." },
+          { text: "The customer pays on the public invoice page: bank/ACH with no fee, or card with the transparent processing surcharge. Checks are posted manually under Accounting → Payments." },
+          { text: "Automated reminders go out on their own — an escalating email/SMS at each milestone (due soon, due today, past due), each with the pay link, deduped per invoice. A late fee posts automatically once an invoice is overdue past the configured days." },
+          { text: "Track the money in Accounting: AR aging shows who owes what by age bucket, Statements show a customer's full open/closed history, and the payment posts through to the general ledger. The customer's account balance and any overdue flag feed right back to the top of the flow for their next job." },
+        ],
+      },
+      { k: "tip", text: "That closes the loop: the same account you captured as a lead in Stage 1 now shows a paid order, a clean balance, and a full history — quote, order, artwork, proof, invoice and payment all linked to one record and one customer tracking link. The next job for Summit Trading Co. starts one step ahead." },
+
+      { k: "h", text: "Where each stage lives (quick reference)" },
+      { k: "list", items: [
+        "Stage 1 Capture the lead → CRM → New (business-card scan optional)",
+        "Stage 2 Account, documents & credit → CRM account page (finance vault, terms, credit limit) + Finance/AR",
+        "Stage 3 Quote → Sales → Quotes → New quote (Garments & Decoration builder)",
+        "Stage 4 Order → Convert quote to order (creates the tracking link)",
+        "Stage 5 Design & proof → Art board (Submit to art → assign → proof → approve)",
+        "Stage 6 Production → Production board (checklist, press check, production-ready)",
+        "Stage 7 Deliver → Sales → Orders (Shipped → Delivered)",
+        "Stage 8 Invoice & payment → Accounting → Invoices / Payments / Aging",
+      ] },
+    ],
+    related: ["lead-to-cash", "business-partners", "financial-intake-documents", "building-a-quote", "editing-and-emailing-a-quote", "orders-and-production-stages", "art-department", "proof-approvals", "customer-order-tracker", "invoicing-and-payments"],
+  },
+  {
     slug: "signing-in",
     title: "Signing in",
     section: "Getting Started",
@@ -2030,6 +2163,135 @@ export const HELP_ARTICLES: HelpArticle[] = [
       ] },
     ],
     related: ["business-partners", "managing-an-account", "storefront-shopping", "invoicing-and-payments", "lead-to-cash"],
+  },
+
+  // ─────────────────────────────── Accounting ────────────────────────────────
+  {
+    slug: "fixed-assets",
+    title: "Fixed assets & depreciation",
+    section: "Accounting",
+    summary: "Keep the capital asset register — cost, accumulated depreciation, and net book value — and post monthly straight-line depreciation to the general ledger.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "The fixed-asset register lives under Accounting → Fixed Assets → Asset Register. It tracks each capital asset (presses, vehicles, furniture) at cost, depreciates it on a straight line, and posts the expense to the GL each month. This is part of retiring SAP B1 from Finance." },
+      { k: "h", text: "Add an asset" },
+      { k: "steps", items: [
+        { text: "Open Accounting → Fixed Assets → Asset Register and click \"New asset\"." },
+        { text: "Enter the name, category, cost, salvage value, and useful life in months. The in-service date is when depreciation begins (defaults to the acquisition date)." },
+        { text: "Save. The register shows the asset's cost, accumulated depreciation, and net book value." },
+      ] },
+      { k: "h", text: "Run monthly depreciation" },
+      { k: "steps", items: [
+        { text: "Open Accounting → Fixed Assets → Depreciation. Pick the period (month) and click Preview to see the depreciation due across every active asset." },
+        { text: "Click \"Post depreciation\" to book it. This posts one balanced journal — Dr Depreciation Expense / Cr Accumulated Depreciation — and advances each asset's accumulated total. Only one run is allowed per period." },
+      ] },
+      { k: "tip", text: "Straight-line monthly depreciation = (cost − salvage) ÷ useful-life-months. An asset stops depreciating once it's fully depreciated, and disposing an asset removes its cost and accumulated depreciation from the GL and books any gain or loss." },
+      { k: "warn", text: "The system GL accounts (Fixed Assets, Accumulated Depreciation, Depreciation Expense, Gain/Loss on Disposal) are created automatically the first time you run depreciation — no setup needed." },
+    ],
+    related: ["general-ledger", "invoicing-and-payments"],
+  },
+
+  // ─────────────────────────────── Controlling ───────────────────────────────
+  {
+    slug: "job-costing",
+    title: "Cost centers & job costing",
+    section: "Controlling",
+    summary: "Capture actual labor, material, and machine costs on production jobs to see true order and department profitability — not a company-average estimate.",
+    who: "Admin, Finance",
+    blocks: [
+      { k: "p", text: "Controlling can measure real profitability once you capture actual costs on jobs. Set up cost centers (departments and overhead pools) under Controlling → Cost Centers, then capture costs on each production job. Job Costing then shows revenue vs. actual cost per order." },
+      { k: "h", text: "Set up cost centers" },
+      { k: "steps", items: [
+        { text: "Open Controlling → Cost Centers and add a center for each department (Silkscreen, Embroidery, DTF, Art) with its fully-burdened labor rate per hour." },
+        { text: "Add overhead pools (e.g. Warehouse) as type \"overhead\", then open the pool and set the percentage each department absorbs. Overhead spreads onto departments automatically in the cost-by-center view." },
+      ] },
+      { k: "h", text: "Capture costs on a job" },
+      { k: "steps", items: [
+        { text: "Open a production job (Production → the job). In the Job costing card, add a cost line — choose labor, material, or machine, pick the cost center, and enter minutes or a dollar amount." },
+        { text: "For labor, entering minutes against a cost center computes the cost from that center's labor rate automatically." },
+      ] },
+      { k: "tip", text: "Controlling → Job Costing lists every job with its revenue (order total), captured cost, and margin. Export it to CSV for deeper analysis. Jobs with no captured cost simply show no margin yet." },
+    ],
+    related: ["controlling", "orders-and-production-stages"],
+  },
+
+  // ───────────────────────────── Art & Production ────────────────────────────
+  {
+    slug: "quality-management",
+    title: "Quality inspections",
+    section: "Art & Production",
+    summary: "Record QC inspections against production jobs — incoming, in-process, or final — with pass/fail results, defect tracking, and automatic rework alerts.",
+    who: "Admin, Production",
+    blocks: [
+      { k: "p", text: "The Quality module (Quality in the Operations nav) tracks QC across the shop. Each inspection records how many pieces were checked and rejected, a pass / fail / conditional result, and any itemized defects." },
+      { k: "steps", items: [
+        { text: "Open Quality and click \"New inspection\"." },
+        { text: "Pick the production job (optional), the stage (incoming blanks, in-process, or final), the result, and the quantities inspected and rejected. Save." },
+        { text: "On the inspection, add defects — type (misprint, registration, color, placement…), quantity, and a note — to build a defect record." },
+      ] },
+      { k: "tip", text: "A failed inspection automatically notifies Production and Art so the job is held and reworked. The Quality board shows a 30-day pass rate and defect rate, and exports to CSV." },
+    ],
+    related: ["orders-and-production-stages", "art-department"],
+  },
+  {
+    slug: "equipment-maintenance",
+    title: "Equipment maintenance",
+    section: "Art & Production",
+    summary: "Keep an equipment register with preventive-maintenance schedules and work orders so presses, dryers, and machines stay running.",
+    who: "Admin, Production",
+    blocks: [
+      { k: "p", text: "The Maintenance module (Maintenance in the Operations nav) is the shop-floor equipment register. Register each machine, set preventive-maintenance schedules, and raise work orders for repairs." },
+      { k: "steps", items: [
+        { text: "Open Maintenance and add your equipment (name, type, location, serial number)." },
+        { text: "Open a machine and add PM schedules — a task and an interval in days. Each schedule shows its next-due date and flags overdue tasks; \"Mark done\" rolls the next due date forward." },
+        { text: "Raise a work order (preventive, repair, or inspection), assign it, and track it through open → in progress → completed. Completing a repair restores the machine to operational when no other work orders are open." },
+      ] },
+      { k: "tip", text: "Work orders capture downtime minutes and cost. The work-order list filters by status and exports to CSV. A new repair work order flags its machine as needing service." },
+    ],
+    related: ["quality-management"],
+  },
+  {
+    slug: "content-library",
+    title: "Content Library (digital assets)",
+    section: "Art & Production",
+    summary: "Upload, tag, and find any graphic asset in seconds — with AI descriptions, natural-language and visual-similarity search, collections, usage rights, and job linking.",
+    who: "Admin, Art, Sales",
+    blocks: [
+      { k: "p", text: "The Content Library (in the Operations nav) is the searchable home for every graphic asset — logos, artwork, mockups, and photos. Upload a file and, when AI is configured, it's auto-described and tagged so it's findable by plain-English search." },
+      { k: "h", text: "Upload & organize" },
+      { k: "steps", items: [
+        { text: "Open Content Library, expand \"Upload an asset\", choose a file, and (optionally) add a title, tags, collection, and usage rights. Images get an AI description + tags automatically." },
+        { text: "Group related assets into collections, and assign an asset to a client. Set usage rights (internal, unrestricted, client-only, licensed) so everyone knows how a graphic may be used." },
+      ] },
+      { k: "h", text: "Find & reuse" },
+      { k: "steps", items: [
+        { text: "Search in plain language — e.g. \"moose graphics for a national parks theme.\" When semantic search is enabled it ranks by meaning; otherwise it matches titles, descriptions, and tags." },
+        { text: "Open an asset to download it, see visually-similar assets, and log where it was used (job linking + usage history)." },
+      ] },
+      { k: "tip", text: "Natural-language and visual-similarity search light up when a Voyage AI key is configured; keyword and tag search always work. AI descriptions/tags need an Anthropic API key." },
+    ],
+    related: ["art-department", "design-library"],
+  },
+
+  // ─────────────────────────────── Administration ────────────────────────────
+  {
+    slug: "workflows-approvals",
+    title: "Workflows & approvals",
+    section: "Administration",
+    summary: "Run multi-step actions in one click, and route threshold-based approvals (large orders, big discounts) to the right role.",
+    who: "Admin, Managers",
+    blocks: [
+      { k: "p", text: "Workflows & Approvals (in the nav) does two things: run one-click workflows that chain steps otherwise spread across screens, and manage the approval requests that pricing/order rules raise." },
+      { k: "h", text: "One-click workflows" },
+      { k: "p", text: "On the Workflows page, each card is a workflow — for example \"Onboard a new customer\" creates the Business Partner, logs the first activity, and raises a credit review in a single action. Every run is logged with its per-step outcome." },
+      { k: "h", text: "Approval rules & inbox" },
+      { k: "steps", items: [
+        { text: "Admins open Approval Rules and add a threshold — e.g. an order ≥ $5,000 routes to a Sales Manager, or a discount over a cap routes for sign-off. Pick what it applies to, the metric, the threshold, and the approver role." },
+        { text: "When an event crosses a rule (e.g. a large order is created), an approval request is raised and the approver is notified. Approvers act on it in the Approvals Inbox — approve or reject with a note." },
+      ] },
+      { k: "tip", text: "The Approvals Inbox shows everything routed to your role, plus a log of recent decisions. The requester is notified of the outcome automatically." },
+    ],
+    related: ["building-a-quote", "credit-approvals"],
   },
 ];
 

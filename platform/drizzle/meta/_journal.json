@@ -512,6 +512,48 @@
       "when": 1786738939144,
       "tag": "0072_customer_pricing",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1787165568936,
+      "tag": "0073_fixed_assets",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1787165900996,
+      "tag": "0074_cost_centers_job_costing",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1787166232461,
+      "tag": "0075_quality_management",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1787166543368,
+      "tag": "0076_equipment_maintenance",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1787166884504,
+      "tag": "0077_workflows_approvals",
+      "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1787167425461,
+      "tag": "0078_content_library",
+      "breakpoints": true
     }
   ]
 }

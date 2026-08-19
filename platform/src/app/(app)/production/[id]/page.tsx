@@ -9,6 +9,7 @@ import { canEdit } from "@/lib/rbac";
 import { setJobStatusAction, updateJobAction } from "@/lib/production/actions";
 import { submitPressCheckAction, decidePressCheckAction, setPressCheckRequiredAction } from "@/lib/production/press-check";
 import { Card, PageHeader } from "@/components/ui";
+import { JobCostingCard } from "@/components/production/job-costing-card";
 import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -249,6 +250,8 @@ export default async function ProductionJobPage({ params, searchParams }: { para
           </ul>
         </Card>
       )}
+
+      <JobCostingCard jobId={job.id} canEdit={editable} />
 
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-neutral-900">Artwork &amp; references</h2>

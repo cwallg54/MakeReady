@@ -163,5 +163,10 @@ export async function createOrderFromQuote(quoteId: string, byUserId: string | n
     await advanceLifecycle(quote.bpId, "customer", `placed order ${orderNumber}`, byUserId ?? undefined);
   }
   await audit({ userId: byUserId, action: "order.create", entityType: "order", entityId: o.id, metadata: { orderNumber } });
+  // Raise any approval requests whose thresholds this order crosses (e.g. ≥ $5k).
+  if (byUserId) {
+    const { evaluateApprovals } = await import("@/lib/workflows/approvals");
+    await evaluateApprovals({ entityType: "order", entityId: o.id, title: `Order ${orderNumber}`, amount: Number(quote.total ?? 0), requestedBy: byUserId });
+  }
   return o.id;
 }

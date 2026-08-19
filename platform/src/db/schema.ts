@@ -2286,3 +2286,361 @@ export const customerPricing = pgTable(
   (t) => [index("customer_pricing_bp_idx").on(t.bpId)],
 );
 export type CustomerPricing = typeof customerPricing.$inferSelect;
+
+// ───────────────────────── Fixed assets & depreciation ─────────────────────
+// The fixed-asset register: capitalized equipment/vehicles/furniture with
+// straight-line depreciation. A monthly depreciation run posts one period of
+// expense across every active asset (Dr Depreciation Expense / Cr Accumulated
+// Depreciation); disposal removes the asset and books any gain/loss. Completes
+// the SAP B1 finance decommission (roadmap Phase 5).
+export const fixedAssets = pgTable(
+  "fixed_assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    assetNumber: text("asset_number").notNull().unique(), // FA-#####
+    name: text("name").notNull(),
+    category: text("category").notNull().default("equipment"), // equipment | vehicle | furniture | computer | building | leasehold | other
+    description: text("description"),
+    // Acquisition + capitalized cost.
+    acquisitionDate: timestamp("acquisition_date", { withTimezone: true }),
+    inServiceDate: timestamp("in_service_date", { withTimezone: true }), // depreciation begins here
+    cost: numeric("cost", { precision: 14, scale: 2 }).notNull().default("0"),
+    salvageValue: numeric("salvage_value", { precision: 14, scale: 2 }).notNull().default("0"),
+    usefulLifeMonths: integer("useful_life_months").notNull().default(60),
+    method: text("method").notNull().default("straight_line"), // straight_line (only method for now)
+    // Running accumulated depreciation posted through depreciation runs.
+    accumulatedDepreciation: numeric("accumulated_depreciation", { precision: 14, scale: 2 }).notNull().default("0"),
+    status: text("status").notNull().default("active"), // active | fully_depreciated | disposed
+    // Disposal.
+    disposedDate: timestamp("disposed_date", { withTimezone: true }),
+    disposalProceeds: numeric("disposal_proceeds", { precision: 14, scale: 2 }),
+    disposalNote: text("disposal_note"),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("fixed_assets_status_idx").on(t.status), index("fixed_assets_category_idx").on(t.category)],
+);
+export type FixedAsset = typeof fixedAssets.$inferSelect;
+
+// A monthly depreciation run — one posted journal covering every active asset.
+export const depreciationRuns = pgTable(
+  "depreciation_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runNumber: text("run_number").notNull().unique(), // DEP-#####
+    periodYm: text("period_ym").notNull(), // "YYYY-MM" the run depreciates
+    status: text("status").notNull().default("draft"), // draft | posted
+    totalAmount: numeric("total_amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    journalEntryId: uuid("journal_entry_id").references(() => journalEntries.id, { onDelete: "set null" }),
+    postedAt: timestamp("posted_at", { withTimezone: true }),
+    postedBy: uuid("posted_by").references(() => users.id),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("depreciation_runs_period_uk").on(t.periodYm), index("depreciation_runs_status_idx").on(t.status)],
+);
+export type DepreciationRun = typeof depreciationRuns.$inferSelect;
+
+// Per-asset depreciation amount within a run (the audit trail behind the JE).
+export const depreciationLines = pgTable(
+  "depreciation_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runId: uuid("run_id").notNull().references(() => depreciationRuns.id, { onDelete: "cascade" }),
+    assetId: uuid("asset_id").notNull().references(() => fixedAssets.id, { onDelete: "cascade" }),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+  },
+  (t) => [index("depreciation_lines_run_idx").on(t.runId), index("depreciation_lines_asset_idx").on(t.assetId)],
+);
+export type DepreciationLine = typeof depreciationLines.$inferSelect;
+
+// ────────────────────── Cost centers & job costing ─────────────────────────
+// Departments (silkscreen, embroidery, DTF, art) and overhead pools (warehouse)
+// carry a labor rate. Actual job costs are captured against a production job and
+// its cost center, giving true order/customer profitability instead of a flat
+// company-average margin. Overhead pools allocate to departments by percentage.
+export const costCenters = pgTable(
+  "cost_centers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // e.g. "SS", "EMB", "WHSE"
+    name: text("name").notNull(),
+    kind: text("kind").notNull().default("department"), // department | overhead
+    // Fully-burdened labor rate ($/hour) used to cost captured labor minutes.
+    laborRatePerHour: numeric("labor_rate_per_hour", { precision: 12, scale: 2 }).notNull().default("0"),
+    description: text("description"),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("cost_centers_kind_idx").on(t.kind)],
+);
+export type CostCenter = typeof costCenters.$inferSelect;
+
+// How an overhead pool's cost spreads to departments (percentages, ~100%).
+export const costCenterAllocations = pgTable(
+  "cost_center_allocations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fromCostCenterId: uuid("from_cost_center_id").notNull().references(() => costCenters.id, { onDelete: "cascade" }),
+    toCostCenterId: uuid("to_cost_center_id").notNull().references(() => costCenters.id, { onDelete: "cascade" }),
+    pct: numeric("pct", { precision: 6, scale: 3 }).notNull().default("0"), // 0–100
+  },
+  (t) => [index("cost_center_allocations_from_idx").on(t.fromCostCenterId)],
+);
+export type CostCenterAllocation = typeof costCenterAllocations.$inferSelect;
+
+// A captured actual cost on a production job (labor / material / machine / other).
+export const jobCosts = pgTable(
+  "job_costs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    jobId: uuid("job_id").notNull().references(() => productionJobs.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    costCenterId: uuid("cost_center_id").references(() => costCenters.id, { onDelete: "set null" }),
+    kind: text("kind").notNull().default("labor"), // labor | material | machine | other
+    description: text("description"),
+    minutes: integer("minutes").notNull().default(0), // for labor: drives amount at the CC rate
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("job_costs_job_idx").on(t.jobId), index("job_costs_order_idx").on(t.orderId), index("job_costs_cc_idx").on(t.costCenterId)],
+);
+export type JobCost = typeof jobCosts.$inferSelect;
+
+// ─────────────────────────── Quality management ────────────────────────────
+// QC inspections against a production job: incoming (blanks), in-process, or
+// final. Records qty inspected/rejected, a pass/fail/conditional result, and
+// itemized defects. QC was a hidden bottleneck at G54, so it's tracked here.
+export const qualityInspections = pgTable(
+  "quality_inspections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    inspectionNumber: text("inspection_number").notNull().unique(), // QC-#####
+    jobId: uuid("job_id").references(() => productionJobs.id, { onDelete: "set null" }),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    stage: text("stage").notNull().default("final"), // incoming | in_process | final
+    result: text("result").notNull().default("pass"), // pass | fail | conditional
+    qtyInspected: integer("qty_inspected").notNull().default(0),
+    qtyRejected: integer("qty_rejected").notNull().default(0),
+    inspectorId: uuid("inspector_id").references(() => users.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("quality_inspections_job_idx").on(t.jobId), index("quality_inspections_result_idx").on(t.result)],
+);
+export type QualityInspection = typeof qualityInspections.$inferSelect;
+
+export const qualityDefects = pgTable(
+  "quality_defects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    inspectionId: uuid("inspection_id").notNull().references(() => qualityInspections.id, { onDelete: "cascade" }),
+    defectType: text("defect_type").notNull().default("other"), // misprint | registration | color | placement | stain | count | garment | other
+    qty: integer("qty").notNull().default(1),
+    note: text("note"),
+  },
+  (t) => [index("quality_defects_inspection_idx").on(t.inspectionId)],
+);
+export type QualityDefect = typeof qualityDefects.$inferSelect;
+
+// ────────────────────────── Equipment maintenance ──────────────────────────
+// The shop-floor equipment register (presses, dryers, embroidery machines) with
+// preventive-maintenance schedules and work orders (preventive/repair). Tracks
+// downtime and cost so equipment reliability feeds the department cost model.
+export const equipment = pgTable(
+  "equipment",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // EQ-#####
+    name: text("name").notNull(),
+    type: text("type").notNull().default("press"), // press | dryer | embroidery_machine | dtf_printer | heat_press | compressor | vehicle | other
+    location: text("location"),
+    serialNumber: text("serial_number"),
+    // Optional link to the department cost center this machine belongs to.
+    costCenterId: uuid("cost_center_id").references(() => costCenters.id, { onDelete: "set null" }),
+    purchaseDate: timestamp("purchase_date", { withTimezone: true }),
+    status: text("status").notNull().default("operational"), // operational | needs_service | down | retired
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("equipment_status_idx").on(t.status), index("equipment_type_idx").on(t.type)],
+);
+export type Equipment = typeof equipment.$inferSelect;
+
+// A recurring preventive-maintenance task on a machine (every N days).
+export const maintenanceSchedules = pgTable(
+  "maintenance_schedules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    equipmentId: uuid("equipment_id").notNull().references(() => equipment.id, { onDelete: "cascade" }),
+    task: text("task").notNull(),
+    intervalDays: integer("interval_days").notNull().default(30),
+    lastDoneDate: timestamp("last_done_date", { withTimezone: true }),
+    nextDueDate: timestamp("next_due_date", { withTimezone: true }),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("maintenance_schedules_equipment_idx").on(t.equipmentId), index("maintenance_schedules_due_idx").on(t.nextDueDate)],
+);
+export type MaintenanceSchedule = typeof maintenanceSchedules.$inferSelect;
+
+// A maintenance work order (preventive, repair, or inspection).
+export const maintenanceWorkOrders = pgTable(
+  "maintenance_work_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    woNumber: text("wo_number").notNull().unique(), // MWO-#####
+    equipmentId: uuid("equipment_id").notNull().references(() => equipment.id, { onDelete: "cascade" }),
+    scheduleId: uuid("schedule_id").references(() => maintenanceSchedules.id, { onDelete: "set null" }),
+    type: text("type").notNull().default("repair"), // preventive | repair | inspection
+    status: text("status").notNull().default("open"), // open | in_progress | completed | canceled
+    priority: text("priority").notNull().default("normal"), // low | normal | high | urgent
+    description: text("description"),
+    assignedTo: uuid("assigned_to").references(() => users.id, { onDelete: "set null" }),
+    scheduledDate: timestamp("scheduled_date", { withTimezone: true }),
+    completedDate: timestamp("completed_date", { withTimezone: true }),
+    downtimeMinutes: integer("downtime_minutes").notNull().default(0),
+    cost: numeric("cost", { precision: 14, scale: 2 }).notNull().default("0"),
+    resolution: text("resolution"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("maintenance_wo_equipment_idx").on(t.equipmentId), index("maintenance_wo_status_idx").on(t.status)],
+);
+export type MaintenanceWorkOrder = typeof maintenanceWorkOrders.$inferSelect;
+
+// ───────────────────────── Workflows & approvals ───────────────────────────
+// Approval-rules engine: thresholds that require a manager/finance sign-off
+// (e.g. an order ≥ $5,000, a discount over a cap). Matching events raise an
+// approval request that lands in the approvals inbox.
+export const approvalRules = pgTable(
+  "approval_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    entityType: text("entity_type").notNull().default("order"), // order | quote | discount | bill | generic
+    metric: text("metric").notNull().default("amount"), // amount | discount_pct
+    operator: text("operator").notNull().default("gte"), // gte | gt
+    threshold: numeric("threshold", { precision: 14, scale: 2 }).notNull().default("0"),
+    approverRole: roleEnum("approver_role").notNull().default("sales_manager"),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("approval_rules_entity_idx").on(t.entityType), index("approval_rules_active_idx").on(t.active)],
+);
+export type ApprovalRule = typeof approvalRules.$inferSelect;
+
+// A single approval request raised by a rule (or manually), routed to a role.
+export const approvalRequests = pgTable(
+  "approval_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requestNumber: text("request_number").notNull().unique(), // APR-#####
+    ruleId: uuid("rule_id").references(() => approvalRules.id, { onDelete: "set null" }),
+    entityType: text("entity_type").notNull().default("generic"),
+    entityId: uuid("entity_id"),
+    title: text("title").notNull(),
+    amount: numeric("amount", { precision: 14, scale: 2 }),
+    approverRole: roleEnum("approver_role").notNull().default("sales_manager"),
+    status: text("status").notNull().default("pending"), // pending | approved | rejected
+    note: text("note"),
+    requestedBy: uuid("requested_by").references(() => users.id, { onDelete: "set null" }),
+    decidedBy: uuid("decided_by").references(() => users.id, { onDelete: "set null" }),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("approval_requests_status_idx").on(t.status), index("approval_requests_entity_idx").on(t.entityType, t.entityId)],
+);
+export type ApprovalRequest = typeof approvalRequests.$inferSelect;
+
+// A log of one-click workflow runs — a chain of steps executed as a single
+// action (e.g. onboard a customer: create BP → log activity → request credit
+// review). Each step's outcome is captured for an audit trail.
+export const workflowRuns = pgTable(
+  "workflow_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workflowKey: text("workflow_key").notNull(), // stable slug of the workflow definition
+    label: text("label").notNull(),
+    status: text("status").notNull().default("completed"), // completed | failed
+    steps: jsonb("steps"), // [{ name, ok, detail }]
+    entityType: text("entity_type"),
+    entityId: uuid("entity_id"),
+    startedBy: uuid("started_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("workflow_runs_key_idx").on(t.workflowKey), index("workflow_runs_created_idx").on(t.createdAt)],
+);
+export type WorkflowRun = typeof workflowRuns.$inferSelect;
+
+// ───────────────────── Content Library (digital asset mgmt) ────────────────
+// A searchable library of graphic assets (logos, artwork, mockups, photos).
+// Uploads get an AI-generated description + tags (when AI is configured), can be
+// grouped into collections, assigned to a client, carry usage rights, and link
+// to jobs. Natural-language & visual-similarity search use Voyage embeddings
+// stored in a separate pgvector table (see src/lib/content/embeddings.ts), with
+// keyword/tag search as the always-on fallback.
+export const contentCollections = pgTable(
+  "content_collections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("content_collections_name_idx").on(t.name)],
+);
+export type ContentCollection = typeof contentCollections.$inferSelect;
+
+export const contentAssets = pgTable(
+  "content_assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    assetNumber: text("asset_number").notNull().unique(), // CA-#####
+    title: text("title").notNull(),
+    description: text("description"), // AI-generated or manual
+    fileName: text("file_name").notNull(),
+    mimeType: text("mime_type").notNull().default("application/octet-stream"),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    kind: text("kind").notNull().default("image"), // image | vector | document | other
+    contentBase64: text("content_base64").notNull(),
+    thumbnailBase64: text("thumbnail_base64"), // small preview for images (else null)
+    tags: text("tags").array(),
+    collectionId: uuid("collection_id").references(() => contentCollections.id, { onDelete: "set null" }),
+    clientBpId: uuid("client_bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    usageRights: text("usage_rights").notNull().default("internal"), // unrestricted | internal | client_only | licensed
+    rightsNote: text("rights_note"),
+    aiTagged: boolean("ai_tagged").notNull().default(false),
+    embedded: boolean("embedded").notNull().default(false), // true once a vector was stored
+    uploadedBy: uuid("uploaded_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("content_assets_collection_idx").on(t.collectionId), index("content_assets_client_idx").on(t.clientBpId), index("content_assets_kind_idx").on(t.kind)],
+);
+export type ContentAsset = typeof contentAssets.$inferSelect;
+
+// Usage history: where/when an asset was used (job linking + audit).
+export const contentUsage = pgTable(
+  "content_usage",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    assetId: uuid("asset_id").notNull().references(() => contentAssets.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    context: text("context"), // free text, e.g. "Used on order SO-00123 front print"
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("content_usage_asset_idx").on(t.assetId), index("content_usage_order_idx").on(t.orderId)],
+);
+export type ContentUsage = typeof contentUsage.$inferSelect;
