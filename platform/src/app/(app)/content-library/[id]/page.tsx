@@ -40,6 +40,9 @@ export default async function AssetDetail({ params }: { params: Promise<{ id: st
             <a href={`/content-library/${a.id}/file`} download className="text-sm font-medium text-neutral-700 hover:underline">Download {a.fileName}</a>
             {clientName && <span className="text-xs text-neutral-500">Client: {clientName}</span>}
           </div>
+          {a.storageProvider === "azure_files" && (
+            <p className="mt-2 text-[11px] text-neutral-400">📁 Stored in Azure Files: <span className="font-mono">{a.storageShare}/{a.storagePath}</span></p>
+          )}
           {a.description && <p className="mt-3 border-t border-neutral-100 pt-3 text-sm text-neutral-600">{a.description}</p>}
           {a.tags && a.tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1">{a.tags.map((t) => <span key={t} className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">{t}</span>)}</div>}
         </Card>
@@ -101,7 +104,11 @@ export default async function AssetDetail({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {canDo && (
+      {canDo && a.storageProvider === "azure_files" ? (
+        <Card className="bg-neutral-50">
+          <p className="text-sm text-neutral-600">This file lives on the Azure Files share (the source of truth). To remove it, delete it from the mapped drive — the next sync drops it from the library automatically. Its tags and collection here are curation and don&apos;t affect the file.</p>
+        </Card>
+      ) : canDo && (
         <Card className="border-red-200 bg-red-50/40">
           <form action={deleteAssetAction} className="flex items-center justify-between">
             <input type="hidden" name="id" value={a.id} />

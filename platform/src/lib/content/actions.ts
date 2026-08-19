@@ -11,6 +11,10 @@ import { audit } from "@/lib/audit";
 import { nextDocNumber } from "@/lib/number-series";
 import { aiVision } from "@/lib/ai/client";
 import { embedAsset, removeAssetEmbedding } from "./embeddings";
+import { azureConfigured, azureShareName, uploadShareFile } from "./azure";
+import { makeThumbnail, extOf } from "./thumbnail";
+import { syncAzureLibrary } from "./sync";
+import { isAdmin } from "@/lib/rbac";
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB (base64-in-DB MVP; external storage is the production path for 500 MB)
 const str = (v: FormDataEntryValue | null) => String(v ?? "").trim() || null;
@@ -67,17 +71,42 @@ export async function uploadAssetAction(formData: FormData): Promise<void> {
   const title = str(formData.get("title")) ?? f.name.replace(/\.[^.]+$/, "");
   const description = str(formData.get("description")) ?? auto.description;
 
+  // A small generated thumbnail for the browse grid (kept in Neon regardless of
+  // where the full file lives).
+  const ext = extOf(f.name);
+  const thumbnail = await makeThumbnail(buf, ext);
+
+  // When Azure Files is configured, the full bytes go to the share (system of
+  // record) and Neon keeps only metadata + thumbnail; otherwise fall back to
+  // base64-in-DB. New uploads land under an "uploads/" folder on the share.
+  let storageProvider = "db";
+  let storageShare: string | null = null;
+  let storagePath: string | null = null;
+  let dbBytes: string | null = base64;
+  if (azureConfigured()) {
+    const safe = f.name.replace(/[^\w.\-]+/g, "_");
+    const path = `uploads/${assetNumber}-${safe}`;
+    if (await uploadShareFile(path, buf, mime)) {
+      storageProvider = "azure_files";
+      storageShare = azureShareName();
+      storagePath = path;
+      dbBytes = null; // don't duplicate the bytes in Neon
+    }
+  }
+
   const [a] = await db.insert(contentAssets).values({
     assetNumber, title, description,
     fileName: f.name, mimeType: mime, sizeBytes: f.size, kind: kindFor(mime),
-    contentBase64: base64,
-    thumbnailBase64: mime.startsWith("image/") && !mime.includes("svg") ? base64 : null, // reuse original as preview (MVP)
+    storageProvider, storageShare, storagePath,
+    contentBase64: dbBytes,
+    thumbnailBase64: thumbnail,
     tags: tags.length ? tags : null,
     collectionId: str(formData.get("collectionId")),
     clientBpId: str(formData.get("clientBpId")),
     usageRights: str(formData.get("usageRights")) ?? "internal",
     rightsNote: str(formData.get("rightsNote")),
     aiTagged: auto.tags.length > 0 || !!auto.description,
+    lastSyncedAt: storageProvider === "azure_files" ? new Date() : null,
     uploadedBy: user.id,
   }).returning({ id: contentAssets.id });
 
@@ -130,6 +159,16 @@ export async function createCollectionAction(formData: FormData): Promise<void> 
   });
   await audit({ userId: user.id, action: "content.collection_create", entityType: "content_collection" });
   revalidatePath("/content-library");
+}
+
+export async function syncAzureAction(): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user || !isAdmin(user.roles)) redirect("/403");
+  const res = await syncAzureLibrary(user.id);
+  await audit({ userId: user.id, action: "content.azure_sync", entityType: "content_library", metadata: { ...res } });
+  const p = new URLSearchParams({ synced: "1", created: String(res.created), removed: String(res.removed), found: String(res.found) });
+  if (res.error) p.set("syncerr", res.error);
+  redirect(`/content-library?${p.toString()}`);
 }
 
 export async function logUsageAction(formData: FormData): Promise<void> {

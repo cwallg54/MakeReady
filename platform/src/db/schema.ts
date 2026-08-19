@@ -2613,8 +2613,15 @@ export const contentAssets = pgTable(
     mimeType: text("mime_type").notNull().default("application/octet-stream"),
     sizeBytes: integer("size_bytes").notNull().default(0),
     kind: text("kind").notNull().default("image"), // image | vector | document | other
-    contentBase64: text("content_base64").notNull(),
-    thumbnailBase64: text("thumbnail_base64"), // small preview for images (else null)
+    // Where the file bytes live. "db" = base64 in this row (legacy/small); "azure_files"
+    // = the real file lives on the Azure Files share (source of truth) and only its
+    // path is stored here. Neon never holds the large image bytes for azure assets.
+    storageProvider: text("storage_provider").notNull().default("db"), // db | azure_files
+    storageShare: text("storage_share"), // Azure Files share name
+    storagePath: text("storage_path"), // path within the share, e.g. "logos/moose.png"
+    contentBase64: text("content_base64"), // null for azure-backed assets
+    thumbnailBase64: text("thumbnail_base64"), // small generated preview for images (else null)
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }), // last time the Azure crawl saw this file
     tags: text("tags").array(),
     collectionId: uuid("collection_id").references(() => contentCollections.id, { onDelete: "set null" }),
     clientBpId: uuid("client_bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
@@ -2626,7 +2633,12 @@ export const contentAssets = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("content_assets_collection_idx").on(t.collectionId), index("content_assets_client_idx").on(t.clientBpId), index("content_assets_kind_idx").on(t.kind)],
+  (t) => [
+    index("content_assets_collection_idx").on(t.collectionId),
+    index("content_assets_client_idx").on(t.clientBpId),
+    index("content_assets_kind_idx").on(t.kind),
+    uniqueIndex("content_assets_storage_path_uk").on(t.storageShare, t.storagePath),
+  ],
 );
 export type ContentAsset = typeof contentAssets.$inferSelect;
 

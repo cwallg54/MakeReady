@@ -13,6 +13,7 @@
     "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@azure/storage-file-share": "^12.32.0",
     "@neondatabase/serverless": "^1.1.0",
     "@simplewebauthn/browser": "^13.3.0",
     "@simplewebauthn/server": "^13.3.2",
@@ -27,6 +28,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.10.1",
+    "sharp": "^0.35.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

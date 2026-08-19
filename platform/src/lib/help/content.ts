@@ -2258,6 +2258,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Admin, Art, Sales",
     blocks: [
       { k: "p", text: "The Content Library (in the Operations nav) is the searchable home for every graphic asset — logos, artwork, mockups, and photos. Upload a file and, when AI is configured, it's auto-described and tagged so it's findable by plain-English search." },
+      { k: "tip", text: "The actual files live on the G54 Azure Files share (the drive artists map), kept separate from the app for efficiency and ransomware resilience. MakeReady stores only the searchable details and a small thumbnail, and streams the full file straight from Azure when you open or download it. An admin can click \"Sync from Azure\" (and a nightly job runs automatically) to index files artists add or remove on the drive." },
       { k: "h", text: "Upload & organize" },
       { k: "steps", items: [
         { text: "Open Content Library, expand \"Upload an asset\", choose a file, and (optionally) add a title, tags, collection, and usage rights. Images get an AI description + tags automatically." },
