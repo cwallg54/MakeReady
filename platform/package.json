@@ -17,7 +17,7 @@
     "verify:expenses": "node --conditions=react-server --import tsx scripts/verify-expenses.ts",
     "verify:report-access": "node --conditions=react-server --import tsx scripts/verify-report-access.ts",
     "guide:shots": "node --conditions=react-server --import tsx scripts/capture-guide-screenshots.ts",
-    "verify:session": "node --conditions=react-server --import tsx scripts/verify-session-idle.ts"
+    "verify:auth": "node --conditions=react-server --import tsx scripts/verify-session-idle.ts"
   },
   "dependencies": {
     "@azure/storage-file-share": "^12.32.0",

@@ -18,7 +18,7 @@
       "Job  in production0Active on the floor",
       "Low- tock item 0At/below reorder point",
       "U er 20Active + inactive",
-      "Audit event  today6Since midnight",
+      "Audit event  today8Since midnight",
       "Lead 2",
       "Pro pect 1",
       "Cu tomer 7,111",
@@ -1791,46 +1791,6 @@
       "All"
     ],
     "columns": []
-  },
-  "e0-admin": {
-    "title": "Admini tration",
-    "headings": [
-      "Add a u er",
-      "U er  (20)"
-    ],
-    "actions": [
-      "U er",
-      "Team",
-      "Account Group",
-      "Order Template",
-      "Catalog & Pricing",
-      "Softgood  Pricing",
-      "Configuration",
-      "Audit Log",
-      "Create u er &  end invite",
-      "Brad Hawkin",
-      "Edit",
-      "Force re et",
-      "Activate",
-      "Delete",
-      "Brian Cowley",
-      "Jeff Morgenthaler",
-      "John Drummond",
-      "Cyndee John on",
-      "Brad Beck tead",
-      "Noe Lozano",
-      "Pam French",
-      "Seth Lamburn",
-      "Cha e de Jong",
-      "Brian Weber"
-    ],
-    "columns": [
-      "Name",
-      "Role",
-      "Statu",
-      "La t login",
-      "Action"
-    ]
   },
   "e1-users": {
     "title": "Admini tration",

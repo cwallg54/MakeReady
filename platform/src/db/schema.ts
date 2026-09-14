@@ -81,8 +81,6 @@ export const sessions = pgTable(
     // a session ends after a stretch of inactivity rather than a fixed period
     // after signing in.
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    // "Remember me" widens the idle window rather than removing it.
-    rememberMe: boolean("remember_me").notNull().default(false),
     userAgent: text("user_agent"),
     ip: text("ip"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

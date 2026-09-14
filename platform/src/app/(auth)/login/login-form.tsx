@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { loginAction, type FormState } from "@/lib/auth/actions";
 import { Field, SubmitButton, FormError } from "@/components/form";
 
-export function LoginForm({ resetDone }: { resetDone?: boolean }) {
+export function LoginForm({ resetDone, defaultEmail }: { resetDone?: boolean; defaultEmail?: string }) {
   const [state, action] = useActionState<FormState, FormData>(loginAction, {});
 
   return (
@@ -22,13 +22,18 @@ export function LoginForm({ resetDone }: { resetDone?: boolean }) {
       )}
       <FormError message={state.error} />
 
-      <Field label="Email" name="email" type="email" autoComplete="username" required autoFocus />
+      <Field label="Email" name="email" type="email" autoComplete="username" required autoFocus defaultValue={defaultEmail} />
       <Field label="Password" name="password" type="password" autoComplete="current-password" required />
 
       <div className="flex items-center justify-between text-sm">
         <label className="flex items-center gap-2 text-neutral-400">
-          <input type="checkbox" name="rememberMe" className="h-4 w-4 rounded border-neutral-600 bg-neutral-800" />
-          Remember me
+          <input
+            type="checkbox"
+            name="rememberEmail"
+            defaultChecked={!!defaultEmail}
+            className="h-4 w-4 rounded border-neutral-600 bg-neutral-800"
+          />
+          Remember my email
         </label>
         <Link href="/forgot-password" className="text-neutral-300 hover:text-white">
           Forgot password?

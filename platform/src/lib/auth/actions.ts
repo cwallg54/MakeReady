@@ -23,14 +23,14 @@ export interface FormState {
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
-  rememberMe: z.union([z.literal("on"), z.null()]).optional(),
+  rememberEmail: z.union([z.literal("on"), z.null()]).optional(),
 });
 
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
-    rememberMe: formData.get("rememberMe"),
+    rememberEmail: formData.get("rememberEmail"),
   });
   if (!parsed.success) return { error: "Enter a valid email and password." };
 
@@ -40,7 +40,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   const rl = await consumeRateLimit("login", ip, 30, 300);
   if (!rl.ok) return { error: `Too many sign-in attempts. ${retryMessage(rl.retryAfterSec)}` };
 
-  const result = await login(parsed.data.email, parsed.data.password, parsed.data.rememberMe === "on");
+  const result = await login(parsed.data.email, parsed.data.password, parsed.data.rememberEmail === "on");
   if (!result.ok) {
     if (result.error === "locked") {
       return { error: "Your account is locked. Contact your administrator." };

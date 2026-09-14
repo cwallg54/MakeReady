@@ -9,7 +9,6 @@ import {
   userRoles,
   sessions,
   passwordResetTokens,
-  systemSettings,
   SYSTEM_SETTINGS_ID,
   notifications,
   type Role,
@@ -30,16 +29,19 @@ import { userHasMfa } from "@/lib/mfa/service";
 
 const LOCK_THRESHOLD = 5;
 const LOCK_MINUTES = 15;
-/** How long "remember me" lets you be away before signing in again. */
-const REMEMBER_DAYS = 30;
 /**
  * How long the cookie itself is carried. It deliberately outlives any session:
  * the `sessions` row is the authority on whether a session is alive, and the
  * edge gate only checks the token's signature. If the cookie expired on the
  * idle deadline, a browser left open over lunch would lose the cookie before
  * the server ever got to decide.
+ *
+ * It buys no access of its own — an idled-out session is refused whatever the
+ * cookie says.
  */
-const COOKIE_DAYS = REMEMBER_DAYS;
+const COOKIE_DAYS = 30;
+/** Remembering an email address is a convenience; it is not a credential. */
+const REMEMBER_EMAIL_DAYS = 90;
 /**
  * Don't rewrite the idle deadline on every single request — only once it has
  * actually moved by this much. An active user costs one small write a minute
@@ -70,9 +72,16 @@ async function sessionTimeoutMinutes(): Promise<number> {
   return Number(process.env.SESSION_TIMEOUT_MINUTES ?? 60);
 }
 
-/** How long this session may sit idle before it has to be signed in again. */
-async function idleWindowMs(rememberMe: boolean): Promise<number> {
-  if (rememberMe) return REMEMBER_DAYS * 24 * 60 * 60_000;
+/**
+ * How long a session may sit idle before it has to be signed in again.
+ *
+ * There is one window and it applies to everybody. No option — "remember me"
+ * included — extends it: once a session has idled out the user signs in again
+ * with their password and their second factor, every time. Keeping a device
+ * trusted across sessions is exactly what a regulated finance environment is
+ * not allowed to do.
+ */
+async function idleWindowMs(): Promise<number> {
   return (await sessionTimeoutMinutes()) * 60_000;
 }
 
@@ -91,7 +100,7 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
 
   // The deadline slides: this request is activity, so push it out again. Only
   // an uninterrupted idle stretch longer than the window ends the session.
-  const deadline = Date.now() + (await idleWindowMs(session.rememberMe));
+  const deadline = Date.now() + (await idleWindowMs());
   if (deadline - session.expiresAt.getTime() > TOUCH_INTERVAL_MS) {
     await db
       .update(sessions)
@@ -123,21 +132,24 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
  * Sessions expire on inactivity: the deadline is pushed out on every request,
  * so signing in again is only needed after an idle stretch longer than the
  * configured window (Administration → Configuration, 60 minutes by default).
+ *
+ * Every session gets the same window. Reaching this point means the user has
+ * just passed every check the policy demands, second factor included.
  */
-export async function establishSession(userId: string, rememberMe = false): Promise<void> {
-  await createSession(userId, rememberMe);
+export async function establishSession(userId: string): Promise<void> {
+  await createSession(userId);
 }
 
-async function createSession(userId: string, rememberMe: boolean): Promise<void> {
+async function createSession(userId: string): Promise<void> {
   const { ip, ua } = await requestMeta();
-  const expiresAt = new Date(Date.now() + (await idleWindowMs(rememberMe)));
+  const expiresAt = new Date(Date.now() + (await idleWindowMs()));
   const cookieExpiresAt = new Date(Date.now() + COOKIE_DAYS * 24 * 60 * 60_000);
 
   // Single active session per user: drop any existing sessions first.
   await db.delete(sessions).where(eq(sessions.userId, userId));
 
   const id = randomUUID();
-  await db.insert(sessions).values({ id, userId, expiresAt, rememberMe, ip, userAgent: ua });
+  await db.insert(sessions).values({ id, userId, expiresAt, ip, userAgent: ua });
 
   const token = await signSessionToken({ sub: userId, sid: id }, cookieExpiresAt);
   (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions(cookieExpiresAt));
@@ -168,10 +180,13 @@ export async function needsMfaEnrollment(userId: string): Promise<boolean> {
 }
 
 /** Authenticate by email + password. Generic errors; never reveal whether an email exists. */
+/** Cookie that prefills the email box next time. Convenience only. */
+export const REMEMBER_EMAIL_COOKIE = "mr_email";
+
 export async function login(
   email: string,
   password: string,
-  rememberMe: boolean,
+  rememberEmail: boolean,
 ): Promise<LoginResult> {
   const { ip } = await requestMeta();
   const normalized = email.trim().toLowerCase();
@@ -211,8 +226,23 @@ export async function login(
     .set({ failedLoginAttempts: 0, lockedUntil: null, updatedAt: new Date() })
     .where(eq(users.id, user.id));
 
-  // If the user has a second factor, hold the login pending MFA instead of
-  // creating a full session now.
+  // "Remember me" remembers the address typed into the box and nothing else.
+  // It grants no access, shortens no check, and skips no second factor.
+  const store = await cookies();
+  if (rememberEmail) {
+    store.set(REMEMBER_EMAIL_COOKIE, normalized, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: REMEMBER_EMAIL_DAYS * 24 * 60 * 60,
+    });
+  } else {
+    store.delete(REMEMBER_EMAIL_COOKIE);
+  }
+
+  // A second factor is never optional when one is enrolled: hold the login
+  // pending MFA rather than creating a session now.
   if (await userHasMfa(user.id)) {
     const token = await signMfaPendingToken(user.id);
     (await cookies()).set(MFA_PENDING_COOKIE, token, pendingCookieOptions());
@@ -220,7 +250,7 @@ export async function login(
     return { ok: true, mfaRequired: true, mustReset: user.mustResetPassword, enrollMfa: false };
   }
 
-  await createSession(user.id, rememberMe);
+  await createSession(user.id);
   await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
   await audit({ userId: user.id, action: "auth.login", entityType: "user", entityId: user.id, ip });
 
@@ -242,7 +272,7 @@ export async function completeMfaLogin(): Promise<boolean> {
   if (!uid) return false;
   const user = await db.query.users.findFirst({ where: eq(users.id, uid) });
   if (!user || user.status !== "active") return false;
-  await createSession(uid, false);
+  await createSession(uid);
   await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, uid));
   (await cookies()).delete(MFA_PENDING_COOKIE);
   await audit({ userId: uid, action: "auth.login", entityType: "user", entityId: uid });
