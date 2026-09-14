@@ -603,6 +603,13 @@
       "when": 1789400505306,
       "tag": "0085_sales_reps_goals",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1789401810820,
+      "tag": "0086_employee_expenses",
+      "breakpoints": true
     }
   ]
 }

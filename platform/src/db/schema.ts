@@ -51,6 +51,9 @@ export const users = pgTable("users", {
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  // Reimbursements are paid like any other bill, so an employee who claims
+  // expenses is linked to the vendor record they are paid through.
+  expenseVendorId: uuid("expense_vendor_id"),
 });
 
 export const userRoles = pgTable(
@@ -292,6 +295,24 @@ export const payrollRunStatusEnum = pgEnum("payroll_run_status", ["draft", "post
 // A run is either the payroll itself, or the month-end accrual of the payroll
 // that will be paid next month (which reverses on the pay date).
 export const payrollRunKindEnum = pgEnum("payroll_run_kind", ["payroll", "accrual"]);
+// An expense report is saved, submitted for approval, approved or rejected,
+// then settled — reimbursed to the employee or simply booked when the company
+// already paid it on a card.
+export const expenseStatusEnum = pgEnum("expense_status", [
+  "draft",
+  "submitted",
+  "approved",
+  "rejected",
+  "settled",
+  "cancelled",
+]);
+// Who actually paid at the till. Only employee-paid spend is reimbursed.
+export const expensePaidByEnum = pgEnum("expense_paid_by", [
+  "employee",
+  "company_card",
+  "corporate_card",
+  "on_account",
+]);
 // General ledger: the five fundamental account types. Asset & expense accounts
 // are debit-normal; liability, equity & revenue are credit-normal.
 export const glAccountTypeEnum = pgEnum("gl_account_type", ["asset", "liability", "equity", "revenue", "expense"]);
@@ -1047,6 +1068,88 @@ export const historicalOrders = pgTable(
   (t) => [index("historical_orders_bp_id_idx").on(t.bpId), index("historical_orders_bp_date_idx").on(t.bpId, t.docDate)],
 );
 export type HistoricalOrder = typeof historicalOrders.$inferSelect;
+
+// ---- Employee expenses ----------------------------------------------------
+// Spend an employee makes on the company's behalf: booked against a category
+// that carries its own GL account, approved through the standard approval
+// rules, then either reimbursed through Accounts Payable or, when the company
+// already paid it on a card, simply booked against the card.
+export const expenseCategories = pgTable(
+  "expense_categories",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(),
+    name: text("name").notNull(),
+    // Where this category lands in the GL. The segment comes with the account.
+    accountId: uuid("account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    // Categories like Conference or Other need an explanation, not just a total.
+    requiresDetail: boolean("requires_detail").notNull().default(false),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("expense_categories_active_idx").on(t.active)],
+);
+export type ExpenseCategory = typeof expenseCategories.$inferSelect;
+
+export const expenseReports = pgTable(
+  "expense_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportNumber: text("report_number").notNull().unique(), // "EXP-00001"
+    // Whose expenses these are — not necessarily who typed them.
+    employeeId: uuid("employee_id").notNull().references(() => users.id, { onDelete: "restrict" }),
+    purpose: text("purpose"),
+    periodFrom: date("period_from"),
+    periodTo: date("period_to"),
+    status: expenseStatusEnum("status").notNull().default("draft"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    // The part that has to be paid back to the employee.
+    reimbursable: numeric("reimbursable", { precision: 14, scale: 2 }).notNull().default("0"),
+    employeeNote: text("employee_note"),
+    decisionNote: text("decision_note"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    decidedBy: uuid("decided_by").references(() => users.id),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    // Set when settled: the AP bill raised to reimburse, and/or the journal
+    // entry that booked company-paid lines.
+    billId: uuid("bill_id").references(() => bills.id, { onDelete: "set null" }),
+    journalEntryId: uuid("journal_entry_id").references(() => journalEntries.id, { onDelete: "set null" }),
+    settledAt: timestamp("settled_at", { withTimezone: true }),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("expense_reports_employee_idx").on(t.employeeId),
+    index("expense_reports_status_idx").on(t.status),
+  ],
+);
+export type ExpenseReport = typeof expenseReports.$inferSelect;
+
+export const expenseLines = pgTable(
+  "expense_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id").notNull().references(() => expenseReports.id, { onDelete: "cascade" }),
+    categoryId: uuid("category_id").references(() => expenseCategories.id, { onDelete: "set null" }),
+    // Copied from the category at entry, so re-pointing a category later never
+    // rewrites what was already posted; overridable per line.
+    accountId: uuid("account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    segmentId: uuid("segment_id").references(() => glSegments.id, { onDelete: "set null" }),
+    spentOn: date("spent_on"),
+    vendor: text("vendor"),
+    description: text("description"),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    // What the approver actually allowed, when it differs from the claim.
+    approvedAmount: numeric("approved_amount", { precision: 14, scale: 2 }),
+    paidBy: expensePaidByEnum("paid_by").notNull().default("employee"),
+    receiptName: text("receipt_name"),
+    receiptData: text("receipt_data"), // base64 image/pdf, as elsewhere in the app
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("expense_lines_report_idx").on(t.reportId)],
+);
+export type ExpenseLine = typeof expenseLines.$inferSelect;
 
 // ---- Sales reps and monthly goals -----------------------------------------
 // A sales rep is not always a platform user: the legacy ERP credits orders to

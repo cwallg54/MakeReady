@@ -78,6 +78,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "acct-vcredits", label: "Vendor Credits", href: "/accounting/vendor-credits", phase1: true },
       { key: "acct-grni", label: "GRNI", href: "/accounting/grni", phase1: true },
       { key: "acct-payroll", label: "Payroll Journals", href: "/accounting/payroll", phase1: true },
+      { key: "acct-expenses", label: "Expenses", href: "/accounting/expenses", phase1: true },
       { key: "acct-h-gl", label: "General Ledger", phase1: true, header: true },
       { key: "acct-chart", label: "Chart of Accounts", href: "/accounting/chart", phase1: true },
       { key: "acct-journal", label: "Journal Entries", href: "/accounting/journal", phase1: true },
