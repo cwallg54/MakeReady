@@ -429,7 +429,8 @@ shot("e1-users", "Administration → Users — roles, status, last login.")
 b("**Edit** changes someone's roles.")
 b("**Force reset** makes them set a new password next time they sign in.")
 b("**Activate / deactivate** turns access on and off. Deactivating ends their sessions immediately.")
-note("The fifteen sales reps carried over from SAP were created **inactive with no password**. "
+note("Thirteen of the sales reps carried over from SAP were created **inactive with no password** "
+     "(the other three already had accounts). "
      "Check each address is right, then activate and invite them — nothing is sent until you do.")
 p("Teams group people for routing — art, product, production, purchasing, sales — so work reaches "
   "the right desk rather than a named individual who might be on holiday.")

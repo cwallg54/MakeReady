@@ -717,7 +717,7 @@ Administration → Users is where accounts are created. **Create user & send inv
 - **Force reset** makes them set a new password next time they sign in.
 - **Activate / deactivate** turns access on and off. Deactivating ends their sessions immediately.
 
-> The fifteen sales reps carried over from SAP were created **inactive with no password**. Check each address is right, then activate and invite them — nothing is sent until you do.
+> Thirteen of the sales reps carried over from SAP were created **inactive with no password** (the other three already had accounts). Check each address is right, then activate and invite them — nothing is sent until you do.
 
 Teams group people for routing — art, product, production, purchasing, sales — so work reaches the right desk rather than a named individual who might be on holiday.
 
