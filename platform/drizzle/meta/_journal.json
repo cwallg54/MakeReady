@@ -589,6 +589,13 @@
       "when": 1789398363578,
       "tag": "0083_sales_tax_codes",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1789399469075,
+      "tag": "0084_payroll_journal_template",
+      "breakpoints": true
     }
   ]
 }

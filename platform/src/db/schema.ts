@@ -288,6 +288,10 @@ export const depositStatusEnum = pgEnum("deposit_status", ["open", "deposited", 
 // A payment run is built, approved, then paid — cheques printed / ACH sent.
 export const paymentRunStatusEnum = pgEnum("payment_run_status", ["draft", "approved", "paid", "void"]);
 export const vendorCreditStatusEnum = pgEnum("vendor_credit_status", ["draft", "open", "applied", "void"]);
+export const payrollRunStatusEnum = pgEnum("payroll_run_status", ["draft", "posted", "void"]);
+// A run is either the payroll itself, or the month-end accrual of the payroll
+// that will be paid next month (which reverses on the pay date).
+export const payrollRunKindEnum = pgEnum("payroll_run_kind", ["payroll", "accrual"]);
 // General ledger: the five fundamental account types. Asset & expense accounts
 // are debit-normal; liability, equity & revenue are credit-normal.
 export const glAccountTypeEnum = pgEnum("gl_account_type", ["asset", "liability", "equity", "revenue", "expense"]);
@@ -1040,6 +1044,88 @@ export const historicalOrders = pgTable(
   (t) => [index("historical_orders_bp_id_idx").on(t.bpId), index("historical_orders_bp_date_idx").on(t.bpId, t.docDate)],
 );
 export type HistoricalOrder = typeof historicalOrders.$inferSelect;
+
+// ---- Payroll journals -----------------------------------------------------
+// Payroll is posted by hand twice a month, split across a dozen or more
+// departmental wage accounts plus taxes and benefits, and accrued at month end
+// for the run that pays in the next one. The template holds that shape once;
+// each run only needs the numbers.
+export const payrollTemplates = pgTable(
+  "payroll_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    active: boolean("active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("payroll_templates_active_idx").on(t.active)],
+);
+export type PayrollTemplate = typeof payrollTemplates.$inferSelect;
+
+export const payrollTemplateLines = pgTable(
+  "payroll_template_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    templateId: uuid("template_id").notNull().references(() => payrollTemplates.id, { onDelete: "cascade" }),
+    accountId: uuid("account_id").notNull().references(() => glAccounts.id),
+    // What this line is called on the payroll report it is keyed from.
+    label: text("label").notNull(),
+    // "debit" for wages, taxes and benefits; "credit" for the net payable and
+    // the employee-side withholdings.
+    side: text("side").notNull().default("debit"),
+    // Optional grouping for the entry screen: Wages / Overtime / Taxes / Benefits.
+    grouping: text("grouping"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("payroll_template_lines_template_idx").on(t.templateId)],
+);
+export type PayrollTemplateLine = typeof payrollTemplateLines.$inferSelect;
+
+export const payrollRuns = pgTable(
+  "payroll_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runNumber: text("run_number").notNull().unique(), // "PAY-00001"
+    templateId: uuid("template_id").references(() => payrollTemplates.id, { onDelete: "set null" }),
+    kind: payrollRunKindEnum("kind").notNull().default("payroll"),
+    // The cheque date, and the pay period it covers.
+    payDate: date("pay_date").notNull(),
+    periodStart: date("period_start"),
+    periodEnd: date("period_end"),
+    // An accrual posts on this date instead, and reverses on the pay date.
+    accrualDate: date("accrual_date"),
+    status: payrollRunStatusEnum("status").notNull().default("draft"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    journalEntryId: uuid("journal_entry_id").references(() => journalEntries.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    postedBy: uuid("posted_by").references(() => users.id),
+    postedAt: timestamp("posted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("payroll_runs_status_idx").on(t.status), index("payroll_runs_date_idx").on(t.payDate)],
+);
+export type PayrollRun = typeof payrollRuns.$inferSelect;
+
+export const payrollRunLines = pgTable(
+  "payroll_run_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runId: uuid("run_id").notNull().references(() => payrollRuns.id, { onDelete: "cascade" }),
+    accountId: uuid("account_id").notNull().references(() => glAccounts.id),
+    label: text("label").notNull(),
+    side: text("side").notNull().default("debit"),
+    grouping: text("grouping"),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("payroll_run_lines_run_idx").on(t.runId)],
+);
+export type PayrollRunLine = typeof payrollRunLines.$inferSelect;
 
 // ---- Sales tax ------------------------------------------------------------
 // Tax is charged per state of nexus, at the state rate, against the ship-to
