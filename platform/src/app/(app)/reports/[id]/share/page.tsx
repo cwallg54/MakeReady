@@ -14,6 +14,12 @@ import {
 } from "@/lib/reports/access-actions";
 
 export const dynamic = "force-dynamic";
+
+/** Route params are strings, so a path like /reports/access reaches this page
+ *  as an "id". Anything that is not a UUID is not a report — 404 rather than
+ *  letting Postgres reject the cast and surface a 500. */
+const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
 const inp = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand";
 
 const VISIBILITY = [
@@ -27,6 +33,7 @@ export default async function ShareReportPage({ params }: { params: Promise<{ id
   if (!user) redirect("/login");
   const { id } = await params;
 
+  if (!isUuid(id)) notFound();
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) notFound();
   if (!(await canManageSharing(user, def))) redirect("/403");

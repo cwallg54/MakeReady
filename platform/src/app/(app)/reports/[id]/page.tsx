@@ -15,6 +15,12 @@ import { fmtDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
+/** Route params are strings, so a path like /reports/access reaches this page
+ *  as an "id". Anything that is not a UUID is not a report — 404 rather than
+ *  letting Postgres reject the cast and surface a 500. */
+const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
+
 const input = "rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm text-neutral-900 outline-none focus:border-brand";
 const DOW = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MAX_SHOWN = 500;
@@ -25,6 +31,7 @@ export default async function ReportViewPage({ params, searchParams }: { params:
   const { id } = await params;
   const { sent, err } = await searchParams;
 
+  if (!isUuid(id)) notFound();
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) notFound();
   // Access is per report: the owner, an administrator, anyone granted it, or

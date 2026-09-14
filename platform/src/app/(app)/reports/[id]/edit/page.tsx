@@ -11,10 +11,17 @@ import { ReportBuilder } from "../../report-builder";
 
 export const dynamic = "force-dynamic";
 
+/** Route params are strings, so a path like /reports/access reaches this page
+ *  as an "id". Anything that is not a UUID is not a report — 404 rather than
+ *  letting Postgres reject the cast and surface a 500. */
+const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
+
 export default async function EditReportPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   const { id } = await params;
+  if (!isUuid(id)) notFound();
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) notFound();
   // Editing is per report: its owner, an administrator, or a granted editor.

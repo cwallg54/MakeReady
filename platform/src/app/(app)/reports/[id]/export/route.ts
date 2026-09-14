@@ -11,6 +11,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const user = await getCurrentUser();
   if (!user) return new Response("Forbidden", { status: 403 });
   const { id } = await params;
+  // A non-UUID path segment is not a report; reject before the DB cast fails.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return new Response("Not found", { status: 404 });
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) return new Response("Not found", { status: 404 });
   // Downloading is reading: it needs the same access as opening the report,
