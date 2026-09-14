@@ -23,6 +23,7 @@ const PAGES = [
   "/accounting/bills",
   "/accounting/flash",
   "/accounting/quarterly",
+  "/accounting/tax-filing",
   "/accounting/close",
   "/accounting/credit-memos",
   "/accounting/deposits",

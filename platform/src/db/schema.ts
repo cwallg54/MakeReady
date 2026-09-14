@@ -351,6 +351,12 @@ export const businessPartners = pgTable(
     parentBpId: uuid("parent_bp_id"),
     // Payment terms govern the due date and how the account is collected.
     termsId: uuid("terms_id"),
+    // Default tax jurisdiction for this customer (from their ship-to state),
+    // plus their resale/exemption certificate if they hold one.
+    taxCodeId: uuid("tax_code_id"),
+    taxExempt: boolean("tax_exempt").notNull().default(false),
+    taxExemptCertificate: text("tax_exempt_certificate"),
+    taxExemptExpires: date("tax_exempt_expires"),
     // Average Pay Age (days) — trailing-12-month and trailing-24-month.
     historicalApa: integer("historical_apa"),
     twoYearApa: integer("two_year_apa"),
@@ -1035,6 +1041,31 @@ export const historicalOrders = pgTable(
 );
 export type HistoricalOrder = typeof historicalOrders.$inferSelect;
 
+// ---- Sales tax ------------------------------------------------------------
+// Tax is charged per state of nexus, at the state rate, against the ship-to
+// address — one code per state plus an exempt code. Returns are filed per
+// state per period, so every taxed line has to carry the code it was taxed
+// under, not just a rate.
+export const taxCodes = pgTable(
+  "tax_codes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // "UT", "CA", "EX"
+    name: text("name").notNull(), // "Utah"
+    state: text("state"), // two-letter state, null for the exempt code
+    rate: numeric("rate", { precision: 7, scale: 5 }).notNull().default("0"), // 0.0765
+    exempt: boolean("exempt").notNull().default(false),
+    // Nexus: whether the business actually collects in this state.
+    active: boolean("active").notNull().default(true),
+    // Where the liability lands; falls back to the sales_tax system account.
+    liabilityAccountId: uuid("liability_account_id"),
+    notes: text("notes"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("tax_codes_state_idx").on(t.state), index("tax_codes_active_idx").on(t.active)],
+);
+export type TaxCode = typeof taxCodes.$inferSelect;
+
 // ---- Payment terms --------------------------------------------------------
 // Terms are the credit policy, the collection trigger and the account status
 // all at once: "Net 30" bills on account, "Net 30 (CC)" charges a card on file
@@ -1088,8 +1119,12 @@ export const invoices = pgTable(
     subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
     discount: numeric("discount", { precision: 14, scale: 2 }).notNull().default("0"),
     // Sales tax: the rate applied (e.g. 0.0725) and the computed tax amount.
+    // taxCodeId records WHICH jurisdiction it was charged under, which is what
+    // the filing report groups by; exemptReason explains a zero.
     taxRate: numeric("tax_rate", { precision: 6, scale: 4 }).notNull().default("0"),
     tax: numeric("tax", { precision: 14, scale: 2 }).notNull().default("0"),
+    taxCodeId: uuid("tax_code_id"),
+    exemptReason: text("exempt_reason"),
     total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
     notes: text("notes"),
     voidedAt: timestamp("voided_at", { withTimezone: true }),
