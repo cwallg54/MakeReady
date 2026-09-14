@@ -55,14 +55,14 @@ export function SettingsForm({
           options={MONTHS.map((m, i) => ({ value: i + 1, label: m }))}
         />
         <AdminField
-          label="Session timeout (minutes)"
+          label="Sign out after idle (minutes)"
           name="sessionTimeoutMinutes"
           type="number"
           min={5}
           max={1440}
           required
           defaultValue={sessionTimeoutMinutes}
-          hint="Idle timeout before sign-out"
+          hint="How long a session may sit unused before signing in again. Using the app resets the clock; Remember me widens it to 30 days."
         />
         <AdminField
           label="Credit approval threshold ($ over limit)"

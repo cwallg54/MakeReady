@@ -30,7 +30,22 @@ import { userHasMfa } from "@/lib/mfa/service";
 
 const LOCK_THRESHOLD = 5;
 const LOCK_MINUTES = 15;
+/** How long "remember me" lets you be away before signing in again. */
 const REMEMBER_DAYS = 30;
+/**
+ * How long the cookie itself is carried. It deliberately outlives any session:
+ * the `sessions` row is the authority on whether a session is alive, and the
+ * edge gate only checks the token's signature. If the cookie expired on the
+ * idle deadline, a browser left open over lunch would lose the cookie before
+ * the server ever got to decide.
+ */
+const COOKIE_DAYS = REMEMBER_DAYS;
+/**
+ * Don't rewrite the idle deadline on every single request — only once it has
+ * actually moved by this much. An active user costs one small write a minute
+ * instead of one per page.
+ */
+const TOUCH_INTERVAL_MS = 60_000;
 
 export interface AuthUser {
   id: string;
@@ -55,6 +70,12 @@ async function sessionTimeoutMinutes(): Promise<number> {
   return Number(process.env.SESSION_TIMEOUT_MINUTES ?? 60);
 }
 
+/** How long this session may sit idle before it has to be signed in again. */
+async function idleWindowMs(rememberMe: boolean): Promise<number> {
+  if (rememberMe) return REMEMBER_DAYS * 24 * 60 * 60_000;
+  return (await sessionTimeoutMinutes()) * 60_000;
+}
+
 /** Load the authenticated user for the current request, or null. Cached per request. */
 export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
@@ -67,6 +88,16 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
     where: eq(sessions.id, claims.sid),
   });
   if (!session || session.expiresAt.getTime() < Date.now()) return null;
+
+  // The deadline slides: this request is activity, so push it out again. Only
+  // an uninterrupted idle stretch longer than the window ends the session.
+  const deadline = Date.now() + (await idleWindowMs(session.rememberMe));
+  if (deadline - session.expiresAt.getTime() > TOUCH_INTERVAL_MS) {
+    await db
+      .update(sessions)
+      .set({ expiresAt: new Date(deadline) })
+      .where(eq(sessions.id, session.id));
+  }
 
   const user = await db.query.users.findFirst({ where: eq(users.id, claims.sub) });
   if (!user || user.status !== "active") return null;
@@ -89,7 +120,9 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
 /**
  * Create a fresh session + cookie for a user. Used by login and by flows that
  * establish a session directly (e.g. auto-login after a forced password reset).
- * Sessions use absolute expiry (timeout from creation, or 30 days for remember-me).
+ * Sessions expire on inactivity: the deadline is pushed out on every request,
+ * so signing in again is only needed after an idle stretch longer than the
+ * configured window (Administration → Configuration, 60 minutes by default).
  */
 export async function establishSession(userId: string, rememberMe = false): Promise<void> {
   await createSession(userId, rememberMe);
@@ -97,19 +130,17 @@ export async function establishSession(userId: string, rememberMe = false): Prom
 
 async function createSession(userId: string, rememberMe: boolean): Promise<void> {
   const { ip, ua } = await requestMeta();
-  const minutes = await sessionTimeoutMinutes();
-  const expiresAt = rememberMe
-    ? new Date(Date.now() + REMEMBER_DAYS * 24 * 60 * 60_000)
-    : new Date(Date.now() + minutes * 60_000);
+  const expiresAt = new Date(Date.now() + (await idleWindowMs(rememberMe)));
+  const cookieExpiresAt = new Date(Date.now() + COOKIE_DAYS * 24 * 60 * 60_000);
 
   // Single active session per user: drop any existing sessions first.
   await db.delete(sessions).where(eq(sessions.userId, userId));
 
   const id = randomUUID();
-  await db.insert(sessions).values({ id, userId, expiresAt, ip, userAgent: ua });
+  await db.insert(sessions).values({ id, userId, expiresAt, rememberMe, ip, userAgent: ua });
 
-  const token = await signSessionToken({ sub: userId, sid: id }, expiresAt);
-  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions(expiresAt));
+  const token = await signSessionToken({ sub: userId, sid: id }, cookieExpiresAt);
+  (await cookies()).set(SESSION_COOKIE, token, sessionCookieOptions(cookieExpiresAt));
 }
 
 export async function destroyCurrentSession(): Promise<void> {
