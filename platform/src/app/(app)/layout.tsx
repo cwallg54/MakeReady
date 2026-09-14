@@ -60,6 +60,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       { key: "acct-h-reports", label: "Finance Reporting", phase1: true, header: true },
       { key: "acct-flash", label: "Weekly Flash", href: "/accounting/flash", phase1: true },
       { key: "acct-quarterly", label: "Quarterly Pack", href: "/accounting/quarterly", phase1: true },
+      { key: "acct-goals", label: "Sales Goals", href: "/accounting/goals", phase1: true },
       { key: "acct-taxfiling", label: "Sales Tax Filing", href: "/accounting/tax-filing", phase1: true },
       { key: "acct-h-ar", label: "Receivables", phase1: true, header: true },
       { key: "acct-invoices", label: "Invoices", href: "/accounting/invoices", phase1: true },

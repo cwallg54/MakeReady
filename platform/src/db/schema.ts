@@ -1036,6 +1036,9 @@ export const historicalOrders = pgTable(
     bpId: uuid("bp_id").notNull().references(() => businessPartners.id, { onDelete: "cascade" }),
     docNum: text("doc_num").notNull(), // SAP DocNum
     docDate: timestamp("doc_date", { withTimezone: true }).notNull(),
+    // The sales rep credited in the legacy ERP, so goal-vs-actual can read
+    // against real history rather than only against orders raised here.
+    repId: uuid("rep_id"),
     docTotal: numeric("doc_total", { precision: 14, scale: 2 }).notNull().default("0"),
     docStatus: text("doc_status"), // O = open, C = closed
     canceled: boolean("canceled").notNull().default(false),
@@ -1044,6 +1047,47 @@ export const historicalOrders = pgTable(
   (t) => [index("historical_orders_bp_id_idx").on(t.bpId), index("historical_orders_bp_date_idx").on(t.bpId, t.docDate)],
 );
 export type HistoricalOrder = typeof historicalOrders.$inferSelect;
+
+// ---- Sales reps and monthly goals -----------------------------------------
+// A sales rep is not always a platform user: the legacy ERP credits orders to
+// people who have left, and goals are set for reps before they are onboarded.
+// So reps are their own record, optionally linked to a user account.
+export const salesReps = pgTable(
+  "sales_reps",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // The legacy ERP's sales-employee code, which historic orders are keyed by.
+    code: text("code").notNull().unique(),
+    name: text("name").notNull(),
+    // Set when this rep has a login; revenue on new orders is credited via it.
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("sales_reps_user_idx").on(t.userId), index("sales_reps_active_idx").on(t.active)],
+);
+export type SalesRep = typeof salesReps.$inferSelect;
+
+// One revenue goal per rep per calendar month. Held by calendar month rather
+// than fiscal period so the same row reads correctly however it is aggregated.
+export const salesGoals = pgTable(
+  "sales_goals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    repId: uuid("rep_id").notNull().references(() => salesReps.id, { onDelete: "cascade" }),
+    year: integer("year").notNull(), // calendar year
+    month: integer("month").notNull(), // 1-12 calendar month
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    note: text("note"),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("sales_goals_rep_month_uk").on(t.repId, t.year, t.month),
+    index("sales_goals_period_idx").on(t.year, t.month),
+  ],
+);
+export type SalesGoal = typeof salesGoals.$inferSelect;
 
 // ---- Payroll journals -----------------------------------------------------
 // Payroll is posted by hand twice a month, split across a dozen or more
