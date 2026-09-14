@@ -47,13 +47,25 @@ function Leaf({ item, active, onNavigate }: { item: NavItem; active: boolean; on
   );
 }
 
-function Group({ item, activeHref, onNavigate }: { item: NavItem; activeHref: string | null; onNavigate?: () => void }) {
+function Group({
+  item,
+  activeHref,
+  open,
+  onToggle,
+  onNavigate,
+}: {
+  item: NavItem;
+  activeHref: string | null;
+  open: boolean;
+  onToggle: () => void;
+  onNavigate?: () => void;
+}) {
   const hasActiveChild = !!item.children?.some((c) => c.href === activeHref);
-  const [open, setOpen] = useState(hasActiveChild);
   return (
     <div>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={onToggle}
+        aria-expanded={open}
         className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition ${
           hasActiveChild ? "font-semibold text-blue-300" : "text-neutral-300 hover:bg-blue-500/10 hover:text-blue-200"
         }`}
@@ -81,11 +93,26 @@ function Group({ item, activeHref, onNavigate }: { item: NavItem; activeHref: st
 export function AppNav({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = usePathname();
   const activeHref = computeActiveHref(items, pathname);
+  const activeGroupKey = items.find((i) => i.children?.some((c) => c.href === activeHref))?.key ?? null;
+
+  // Only one group is open at a time, so the sidebar stays short enough to read
+  // without scrolling. The choice is remembered against the page it was made
+  // on: move to another page and the group that owns it takes over again.
+  const [picked, setPicked] = useState<{ key: string | null; path: string }>({ key: activeGroupKey, path: pathname });
+  const openKey = picked.path === pathname ? picked.key : activeGroupKey;
+
   return (
     <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
       {items.map((item) =>
         item.children?.length ? (
-          <Group key={item.key} item={item} activeHref={activeHref} onNavigate={onNavigate} />
+          <Group
+            key={item.key}
+            item={item}
+            activeHref={activeHref}
+            open={openKey === item.key}
+            onToggle={() => setPicked({ key: openKey === item.key ? null : item.key, path: pathname })}
+            onNavigate={onNavigate}
+          />
         ) : (
           <Leaf key={item.key} item={item} active={item.href === activeHref} onNavigate={onNavigate} />
         ),

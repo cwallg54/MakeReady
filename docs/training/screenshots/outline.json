@@ -1,0 +1,1990 @@
+{
+  "01-login": {
+    "title": "Sign in",
+    "headings": [],
+    "actions": [],
+    "columns": []
+  },
+  "02-dashboard": {
+    "title": "Welcome, Chri topher",
+    "headings": [
+      "Pipeline",
+      "My open ta k",
+      "Quick action"
+    ],
+    "actions": [
+      "Open quote 14Draft &  ent",
+      "Open order 4Not yet delivered",
+      "Job  in production0Active on the floor",
+      "Low- tock item 0At/below reorder point",
+      "U er 20Active + inactive",
+      "Audit event  today6Since midnight",
+      "Lead 2",
+      "Pro pect 1",
+      "Cu tomer 7,111",
+      "＋ New quote",
+      "＋ New bu ine  partner",
+      "Pipeline",
+      "Order",
+      "Calendar",
+      "Report"
+    ],
+    "columns": []
+  },
+  "03-search": {
+    "title": "Search",
+    "headings": [
+      "Bu ine  Partner",
+      "Contact",
+      "Invoice",
+      "Bill",
+      "Vendor",
+      "Inventory item",
+      "De ign"
+    ],
+    "actions": [
+      "Search",
+      "Bu ine  PartnerAll That Buzz Gift ShoppeCALL008",
+      "Bu ine  PartnerBooth Society Inc.CBOO006",
+      "Bu ine  PartnerBen Franklin - Chatham MACBEN003",
+      "Bu ine  PartnerGenoa National Fi h Hatchery Gift ShopCGEN004",
+      "Bu ine  PartnerEa tern Nat'l Chatham/Frederick burgCEAS008",
+      "Bu ine  PartnerEa tern Nat'l ChathamCEAS998",
+      "ContactPat",
+      "ContactJo",
+      "ContactAlicia",
+      "ContactLinda",
+      "ContactMike",
+      "ContactAP",
+      "InvoiceSI-247129",
+      "BillSAP-52403",
+      "BillSAP-59425536",
+      "BillSAP-632775634",
+      "BillSAP-63799145191",
+      "BillSAP-6589595858",
+      "BillSAP-660345/28/15",
+      "VendorCD Hatch Painting, Inc.",
+      "VendorHat Focu  Enterpri e  Ltd.",
+      "VendorShayne Hatch",
+      "VendorThat'  My Ball"
+    ],
+    "columns": []
+  },
+  "04-notifications": {
+    "title": "Notification",
+    "headings": [],
+    "actions": [],
+    "columns": []
+  },
+  "10-crm-list": {
+    "title": "CRM — Bu ine  Partner",
+    "headings": [],
+    "actions": [
+      "Pipeline",
+      "New Bu ine  Partner",
+      "Board",
+      "All",
+      "Lead",
+      "Pro pect",
+      "Cu tomer",
+      "My account",
+      "Apply",
+      "BP #↕",
+      "Company▲",
+      "Stage↕",
+      "Owner↕",
+      "Account group↕",
+      "Location↕",
+      "& Etc.",
+      "048 Realty-Whitmore Team",
+      "22 Souvenir , LLC",
+      "221 Bee",
+      "3 Lake  Tee",
+      "307 Fuel",
+      "333 Eagle  Landing Travel Plaza, LLC",
+      "365 Pur uit",
+      "49Er Inn"
+    ],
+    "columns": [
+      "BP #↕",
+      "Company▲",
+      "Stage↕",
+      "Owner↕",
+      "Account group↕",
+      "Location↕"
+    ]
+  },
+  "11-crm-pipeline": {
+    "title": "Pipeline",
+    "headings": [
+      "Lead",
+      "Pro pect",
+      "Cu tomer"
+    ],
+    "actions": [
+      "Li t view",
+      "Li t",
+      "221 Bee",
+      "ZZ AR Flow Te t",
+      "Univer al Sy tem",
+      "& Etc.",
+      "048 Realty-Whitmore Team",
+      "22 Souvenir , LLC",
+      "3 Lake  Tee",
+      "307 Fuel",
+      "333 Eagle  Landing Travel Plaza, LLC",
+      "365 Pur uit",
+      "49Er Inn",
+      "4EWA Cloting LLC",
+      "4Moon, LLC",
+      "5390 The Paradie  Shop  Dulle",
+      "5M Contracting",
+      "5Th Ave Gift",
+      "600 Main Street",
+      "6412 Shirt Company (CO1)",
+      "6th Avenue Outfitter  Cooperative",
+      "7 K' Enterpri e",
+      "7-11 47th South",
+      "7-11 Blanding #53618"
+    ],
+    "columns": []
+  },
+  "12-crm-new": {
+    "title": "New Bu ine  Partner",
+    "headings": [
+      "Account",
+      "Primary contact",
+      "Addre",
+      "Term"
+    ],
+    "actions": [
+      "← Bu ine  Partner",
+      "Scan",
+      "Create Bu ine  Partner"
+    ],
+    "columns": []
+  },
+  "13-customer": {
+    "title": "Service Sy tem  A ociate  (CO4)",
+    "headings": [
+      "Cu tomer portal",
+      "Account detail",
+      "Ta k  & follow-up",
+      "Activity log",
+      "Order hi tory",
+      "Contact",
+      "Addre e",
+      "Financial document",
+      "Finance vault"
+    ],
+    "actions": [
+      "← Bu ine  Partner",
+      "✨ AI  ummary",
+      "✨ Draft email",
+      "Invite to portal",
+      "→ Lead",
+      "→ Pro pect",
+      "Set",
+      "📞Call",
+      "✉️Email",
+      "📝Log",
+      "🧾New Quote",
+      "Contract pricing →",
+      "Save change",
+      "Add",
+      "Log",
+      "michellecaru o@km a.com",
+      "303/321-2760 x1132",
+      "Edit",
+      "marlina chleuger@km a.com",
+      "Remove",
+      "tiffanyengli h@the agroup.com",
+      "Rochellelynn@the agroup.com",
+      "303-408-9065",
+      "+ Add contact"
+    ],
+    "columns": []
+  },
+  "14-customer-pricing": {
+    "title": "Contract pricing",
+    "headings": [
+      "Active agreement",
+      "Add an agreement"
+    ],
+    "actions": [
+      "← Service Sy tem  A ociate  (CO4)",
+      "Add"
+    ],
+    "columns": [
+      "Applie  to",
+      "Pricing",
+      "Note",
+      "Statu"
+    ]
+  },
+  "15-reorders": {
+    "title": "Reorder radar",
+    "headings": [],
+    "actions": [
+      "Erie Zoo",
+      "✨ Draft outreach",
+      "New quote →",
+      "814/864-4091 x115",
+      "Chena Hot Spring  Re ort",
+      "907/251-7050",
+      "WBU Elmira NY",
+      "607/425-4683",
+      "Mumbo Jumbo",
+      "340/779-4277",
+      "Gahr  Truck and Tire Serivce",
+      "814/786-3005 ext 5",
+      "Rowe Sanctuary",
+      "308/468-5282",
+      "Waldameer Park and Water World",
+      "814/838-3591",
+      "Mt. Plea ant IGS",
+      "360/457-8622",
+      "Fannie \"  Your Aunt",
+      "912/232-4546",
+      "Detroit Lake State Park",
+      "503/854-3406",
+      "Welder Up LLC",
+      "406/582-4446"
+    ],
+    "columns": []
+  },
+  "20-quote-new": {
+    "title": "New quote",
+    "headings": [],
+    "actions": [
+      "← Quote",
+      "Create & open builder"
+    ],
+    "columns": []
+  },
+  "21-sales-hub": {
+    "title": "Sale  — Quote",
+    "headings": [],
+    "actions": [
+      "Calendar",
+      "Order",
+      "New quote",
+      "QUO-00021",
+      "QUO-00019",
+      "QUO-00018",
+      "QUO-00017",
+      "QUO-00016",
+      "QUO-00015",
+      "QUO-00014",
+      "QUO-00013",
+      "QUO-00012",
+      "QUO-00011",
+      "QUO-00010",
+      "QUO-00009",
+      "QUO-00008",
+      "QUO-00007",
+      "QUO-00006",
+      "QUO-00004",
+      "QUO-00003",
+      "QUO-00001",
+      "Caddi  Digital Solution QUO-00021 · Baja Hoodie  · Aug 13, 2026$0.00draft",
+      "Caddi  Digital Solution QUO-00018 · Baja Hoodie  · Aug 13, 2026$0.00draft",
+      "Caddi  Digital Solution QUO-00017 · Baja Hoodie  · Aug 13, 2026$0.00draft"
+    ],
+    "columns": [
+      "Quote #",
+      "Cu tomer",
+      "Product",
+      "Statu",
+      "Total",
+      "Created"
+    ]
+  },
+  "22-designs": {
+    "title": "De ign Library",
+    "headings": [],
+    "actions": [
+      "Barcode",
+      "Reconcile (78)",
+      "Exception  (1504)",
+      "+ New de ign",
+      "Filter",
+      "ROY0122",
+      "ROY0140",
+      "ROY0106",
+      "ROY0121",
+      "ROY0132",
+      "ROY0139",
+      "ROY0098",
+      "ROY0105",
+      "ROY0113",
+      "ROY0120",
+      "ROY0128",
+      "ROY0131",
+      "ROY0135",
+      "ROY0138",
+      "ROY0094",
+      "ROY0097",
+      "ROY0101",
+      "ROY0104",
+      "ROY0109"
+    ],
+    "columns": [
+      "Item #",
+      "De cription",
+      "Cu tomer",
+      "Catalog",
+      "Statu"
+    ]
+  },
+  "23-catalog": {
+    "title": "Admini tration",
+    "headings": [
+      "New garment  tyle",
+      "Style  (802)"
+    ],
+    "actions": [
+      "U er",
+      "Team",
+      "Account Group",
+      "Order Template",
+      "Catalog & Pricing",
+      "Softgood  Pricing",
+      "Configuration",
+      "Audit Log",
+      "Softgood  Pricing → Garment  & co t",
+      "Decoration & pricing  etting  →",
+      "Add  tyle",
+      "Search",
+      "112  PrintedTRUCKER",
+      "Edit",
+      "112 TRUCKER.",
+      "12\" Solid Cuffed Beanie",
+      "2-TONE PULLOVER HOODIE. 60/40% cotton/poly fleece",
+      "20L Enduro Backpack - 921056ODM",
+      "511 WOOL BLEND FLATBILL TRUCKER.",
+      "8\" Beanie",
+      "ADIDAS- WOMENS BASIC SPORT POLO.",
+      "ADIDAS-BASIC SPORT POLO.",
+      "ALL PRO-Men'  Pro-Lock Performance Quarter-Zip Pullover",
+      "ALPINE FLEECE- BLANKET STRAP."
+    ],
+    "columns": []
+  },
+  "30-orders": {
+    "title": "Order",
+    "headings": [],
+    "actions": [
+      "Quote",
+      "SO-00009",
+      "SO-00008",
+      "SO-00006",
+      "SO-00002",
+      "SO-00001",
+      "Caddi  Digital Solution SO-00009 · Aug 13, 2026Order Received›",
+      "Mo eleySO-00008 · Aug 13, 2026In Production›",
+      "Univer al Sy tem SO-00006 · Aug 5, 2026Order Received›",
+      "Caddi  Digital Solution SO-00002 · Jul 26, 2026Art & Proof›",
+      "Univer al Sy tem SO-00001 · Jul 24, 2026Voided›"
+    ],
+    "columns": [
+      "Order #",
+      "Cu tomer",
+      "Stage",
+      "Updated"
+    ]
+  },
+  "31-order": {
+    "title": "SO-00009",
+    "headings": [
+      "Order journey",
+      "Order info",
+      "Invoicing",
+      "Update  tage",
+      "Art department",
+      "Production detail",
+      "Item  & decoration",
+      "Attachment",
+      "Fulfillment",
+      "Proof approval",
+      "Sale  order PDF",
+      "Cu tomer tracker link",
+      "Hi tory",
+      "Reque t a document from the cu tomer",
+      "Void order"
+    ],
+    "actions": [
+      "← Order",
+      "Copy",
+      "Save order info",
+      "Create invoice →",
+      "📥 Order Received",
+      "🎨 Art & Proof",
+      "🖨️ In Production",
+      "🔍 Quality Check",
+      "🚚 Shipped",
+      "✅ Delivered",
+      "Send to production →",
+      "Save",
+      "Submit to art →",
+      "Save detail",
+      "Save item",
+      "Remove",
+      "+ Add item",
+      "Upload",
+      "Save fulfillment",
+      "Set  hip date",
+      "Create proof link",
+      "Generate & email PDF",
+      "✉ Email link to cu tomer",
+      "Reque t document"
+    ],
+    "columns": []
+  },
+  "40-art-queue": {
+    "title": "Art department",
+    "headings": [],
+    "actions": [
+      "Schedule →",
+      "kanban",
+      "queue",
+      "SO-00008",
+      "SO-00002"
+    ],
+    "columns": []
+  },
+  "41-art-job": {
+    "title": "Art reque t · SO-00008",
+    "headings": [
+      "Order journey",
+      "Workflow",
+      "A igned arti t",
+      "De ign & orderable item",
+      "Cu tomization brief",
+      "Scheduling & production routing",
+      "Production readine",
+      "Production file  & handoff",
+      "Revi ion",
+      "Image",
+      "Send a proof to the cu tomer",
+      "Proof hi tory"
+    ],
+    "actions": [
+      "← Art department",
+      "Set  tatu",
+      "Copy",
+      "✓A ign arti t",
+      "✓Artwork produced",
+      "✓Out for review",
+      "✓Cu tomer approved",
+      "7Production ready",
+      "Fini h the readine  checkli t, then mark production-ready",
+      "Return to order → entry & invoicing",
+      "A ign",
+      "Punch in de ign & create item",
+      "Link",
+      "Save brief",
+      "✨ Draft brief with AI (from the order  pec)",
+      "Set priority",
+      "Save detail",
+      "Mark production ready",
+      "Upload production file",
+      "Log revi ion",
+      "Upload propo ed art",
+      "Send proof",
+      "Open proof link →"
+    ],
+    "columns": []
+  },
+  "42-art-schedule": {
+    "title": "Arti t  chedule",
+    "headings": [
+      "Una igned"
+    ],
+    "actions": [
+      "← Board",
+      "SO-00008"
+    ],
+    "columns": []
+  },
+  "43-content-library": {
+    "title": "Content Library",
+    "headings": [],
+    "actions": [
+      "Search",
+      "Upload",
+      "Create"
+    ],
+    "columns": []
+  },
+  "50-inventory": {
+    "title": "Inventory",
+    "headings": [
+      "Item ma ter (6,219)",
+      "Add an item"
+    ],
+    "actions": [
+      "Purcha e order",
+      "In-hou e production",
+      "Reorder foreca t",
+      "Warehou e  & bin",
+      "Filter",
+      "\"Patch-SP/HD-Boxe -PA 2.5\"\" W\"",
+      "\"Patch-TP-Beam Me-Monument Valley 2.5\"\" RND\"",
+      "\"Patch-TP-Bruh-Racoon 2.25\"\" W\"",
+      "\"Patch-TP-Cocky-Roo ter 2.25\"\" W\"",
+      "\"Patch-TP-Collage-AL 2.0\"\" W\"",
+      "\"Patch-TP-Color Bur t-Grand Canyon 2.25\"\"H\"",
+      "\"Patch-TP-Color Swirl-TN-GSM 2.25\"\"H\"",
+      "\"Patch-TP-Dude-Turtle 2.25\"\" W\"",
+      "\"Patch-TP-GOAT-g.o.a.t 2.25\"\"W\"",
+      "\"Patch-TP-Hangry-Bear 2.25\"\" W\"",
+      "\"Patch-TP-High VIew-UT-BCNP 2.25\"\"H\"",
+      "\"Patch-TP-Hoo ier-IN 2.0\"\" W\"",
+      "\"Patch-TP-Leaded-CO 2.0\"\" W\"",
+      "\"Patch-TP-Leafy Range-GSM 2.0\"\" W\"",
+      "\"Patch-TP-Nutjob-Crow 2.25\"\" W\"",
+      "\"Patch-TP-Perfect Scene-WA-Mt Hood 2.25\"\" RND\"",
+      "\"Patch-TP-Sleep Around-CO 2.5\"\" W\"",
+      "\"Patch-TP-Sr ly-Moo e 2.25\"\" W\"",
+      "\"Patch-TP-Trail On-GSM-Appalachain 2.25\"\" W\""
+    ],
+    "columns": [
+      "SKU",
+      "Item",
+      "Category",
+      "Territory",
+      "On hand",
+      "Reorder",
+      "Co t"
+    ]
+  },
+  "51-purchase-orders": {
+    "title": "Purcha e order",
+    "headings": [],
+    "actions": [
+      "← Inventory",
+      "New PO"
+    ],
+    "columns": [
+      "PO",
+      "Vendor",
+      "Ordered",
+      "Expected",
+      "Value",
+      "Received",
+      "Statu"
+    ]
+  },
+  "53-forecast": {
+    "title": "Reorder foreca t",
+    "headings": [
+      "Need  reordering (0)"
+    ],
+    "actions": [
+      "← Inventory"
+    ],
+    "columns": [
+      "Item",
+      "Why",
+      "Territory",
+      "On hand",
+      "Reorder pt",
+      "Yr u age",
+      "Lead",
+      "Day  left",
+      "Sugge t order"
+    ]
+  },
+  "54-grni": {
+    "title": "Good  received, not invoiced",
+    "headings": [
+      "By age",
+      "Receipt  awaiting a vendor bill"
+    ],
+    "actions": [
+      "← Accounting"
+    ],
+    "columns": []
+  },
+  "60-production-schedule": {
+    "title": "Production  chedule",
+    "headings": [
+      "Ship calendar"
+    ],
+    "actions": [
+      "Board →",
+      "Add",
+      "Add weekday"
+    ],
+    "columns": []
+  },
+  "62-quality": {
+    "title": "Quality management",
+    "headings": [],
+    "actions": [
+      "Export CSV",
+      "New in pection"
+    ],
+    "columns": [
+      "In pection",
+      "Order",
+      "Cu tomer",
+      "Stage",
+      "In p/Rej",
+      "Re ult",
+      "Date"
+    ]
+  },
+  "63-maintenance": {
+    "title": "Maintenance work order",
+    "headings": [],
+    "actions": [
+      "Export CSV",
+      "← Equipment",
+      "All",
+      "Open",
+      "In progre",
+      "Completed"
+    ],
+    "columns": [
+      "WO",
+      "Equipment",
+      "Type",
+      "Priority",
+      "Statu",
+      "Scheduled"
+    ]
+  },
+  "70-invoices": {
+    "title": "Invoice",
+    "headings": [],
+    "actions": [
+      "New invoice",
+      "All",
+      "Draft",
+      "Sent",
+      "Partial",
+      "Paid",
+      "Void",
+      "INV-00003",
+      "INV-00001",
+      "SI-248436",
+      "SI-248439",
+      "SI-248438",
+      "SI-248437",
+      "SI-248441",
+      "SI-248440",
+      "SI-248435",
+      "SI-248442",
+      "SI-248385",
+      "SI-248420",
+      "SI-248406",
+      "SI-248399",
+      "SI-248366",
+      "SI-248417",
+      "SI-248384"
+    ],
+    "columns": [
+      "Invoice",
+      "Cu tomer",
+      "Statu",
+      "Due",
+      "Total",
+      "Balance"
+    ]
+  },
+  "71-invoice": {
+    "title": "SI-248435",
+    "headings": [
+      "Line item",
+      "Payment"
+    ],
+    "actions": [
+      "← Invoice",
+      "PDF ↓",
+      "Email invoice",
+      "Void",
+      "✕",
+      "Save detail",
+      "×",
+      "+ Add line",
+      "Record payment"
+    ],
+    "columns": [
+      "De cription",
+      "Qty",
+      "Unit",
+      "Amount"
+    ]
+  },
+  "72-invoice-new": {
+    "title": "New invoice",
+    "headings": [],
+    "actions": [
+      "← Invoice",
+      "Create invoice →"
+    ],
+    "columns": []
+  },
+  "80-payments": {
+    "title": "Payment",
+    "headings": [
+      "Record an on-account payment"
+    ],
+    "actions": [
+      "Record",
+      "SI-247949",
+      "SI-246936",
+      "SI-246352",
+      "SI-246050",
+      "SI-245253",
+      "SI-245171",
+      "SI-244964",
+      "SI-244792",
+      "SI-244732",
+      "SI-244485",
+      "SI-244160",
+      "SI-244001",
+      "SI-243916",
+      "SI-243009",
+      "SI-243019",
+      "SI-242229",
+      "SI-242228",
+      "SI-241074",
+      "SI-240379",
+      "SI-238921",
+      "SI-237950",
+      "SI-236621",
+      "SI-233821"
+    ],
+    "columns": [
+      "Received",
+      "Cu tomer",
+      "Invoice",
+      "Method",
+      "Amount"
+    ]
+  },
+  "81-deposits": {
+    "title": "Depo it",
+    "headings": [
+      "Undepo ited receipt",
+      "Recent depo it"
+    ],
+    "actions": [
+      "← Accounting",
+      "Fred Meyer #449-Garden City, Id",
+      "Fred Meyer #260 Pocatello",
+      "Fred Meyer #439-Boi e,Id",
+      "Fred Meyer #0049-Coeur d'Alene",
+      "Fred Meyer #662-Boi e,Id",
+      "Fred Meyer #383-Twin Fall ,Id",
+      "Fred Meyer #613-Boi e, Id",
+      "Paradi e Shell",
+      "Fred Meyer #685 Meridian",
+      "Fred Meyer #226-Nampa, Id",
+      "Fred Meyer #156-Idaho Fall ,Id",
+      "Santa Monica Amu ement",
+      "Fred Meyer #198-Meridian,Id",
+      "USS Mi ouri Battle hip",
+      "Elephant Walk #21 (Imm1)",
+      "By The Sea #29 (Imm1)",
+      "Slaugh'  Sinclair",
+      "Smith  Market Place #94-Slc UT",
+      "Pilot #608 Ehrenberg AZ",
+      "Elephant Walk #23 (Imm1)",
+      "Canadian Water",
+      "Flamingo Jim'",
+      "Arizona Territory Trading Po t"
+    ],
+    "columns": [
+      "Received",
+      "Cu tomer",
+      "Method",
+      "Reference",
+      "Amount"
+    ]
+  },
+  "82-aging": {
+    "title": "AR Aging",
+    "headings": [
+      "Account  Receivable Aging"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "Sitka Bazaar",
+      "Wear Me Out T' /Awe ome Shirtwork",
+      "Grand Canyon Re ort Corp",
+      "Hud on Group-Hou ton JSC",
+      "Mountain Style Inc",
+      "Kualoa Ranch Hawaii, Inc.",
+      "Randy'  Tran mi ion",
+      "Fred Meyer #685 Meridian",
+      "Silver Dollar City, LLC",
+      "Mountain Gift",
+      "Dole Plantation (Dole1)",
+      "Black Clover Enterpri e",
+      "Volcano Hou e",
+      "Shirt Off My Back",
+      "Red Dirt Maui",
+      "Royal Gorge",
+      "Exxon Country Store Duboi",
+      "Peak Concept",
+      "Salt Lake Souvenir & Gift",
+      "Erie Zoo",
+      "Shirtique Krazy kap",
+      "Devil  Tower KOA"
+    ],
+    "columns": [
+      "Cu tomer",
+      "Current",
+      "1–30",
+      "31–60",
+      "61–90",
+      "90+",
+      "Total"
+    ]
+  },
+  "83-collections": {
+    "title": "Collection",
+    "headings": [
+      "Call li t — 15 day  pa t due",
+      "Card  to run today",
+      "Card  pa t due",
+      "Prepay / COD out tanding",
+      "Open AR by parent account"
+    ],
+    "actions": [
+      "← Accounting",
+      "Elephant Walk #21 (Imm1)",
+      "SI-246493",
+      "Cowboy Cafe",
+      "SI-248119",
+      "Waki Corporation",
+      "SI-248120",
+      "Flying Eagle (CO1)",
+      "SI-248123",
+      "Pilot #1054 Mu tang Ridge TX",
+      "SI-248125",
+      "C&C Indian Art/Cowboy'  & Indian",
+      "SI-248169",
+      "Pilot #368 Decatur IL",
+      "SI-248168",
+      "Valle Travel Stop, LLC",
+      "SI-248166",
+      "SI-248165",
+      "Macey  Providence #10971",
+      "SI-248163",
+      "SI-248162",
+      "McClanahan'  Inc",
+      "SI-248161",
+      "Hotel St. Michael"
+    ],
+    "columns": [
+      "Cu tomer",
+      "Invoice",
+      "Term",
+      "Due",
+      "Age",
+      "Balance",
+      "Card",
+      "Account",
+      "Account  billing",
+      "Open",
+      "Pa t due",
+      "Olde t"
+    ]
+  },
+  "84-statement": {
+    "title": "Statement — Wear Me Out T' /Awe ome Shirtwork",
+    "headings": [
+      "Statement of Account",
+      "Open Invoice",
+      "Aging Summary"
+    ],
+    "actions": [
+      "← Statement",
+      "🖨 Print / Save PDF",
+      "PDF ↓",
+      "Email  tatement",
+      "SI-245151",
+      "SI-245152",
+      "SI-245153",
+      "SI-245154",
+      "SI-245155",
+      "SI-245156",
+      "SI-245149",
+      "SI-245150",
+      "SI-245157",
+      "SI-245158",
+      "SI-245159",
+      "SI-245160",
+      "SI-245829",
+      "SI-245831",
+      "SI-245909",
+      "SI-245911",
+      "SI-245913",
+      "SI-245914",
+      "SI-245916",
+      "SI-245917"
+    ],
+    "columns": [
+      "Invoice",
+      "I ued",
+      "Due",
+      "Aging",
+      "Amount",
+      "Balance"
+    ]
+  },
+  "85-credit-memos": {
+    "title": "Credit memo",
+    "headings": [
+      "Rai e a credit memo"
+    ],
+    "actions": [
+      "← Accounting",
+      "Create draft",
+      "SC-22548",
+      "SC-22547",
+      "SC-22545",
+      "SC-22544",
+      "SC-22543",
+      "SC-22542",
+      "SC-22541",
+      "SC-22540",
+      "SC-22539",
+      "SC-22538",
+      "SC-22537",
+      "SC-22536",
+      "SC-22535",
+      "SC-22534",
+      "SC-22532",
+      "SC-22531",
+      "SC-22530",
+      "SC-22529",
+      "SC-22528",
+      "SC-22527",
+      "SC-22526",
+      "SC-22525"
+    ],
+    "columns": [
+      "Memo",
+      "Cu tomer",
+      "Rea on",
+      "I ued",
+      "Total",
+      "Unapplied",
+      "Statu"
+    ]
+  },
+  "86-credit-requests": {
+    "title": "Credit reque t",
+    "headings": [
+      "Pending (0)"
+    ],
+    "actions": [],
+    "columns": []
+  },
+  "90-bills": {
+    "title": "Bill  (Account  Payable)",
+    "headings": [],
+    "actions": [
+      "← Accounting",
+      "Vendor",
+      "+ New bill",
+      "SAP-157782",
+      "SAP-157761",
+      "SAP-157775",
+      "SAP-157780",
+      "SAP-157764",
+      "SAP-157759",
+      "SAP-157768",
+      "SAP-157765",
+      "SAP-157772",
+      "SAP-157778",
+      "SAP-157779",
+      "SAP-157766",
+      "SAP-157781",
+      "SAP-157771",
+      "SAP-157774",
+      "SAP-157760",
+      "SAP-157762",
+      "SAP-157767",
+      "SAP-157769",
+      "SAP-157776",
+      "SAP-157777"
+    ],
+    "columns": [
+      "Bill",
+      "Vendor",
+      "Due",
+      "Statu",
+      "Total",
+      "Balance"
+    ]
+  },
+  "91-bill": {
+    "title": "SAP-153328",
+    "headings": [
+      "Record a payment",
+      "Void bill"
+    ],
+    "actions": [
+      "← Bill",
+      "Save",
+      "Record payment",
+      "Void bill"
+    ],
+    "columns": [
+      "De cription",
+      "Account",
+      "Qty",
+      "Unit",
+      "Amount"
+    ]
+  },
+  "92-payment-runs": {
+    "title": "Payment run",
+    "headings": [
+      "Recent run"
+    ],
+    "actions": [
+      "← Accounting",
+      "Refre h",
+      "SAP-153328",
+      "SAP-155071",
+      "SAP-154253",
+      "SAP-155070",
+      "SAP-156562",
+      "SAP-156225",
+      "SAP-157027",
+      "SAP-157068",
+      "SAP-156389",
+      "SAP-157412",
+      "SAP-157146",
+      "SAP-156578",
+      "SAP-156918",
+      "SAP-157029",
+      "SAP-157383",
+      "SAP-156856",
+      "SAP-157199",
+      "SAP-157758",
+      "SAP-157421",
+      "SAP-156430",
+      "SAP-156864",
+      "SAP-156911"
+    ],
+    "columns": [
+      "Vendor",
+      "Bill",
+      "Their ref",
+      "Due",
+      "Total",
+      "Credit",
+      "To pay"
+    ]
+  },
+  "93-vendor-credits": {
+    "title": "Vendor credit",
+    "headings": [
+      "Record a vendor credit"
+    ],
+    "actions": [
+      "← Accounting",
+      "Create"
+    ],
+    "columns": []
+  },
+  "94-expenses": {
+    "title": "Expen e",
+    "headings": [
+      "Start a report",
+      "All report",
+      "What each category book  to"
+    ],
+    "actions": [
+      "← Accounting",
+      "Create"
+    ],
+    "columns": []
+  },
+  "95-payroll": {
+    "title": "Payroll journal",
+    "headings": [
+      "Start a run",
+      "Run",
+      "Semi-monthly payroll"
+    ],
+    "actions": [
+      "← Accounting",
+      "Create run"
+    ],
+    "columns": []
+  },
+  "a0-accounting-hub": {
+    "title": "Accounting",
+    "headings": [
+      "Receivable  (A/R)",
+      "Payable  (A/P)",
+      "General Ledger",
+      "Financial Statement",
+      "Tax & Commi ion",
+      "Clo e & Setup",
+      "Overdue invoice"
+    ],
+    "actions": [
+      "New invoice",
+      "Invoice Rai e, i ue, and email cu tomer invoice .",
+      "Payment Record receipt . $800 in the la t 30 day .",
+      "AR AgingOpen receivable  by cu tomer and day  pa t due.",
+      "Cu tomer Statement A cu tomer'  open item  and balance due.",
+      "Credit Reque t Approve over-limit / on-hold order .",
+      "Bill Enter, approve, and pay vendor bill .",
+      "Vendor Your  upplier  and their term .",
+      "Purcha e Order Rai e PO , receive good  into  tock, and track GRNI.",
+      "Landed Co tSpread freight acro  a  hipment into each item'  true landed co t.",
+      "Chart of Account The account  tructure the book  po t to.",
+      "Journal Entrie Manual double-entry po ting  & adju tment .",
+      "Recurring Entrie Template  that auto-po t the  ame entry each month.",
+      "Account LedgerEvery po ting for one account, with a running balance.",
+      "Trial BalanceAll account balance  — debit  equal credit .",
+      "Income StatementRevenue, expen e , and net income (P&L).",
+      "Balance SheetA et , liabilitie , and equity a  of a date.",
+      "Ca h FlowCa h in and out by activity.",
+      "Sale  Tax ReportTaxable v  exempt  ale  and tax collected, by period.",
+      "Commi ion ReportOrder  ale  by  ale per on — the commi ionable ba e.",
+      "Bank ReconciliationMatch a bank  tatement to the ca h ledger.",
+      "Period Clo eLock clo ed period   o the book  can't change.",
+      "Import / MigratePo t real balance  from an export; retire e timate .",
+      "AR aging →"
+    ],
+    "columns": []
+  },
+  "a1-periods": {
+    "title": "Fi cal period",
+    "headings": [
+      "FY2026 (Oct 2025 – Sep 2026)",
+      "What the  tatu e  mean"
+    ],
+    "actions": [
+      "← Accounting",
+      "FY2031",
+      "FY2030",
+      "FY2029",
+      "FY2028",
+      "FY2027",
+      "FY2026",
+      "FY2025",
+      "FY2024",
+      "FY2023",
+      "FY2022",
+      "FY2021",
+      "FY2020",
+      "FY2019",
+      "FY2018",
+      "FY2017",
+      "FY2016",
+      "FY2015",
+      "FY2014",
+      "FY2013",
+      "FY2012",
+      "FY2011",
+      "FY2010",
+      "FY2009"
+    ],
+    "columns": [
+      "Period",
+      "Month",
+      "Quarter",
+      "Date",
+      "Entrie",
+      "Po ted (Dr)",
+      "Statu",
+      "Set to"
+    ]
+  },
+  "a2-close": {
+    "title": "Period clo e",
+    "headings": [
+      "Aug 2026",
+      "Clo e Aug 2026"
+    ],
+    "actions": [
+      "← Accounting",
+      "Show",
+      "Lock the period",
+      "Reopen",
+      "See every period →"
+    ],
+    "columns": []
+  },
+  "a3-journal": {
+    "title": "Journal entrie",
+    "headings": [],
+    "actions": [
+      "← Accounting",
+      "+ New entry",
+      "JE-00438",
+      "JE-00437",
+      "JE-00436",
+      "JE-00435",
+      "JE-00434",
+      "JE-00433",
+      "JE-00432",
+      "JE-00431",
+      "JE-00430",
+      "JE-00429",
+      "JE-00428",
+      "JE-00427",
+      "JE-00426",
+      "JE-00425",
+      "JE-00424",
+      "JE-00423",
+      "JE-00422",
+      "JE-00421",
+      "JE-00420",
+      "JE-00419",
+      "JE-00418",
+      "JE-00417"
+    ],
+    "columns": [
+      "Entry",
+      "Date",
+      "Memo",
+      "Source",
+      "Statu",
+      "Amount"
+    ]
+  },
+  "a4-trial-balance": {
+    "title": "Trial Balance",
+    "headings": [
+      "Trial Balance"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "general ledger"
+    ],
+    "columns": [
+      "Account",
+      "Debit",
+      "Credit"
+    ]
+  },
+  "a5-income-statement": {
+    "title": "Income Statement",
+    "headings": [
+      "Income Statement"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "Run"
+    ],
+    "columns": []
+  },
+  "a6-balance-sheet": {
+    "title": "Balance Sheet",
+    "headings": [
+      "Balance Sheet"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "Run"
+    ],
+    "columns": []
+  },
+  "a7-cash-flow": {
+    "title": "Ca h Flow Statement",
+    "headings": [
+      "Statement of Ca h Flow"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "Run"
+    ],
+    "columns": []
+  },
+  "a8-reconcile": {
+    "title": "Bank reconciliation",
+    "headings": [
+      "Import bank  tatement",
+      "Bank line  (0)"
+    ],
+    "actions": [
+      "← Accounting",
+      "Update",
+      "Import line"
+    ],
+    "columns": [
+      "Date",
+      "De cription",
+      "Amount",
+      "Cleared",
+      "Po t to GL"
+    ]
+  },
+  "a9-sales-tax": {
+    "title": "Sale  tax filing",
+    "headings": [
+      "Aug 1, 2026 – Aug 31, 2026",
+      "Where tax i  collected",
+      "Exemption certificate"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "Augu t 2026",
+      "July 2026",
+      "June 2026",
+      "Run"
+    ],
+    "columns": [
+      "Code",
+      "State",
+      "Rate",
+      "Cu tomer"
+    ]
+  },
+  "b0-flash": {
+    "title": "Weekly fla h",
+    "headings": [
+      "Right now",
+      "Week of Sep 14 – Sep 20",
+      "Bigge t receipt",
+      "Bigge t invoice  rai ed",
+      "Thing  waiting on  omeone"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "Go",
+      "Receipt  not banked$31,695",
+      "Ca h on account, unapplied$800",
+      "Credit  not applied$17,044"
+    ],
+    "columns": []
+  },
+  "b1-quarterly": {
+    "title": "Quarterly pack",
+    "headings": [
+      "FY2026 Q4 · Jul 1, 2026 – Sep 30, 2026",
+      "FY2026 by quarter",
+      "Q4 by  egment",
+      "Ca h and receivable  in the quarter"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "FY2031",
+      "FY2030",
+      "FY2029",
+      "FY2028",
+      "FY2027",
+      "FY2026",
+      "Q1 Oct–Dec",
+      "Q2 Jan–Mar",
+      "Q3 Apr–Jun",
+      "Q4 Jul–Sep"
+    ],
+    "columns": [
+      "Q4",
+      "Q4 LY",
+      "Var",
+      "YTD",
+      "YTD LY",
+      "Q1Oct–Dec",
+      "Q2Jan–Mar",
+      "Q3Apr–Jun",
+      "Q4Jul–Sep",
+      "Year",
+      "Segment",
+      "Revenue",
+      "COGS",
+      "Gro",
+      "GM%",
+      "Opex",
+      "Net"
+    ]
+  },
+  "b2-segment-pnl": {
+    "title": "P&L by  egment",
+    "headings": [
+      "Oct 1, 2025 – Sep 14, 2026",
+      "Segment  in thi  report"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "FY2026 to date",
+      "Q1 (Oct–Dec)",
+      "Q2 (Jan–Mar)",
+      "Q3 (Apr–Jun)",
+      "Q4 (Jul–Sep)",
+      "Full FY2026",
+      "FY2025",
+      "Run"
+    ],
+    "columns": [
+      "Un egmented000",
+      "HG100",
+      "SG200",
+      "HW300",
+      "Art510",
+      "Emb520",
+      "WH530",
+      "SS540",
+      "SH/DTF550",
+      "Mngt640",
+      "Sale 650",
+      "Purch660",
+      "Office670",
+      "Admin690",
+      "Total"
+    ]
+  },
+  "b3-goals": {
+    "title": "Sale  goal  v  actual",
+    "headings": [
+      "FY2026 — actual again t goal, by month",
+      "Where the year  tand"
+    ],
+    "actions": [
+      "← Accounting",
+      "🖨 Print / Save PDF",
+      "FY2027",
+      "FY2026",
+      "FY2025",
+      "FY2024",
+      "FY2023",
+      "FY2022",
+      "FY2021",
+      "FY2020",
+      "Edit goal"
+    ],
+    "columns": [
+      "Rep",
+      "Oct2025",
+      "Nov2025",
+      "Dec2025",
+      "Jan2026",
+      "Feb2026",
+      "Mar2026",
+      "Apr2026",
+      "May2026",
+      "Jun2026",
+      "Jul2026",
+      "Aug2026",
+      "Sep2026",
+      "Year"
+    ]
+  },
+  "b4-commission": {
+    "title": "Commi ion report",
+    "headings": [],
+    "actions": [
+      "← Accounting",
+      "Run"
+    ],
+    "columns": []
+  },
+  "b5-job-costing": {
+    "title": "Job co ting",
+    "headings": [],
+    "actions": [
+      "Export CSV",
+      "← Controlling"
+    ],
+    "columns": [
+      "Order",
+      "Cu tomer",
+      "Statu",
+      "Revenue",
+      "Co t",
+      "Margin",
+      "%"
+    ]
+  },
+  "b6-profitability": {
+    "title": "Profitability",
+    "headings": [
+      "Top cu tomer",
+      "By  ale per on"
+    ],
+    "actions": [
+      "← Controlling"
+    ],
+    "columns": [
+      "Cu tomer",
+      "Revenue",
+      "E t. gro  profit",
+      "Margin",
+      "Sale per on"
+    ]
+  },
+  "b7-budget": {
+    "title": "Budget v . Actual",
+    "headings": [
+      "Set 2026 budget"
+    ],
+    "actions": [
+      "← Controlling",
+      "View",
+      "Save budget"
+    ],
+    "columns": [
+      "Account",
+      "Budget",
+      "Actual",
+      "Variance"
+    ]
+  },
+  "c0-reports": {
+    "title": "Report",
+    "headings": [
+      "Standard report",
+      "Cu tom report",
+      "Account  by lifecycle  tage",
+      "Inventory value by category",
+      "Account  by  tate",
+      "Account  by account group",
+      "On-hand unit  by category",
+      "Order  by  tage",
+      "Pipeline",
+      "Quote  by  tatu",
+      "Production by  tatu",
+      "Top cu tomer  by quoted value",
+      "Low  tock (0)"
+    ],
+    "actions": [
+      "Acce",
+      "Edit",
+      "Build a report",
+      "Sale  Analy i  by Sale per on & Cu tomer",
+      "Open Order  by Sale per on",
+      "Open Order  by Type",
+      "Cu tomer Credit Report",
+      "Revenue Trend",
+      "Top Product  & De ign",
+      "Sale -Rep Activity",
+      "Lead-Source ROI",
+      "Active Pipeline (Lead  & Pro pect )",
+      "Cu tomer  by State",
+      "Inventory Valuation by Category",
+      "Open Order  by Stage",
+      "Open Quote",
+      "Production WIP by Statu",
+      "Stock Receipt  — La t 30 Day",
+      "Te t",
+      "Won Quote  by Statu",
+      "Export CSV ↓",
+      "Export inventory valuation (CSV)",
+      "Export top cu tomer  (CSV)"
+    ],
+    "columns": []
+  },
+  "c1-report-new": {
+    "title": "Build a report",
+    "headings": [],
+    "actions": [
+      "← Report",
+      "+ Add filter",
+      "Preview",
+      "Save report"
+    ],
+    "columns": []
+  },
+  "c2-sales-analysis": {
+    "title": "Sale  Analy i  by Sale per on & Cu tomer",
+    "headings": [
+      "Chri topher Wall",
+      "Una igned"
+    ],
+    "actions": [
+      "← Report",
+      "Edit",
+      "Export CSV ↓",
+      "2026",
+      "2025",
+      "2024",
+      "Show every cu tomer"
+    ],
+    "columns": [
+      "Cu tomer",
+      "Period",
+      "Oct",
+      "Nov",
+      "Dec",
+      "3 Mo",
+      "Diff",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Total"
+    ]
+  },
+  "c3-credit-report": {
+    "title": "Cu tomer Credit Report",
+    "headings": [],
+    "actions": [
+      "← Report",
+      "View credit report →"
+    ],
+    "columns": []
+  },
+  "c4-open-orders": {
+    "title": "Open Order  by Sale per on",
+    "headings": [
+      "Britney de Jong",
+      "Chri topher Wall"
+    ],
+    "actions": [
+      "← Report",
+      "Edit",
+      "Export CSV ↓",
+      "SO-00008",
+      "SO-00002",
+      "SO-00009",
+      "SO-00006"
+    ],
+    "columns": [
+      "SO #",
+      "Type",
+      "PO #",
+      "Entered",
+      "Due",
+      "Day",
+      "Date Type",
+      "Ship Via",
+      "Amount"
+    ]
+  },
+  "c5-rep-activity": {
+    "title": "Sale -Rep Activity",
+    "headings": [
+      "Value by rep",
+      "Touche  by rep"
+    ],
+    "actions": [
+      "← Report",
+      "Export CSV ↓",
+      "La t 30 day",
+      "La t 90 day",
+      "La t 12 month",
+      "All time"
+    ],
+    "columns": [
+      "Rep",
+      "Call",
+      "Note",
+      "Email",
+      "Vi it",
+      "Touche",
+      "Quote",
+      "Won",
+      "Won $",
+      "Order",
+      "Order $"
+    ]
+  },
+  "c6-report-access": {
+    "title": "Report acce",
+    "headings": [
+      "Built-in report",
+      "Saved report"
+    ],
+    "actions": [
+      "← Report",
+      "Sale  Analy i  by Sale per on & Cu tomer",
+      "Re trict",
+      "Grant",
+      "Open Order  by Sale per on",
+      "Open Order  by Type",
+      "Cu tomer Credit Report",
+      "Revenue Trend",
+      "Top Product  & De ign",
+      "Sale -Rep Activity",
+      "Lead-Source ROI",
+      "Active Pipeline (Lead  & Pro pect )",
+      "manage →",
+      "Cu tomer  by State",
+      "Inventory Valuation by Category",
+      "Open Order  by Stage",
+      "Open Quote",
+      "Production WIP by Statu",
+      "Stock Receipt  — La t 30 Day",
+      "Te t",
+      "Won Quote  by Statu"
+    ],
+    "columns": [
+      "Report",
+      "Who can  ee it",
+      "Specific grant",
+      "Manage",
+      "Owner",
+      "Default vi ibility"
+    ]
+  },
+  "d0-web-store": {
+    "title": "Web Store",
+    "headings": [],
+    "actions": [
+      "Order",
+      "Cu tomer",
+      "View  tore ↗",
+      "Add from inventory",
+      "Categorie",
+      "Promo",
+      "Group",
+      "Setting",
+      "+ New product",
+      "Search"
+    ],
+    "columns": [
+      "Product",
+      "SKU",
+      "Category",
+      "Retail",
+      "B2B",
+      "Vi ibility",
+      "Statu"
+    ]
+  },
+  "d1-web-store-orders": {
+    "title": "Store order",
+    "headings": [],
+    "actions": [
+      "← Web Store",
+      "All",
+      "pending (2)",
+      "confirmed (0)",
+      "fulfilled (0)",
+      "canceled (0)",
+      "WEB-01002",
+      "WEB-01000"
+    ],
+    "columns": [
+      "Order",
+      "Cu tomer",
+      "Type",
+      "Placed",
+      "Total",
+      "Statu"
+    ]
+  },
+  "d2-storefront": {
+    "title": "The G54 Store",
+    "headings": [],
+    "actions": [
+      "All"
+    ],
+    "columns": []
+  },
+  "e0-admin": {
+    "title": "Admini tration",
+    "headings": [
+      "Add a u er",
+      "U er  (20)"
+    ],
+    "actions": [
+      "U er",
+      "Team",
+      "Account Group",
+      "Order Template",
+      "Catalog & Pricing",
+      "Softgood  Pricing",
+      "Configuration",
+      "Audit Log",
+      "Create u er &  end invite",
+      "Brad Hawkin",
+      "Edit",
+      "Force re et",
+      "Activate",
+      "Delete",
+      "Brian Cowley",
+      "Jeff Morgenthaler",
+      "John Drummond",
+      "Cyndee John on",
+      "Brad Beck tead",
+      "Noe Lozano",
+      "Pam French",
+      "Seth Lamburn",
+      "Cha e de Jong",
+      "Brian Weber"
+    ],
+    "columns": [
+      "Name",
+      "Role",
+      "Statu",
+      "La t login",
+      "Action"
+    ]
+  },
+  "e1-users": {
+    "title": "Admini tration",
+    "headings": [
+      "Add a u er",
+      "U er  (20)"
+    ],
+    "actions": [
+      "U er",
+      "Team",
+      "Account Group",
+      "Order Template",
+      "Catalog & Pricing",
+      "Softgood  Pricing",
+      "Configuration",
+      "Audit Log",
+      "Create u er &  end invite",
+      "Brad Hawkin",
+      "Edit",
+      "Force re et",
+      "Activate",
+      "Delete",
+      "Brian Cowley",
+      "Jeff Morgenthaler",
+      "John Drummond",
+      "Cyndee John on",
+      "Brad Beck tead",
+      "Noe Lozano",
+      "Pam French",
+      "Seth Lamburn",
+      "Cha e de Jong",
+      "Brian Weber"
+    ],
+    "columns": [
+      "Name",
+      "Role",
+      "Statu",
+      "La t login",
+      "Action"
+    ]
+  },
+  "e2-teams": {
+    "title": "Admini tration",
+    "headings": [
+      "Team  & routing group",
+      "Art art",
+      "Product product",
+      "Production production",
+      "Purcha ing purcha ing",
+      "Sale   ale"
+    ],
+    "actions": [
+      "U er",
+      "Team",
+      "Account Group",
+      "Order Template",
+      "Catalog & Pricing",
+      "Softgood  Pricing",
+      "Configuration",
+      "Audit Log",
+      "Add team",
+      "Di able",
+      "Add"
+    ],
+    "columns": []
+  },
+  "e3-workflows": {
+    "title": "Workflow  & approval",
+    "headings": [
+      "One-click workflow",
+      "Onboard a new cu tomer",
+      "Recent run"
+    ],
+    "actions": [
+      "Approval  inbox",
+      "Approval rule",
+      "Run workflow"
+    ],
+    "columns": []
+  },
+  "e4-approvals": {
+    "title": "Approval  inbox",
+    "headings": [
+      "Pending (0)",
+      "Recently decided"
+    ],
+    "actions": [
+      "← Workflow"
+    ],
+    "columns": []
+  },
+  "e5-audit": {
+    "title": "Admini tration",
+    "headings": [
+      "Audit log"
+    ],
+    "actions": [
+      "U er",
+      "Team",
+      "Account Group",
+      "Order Template",
+      "Catalog & Pricing",
+      "Softgood  Pricing",
+      "Configuration",
+      "Audit Log",
+      "Search",
+      "Clear",
+      "Export CSV"
+    ],
+    "columns": [
+      "Time",
+      "Action",
+      "Actor",
+      "Entity",
+      "IP"
+    ]
+  },
+  "e6-config": {
+    "title": "Admini tration",
+    "headings": [
+      "Company &  y tem",
+      "Document number  erie"
+    ],
+    "actions": [
+      "U er",
+      "Team",
+      "Account Group",
+      "Order Template",
+      "Catalog & Pricing",
+      "Softgood  Pricing",
+      "Configuration",
+      "Audit Log",
+      "Save configuration"
+    ],
+    "columns": [
+      "Document type",
+      "Prefix",
+      "Next number"
+    ]
+  },
+  "e7-security": {
+    "title": "Security",
+    "headings": [
+      "Authenticator app (TOTP)",
+      "Pa key  &  ecurity key  (FIDO2 / WebAuthn)",
+      "Recovery code"
+    ],
+    "actions": [
+      "Continue to MakeReady →",
+      "Di able",
+      "Remove",
+      "Add pa key",
+      "Regenerate code"
+    ],
+    "columns": []
+  }
+}
