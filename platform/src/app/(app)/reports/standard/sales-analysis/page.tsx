@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { PageHeader, Card } from "@/components/ui";
 import { getSalesAnalysis, type SalesYearRow } from "@/lib/reports/standard-data";
 import { FISCAL_MONTHS, money0, fiscalYearOf } from "@/lib/reports/standard";
@@ -11,6 +11,9 @@ import { getReportSettings } from "@/lib/reports/settings";
 export const dynamic = "force-dynamic";
 
 // Column keys line up with the cell indices below: index 3 = 3-Mo, 4 = Diff.
+/** Customers rendered per salesperson before the tail is left to the CSV. */
+const CUSTOMER_LIMIT = 100;
+
 const ALL_COLS = ["Oct", "Nov", "Dec", "3 Mo", "Diff", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Total"];
 
 function YearCells({ row, prior, hide3Mo, hideDiff }: { row: SalesYearRow; prior?: SalesYearRow; hide3Mo: boolean; hideDiff: boolean }) {
@@ -31,15 +34,18 @@ function YearCells({ row, prior, hide3Mo, hideDiff }: { row: SalesYearRow; prior
   );
 }
 
-export default async function SalesAnalysisPage({ searchParams }: { searchParams: Promise<{ fy?: string }> }) {
+export default async function SalesAnalysisPage({ searchParams }: { searchParams: Promise<{ fy?: string; all?: string }> }) {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "sales-analysis"))) redirect("/403");
   const sp = await searchParams;
 
   // Default to the current fiscal year (Oct–Sep), evaluated in Mountain Time.
   const currentFy = fiscalYearOf(new Date());
   const fy = Number(sp.fy) || currentFy;
 
+  const showAll = sp.all === "1";
   const cfgDef = reportConfig("sales-analysis")!;
   const settings = await getReportSettings("sales-analysis");
   const hide3Mo = isHidden(settings, "threeMo");
@@ -50,6 +56,11 @@ export default async function SalesAnalysisPage({ searchParams }: { searchParams
 
   const { groups: allGroups } = await getSalesAnalysis(fy);
   const groups = repFilter ? allGroups.filter((g) => g.repName.toLowerCase().includes(repFilter)) : allGroups;
+  // Every customer gets three rows of fifteen cells, so a full book of business
+  // is tens of thousands of cells and minutes of rendering. Show the customers
+  // that matter and leave the long tail to the CSV.
+  for (const g of groups) g.customers.sort((a, b) => b.current.total - a.current.total);
+  const hiddenCustomers = showAll ? 0 : groups.reduce((n, g) => n + Math.max(0, g.customers.length - CUSTOMER_LIMIT), 0);
   const grand = groups.reduce((a, g) => ({ current: a.current + g.totals.current, prior: a.prior + g.totals.prior, twoAgo: a.twoAgo + g.totals.twoAgo }), { current: 0, prior: 0, twoAgo: 0 });
 
   return (
@@ -75,6 +86,15 @@ export default async function SalesAnalysisPage({ searchParams }: { searchParams
 
       {groups.length === 0 && <Card><p className="text-sm text-neutral-400">No sales activity in this fiscal window yet.</p></Card>}
 
+      {hiddenCustomers > 0 && (
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2 text-xs text-neutral-600">
+          Showing the top {CUSTOMER_LIMIT} customers per salesperson by current-year sales; {hiddenCustomers.toLocaleString()} more are
+          in the CSV.{" "}
+          <Link href={`/reports/standard/sales-analysis?fy=${fy}&all=1`} className="underline">Show every customer</Link> — slow on a
+          full book of business.
+        </div>
+      )}
+
       {groups.map((g) => (
         <Card key={g.repId} className="overflow-x-auto">
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">{g.repName}</h2>
@@ -86,7 +106,7 @@ export default async function SalesAnalysisPage({ searchParams }: { searchParams
                 {COLS.map((c) => <th key={c} className="px-1.5 py-1">{c}</th>)}
               </tr>
             </thead>
-            {g.customers.map((c) => (
+            {(showAll ? g.customers : g.customers.slice(0, CUSTOMER_LIMIT)).map((c) => (
               <tbody key={c.bpId} className="border-b border-neutral-100 align-top">
                 <tr>
                   <td rowSpan={hideTwoAgo ? 2 : 3} className="px-1.5 py-1 text-left align-top">

@@ -307,6 +307,10 @@ export const expenseStatusEnum = pgEnum("expense_status", [
   "cancelled",
 ]);
 // Who actually paid at the till. Only employee-paid spend is reimbursed.
+// Who can see a custom report by default, before any explicit grant:
+// private = only its owner, shared = only those granted, everyone = anyone who
+// can open the Reports module.
+export const reportVisibilityEnum = pgEnum("report_visibility", ["private", "shared", "everyone"]);
 export const expensePaidByEnum = pgEnum("expense_paid_by", [
   "employee",
   "company_card",
@@ -1886,6 +1890,9 @@ export const reportSettings = pgTable("report_settings", {
   id: uuid("id").primaryKey().defaultRandom(),
   reportKey: text("report_key").notNull().unique(),
   config: jsonb("config"), // ReportSettings
+  // Built-in reports follow the module rules until this is set. Once it is,
+  // only admins and whoever has been granted access can open the report.
+  restricted: boolean("restricted").notNull().default(false),
   updatedBy: uuid("updated_by").references(() => users.id),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -2220,10 +2227,43 @@ export const reportDefinitions = pgTable("report_definitions", {
   description: text("description"),
   source: text("source").notNull(), // key into the data-source registry
   config: jsonb("config").notNull(), // { columns: string[]; filters: {field,op,value}[]; sortField?; sortDir?; rowLimit? }
+  // Who may see it before any explicit grant. The creator always can.
+  visibility: reportVisibilityEnum("visibility").notNull().default("everyone"),
   createdBy: uuid("created_by").references(() => users.id),
+  updatedBy: uuid("updated_by").references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// ---- Per-report permissions ------------------------------------------------
+// A grant hands read, write and/or delete on ONE report to either a role or a
+// named person. Grants only ever add access; what they add to is the report's
+// own visibility (custom) or the module rules (built-in).
+export const reportGrants = pgTable(
+  "report_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // Exactly one of these identifies the report: a saved definition, or the
+    // slug of a built-in report.
+    reportId: uuid("report_id").references(() => reportDefinitions.id, { onDelete: "cascade" }),
+    reportKey: text("report_key"),
+    // Exactly one of these identifies the grantee.
+    role: text("role"),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    canView: boolean("can_view").notNull().default(true),
+    canEdit: boolean("can_edit").notNull().default(false),
+    canDelete: boolean("can_delete").notNull().default(false),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("report_grants_report_idx").on(t.reportId),
+    index("report_grants_key_idx").on(t.reportKey),
+    index("report_grants_user_idx").on(t.userId),
+    index("report_grants_role_idx").on(t.role),
+  ],
+);
+export type ReportGrant = typeof reportGrants.$inferSelect;
 
 export const reportSchedules = pgTable(
   "report_schedules",

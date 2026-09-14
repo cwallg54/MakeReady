@@ -37,6 +37,12 @@ const PAGES = [
   "/accounting/trial-balance",
   "/accounting/journal",
   "/accounting/chart",
+  // Reports area, including the access console
+  "/reports",
+  "/reports/access",
+  "/reports/standard/credit",
+  "/reports/standard/sales-analysis",
+  "/reports/standard/rep-activity",
 ];
 
 async function main() {

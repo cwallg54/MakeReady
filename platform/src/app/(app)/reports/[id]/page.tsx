@@ -5,7 +5,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { reportDefinitions, reportSchedules } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
-import { canBuildReports, sourceMeta, type ReportConfig } from "@/lib/reports/sources";
+import { sourceMeta, type ReportConfig } from "@/lib/reports/sources";
+import { accessForCustom } from "@/lib/reports/access";
 import { runReport, displayValue, groupRows, numericColumns } from "@/lib/reports/run";
 import { deleteReport, saveSchedule, deleteSchedule, sendReportNowAction } from "@/lib/reports/actions";
 import { PageHeader, Card } from "@/components/ui";
@@ -21,12 +22,16 @@ const MAX_SHOWN = 500;
 export default async function ReportViewPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; err?: string }> }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!canBuildReports(user.roles)) redirect("/403");
   const { id } = await params;
   const { sent, err } = await searchParams;
 
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) notFound();
+  // Access is per report: the owner, an administrator, anyone granted it, or
+  // anyone at all when the report is shared with everyone.
+  const access = await accessForCustom(user, def);
+  if (!access.view) redirect("/403");
+  const canManageSharing = user.roles.includes("admin") || def.createdBy === user.id;
   const cfg = def.config as ReportConfig;
   const [result, schedule] = await Promise.all([
     runReport(def.source, cfg),
@@ -48,8 +53,9 @@ export default async function ReportViewPage({ params, searchParams }: { params:
           <div className="flex flex-wrap gap-2">
             <a href={`/reports/${id}/export`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">CSV ↓</a>
             <a href={`/reports/${id}/export?format=pdf`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">PDF ↓</a>
-            <Link href={`/reports/${id}/edit`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Edit</Link>
-            <form action={deleteReport}><input type="hidden" name="id" value={id} /><ConfirmButton message="Delete this report and its schedule?" className="rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Delete</ConfirmButton></form>
+            {access.edit && <Link href={`/reports/${id}/edit`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Edit</Link>}
+            {canManageSharing && <Link href={`/reports/${id}/share`} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50">Share</Link>}
+            {access.delete && <form action={deleteReport}><input type="hidden" name="id" value={id} /><ConfirmButton message="Delete this report and its schedule?" className="rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Delete</ConfirmButton></form>}
           </div>
         }
       />

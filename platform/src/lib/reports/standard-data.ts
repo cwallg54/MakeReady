@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, gte, isNull, ne } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { orders, historicalOrders, businessPartners, users, contacts, bpAddresses, activities, accountGroups, invoices, payments } from "@/db/schema";
 import { fiscalYearOf, fiscalMonthIndex, ymInDenver } from "./standard";
@@ -41,73 +41,79 @@ export async function getSalesAnalysis(fiscalYear: number): Promise<{ groups: Sa
   const years = [fiscalYear, fiscalYear - 1, fiscalYear - 2];
   // Earliest date we care about: Oct 1 of the calendar year before the oldest FY.
   const earliest = new Date(Date.UTC(fiscalYear - 3, 9, 1)); // (fy-2) starts Oct (fy-3)
+  const earliestIso = earliest.toISOString().slice(0, 10);
 
-  const [liveRows, histRows, repRows] = await Promise.all([
-    db
-      .select({
-        amount: orders.amount,
-        date: orders.createdAt,
-        salesRepId: orders.salesRepId,
-        bpId: businessPartners.id,
-        ownerId: businessPartners.ownerId,
-        code: businessPartners.legacyCode,
-        bpNumber: businessPartners.bpNumber,
-        name: businessPartners.companyName,
-        terms: businessPartners.paymentTerms,
-      })
-      .from(orders)
-      .innerJoin(businessPartners, eq(orders.bpId, businessPartners.id))
-      .where(and(isNull(orders.voidedAt), gte(orders.createdAt, earliest))),
-    db
-      .select({
-        amount: historicalOrders.docTotal,
-        date: historicalOrders.docDate,
-        bpId: businessPartners.id,
-        ownerId: businessPartners.ownerId,
-        code: businessPartners.legacyCode,
-        bpNumber: businessPartners.bpNumber,
-        name: businessPartners.companyName,
-        terms: businessPartners.paymentTerms,
-      })
-      .from(historicalOrders)
-      .innerJoin(businessPartners, eq(historicalOrders.bpId, businessPartners.id))
-      .where(and(eq(historicalOrders.canceled, false), gte(historicalOrders.docDate, earliest))),
-    db.select({ id: users.id, name: users.name }).from(users),
-  ]);
+  // Aggregate in the database, at exactly the grain the report renders:
+  // salesperson x customer x calendar month. Pulling the raw order rows back
+  // and summing them here meant shipping tens of thousands of wide rows over
+  // the wire for every page load, which is what made this report time out.
+  const rows = (await db.execute(sql`
+    WITH sales AS (
+      SELECT
+        COALESCE(bp.owner_id::text, 'unassigned') AS rep_id,
+        bp.id::text                                AS bp_id,
+        COALESCE(bp.legacy_code, bp.bp_number, '') AS code,
+        bp.company_name                            AS name,
+        COALESCE(bp.payment_terms, '')             AS terms,
+        EXTRACT(YEAR  FROM o.created_at AT TIME ZONE 'America/Denver')::int AS y,
+        EXTRACT(MONTH FROM o.created_at AT TIME ZONE 'America/Denver')::int AS m,
+        o.amount                                   AS amount
+      FROM orders o
+      JOIN business_partners bp ON bp.id = o.bp_id
+      WHERE o.voided_at IS NULL AND o.created_at >= ${earliestIso}
+      UNION ALL
+      SELECT
+        COALESCE(bp.owner_id::text, 'unassigned'),
+        bp.id::text,
+        COALESCE(bp.legacy_code, bp.bp_number, ''),
+        bp.company_name,
+        COALESCE(bp.payment_terms, ''),
+        EXTRACT(YEAR  FROM h.doc_date AT TIME ZONE 'America/Denver')::int,
+        EXTRACT(MONTH FROM h.doc_date AT TIME ZONE 'America/Denver')::int,
+        h.doc_total
+      FROM historical_orders h
+      JOIN business_partners bp ON bp.id = h.bp_id
+      WHERE h.canceled = false AND h.doc_date >= ${earliestIso}
+    )
+    SELECT rep_id, bp_id, code, name, terms, y, m, SUM(amount)::numeric(16,2) AS amount
+    FROM sales
+    GROUP BY rep_id, bp_id, code, name, terms, y, m
+  `)) as unknown as {
+    rows?: Record<string, unknown>[];
+  };
 
+  const agg = (Array.isArray(rows) ? rows : rows.rows ?? []) as {
+    rep_id: string; bp_id: string; code: string; name: string; terms: string;
+    y: number; m: number; amount: string;
+  }[];
+
+  const repRows = await db.select({ id: users.id, name: users.name }).from(users);
   const repName = new Map(repRows.map((r) => [r.id, r.name]));
 
   // rep -> customer -> customer aggregate
   const reps = new Map<string, Map<string, SalesCustomer>>();
 
-  const add = (
-    repId: string | null,
-    bpId: string,
-    code: string | null,
-    name: string,
-    terms: string | null,
-    amount: number,
-    date: Date,
-  ) => {
-    const fy = fiscalYearOf(date);
+  for (const r of agg) {
+    // Fiscal year runs Oct–Sep and is labelled by the year it ends in.
+    const month = Number(r.m);
+    const fy = month >= 10 ? Number(r.y) + 1 : Number(r.y);
     const yi = years.indexOf(fy);
-    if (yi === -1) return;
-    const rid = repId ?? "unassigned";
-    let custs = reps.get(rid);
-    if (!custs) reps.set(rid, (custs = new Map()));
-    let c = custs.get(bpId);
+    if (yi === -1) continue;
+
+    let custs = reps.get(r.rep_id);
+    if (!custs) reps.set(r.rep_id, (custs = new Map()));
+    let c = custs.get(r.bp_id);
     if (!c) {
-      custs.set(bpId, (c = { bpId, code: code ?? "", name, terms: terms ?? "", current: emptyYear(), prior: emptyYear(), twoAgo: emptyYear() }));
+      custs.set(r.bp_id, (c = { bpId: r.bp_id, code: r.code ?? "", name: r.name, terms: r.terms ?? "", current: emptyYear(), prior: emptyYear(), twoAgo: emptyYear() }));
     }
+
     const row = yi === 0 ? c.current : yi === 1 ? c.prior : c.twoAgo;
-    const mi = fiscalMonthIndex(date);
+    const mi = (month - 10 + 12) % 12; // Oct = 0
+    const amount = Number(r.amount);
     row.months[mi] += amount;
     row.total += amount;
     if (mi <= 2) row.threeMo += amount;
-  };
-
-  for (const r of liveRows) add(r.salesRepId ?? r.ownerId, r.bpId, r.code, r.name, r.terms, Number(r.amount), r.date);
-  for (const r of histRows) add(r.ownerId, r.bpId, r.code, r.name, r.terms, Number(r.amount), r.date);
+  }
 
   const groups: SalesRepGroup[] = [];
   for (const [rid, custs] of reps) {

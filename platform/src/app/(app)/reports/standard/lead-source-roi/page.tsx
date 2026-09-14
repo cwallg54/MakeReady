@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { PageHeader, Card } from "@/components/ui";
 import { money0 } from "@/lib/reports/standard";
 import { getLeadSourceRoi } from "@/lib/reports/analytics-data";
@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 
 export default async function LeadSourceRoiPage() {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "lead-source-roi"))) redirect("/403");
   const rows = await getLeadSourceRoi();
 
   const tot = rows.reduce((a, r) => ({ accounts: a.accounts + r.accounts, customers: a.customers + r.customers, revenue: a.revenue + r.revenue }), { accounts: 0, customers: 0, revenue: 0 });

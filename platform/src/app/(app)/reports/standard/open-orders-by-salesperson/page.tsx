@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { PageHeader, Card } from "@/components/ui";
 import { getOpenOrders, type OpenOrderRow } from "@/lib/reports/standard-data";
 import { fmtDate } from "@/lib/format";
@@ -27,7 +27,9 @@ const sum = (rows: OpenOrderRow[]) => rows.reduce((s, r) => s + r.amount, 0);
 
 export default async function OpenOrdersBySalespersonPage() {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "open-orders-by-salesperson"))) redirect("/403");
   const now = new Date();
 
   const cfgDef = reportConfig("open-orders-by-salesperson")!;

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/service";
-import { canView } from "@/lib/rbac";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { getSalesAnalysis } from "@/lib/reports/standard-data";
 import { FISCAL_MONTHS, csvCell, fiscalYearOf } from "@/lib/reports/standard";
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || !canView(user.roles, "reports") || !canBuildReports(user.roles)) {
+  // The CSV has to obey the same per-report access as the page it comes
+  // from, or a restricted report leaks straight out through its export link.
+  if (!user) return new NextResponse("Forbidden", { status: 403 });
+  if (!(await checkStandardAccess(user, "sales-analysis"))) {
     return new NextResponse("Forbidden", { status: 403 });
   }
   const fy = Number(req.nextUrl.searchParams.get("fy")) || fiscalYearOf(new Date());

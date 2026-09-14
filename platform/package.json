@@ -14,7 +14,8 @@
     "verify:ar": "node --conditions=react-server --import tsx scripts/verify-ar-flow.ts",
     "verify:pages": "tsx scripts/verify-finance-pages.ts",
     "verify:payroll": "node --conditions=react-server --import tsx scripts/verify-payroll.ts",
-    "verify:expenses": "node --conditions=react-server --import tsx scripts/verify-expenses.ts"
+    "verify:expenses": "node --conditions=react-server --import tsx scripts/verify-expenses.ts",
+    "verify:report-access": "node --conditions=react-server --import tsx scripts/verify-report-access.ts"
   },
   "dependencies": {
     "@azure/storage-file-share": "^12.32.0",

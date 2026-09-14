@@ -8,6 +8,7 @@ import { reportDefinitions, reportSchedules } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
 import { audit } from "@/lib/audit";
 import { canBuildReports, type ReportConfig } from "./sources";
+import { accessForCustom } from "./access";
 import { runReport, type ReportResult } from "./run";
 import { buildAndEmailReport } from "./deliver";
 
@@ -17,10 +18,30 @@ async function requireBuild() {
   return user;
 }
 
+/** Signed-in user, without requiring the report-building capability — used
+ *  where an explicit grant is enough on its own. */
+async function requireSignedIn() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  return user;
+}
+
+/** Whoever holds edit (or delete) on ONE report: its owner, an administrator,
+ *  or anyone granted it. A blanket role is no longer sufficient. */
+async function requireReportRight(reportId: string, right: "edit" | "delete") {
+  const user = await requireSignedIn();
+  const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, reportId) });
+  if (!def) redirect("/reports");
+  const access = await accessForCustom(user, def);
+  if (!access[right]) redirect("/403");
+  return { user, def };
+}
+
 export interface ReportInput { id?: string; name: string; description?: string; source: string; config: ReportConfig }
 
 export async function saveReport(input: ReportInput): Promise<{ id: string }> {
-  const user = await requireBuild();
+  // Creating needs the build capability; editing is checked per report below.
+  const user = input.id ? await requireSignedIn() : await requireBuild();
   const name = (input.name || "").trim() || "Untitled report";
   const config = {
     columns: input.config.columns ?? [],
@@ -30,7 +51,9 @@ export async function saveReport(input: ReportInput): Promise<{ id: string }> {
     rowLimit: input.config.rowLimit,
   };
   if (input.id) {
-    await db.update(reportDefinitions).set({ name, description: input.description ?? null, source: input.source, config, updatedAt: new Date() }).where(eq(reportDefinitions.id, input.id));
+    // Editing is governed per report, not by the build role alone.
+    const { user: editor } = await requireReportRight(input.id, "edit");
+    await db.update(reportDefinitions).set({ name, description: input.description ?? null, source: input.source, config, updatedBy: editor.id, updatedAt: new Date() }).where(eq(reportDefinitions.id, input.id));
     await audit({ userId: user.id, action: "report.update", entityType: "report", entityId: input.id });
     revalidatePath(`/reports/${input.id}`);
     return { id: input.id };
@@ -47,19 +70,20 @@ export async function previewReport(source: string, config: ReportConfig): Promi
 }
 
 export async function deleteReport(formData: FormData): Promise<void> {
-  const user = await requireBuild();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  await db.delete(reportDefinitions).where(eq(reportDefinitions.id, id)); // schedules cascade
+  const { user } = await requireReportRight(id, "delete");
+  await db.delete(reportDefinitions).where(eq(reportDefinitions.id, id)); // schedules and grants cascade
   await audit({ userId: user.id, action: "report.delete", entityType: "report", entityId: id });
   revalidatePath("/reports");
   redirect("/reports");
 }
 
 export async function saveSchedule(formData: FormData): Promise<void> {
-  const user = await requireBuild();
   const reportId = String(formData.get("reportId") ?? "");
   if (!reportId) return;
+  // Scheduling a report emails its contents out, so it takes write access.
+  const { user } = await requireReportRight(reportId, "edit");
   const frequency = String(formData.get("frequency") ?? "weekly");
   const format = String(formData.get("format") ?? "csv") === "pdf" ? "pdf" : "csv";
   const recipients = String(formData.get("recipients") ?? "").split(/[,\n]/).map((s) => s.trim()).filter((s) => /.+@.+\..+/.test(s));
@@ -80,9 +104,10 @@ export async function saveSchedule(formData: FormData): Promise<void> {
 /** Send this report to its schedule's recipients right now (a test / on-demand
  *  send), without waiting for the daily cron. */
 export async function sendReportNowAction(formData: FormData): Promise<void> {
-  const user = await requireBuild();
   const reportId = String(formData.get("reportId") ?? "");
   if (!reportId) return;
+  // Sending emails the report's contents to its recipient list.
+  const { user } = await requireReportRight(reportId, "edit");
   const sched = await db.query.reportSchedules.findFirst({ where: eq(reportSchedules.reportId, reportId) });
   if (!sched || sched.recipients.length === 0) redirect(`/reports/${reportId}?err=recipients`);
   const ok = await buildAndEmailReport(reportId, sched.format === "pdf" ? "pdf" : "csv", sched.recipients);
@@ -92,10 +117,11 @@ export async function sendReportNowAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteSchedule(formData: FormData): Promise<void> {
-  const user = await requireBuild();
   const id = String(formData.get("id") ?? "");
   const reportId = String(formData.get("reportId") ?? "");
-  if (!id) return;
+  if (!id || !reportId) return;
+  // Removing a delivery changes the report's behaviour — that is write access.
+  const { user } = await requireReportRight(reportId, "edit");
   await db.delete(reportSchedules).where(and(eq(reportSchedules.id, id)));
   await audit({ userId: user.id, action: "report.schedule_delete", entityType: "report", entityId: reportId });
   revalidatePath(`/reports/${reportId}`);

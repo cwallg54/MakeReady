@@ -5,7 +5,8 @@ import { businessPartners, quotes, orders, productionJobs, inventoryItems, accou
 import { requireModule } from "@/lib/auth/guards";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { canBuildReports } from "@/lib/reports/sources";
-import { STANDARD_REPORTS } from "@/lib/reports/standard";
+import { visibleCustomReports, visibleStandardReports } from "@/lib/reports/access";
+import { isAdmin } from "@/lib/rbac";
 import { reportConfig, reportTitle, isHidden } from "@/lib/reports/report-config";
 import { getReportSettings } from "@/lib/reports/settings";
 import { ReportCharts } from "./report-charts";
@@ -20,9 +21,12 @@ const QUOTE_LABEL: Record<string, string> = { draft: "Draft", sent: "Sent", acce
 export default async function ReportsPage() {
   const user = await requireModule("reports");
   const canBuild = canBuildReports(user.roles);
-  const savedReports = canBuild
-    ? await db.select({ id: reportDefinitions.id, name: reportDefinitions.name, description: reportDefinitions.description, source: reportDefinitions.source }).from(reportDefinitions).orderBy(asc(reportDefinitions.name))
-    : [];
+  // The catalogue is filtered per person: a report only appears if they may
+  // actually open it.
+  const [savedReports, standardReports] = await Promise.all([
+    visibleCustomReports(user),
+    visibleStandardReports(user),
+  ]);
 
   const [pipeline, quotesAgg, ordersByStage, prodByStatus, invAgg, invByCategory, lowStock, topCustomers, bpByState, bpByGroup, invUnitsByCat] = await Promise.all([
     db.select({ stage: businessPartners.lifecycleStage, n: count() }).from(businessPartners).groupBy(businessPartners.lifecycleStage),
@@ -76,19 +80,26 @@ export default async function ReportsPage() {
       <PageHeader
         title={reportTitle(cfgDef, settings)}
         description="Live snapshot across sales, operations, and inventory."
-        action={canBuild ? (
+        action={
           <div className="flex flex-wrap items-center gap-2">
-            <Link href="/reports/config/dashboard" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Edit</Link>
-            <Link href="/reports/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Build a report</Link>
+            {isAdmin(user.roles) && (
+              <Link href="/reports/access" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Access</Link>
+            )}
+            {canBuild && (
+              <>
+                <Link href="/reports/config/dashboard" className="rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">Edit</Link>
+                <Link href="/reports/new" className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Build a report</Link>
+              </>
+            )}
           </div>
-        ) : undefined}
+        }
       />
 
-      {canBuild && (
+      {standardReports.length > 0 && (
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">Standard reports</h2>
           <ul className="divide-y divide-neutral-100">
-            {STANDARD_REPORTS.map((r) => (
+            {standardReports.map((r) => (
               <li key={r.slug} className="py-2">
                 <Link href={`/reports/standard/${r.slug}`} className="text-sm font-medium text-neutral-900 hover:underline">{r.name}</Link>
                 <p className="text-xs text-neutral-400">{r.description}</p>
@@ -98,7 +109,7 @@ export default async function ReportsPage() {
         </Card>
       )}
 
-      {canBuild && (
+      {(canBuild || savedReports.length > 0) && (
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-neutral-900">Custom reports</h2>
           {savedReports.length === 0 ? (
@@ -106,9 +117,13 @@ export default async function ReportsPage() {
           ) : (
             <ul className="divide-y divide-neutral-100">
               {savedReports.map((r) => (
-                <li key={r.id} className="flex items-center justify-between py-2">
+                <li key={r.id} className="flex items-center justify-between gap-3 py-2">
                   <Link href={`/reports/${r.id}`} className="text-sm font-medium text-neutral-900 hover:underline">{r.name}</Link>
-                  <span className="text-xs text-neutral-400">{r.description || r.source}</span>
+                  <span className="flex items-center gap-2 text-xs text-neutral-400">
+                    {r.description || r.source}
+                    {r.access.edit && <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">can edit</span>}
+                    {r.visibility === "private" && <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">private</span>}
+                  </span>
                 </li>
               ))}
             </ul>

@@ -610,6 +610,13 @@
       "when": 1789401810820,
       "tag": "0086_employee_expenses",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1789402476190,
+      "tag": "0087_report_permissions",
+      "breakpoints": true
     }
   ]
 }

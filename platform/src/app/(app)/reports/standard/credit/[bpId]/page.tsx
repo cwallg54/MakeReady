@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { canEdit } from "@/lib/rbac";
 import { PageHeader, Card } from "@/components/ui";
 import { getCreditData, getCreditAR } from "@/lib/reports/standard-data";
@@ -24,7 +24,9 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default async function CreditReportPage({ params }: { params: Promise<{ bpId: string }> }) {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "credit"))) redirect("/403");
   const { bpId } = await params;
   const now = new Date();
   const [data, ar] = await Promise.all([getCreditData(bpId, now), getCreditAR(bpId, now)]);

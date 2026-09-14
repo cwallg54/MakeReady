@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { PageHeader, Card } from "@/components/ui";
 import { BpSearchSelect } from "@/components/crm/bp-search-select";
 
@@ -9,7 +9,9 @@ export const dynamic = "force-dynamic";
 
 export default async function CreditPickerPage() {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "credit"))) redirect("/403");
 
   return (
     <div className="max-w-xl space-y-6">

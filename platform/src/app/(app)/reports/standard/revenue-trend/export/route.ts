@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/service";
-import { canView } from "@/lib/rbac";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { csvCell } from "@/lib/reports/standard";
 import { getRevenueTrend } from "@/lib/reports/analytics-data";
 
@@ -9,7 +8,10 @@ const MONTHS: Record<string, number | null> = { "12": 12, "24": 24, "36": 36, al
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || !canView(user.roles, "reports") || !canBuildReports(user.roles)) return new NextResponse("Forbidden", { status: 403 });
+  // The CSV has to obey the same per-report access as the page it comes
+  // from, or a restricted report leaks straight out through its export link.
+  if (!user) return new NextResponse("Forbidden", { status: 403 });
+  if (!(await checkStandardAccess(user, "revenue-trend"))) return new NextResponse("Forbidden", { status: 403 });
 
   const rangeKey = req.nextUrl.searchParams.get("range") ?? "24";
   const months = rangeKey in MONTHS ? MONTHS[rangeKey] : 24;

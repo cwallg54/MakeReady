@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { PageHeader, Card } from "@/components/ui";
 import { money2, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
 import { getTopProducts, periodSince, parsePeriod, PERIOD_LABEL, type Period } from "@/lib/reports/analytics-data";
@@ -13,7 +13,9 @@ const PERIODS: Period[] = ["30", "90", "365", "all"];
 
 export default async function TopProductsPage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "top-products"))) redirect("/403");
   const sp = await searchParams;
   const period = parsePeriod(sp.period);
   const { products, byType } = await getTopProducts(periodSince(period));

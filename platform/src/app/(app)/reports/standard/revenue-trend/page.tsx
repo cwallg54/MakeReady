@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireModule } from "@/lib/auth/guards";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { PageHeader, Card, StatCard } from "@/components/ui";
 import { money0 } from "@/lib/reports/standard";
 import { getRevenueTrend } from "@/lib/reports/analytics-data";
@@ -18,7 +18,9 @@ const RANGES = [
 
 export default async function RevenueTrendPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
   const user = await requireModule("reports");
-  if (!canBuildReports(user.roles)) redirect("/reports");
+  // Access is resolved per report, so an administrator can restrict this
+  // one to named people without touching anyone's module permissions.
+  if (!(await checkStandardAccess(user, "revenue-trend"))) redirect("/403");
   const sp = await searchParams;
   const range = RANGES.find((r) => r.key === sp.range) ?? RANGES[1];
   const points = await getRevenueTrend(range.months);

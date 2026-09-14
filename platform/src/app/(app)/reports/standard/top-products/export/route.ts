@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/service";
-import { canView } from "@/lib/rbac";
-import { canBuildReports } from "@/lib/reports/sources";
+import { checkStandardAccess } from "@/lib/reports/access";
 import { csvCell, ORDER_TYPE_LABEL } from "@/lib/reports/standard";
 import { getTopProducts, periodSince, parsePeriod } from "@/lib/reports/analytics-data";
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!user || !canView(user.roles, "reports") || !canBuildReports(user.roles)) return new NextResponse("Forbidden", { status: 403 });
+  // The CSV has to obey the same per-report access as the page it comes
+  // from, or a restricted report leaks straight out through its export link.
+  if (!user) return new NextResponse("Forbidden", { status: 403 });
+  if (!(await checkStandardAccess(user, "top-products"))) return new NextResponse("Forbidden", { status: 403 });
 
   const period = parsePeriod(req.nextUrl.searchParams.get("period") ?? undefined);
   const { products, byType } = await getTopProducts(periodSince(period));

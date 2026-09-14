@@ -2,16 +2,21 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { reportDefinitions } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/service";
-import { canBuildReports, sourceMeta, type ReportConfig } from "@/lib/reports/sources";
+import { sourceMeta, type ReportConfig } from "@/lib/reports/sources";
+import { accessForCustom } from "@/lib/reports/access";
 import { runReport, reportToCsv, numericColumns } from "@/lib/reports/run";
 import { reportToPdf } from "@/lib/reports/pdf";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
-  if (!user || !canBuildReports(user.roles)) return new Response("Forbidden", { status: 403 });
+  if (!user) return new Response("Forbidden", { status: 403 });
   const { id } = await params;
   const def = await db.query.reportDefinitions.findFirst({ where: eq(reportDefinitions.id, id) });
   if (!def) return new Response("Not found", { status: 404 });
+  // Downloading is reading: it needs the same access as opening the report,
+  // otherwise the export link is a way around a private report.
+  const access = await accessForCustom(user, def);
+  if (!access.view) return new Response("Forbidden", { status: 403 });
 
   const format = new URL(req.url).searchParams.get("format") === "pdf" ? "pdf" : "csv";
   const cfg = def.config as ReportConfig;
