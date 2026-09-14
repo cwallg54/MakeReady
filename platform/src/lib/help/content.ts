@@ -1,6 +1,11 @@
 // End-user Help content for MakeReady by G54.
+//
+// The "User Guide" section is generated from scripts/generate_user_guide.py
+// alongside the Word and Markdown editions, so the three cannot drift.
 // Articles are grouped by section and rendered by /help and /help/[slug].
 // Images live in /public/help/<name>.png and are referenced by filename only.
+
+import { USER_GUIDE_ARTICLES } from "./user-guide";
 
 export type HelpBlock =
   | { k: "p"; text: string }
@@ -9,7 +14,8 @@ export type HelpBlock =
   | { k: "img"; src: string; caption?: string }
   | { k: "tip"; text: string }
   | { k: "warn"; text: string }
-  | { k: "list"; items: string[] };
+  | { k: "list"; items: string[] }
+  | { k: "table"; headers: string[]; rows: string[][] };
 
 export interface HelpStep {
   text: string;
@@ -30,6 +36,8 @@ export interface HelpArticle {
 }
 
 export const HELP_SECTIONS = [
+  // The start-to-finish guide reads first; the rest is reference by area.
+  "User Guide",
   "Getting Started",
   "Account & Security",
   "CRM",
@@ -2296,15 +2304,18 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
 ];
 
+/** Every article: the generated guide first, then the hand-written reference. */
+export const ALL_ARTICLES: HelpArticle[] = [...USER_GUIDE_ARTICLES, ...HELP_ARTICLES];
+
 export function articlesBySection(): { section: string; articles: HelpArticle[] }[] {
   return HELP_SECTIONS.map((section) => ({
     section,
     // Stable sort: articles with an `order` come first (ascending); the rest
     // keep their source order.
-    articles: HELP_ARTICLES.filter((a) => a.section === section).sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
+    articles: ALL_ARTICLES.filter((a) => a.section === section).sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity)),
   })).filter((g) => g.articles.length > 0);
 }
 
 export function getArticle(slug: string): HelpArticle | undefined {
-  return HELP_ARTICLES.find((a) => a.slug === slug);
+  return ALL_ARTICLES.find((a) => a.slug === slug);
 }

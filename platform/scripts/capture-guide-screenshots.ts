@@ -20,7 +20,9 @@ import { sql } from "drizzle-orm";
  * Run: pnpm guide:shots
  */
 const BASE = process.env.SHOT_URL ?? "http://localhost:3100";
-const OUT = "../docs/training/screenshots";
+// The app serves these, so they live in public/ rather than in a docs
+// folder that never reaches the deploy.
+const OUT = "public/help/guide";
 const EMAIL = (process.env.SHOT_EMAIL ?? "cwall@g54.com").toLowerCase();
 
 /** slug -> path. Ordered the way the guide walks through the business. */
@@ -155,7 +157,6 @@ async function shots(): Promise<Shot[]> {
     { slug: "d2-storefront", path: "/shop" },
 
     // ---- 14. running the place -------------------------------------------
-    { slug: "e0-admin", path: "/admin" },
     { slug: "e1-users", path: "/admin/users" },
     { slug: "e2-teams", path: "/admin/teams" },
     { slug: "e3-workflows", path: "/workflows" },
@@ -252,10 +253,10 @@ async function main() {
     }
   }
 
-  writeFileSync(`${OUT}/outline.json`, JSON.stringify(outline, null, 2));
+  writeFileSync(`../docs/training/screenshots-outline.json`, JSON.stringify(outline, null, 2));
   await browser.close();
   await db.delete(sessions).where(eq(sessions.id, sid));
-  console.log(`\n${ok}/${list.length} captured into docs/training/screenshots`);
+  console.log(`\n${ok}/${list.length} captured into public/help/guide`);
   if (failed.length) {
     console.log("failed:");
     for (const f of failed) console.log(`  ${f}`);

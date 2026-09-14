@@ -24,10 +24,14 @@ from generate_sow import (  # noqa: E402
 )
 
 ROOT = r"C:\Projects\GMW"
-SHOTS = os.path.join(ROOT, "docs", "training", "screenshots")
+SHOTS = os.path.join(ROOT, "platform", "public", "help", "guide")
 OUT_MD = os.path.join(ROOT, "docs", "training", "MakeReady_User_Guide.md")
-OUT_DOCX = os.path.join(ROOT, "docs", "training", "MakeReady_User_Guide.docx")
+# The Word edition is downloadable from inside the app, so it is served
+# from public/ rather than kept on somebody's machine.
+OUT_DOCX = os.path.join(ROOT, "platform", "public", "help", "MakeReady_User_Guide.docx")
 DATE_STR = "September 14, 2026"
+# Image path from docs/training/ to where the app keeps the screenshots.
+MD_IMG = "../../platform/public/help/guide"
 MAX_W, MAX_H = 6.0, 7.6  # inches of usable page
 
 # ---------------------------------------------------------------------------
@@ -52,9 +56,14 @@ shot = lambda s, cap: C.append(("shot", (s, cap)))
 table = lambda hdr, rows: C.append(("table", (hdr, rows)))
 note = lambda t: C.append(("note", t))
 brk = lambda: C.append(("break", None))
+# Marks where a Help Center article starts. The guide reads as one document;
+# in the app it is browsable article by article, cut at these points.
+art = lambda slug, title, summary, who="Everyone": C.append(("art", (slug, title, summary, who)))
 
 
 # ===========================================================================
+art("guide-overview", "How the job runs, and how to find your way around",
+    "What this guide covers, how to sign in, and how the navigation, search and dashboard fit together.", "Everyone")
 h1("What this guide is")
 p("MakeReady is where the whole business now runs: the enquiry, the quote, the order, "
   "the art, the press, the invoice, the money in, the money out, and the books. This guide "
@@ -86,9 +95,13 @@ b("**The dashboard** is the landing page: open quotes, open orders, jobs on the 
   "your pipeline and your own open tasks, with shortcuts to the things you start most often.")
 shot("02-dashboard", "The dashboard — what is open right now, and the quick actions.")
 shot("03-search", "Search finds customers, contacts, invoices, bills, vendors, stock and designs together.")
+b("**Notifications** collects what the platform needs to tell you — a proof approved, an approval waiting, a job that has moved.")
+shot("04-notifications", "Notifications.")
 
 brk()
 # ===========================================================================
+art("guide-the-job-on-one-page", "The job on one page",
+    "The whole path from a phone call to a closed month, and the screen each stage happens on.", "Everyone")
 h1("Part 1 — The job on one page")
 p("This is the whole path from a phone call to money in the bank and a closed month. "
   "Each row is a stage; the right-hand column is where you do it.")
@@ -115,6 +128,8 @@ note("Every order carries an **Order journey** strip showing exactly which of th
 
 brk()
 # ===========================================================================
+art("guide-take-in-the-enquiry", "Step 1 — Take in the enquiry",
+    "Recording a new lead, working the pipeline, and scanning a business card instead of typing it.", "Sales")
 h1("Part 2 — Step by step")
 
 # ---- 1 --------------------------------------------------------------------
@@ -133,6 +148,8 @@ p("If you are holding their business card, press **Scan** instead of typing: pho
 shot("12-crm-new", "New Business Partner — or scan a business card and let it fill itself in.")
 
 # ---- 2 --------------------------------------------------------------------
+art("guide-set-up-the-account", "Step 2 — Set the account up properly",
+    "The customer record, logging contact, contract pricing, and spotting accounts due to reorder.", "Sales")
 h2("2. Set the account up properly")
 p("The customer page is the single place everything about an account lives: details, contacts, "
   "addresses, order history, open financial documents, tasks and the full activity log.")
@@ -153,6 +170,8 @@ p("Reorder radar lists accounts whose usual reorder interval has passed. It will
 shot("15-reorders", "Reorder radar — who is overdue to reorder, with the outreach half-written.")
 
 # ---- 3 --------------------------------------------------------------------
+art("guide-quote-it", "Step 3 — Quote it",
+    "Building a quote in the Quote Builder, and the design and catalog libraries behind it.", "Sales")
 h2("3. Quote it")
 p("The Quote Builder replaces the Excel order forms. Pick the customer and the product template, "
   "and the pricing runs inside the app.")
@@ -174,6 +193,8 @@ shot("22-designs", "Design Library — customer designs, catalog numbers and bar
 shot("23-catalog", "Administration → Catalog & Pricing — the styles and the pricing rules behind every quote.")
 
 # ---- 4 --------------------------------------------------------------------
+art("guide-turn-win-into-order", "Step 4 — Turn the win into an order",
+    "Converting a quote, and using the order page as the spine of the whole job.", "Sales")
 h2("4. Turn the win into an order")
 p("An accepted quote converts straight into a sales order — nothing is re-keyed.")
 shot("30-orders", "Sales → Orders, each showing the stage it has reached.")
@@ -189,6 +210,8 @@ b("**Customer tracker link** is a public link you can send so they can follow th
 b("**Create invoice** raises the invoice from the order when it ships.")
 
 # ---- 5 --------------------------------------------------------------------
+art("guide-art-and-proofing", "Step 5 — Art and proofing",
+    "The art queue, the brief, revisions, the readiness checklist, and getting the proof approved.", "Art")
 h2("5. Art and proofing")
 p("Everything submitted to art lands in the art department queue, as a board or a list.")
 shot("40-art-queue", "The art queue.")
@@ -208,6 +231,8 @@ p("Logos, photographs and brand assets live in the Content Library rather than o
 shot("43-content-library", "Content Library — the shared asset store.")
 
 # ---- 6 --------------------------------------------------------------------
+art("guide-buy-the-blanks", "Step 6 — Buy the blanks",
+    "The item master, the reorder forecast, raising and receiving purchase orders, and GRNI.", "Purchasing")
 h2("6. Buy the blanks")
 p("The item master holds every stocked item with its on-hand quantity, reorder point and cost "
   "across the warehouses.")
@@ -224,6 +249,8 @@ p("Anything received but not yet invoiced by the vendor sits in **GRNI**, aged, 
 shot("54-grni", "Goods received, not invoiced — receipts still waiting on a vendor bill.")
 
 # ---- 7 --------------------------------------------------------------------
+art("guide-make-it", "Step 7 — Make it",
+    "The production schedule, quality inspections, and equipment work orders.", "Production")
 h2("7. Make it")
 p("The production schedule is the ship calendar and the board of what is on the floor.")
 shot("60-production-schedule", "Production schedule — the ship calendar.")
@@ -235,11 +262,14 @@ p("Equipment problems and servicing go on work orders so the press that keeps ja
 shot("63-maintenance", "Maintenance work orders.")
 
 # ---- 8 --------------------------------------------------------------------
+art("guide-invoice-it", "Step 8 — Invoice it",
+    "Raising the invoice from the order, emailing it, and the customer pay link.", "Finance")
 h2("8. Invoice it")
 p("Invoices are normally raised from the order with **Create invoice**, so the lines and the "
   "customer come across already correct. Accounting → Invoices → **New invoice** is there for "
   "anything standalone.")
 shot("70-invoices", "Invoices, filtered by status — draft, sent, partial, paid, void.")
+shot("72-invoice-new", "Accounting → Invoices → New invoice, for anything not raised from an order.")
 shot("71-invoice", "An invoice — lines, payments, PDF and email.")
 b("**PDF** produces the document; **Email invoice** sends it to the customer.")
 b("The emailed invoice carries a **pay link**: the customer can pay by ACH with no fee, or by card "
@@ -249,6 +279,8 @@ b("**Void** reverses an invoice raised in error. Invoices are never deleted — 
   "marked void, so the sequence has no holes.")
 
 # ---- 9 --------------------------------------------------------------------
+art("guide-get-the-money-in", "Step 9 — Get the money in",
+    "Receipts, deposits, aging, the collections call list, statements and credit memos.", "Finance")
 h2("9. Get the money in")
 p("Cash comes in two steps, deliberately: you record the receipt when it arrives, then bank it in "
   "a batch. The bank statement shows the batch, not the individual cheques, which is what makes "
@@ -280,6 +312,8 @@ p("Where an order would push a customer over their credit limit or is on hold, i
 shot("86-credit-requests", "Credit requests — over-limit and on-hold orders awaiting approval.")
 
 # ---- 10 -------------------------------------------------------------------
+art("guide-pay-everyone-else", "Step 10 — Pay everyone else",
+    "Vendor bills, payment runs, vendor credits, staff expenses and payroll.", "Finance")
 h2("10. Pay everyone else")
 p("Vendor bills are entered against the vendor and coded to the GL accounts they belong to.")
 shot("90-bills", "Bills — what is owed, what is due, and what is left on each.")
@@ -300,6 +334,8 @@ p("Payroll is posted twice a month from a template, so the same dozen-odd lines 
 shot("95-payroll", "Payroll journals — runs and the semi-monthly template.")
 
 # ---- 11 -------------------------------------------------------------------
+art("guide-close-the-month", "Step 11 — Close the month",
+    "Fiscal periods, the close, the ledger, financial statements, bank reconciliation and sales tax.", "Finance")
 h2("11. Close the month")
 p("The Accounting hub is the index of everything in this part of the business.")
 shot("a0-accounting-hub", "The Accounting hub.")
@@ -337,6 +373,8 @@ p("The filing report gives you the period's figures by jurisdiction, where tax i
 shot("a9-sales-tax", "Sales tax filing, by jurisdiction, with exemption certificates.")
 
 # ---- 12 -------------------------------------------------------------------
+art("guide-see-how-youre-doing", "Step 12 — See how the business is doing",
+    "Weekly flash, the quarterly pack, segment P&L, goals, commission and job-level profit.", "Managers")
 h2("12. See how the business is doing")
 p("**Weekly flash** is the Monday-morning screen: cash position, the week's sales, the biggest "
   "receipts and invoices, and everything sitting waiting on somebody.")
@@ -358,6 +396,8 @@ shot("b6-profitability", "Profitability by customer and by salesperson.")
 shot("b7-budget", "Budget against actual, account by account.")
 
 # ---- 13 -------------------------------------------------------------------
+art("guide-reports", "Step 13 — Reports",
+    "The built-in reports, and building, saving and scheduling your own.", "Everyone")
 h2("13. Reports")
 p("Reports has two halves: the standard reports that are built in, and custom reports anyone can "
   "build and save.")
@@ -368,6 +408,7 @@ b("**Open Orders by Salesperson** and **by Type**.")
 b("**Customer Credit Report** — the credit picture for an account.")
 b("**Revenue Trend**, **Top Products & Designs**, **Sales-Rep Activity**, **Lead-Source ROI**.")
 shot("c2-sales-analysis", "Sales Analysis — three years by month, per customer, grouped by rep.")
+shot("c3-credit-report", "The Customer Credit Report.")
 shot("c4-open-orders", "Open Orders by Salesperson.")
 shot("c5-rep-activity", "Sales-Rep Activity — calls, notes, emails, visits, quotes and what they won.")
 h3("Building your own")
@@ -379,6 +420,8 @@ shot("c1-report-new", "The report builder.")
 p("A saved report can be edited, deleted, exported to CSV and scheduled to email itself out.")
 
 # ---- 14 -------------------------------------------------------------------
+art("guide-web-store", "Step 14 — The web store",
+    "Publishing products, pricing and promotions, and the orders that come in through the storefront.", "Sales")
 h2("14. The web store")
 p("The web store is our own storefront — it replaces Zoey rather than talking to it. Products are "
   "published from the same inventory the rest of the platform uses, so there is one catalogue, "
@@ -392,6 +435,8 @@ shot("d2-storefront", "The storefront as a customer sees it.")
 
 brk()
 # ===========================================================================
+art("guide-the-rhythm", "The rhythm of the job",
+    "What to check every day, every week, twice a month, every month and every quarter.", "Everyone")
 h1("Part 3 — The rhythm of the job")
 h2("Every day")
 b("**Dashboard** — what is open, what is on the floor, what is low on stock.")
@@ -421,6 +466,8 @@ b("**Profitability and job costing** — which customers and which work are actu
 
 brk()
 # ===========================================================================
+art("guide-running-the-place", "Running the place",
+    "User accounts, teams, report permissions, workflows, approvals, settings and the audit trail.", "Administrators")
 h1("Part 4 — Running the place")
 h2("People and access")
 p("Administration → Users is where accounts are created. **Create user & send invite** emails them "
@@ -466,6 +513,8 @@ shot("e5-audit", "The audit log.")
 
 brk()
 # ===========================================================================
+art("guide-what-came-from-sap", "What came across from SAP",
+    "The history and open balances migrated from SAP, and why old document numbers still work.", "Everyone")
 h1("Appendix — What came across from SAP")
 p("MakeReady was not started empty. The SAP history was migrated, so the reports have real "
   "history behind them from the first day:")
@@ -512,6 +561,8 @@ def render_markdown():
     for kind, payload in C:
         # A list has to be closed with a blank line or the next paragraph is
         # swallowed into the last bullet.
+        if kind == "art":
+            continue
         if prev in ("b", "n") and kind not in ("b", "n"):
             out.append("")
         prev = kind
@@ -531,7 +582,7 @@ def render_markdown():
             out += [f"> {payload}", ""]
         elif kind == "shot":
             slug, cap = payload
-            out += ["", f"![{cap}](screenshots/{slug}.png)", "", f"*{cap}*", ""]
+            out += ["", f"![{cap}]({MD_IMG}/{slug}.png)", "", f"*{cap}*", ""]
         elif kind == "table":
             hdr, rows = payload
             out += ["", "| " + " | ".join(hdr) + " |",
@@ -541,6 +592,8 @@ def render_markdown():
             out.append("")
         elif kind == "break":
             out += ["", "---", ""]
+        elif kind == "art":
+            continue
     text = "\n".join(out)
     os.makedirs(os.path.dirname(OUT_MD), exist_ok=True)
     with open(OUT_MD, "w", encoding="utf-8") as f:
@@ -653,16 +706,133 @@ def render_docx():
             doc.add_paragraph().paragraph_format.space_after = Pt(8)
         elif kind == "break":
             add_page_break(doc)
+        elif kind == "art":
+            continue
 
     doc.save(OUT_DOCX)
+
+
+
+# ---------------------------------------------------------------------------
+# Help Center articles — the same guide, browsable inside the platform.
+# ---------------------------------------------------------------------------
+OUT_TS = os.path.join(ROOT, "platform", "src", "lib", "help", "user-guide.ts")
+PLAIN = lambda t: t.replace("**", "")
+CHR_NL = chr(10)
+
+
+def ts(value):
+    """A TypeScript literal for a string, list or dict of the above."""
+    if isinstance(value, str):
+        return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    if isinstance(value, (list, tuple)):
+        return "[" + ", ".join(ts(v) for v in value) + "]"
+    if isinstance(value, dict):
+        return "{ " + ", ".join(f"{k}: {ts(v)}" for k, v in value.items()) + " }"
+    raise TypeError(value)
+
+
+def split_articles():
+    """Cut the flat block list at the article markers."""
+    articles, current = [], None
+    for kind, payload in C:
+        if kind == "art":
+            slug, title, summary, who = payload
+            current = {"slug": slug, "title": title, "summary": summary, "who": who, "blocks": []}
+            articles.append(current)
+        elif current is not None:
+            current["blocks"].append((kind, payload))
+    # The heading a marker sits on becomes the article title, so drop it.
+    for a in articles:
+        while a["blocks"] and a["blocks"][0][0] in ("h1", "h2"):
+            a["blocks"].pop(0)
+    return articles
+
+
+def help_blocks(blocks):
+    """Map guide blocks onto the Help Center's own block vocabulary."""
+    out, i = [], 0
+    while i < len(blocks):
+        kind, payload = blocks[i]
+        if kind in ("b", "n"):
+            # Runs of bullets or steps become one list / one numbered sequence.
+            items = []
+            while i < len(blocks) and blocks[i][0] == kind:
+                items.append(PLAIN(blocks[i][1]))
+                i += 1
+            if kind == "b":
+                out.append({"k": "list", "items": items})
+            else:
+                out.append({"k": "steps", "items": [{"text": t} for t in items]})
+            continue
+        if kind == "p":
+            out.append({"k": "p", "text": PLAIN(payload)})
+        elif kind in ("h1", "h2", "h3"):
+            out.append({"k": "h", "text": PLAIN(payload)})
+        elif kind == "note":
+            out.append({"k": "tip", "text": PLAIN(payload)})
+        elif kind == "shot":
+            slug, cap = payload
+            out.append({"k": "img", "src": f"guide/{slug}.png", "caption": cap})
+        elif kind == "table":
+            hdr, rows = payload
+            out.append({"k": "table", "headers": [PLAIN(h) for h in hdr],
+                        "rows": [[PLAIN(c) for c in r] for r in rows]})
+        i += 1
+    return out
+
+
+def render_help_articles():
+    arts = split_articles()
+    lines = [
+        "// The MakeReady user guide, as browsable Help Center articles.",
+        "//",
+        "// GENERATED — do not edit by hand. The guide is written in",
+        "// scripts/generate_user_guide.py, which emits this file alongside the",
+        "// Markdown and Word versions so all three say the same thing.",
+        "// Regenerate: pnpm guide:shots && python scripts/generate_user_guide.py",
+        "",
+        'import type { HelpArticle } from "./content";',
+        "",
+        "export const USER_GUIDE_SECTION = \"User Guide\";",
+        "",
+        "export const USER_GUIDE_ARTICLES: HelpArticle[] = [",
+    ]
+    slugs = [a["slug"] for a in arts]
+    for order, a in enumerate(arts):
+        # Related: the step either side, so the guide can be read straight through.
+        related = [s for s in (slugs[order - 1] if order else None,
+                               slugs[order + 1] if order + 1 < len(slugs) else None) if s]
+        lines += [
+            "  {",
+            f"    slug: {ts(a['slug'])},",
+            f"    title: {ts(a['title'])},",
+            "    section: USER_GUIDE_SECTION,",
+            f"    order: {order},",
+            f"    summary: {ts(a['summary'])},",
+            f"    who: {ts(a['who'])},",
+            f"    related: {ts(related)},",
+            "    blocks: [",
+        ]
+        for blk in help_blocks(a["blocks"]):
+            lines.append(f"      {ts(blk)},")
+        lines += ["    ],", "  },"]
+    lines += ["];", ""]
+
+    os.makedirs(os.path.dirname(OUT_TS), exist_ok=True)
+    with open(OUT_TS, "w", encoding="utf-8", newline=CHR_NL) as f:
+        f.write(CHR_NL.join(lines))
+    return arts
 
 
 def main():
     text = render_markdown()
     render_docx()
+    arts = render_help_articles()
     shots = sum(1 for k, _ in C if k == "shot")
     print(f"{OUT_MD}  ({len(text.splitlines())} lines)")
     print(f"{OUT_DOCX}  ({shots} screenshots)")
+    print(f"{OUT_TS}  ({len(arts)} help articles)")
 
 
 if __name__ == "__main__":

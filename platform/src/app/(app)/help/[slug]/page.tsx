@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/guards";
 import { Card } from "@/components/ui";
 import { HelpImage } from "@/components/help/help-image";
-import { getArticle, getArticle as _g, HELP_ARTICLES, type HelpBlock } from "@/lib/help/content";
+import { getArticle, getArticle as _g, ALL_ARTICLES, type HelpBlock } from "@/lib/help/content";
 
 export function generateStaticParams() {
-  return HELP_ARTICLES.map((a) => ({ slug: a.slug }));
+  return ALL_ARTICLES.map((a) => ({ slug: a.slug }));
 }
 
 function Block({ block }: { block: HelpBlock }) {
@@ -41,6 +41,29 @@ function Block({ block }: { block: HelpBlock }) {
       return (
         <div className="my-4 rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
           <span className="font-semibold">Tip · </span>{block.text}
+        </div>
+      );
+    case "table":
+      return (
+        <div className="my-4 overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                {block.headers.map((h, i) => (
+                  <th key={i} className="border-b border-neutral-300 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {block.rows.map((row, ri) => (
+                <tr key={ri} className="align-top">
+                  {row.map((cell, ci) => (
+                    <td key={ci} className="border-b border-neutral-200 px-3 py-2 text-neutral-700">{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       );
     case "warn":
