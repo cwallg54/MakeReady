@@ -1,5 +1,5 @@
 import "server-only";
-import { accountTotals, type TrialBalanceRow } from "./journal";
+import { accountTotals, segmentTotals, type TrialBalanceRow } from "./journal";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -35,8 +35,8 @@ export interface IncomeStatement {
   netIncome: number;
 }
 
-export async function incomeStatement(from: Date, to: Date): Promise<IncomeStatement> {
-  const totals = await accountTotals({ from, to });
+export async function incomeStatement(from: Date, to: Date, segmentId?: string): Promise<IncomeStatement> {
+  const totals = await accountTotals({ from, to, segmentId });
   const rev = totals.filter((r) => r.type === "revenue");
   const cogsRows = totals.filter((r) => r.type === "expense" && (r.subtype ?? "").toUpperCase() === "COGS");
   const opRows = totals.filter((r) => r.type === "expense" && (r.subtype ?? "").toUpperCase() !== "COGS");
@@ -94,4 +94,86 @@ export async function balanceSheet(asOf: Date): Promise<BalanceSheet> {
     totalLiabEquity,
     balanced: Math.abs(assetsTotal - totalLiabEquity) < 0.005,
   };
+}
+
+// ---- Segmented P&L --------------------------------------------------------
+// Revenue and COGS are read by product line (HG / SG / HW); labour and supplies
+// by production department; overhead by function. This builds the matrix: one
+// column per segment, the P&L lines down the side.
+
+export interface SegmentColumn {
+  segmentId: string | null;
+  code: string;
+  name: string;
+  short: string;
+  kind: string;
+  revenue: number;
+  cogs: number;
+  grossProfit: number;
+  grossMarginPct: number | null;
+  operating: number;
+  netIncome: number;
+}
+
+export interface SegmentPnl {
+  columns: SegmentColumn[];
+  total: SegmentColumn;
+}
+
+const isCogs = (subtype: string | null) => (subtype ?? "").toUpperCase() === "COGS";
+
+export async function segmentPnl(from: Date, to: Date): Promise<SegmentPnl> {
+  const rows = await segmentTotals({ from, to });
+
+  const byKey = new Map<string, SegmentColumn>();
+  const blank = (r: (typeof rows)[number]): SegmentColumn => ({
+    segmentId: r.segmentId,
+    code: r.segmentCode,
+    name: r.segmentName,
+    short: r.segmentShort || r.segmentName,
+    kind: r.kind,
+    revenue: 0,
+    cogs: 0,
+    grossProfit: 0,
+    grossMarginPct: null,
+    operating: 0,
+    netIncome: 0,
+  });
+
+  for (const r of rows) {
+    const key = r.segmentCode;
+    let col = byKey.get(key);
+    if (!col) byKey.set(key, (col = blank(r)));
+    if (r.type === "revenue") col.revenue = round2(col.revenue + r.balance);
+    else if (r.type === "expense" && isCogs(r.subtype)) col.cogs = round2(col.cogs + r.balance);
+    else if (r.type === "expense") col.operating = round2(col.operating + r.balance);
+  }
+
+  const finish = (c: SegmentColumn) => {
+    c.grossProfit = round2(c.revenue - c.cogs);
+    c.grossMarginPct = c.revenue !== 0 ? round2((c.grossProfit / c.revenue) * 100) : null;
+    c.netIncome = round2(c.grossProfit - c.operating);
+    return c;
+  };
+
+  const columns = [...byKey.values()]
+    .map(finish)
+    .filter((c) => c.revenue !== 0 || c.cogs !== 0 || c.operating !== 0)
+    .sort((a, b) => a.code.localeCompare(b.code));
+
+  const total = finish({
+    segmentId: null,
+    code: "",
+    name: "Total",
+    short: "Total",
+    kind: "total",
+    revenue: round2(columns.reduce((s, c) => s + c.revenue, 0)),
+    cogs: round2(columns.reduce((s, c) => s + c.cogs, 0)),
+    grossProfit: 0,
+    grossMarginPct: null,
+    operating: round2(columns.reduce((s, c) => s + c.operating, 0)),
+    netIncome: 0,
+  });
+
+  return { columns, total };
 }

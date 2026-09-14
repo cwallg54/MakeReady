@@ -561,6 +561,13 @@
       "when": 1787169716582,
       "tag": "0079_content_azure_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1789395371153,
+      "tag": "0080_fiscal_calendar_segments",
+      "breakpoints": true
     }
   ]
 }

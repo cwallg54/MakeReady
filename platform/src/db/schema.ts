@@ -10,6 +10,7 @@ import {
   bigserial,
   bigint,
   numeric,
+  date,
   primaryKey,
   index,
   uniqueIndex,
@@ -283,6 +284,11 @@ export const paymentMethodEnum = pgEnum("payment_method", ["check", "ach", "card
 // are debit-normal; liability, equity & revenue are credit-normal.
 export const glAccountTypeEnum = pgEnum("gl_account_type", ["asset", "liability", "equity", "revenue", "expense"]);
 export const journalStatusEnum = pgEnum("journal_status", ["draft", "posted", "void"]);
+// Fiscal periods and years move open -> closing (adjustments only) -> locked.
+export const fiscalStatusEnum = pgEnum("fiscal_status", ["open", "closing", "locked"]);
+// What an account-code segment represents. The P&L is read by product line
+// (HG/SG/HW) and by department; balance-sheet accounts are unsegmented.
+export const glSegmentKindEnum = pgEnum("gl_segment_kind", ["product_line", "department", "overhead", "none"]);
 export const creditRequestReasonEnum = pgEnum("credit_request_reason", ["hold", "over_limit"]);
 export const creditRequestStatusEnum = pgEnum("credit_request_status", ["pending", "approved", "denied"]);
 // Design-library (barcode book) statuses. A design item isn't orderable until
@@ -1115,11 +1121,77 @@ export type CreditApprovalRequest = typeof creditApprovalRequests.$inferSelect;
 // Chart of accounts, journal entries, and their balanced debit/credit lines.
 // Posted journal lines ARE the general ledger; account balances and the trial
 // balance / financial statements are derived from them.
+// ---- Fiscal calendar ------------------------------------------------------
+// The fiscal year runs 1 Oct -> 30 Sep and is labelled by the calendar year it
+// ends in: FY2026 = Oct 2025 - Sep 2026. Periods are numbered 1-12 from
+// October, so period 2026-01 is October 2025 and 2026-12 is September 2026.
+// Quarters follow: Q1 Oct-Dec, Q2 Jan-Mar, Q3 Apr-Jun, Q4 Jul-Sep.
+export const fiscalYears = pgTable(
+  "fiscal_years",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    year: integer("year").notNull().unique(), // 2026 = FY ending Sep 2026
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    status: fiscalStatusEnum("status").notNull().default("open"),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: uuid("closed_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("fiscal_years_year_idx").on(t.year)],
+);
+export type FiscalYear = typeof fiscalYears.$inferSelect;
+
+export const fiscalPeriods = pgTable(
+  "fiscal_periods",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fiscalYearId: uuid("fiscal_year_id").notNull().references(() => fiscalYears.id, { onDelete: "cascade" }),
+    code: text("code").notNull().unique(), // "2026-01"
+    name: text("name").notNull(), // "Oct 2025"
+    periodNumber: integer("period_number").notNull(), // 1-12 from October
+    quarter: integer("quarter").notNull(), // 1-4
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    status: fiscalStatusEnum("status").notNull().default("open"),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: uuid("closed_by").references(() => users.id),
+  },
+  (t) => [
+    uniqueIndex("fiscal_periods_year_num_uk").on(t.fiscalYearId, t.periodNumber),
+    index("fiscal_periods_dates_idx").on(t.startDate, t.endDate),
+  ],
+);
+export type FiscalPeriod = typeof fiscalPeriods.$inferSelect;
+
+// ---- GL account segments --------------------------------------------------
+// Account codes are two segments: a 4-digit natural account plus a 3-digit
+// segment (100 HG, 200 SG, 300 HW, 510 Art, 540 Silkscreen, 650 Sales, ...).
+// The segment is the only analytical axis the business actually uses.
+export const glSegments = pgTable(
+  "gl_segments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // "100", "540", "000"
+    name: text("name").notNull(), // "Hard Goods"
+    shortName: text("short_name").notNull().default(""), // "HG"
+    kind: glSegmentKindEnum("kind").notNull().default("none"),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("gl_segments_kind_idx").on(t.kind)],
+);
+export type GlSegment = typeof glSegments.$inferSelect;
+
 export const glAccounts = pgTable(
   "gl_accounts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    code: text("code").notNull().unique(), // e.g. "1000", "4000"
+    code: text("code").notNull().unique(), // full code, e.g. "3005200"
+    // The two halves of a segmented code: natural account + segment. Both are
+    // derived from `code` on save; naturalCode is what the P&L rolls up by.
+    naturalCode: text("natural_code"), // "3005"
+    segmentId: uuid("segment_id").references(() => glSegments.id, { onDelete: "set null" }),
     name: text("name").notNull(),
     type: glAccountTypeEnum("type").notNull(),
     subtype: text("subtype"), // free-form grouping, e.g. "Current Asset", "COGS"
@@ -1131,7 +1203,7 @@ export const glAccounts = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("gl_accounts_type_idx").on(t.type)],
+  (t) => [index("gl_accounts_type_idx").on(t.type), index("gl_accounts_natural_idx").on(t.naturalCode), index("gl_accounts_segment_idx").on(t.segmentId)],
 );
 export type GlAccount = typeof glAccounts.$inferSelect;
 
@@ -1146,6 +1218,12 @@ export const journalEntries = pgTable(
     // Provenance: "manual" or an auto-post source ("invoice", "payment", …).
     source: text("source").notNull().default("manual"),
     sourceId: uuid("source_id"), // the invoice/payment/etc. this was posted from
+    // Fiscal period the entry falls in, resolved from `date` when posted.
+    periodId: uuid("period_id").references(() => fiscalPeriods.id, { onDelete: "set null" }),
+    // Accrual handling: an entry can be marked to auto-reverse on a date, and
+    // the reversal points back at what it reverses.
+    autoReverseOn: date("auto_reverse_on"),
+    reversesEntryId: uuid("reverses_entry_id"),
     postedAt: timestamp("posted_at", { withTimezone: true }),
     postedBy: uuid("posted_by").references(() => users.id),
     voidedAt: timestamp("voided_at", { withTimezone: true }),
@@ -1154,7 +1232,7 @@ export const journalEntries = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("journal_entries_status_idx").on(t.status), index("journal_entries_date_idx").on(t.date), index("journal_entries_source_idx").on(t.source, t.sourceId)],
+  (t) => [index("journal_entries_status_idx").on(t.status), index("journal_entries_date_idx").on(t.date), index("journal_entries_source_idx").on(t.source, t.sourceId), index("journal_entries_period_idx").on(t.periodId)],
 );
 export type JournalEntry = typeof journalEntries.$inferSelect;
 
@@ -1167,9 +1245,13 @@ export const journalLines = pgTable(
     debit: numeric("debit", { precision: 14, scale: 2 }).notNull().default("0"),
     credit: numeric("credit", { precision: 14, scale: 2 }).notNull().default("0"),
     memo: text("memo"),
+    // Analytics: which customer/vendor this line belongs to (sub-ledger tie-out)
+    // and which segment it is charged to (defaults to the account's segment).
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    segmentId: uuid("segment_id").references(() => glSegments.id, { onDelete: "set null" }),
     sortOrder: integer("sort_order").notNull().default(0),
   },
-  (t) => [index("journal_lines_entry_idx").on(t.entryId), index("journal_lines_account_idx").on(t.accountId)],
+  (t) => [index("journal_lines_entry_idx").on(t.entryId), index("journal_lines_account_idx").on(t.accountId), index("journal_lines_bp_idx").on(t.bpId), index("journal_lines_segment_idx").on(t.segmentId)],
 );
 export type JournalLine = typeof journalLines.$inferSelect;
 
