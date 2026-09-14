@@ -57,6 +57,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ],
     accounting: [
       { key: "acct-overview", label: "Overview", href: "/accounting", phase1: true },
+      { key: "acct-h-reports", label: "Finance Reporting", phase1: true, header: true },
+      { key: "acct-flash", label: "Weekly Flash", href: "/accounting/flash", phase1: true },
+      { key: "acct-quarterly", label: "Quarterly Pack", href: "/accounting/quarterly", phase1: true },
       { key: "acct-h-ar", label: "Receivables", phase1: true, header: true },
       { key: "acct-invoices", label: "Invoices", href: "/accounting/invoices", phase1: true },
       { key: "acct-payments", label: "Payments", href: "/accounting/payments", phase1: true },

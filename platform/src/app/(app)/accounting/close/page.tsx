@@ -1,57 +1,161 @@
 import Link from "next/link";
 import { DateTime } from "luxon";
 import { redirect } from "next/navigation";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { db } from "@/db";
+import { fiscalPeriods } from "@/db/schema";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { PageHeader, Card } from "@/components/ui";
-import { glClosingDate } from "@/lib/accounting/journal";
-import { setGlClosingDateAction } from "@/lib/accounting/close-actions";
+import { closeChecklist } from "@/lib/accounting/finance-reports";
+import { currentPeriod, listPeriods, fiscalStartMonth } from "@/lib/accounting/fiscal-service";
+import { fiscalYearOf } from "@/lib/accounting/fiscal";
+import { setPeriodStatusAction } from "@/lib/accounting/period-actions";
+import { runDueReversalsAction } from "@/lib/accounting/close-actions";
 
 export const dynamic = "force-dynamic";
-const TZ = "America/Denver";
-const inp = "rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand";
+const money = (n: number) => `$${Math.abs(Math.round(n)).toLocaleString()}`;
 
-export default async function PeriodClosePage() {
+export default async function PeriodClosePage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
   const user = await requireModule("accounting");
-  if (!canEdit(user.roles, "accounting")) redirect("/accounting");
+  const editable = canEdit(user.roles, "accounting");
+  const sp = await searchParams;
+  const startMonth = await fiscalStartMonth();
 
-  const closing = await glClosingDate();
-  const settings = await db.query.systemSettings.findFirst({ columns: { glClosingNote: true } });
-  const closingStr = closing ? DateTime.fromJSDate(closing).setZone(TZ).toFormat("yyyy-LL-dd") : "";
+  const today = new Date().toISOString().slice(0, 10);
+  const cur = await currentPeriod();
+  // Default to the month being closed — the one before the current period.
+  const periods = await listPeriods(fiscalYearOf(today, startMonth));
+  const defaultPeriod =
+    periods.find((p) => p.status === "closing") ??
+    (cur ? periods.find((p) => p.periodNumber === cur.periodNumber - 1) : undefined) ??
+    cur ??
+    periods[0];
+
+  const period = sp.period
+    ? (await db.query.fiscalPeriods.findFirst({ where: eq(fiscalPeriods.code, sp.period) })) ?? defaultPeriod
+    : defaultPeriod;
+  if (!period) redirect("/accounting/periods");
+
+  const checks = await closeChecklist(period.startDate, period.endDate);
+  const blockers = checks.filter((c) => c.blocking && c.count > 0);
+  const advisories = checks.filter((c) => !c.blocking && c.count > 0);
+  const ready = blockers.length === 0;
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div className="text-sm"><Link href="/accounting" className="text-neutral-500 hover:text-neutral-900">← Accounting</Link></div>
-      <PageHeader title="Period close" description="Lock closed accounting periods so their books can't be changed." />
+    <div className="max-w-3xl space-y-6">
+      <div className="text-sm">
+        <Link href="/accounting" className="text-neutral-500 hover:text-neutral-900">← Accounting</Link>
+      </div>
+      <PageHeader
+        title="Period close"
+        description="Work the checklist, then lock the month. A locked period refuses every posting, void and reversal dated inside it."
+      />
 
       <Card>
-        <h2 className="mb-1 text-sm font-semibold text-neutral-900">Closing date</h2>
-        <p className="mb-4 text-xs text-neutral-500">
-          Journal entries dated <strong>on or before</strong> the closing date are locked — they can't be created as posted, posted, or voided. Set it to the last day of your most recently closed period (e.g. the end of a closed month or fiscal year). Leave it blank to keep all periods open.
-        </p>
-        {closing ? (
-          <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
-            Books are closed through <strong>{DateTime.fromJSDate(closing).setZone(TZ).toFormat("LLLL d, yyyy")}</strong>.
-            {settings?.glClosingNote ? ` — ${settings.glClosingNote}` : ""}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-neutral-900">{period.name}</h2>
+            <p className="text-xs text-neutral-500">
+              {period.code} · {period.startDate} → {period.endDate} · currently{" "}
+              <span className="font-medium">{period.status}</span>
+            </p>
           </div>
-        ) : (
-          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm text-neutral-600">All periods are currently open.</div>
-        )}
+          <form method="get" className="flex items-end gap-2">
+            <select name="period" defaultValue={period.code} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm">
+              {periods.map((p) => (
+                <option key={p.id} value={p.code}>{p.code} — {p.name} ({p.status})</option>
+              ))}
+            </select>
+            <button className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-semibold text-neutral-700 hover:border-neutral-400">Show</button>
+          </form>
+        </div>
 
-        <form action={setGlClosingDateAction} className="space-y-3">
-          <div className="flex flex-wrap items-end gap-3">
-            <label><span className="mb-1 block text-xs font-medium text-neutral-600">Closing date</span><input name="closingDate" type="date" defaultValue={closingStr} className={inp} /></label>
-            <label className="flex-1 min-w-[12rem]"><span className="mb-1 block text-xs font-medium text-neutral-600">Note <span className="text-neutral-400">optional</span></span><input name="note" defaultValue={settings?.glClosingNote ?? ""} placeholder="e.g. FY2025 closed & reviewed" className={`w-full ${inp}`} /></label>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Save closing date</button>
-            {closing && <span className="text-xs text-neutral-400">To reopen, clear the date and save.</span>}
-          </div>
-        </form>
+        <div className="space-y-2">
+          {checks.map((c) => {
+            const clear = c.count === 0;
+            const tone = clear
+              ? "border-emerald-200 bg-emerald-50"
+              : c.blocking
+                ? "border-amber-300 bg-amber-50"
+                : "border-neutral-200 bg-neutral-50";
+            return (
+              <div key={c.key} className={`flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2 ${tone}`}>
+                <div className="min-w-[14rem] flex-1">
+                  <div className="text-sm font-medium text-neutral-900">
+                    {clear ? "✓" : c.blocking ? "!" : "•"} {c.label}
+                  </div>
+                  <div className="text-xs text-neutral-500">{c.detail}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold tabular-nums text-neutral-900">
+                    {clear ? "clear" : `${c.count}${c.amount !== null ? ` · ${money(c.amount)}` : ""}`}
+                  </div>
+                  {!clear && c.key === "reversals" && editable && (
+                    <form action={runDueReversalsAction}>
+                      <input type="hidden" name="asOf" value={period.endDate} />
+                      <button className="mt-1 rounded border border-neutral-300 bg-white px-2 py-1 text-xs font-semibold text-neutral-700 hover:border-neutral-400">
+                        Post reversals
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {advisories.length > 0 && (
+          <p className="mt-3 text-xs text-neutral-500">
+            Items marked • don&apos;t block the close — cash genuinely in transit at month end is normal.
+          </p>
+        )}
       </Card>
 
-      <p className="text-xs text-neutral-400">Auto-posted entries (invoices, payments, bills) that fall in a closed period are skipped rather than posted — reopen the period if you need them recorded.</p>
+      {editable && (
+        <Card>
+          <h2 className="mb-3 text-sm font-semibold text-neutral-900">Close {period.name}</h2>
+          {!ready && (
+            <p className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              {blockers.length} item{blockers.length === 1 ? "" : "s"} still outstanding. You can still lock the period, but those
+              entries will no longer be postable into it.
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {period.status !== "closing" && (
+              <form action={setPeriodStatusAction}>
+                <input type="hidden" name="periodId" value={period.id} />
+                <input type="hidden" name="status" value="closing" />
+                <button className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:border-neutral-400">
+                  Mark as closing
+                </button>
+              </form>
+            )}
+            {period.status !== "locked" && (
+              <form action={setPeriodStatusAction}>
+                <input type="hidden" name="periodId" value={period.id} />
+                <input type="hidden" name="status" value="locked" />
+                <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">
+                  Lock the period
+                </button>
+              </form>
+            )}
+            {period.status !== "open" && (
+              <form action={setPeriodStatusAction}>
+                <input type="hidden" name="periodId" value={period.id} />
+                <input type="hidden" name="status" value="open" />
+                <button className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:border-neutral-400">
+                  Reopen
+                </button>
+              </form>
+            )}
+          </div>
+          <p className="mt-3 text-xs text-neutral-500">
+            Every status change is written to the audit log with who did it and when.{" "}
+            <Link href="/accounting/periods" className="underline">See every period →</Link>
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

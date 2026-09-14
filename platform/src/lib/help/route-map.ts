@@ -31,6 +31,8 @@ const ROUTE_HELP: Record<string, string> = {
   "/accounting/balance-sheet": "general-ledger",
   "/accounting/cash-flow": "general-ledger",
   "/accounting/close": "general-ledger",
+  "/accounting/flash": "general-ledger",
+  "/accounting/quarterly": "general-ledger",
   "/accounting/periods": "general-ledger",
   "/accounting/reconcile": "general-ledger",
   "/accounting/import": "general-ledger",
