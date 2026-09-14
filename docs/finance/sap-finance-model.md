@@ -368,16 +368,51 @@ Gaps that block GMW from running finance on it:
 
 ---
 
-## 13. Build plan
+## 13. Build plan — status
 
-- **Phase A — foundation**: fiscal years + periods (Oct–Sep, lock states),
-  account segments, journal-line analytics (BP, segment, period, document).
-- **Phase B — AR**: credit memos, multi-invoice cash application, on-account
-  cash, deposits through clearing, parent/child rollup, collections worklists.
-- **Phase C — AP**: vendor credits, payment runs (cheque + ACH batches), GRNI
-  clearing report.
-- **Phase D — tax**: state tax codes, per-line tax, customer exemption, per-state
-  filing report.
-- **Phase E — close & reporting**: period close with closing entries, payroll JE
-  template with accrual/reversal, segmented P&L, weekly flash, quarterly pack,
-  finance KPI dashboard, budget/goal vs actual.
+All five phases are built. Migrations 0080–0083, applied to Neon.
+
+- **Phase A — foundation** *(commit `74d95ba`)*: `fiscal_years` / `fiscal_periods`
+  (Oct–Sep, open/closing/locked, FY2008–FY2031 seeded), `gl_segments` with the
+  14 live values, accounts split into natural code + segment, journal lines
+  carrying business partner and segment, entries stamped with their period,
+  period-aware posting guard, auto-reversing accruals. Screens:
+  `/accounting/periods`, `/accounting/segment-pnl`.
+- **Phase B — receivables** *(commit `0c8ed67`)*: `payment_terms` (56 imported
+  from SAP, with card-on-file / prepay / credit-allowed behaviour),
+  `credit_memos`, `ar_applications` (one receipt across many invoices, cash on
+  account), `deposits` through Checks Clearing, parent/child billing. Screens:
+  `/accounting/collections`, `/accounting/credit-memos`, `/accounting/deposits`,
+  the payment apply screen. All 7,109 customers mapped to terms, 2,180 credit
+  limits, 2,185 parent links.
+- **Phase C — payables** *(commit `b145069`)*: weekly `payment_runs` (select →
+  approve → pay, one instrument per vendor, one journal entry per batch),
+  `vendor_credits`, GRNI aging. Screens: `/accounting/payment-runs`,
+  `/accounting/vendor-credits`, `/accounting/grni`.
+- **Phase D — tax** *(commit `100f255`)*: `tax_codes` for the 18 states of nexus
+  at their real rates, per-invoice jurisdiction, customer default + exemption
+  certificates, and a per-state filing worksheet at `/accounting/tax-filing`.
+  5,148 customers defaulted from their ship-to state.
+- **Phase E — close & reporting** *(commit `edc0f64`)*: weekly flash with the
+  four KPIs SAP's mobile dashboard carried, a quarterly pack with prior-year and
+  YTD comparatives plus the segment split, and a period close driven by a real
+  checklist. Screens: `/accounting/flash`, `/accounting/quarterly`,
+  `/accounting/close`.
+
+### Verification
+- `pnpm verify:ar` — end-to-end cash application on real tables (one cheque over
+  three invoices, partial payment, cash on account, credit memo absorbing the
+  rest, over-application refused), self-cleaning.
+- `npx tsx scripts/verify-finance-pages.ts` — renders all 21 finance screens
+  against a live session.
+
+### Known gaps
+- Payment runs and GRNI show empty until live purchasing flows through the
+  platform: all 157,770 bills imported from SAP are historical and settled, and
+  no goods receipts have been entered.
+- The payroll journal template (24 hand-typed payroll entries and 12 accruals a
+  year across ~14 departmental accounts) is not built; the accrual machinery it
+  needs — auto-reverse plus `runDueReversals` — is.
+- Monthly budget/goal vs actual by rep (SAP's `@GMWS_SALES_GOALS_MO`, 3,497 rows
+  since FY2009) is not built.
+- Employee expense claims (the 54-query add-on) are not built.
