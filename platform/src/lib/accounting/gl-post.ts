@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db";
-import { glAccounts, journalEntries, invoices, payments, bills, billLines, billPayments } from "@/db/schema";
+import { glAccounts, journalEntries, invoices, payments, bills, billLines, billPayments, creditMemos } from "@/db/schema";
 import { createJournal, voidJournal, type DraftLine } from "./journal";
 
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -56,7 +56,13 @@ export async function postInvoiceToGl(invoiceId: string, userId: string): Promis
   }
 }
 
-/** Post a received payment: Dr Cash / Cr Accounts Receivable. */
+/** Post a received payment: Dr Checks Clearing / Cr Accounts Receivable.
+ *
+ *  Cash is a two-step process. Taking the money debits a clearing account, and
+ *  the deposit that banks it moves the batch into the bank (see deposits.ts).
+ *  That is what makes the bank statement reconcilable, because the bank shows
+ *  the deposit batch, not the individual cheques. Falls back to posting
+ *  straight to cash when no clearing account exists. */
 export async function postPaymentToGl(paymentId: string, userId: string): Promise<void> {
   try {
     if (await alreadyPosted("payment", paymentId)) return;
@@ -64,16 +70,46 @@ export async function postPaymentToGl(paymentId: string, userId: string): Promis
     if (!p) return;
     const amount = Number(p.amount);
     if (amount <= 0) return;
-    const acc = await systemAccounts(["cash", "ar"]);
-    if (!acc.cash || !acc.ar) return;
+    const acc = await systemAccounts(["cash", "ar", "undeposited"]);
+    if (!acc.ar) return;
+    const debitAccount = acc.undeposited ?? acc.cash;
+    if (!debitAccount) return;
     const ref = (p.reference ?? "").trim();
     const lines: DraftLine[] = [
-      { accountId: acc.cash, debit: amount, credit: 0, memo: `Payment${ref ? ` ${ref}` : ""}` },
-      { accountId: acc.ar, debit: 0, credit: amount, memo: "Customer payment" },
+      { accountId: debitAccount, debit: amount, credit: 0, memo: `Payment${ref ? ` ${ref}` : ""}` },
+      { accountId: acc.ar, debit: 0, credit: amount, memo: "Customer payment", bpId: p.bpId ?? null },
     ];
     await createJournal({ date: p.receivedDate ?? new Date(), memo: "Customer payment", lines, source: "payment", sourceId: paymentId, post: true }, userId);
   } catch (e) {
     console.error("postPaymentToGl failed", e);
+  }
+}
+
+/** Post an issued credit memo — the mirror of an invoice:
+ *    Dr Sales Revenue (net) + Dr Sales Tax Payable / Cr Accounts Receivable. */
+export async function postCreditMemoToGl(memoId: string, userId: string): Promise<void> {
+  try {
+    if (await alreadyPosted("credit_memo", memoId)) return;
+    const memo = await db.query.creditMemos.findFirst({ where: eq(creditMemos.id, memoId) });
+    if (!memo || memo.voidedAt) return;
+    const total = Number(memo.total), subtotal = Number(memo.subtotal), tax = Number(memo.tax);
+    if (total <= 0) return;
+    const acc = await systemAccounts(["ar", "sales", "sales_tax"]);
+    if (!acc.ar || !acc.sales) return;
+
+    const lines: DraftLine[] = [
+      { accountId: acc.sales, debit: subtotal, credit: 0, memo: `Credit memo ${memo.memoNumber}` },
+      { accountId: acc.ar, debit: 0, credit: total, memo: `Credit memo ${memo.memoNumber}`, bpId: memo.bpId ?? null },
+    ];
+    if (tax > 0 && acc.sales_tax) lines.splice(1, 0, { accountId: acc.sales_tax, debit: tax, credit: 0, memo: `Sales tax credit ${memo.memoNumber}` });
+    else if (tax > 0) lines[0].debit = total; // no tax account: keep it balanced
+
+    await createJournal(
+      { date: memo.issueDate ?? new Date(), memo: `Credit memo ${memo.memoNumber}`, lines, source: "credit_memo", sourceId: memoId, post: true },
+      userId,
+    );
+  } catch (e) {
+    console.error("postCreditMemoToGl failed", e);
   }
 }
 

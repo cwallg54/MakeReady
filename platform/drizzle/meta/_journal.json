@@ -568,6 +568,13 @@
       "when": 1789395371153,
       "tag": "0080_fiscal_calendar_segments",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1789396030858,
+      "tag": "0081_ar_credit_memos_applications_deposits",
+      "breakpoints": true
     }
   ]
 }

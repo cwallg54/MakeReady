@@ -280,6 +280,11 @@ export const meetingStatusEnum = pgEnum("meeting_status", ["scheduled", "cancele
 // AR invoice lifecycle: draft -> sent -> (partial ->) paid, or void.
 export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "sent", "partial", "paid", "void"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["check", "ach", "card", "cash", "credit", "other"]);
+export const creditMemoStatusEnum = pgEnum("credit_memo_status", ["draft", "open", "applied", "void"]);
+// A receipt is applied to invoices, or to credit memos that offset them.
+export const arApplicationSourceEnum = pgEnum("ar_application_source", ["payment", "credit_memo"]);
+// A deposit batches receipts out of the clearing account into the bank.
+export const depositStatusEnum = pgEnum("deposit_status", ["open", "deposited", "void"]);
 // General ledger: the five fundamental account types. Asset & expense accounts
 // are debit-normal; liability, equity & revenue are credit-normal.
 export const glAccountTypeEnum = pgEnum("gl_account_type", ["asset", "liability", "equity", "revenue", "expense"]);
@@ -338,6 +343,11 @@ export const businessPartners = pgTable(
     customerSince: timestamp("customer_since", { withTimezone: true }),
     // Legacy ERP "Parent Number" for grouped/child accounts (reference only).
     parentBpNumber: text("parent_bp_number"),
+    // Real parent link. Child accounts bill in their own name but roll up to the
+    // parent for statements, aging and collections.
+    parentBpId: uuid("parent_bp_id"),
+    // Payment terms govern the due date and how the account is collected.
+    termsId: uuid("terms_id"),
     // Average Pay Age (days) — trailing-12-month and trailing-24-month.
     historicalApa: integer("historical_apa"),
     twoYearApa: integer("two_year_apa"),
@@ -1022,6 +1032,34 @@ export const historicalOrders = pgTable(
 );
 export type HistoricalOrder = typeof historicalOrders.$inferSelect;
 
+// ---- Payment terms --------------------------------------------------------
+// Terms are the credit policy, the collection trigger and the account status
+// all at once: "Net 30" bills on account, "Net 30 (CC)" charges a card on file
+// the day it falls due, "Prepay" must be collected before goods ship, and
+// "Collections" / "Don't Sell" mean no new credit at all.
+export const paymentTermsTable = pgTable(
+  "payment_terms",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(), // "NET30", "NET30CC"
+    name: text("name").notNull(), // "Net 30"
+    netDays: integer("net_days").notNull().default(0),
+    // Early-settlement discount: discountPct off if paid within discountDays.
+    discountPct: numeric("discount_pct", { precision: 6, scale: 3 }).notNull().default("0"),
+    discountDays: integer("discount_days").notNull().default(0),
+    // Behaviour that drives the collections desk.
+    cardOnFile: boolean("card_on_file").notNull().default(false),
+    prepay: boolean("prepay").notNull().default(false),
+    creditAllowed: boolean("credit_allowed").notNull().default(true),
+    // Shown on the account when credit is refused ("In collections").
+    statusNote: text("status_note"),
+    active: boolean("active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("payment_terms_active_idx").on(t.active)],
+);
+export type PaymentTerm = typeof paymentTermsTable.$inferSelect;
+
 // ---- Accounting: Accounts Receivable (invoicing + payments) ----------------
 
 export const invoices = pgTable(
@@ -1039,7 +1077,11 @@ export const invoices = pgTable(
     status: invoiceStatusEnum("status").notNull().default("draft"),
     issueDate: timestamp("issue_date", { withTimezone: true }),
     dueDate: timestamp("due_date", { withTimezone: true }),
-    terms: text("terms"), // e.g. "Net 30"
+    terms: text("terms"), // display text, e.g. "Net 30"
+    termsId: uuid("terms_id").references(() => paymentTermsTable.id, { onDelete: "set null" }),
+    // Card-on-file collection: when the desk last ran the card and what happened.
+    cardChargedAt: timestamp("card_charged_at", { withTimezone: true }),
+    cardChargeNote: text("card_charge_note"),
     subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
     discount: numeric("discount", { precision: 14, scale: 2 }).notNull().default("0"),
     // Sales tax: the rate applied (e.g. 0.0725) and the computed tax amount.
@@ -1076,7 +1118,11 @@ export const payments = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    // Legacy single-invoice link. Real receipts pay several invoices at once —
+    // ar_applications is the source of truth; this is kept for older rows.
     invoiceId: uuid("invoice_id").references(() => invoices.id, { onDelete: "set null" }),
+    // The deposit batch this receipt was banked in, if any.
+    depositId: uuid("deposit_id"),
     method: paymentMethodEnum("method").notNull().default("check"),
     reference: text("reference"), // check #, ACH trace, card last4, etc.
     amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
@@ -1091,6 +1137,99 @@ export const payments = pgTable(
 export type Invoice = typeof invoices.$inferSelect;
 export type InvoiceLine = typeof invoiceLines.$inferSelect;
 export type Payment = typeof payments.$inferSelect;
+
+// ---- AR credit memos ------------------------------------------------------
+// A credit raised against a customer (return, shortage, damage, allowance).
+// It sits open until applied against invoices, exactly like a receipt.
+export const creditMemos = pgTable(
+  "credit_memos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    memoNumber: text("memo_number").notNull().unique(), // "CM-00001"
+    bpId: uuid("bp_id").references(() => businessPartners.id, { onDelete: "set null" }),
+    // The invoice this credit was raised from, when it came from one.
+    invoiceId: uuid("invoice_id").references(() => invoices.id, { onDelete: "set null" }),
+    status: creditMemoStatusEnum("status").notNull().default("draft"),
+    issueDate: timestamp("issue_date", { withTimezone: true }),
+    reason: text("reason"),
+    subtotal: numeric("subtotal", { precision: 14, scale: 2 }).notNull().default("0"),
+    taxRate: numeric("tax_rate", { precision: 6, scale: 4 }).notNull().default("0"),
+    tax: numeric("tax", { precision: 14, scale: 2 }).notNull().default("0"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("credit_memos_bp_idx").on(t.bpId), index("credit_memos_status_idx").on(t.status)],
+);
+export type CreditMemo = typeof creditMemos.$inferSelect;
+
+export const creditMemoLines = pgTable(
+  "credit_memo_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    memoId: uuid("memo_id").notNull().references(() => creditMemos.id, { onDelete: "cascade" }),
+    description: text("description").notNull(),
+    qty: integer("qty").notNull().default(1),
+    unitPrice: numeric("unit_price", { precision: 14, scale: 2 }).notNull().default("0"),
+    extended: numeric("extended", { precision: 14, scale: 2 }).notNull().default("0"),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  (t) => [index("credit_memo_lines_memo_idx").on(t.memoId)],
+);
+export type CreditMemoLine = typeof creditMemoLines.$inferSelect;
+
+// ---- Cash application -----------------------------------------------------
+// One receipt routinely settles several invoices, and a credit memo offsets
+// others. Every such match is a row here; what is left unmatched on a receipt
+// is on-account cash.
+export const arApplications = pgTable(
+  "ar_applications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invoiceId: uuid("invoice_id").notNull().references(() => invoices.id, { onDelete: "cascade" }),
+    source: arApplicationSourceEnum("source").notNull(),
+    paymentId: uuid("payment_id").references(() => payments.id, { onDelete: "cascade" }),
+    creditMemoId: uuid("credit_memo_id").references(() => creditMemos.id, { onDelete: "cascade" }),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    appliedOn: timestamp("applied_on", { withTimezone: true }).notNull().defaultNow(),
+    createdBy: uuid("created_by").references(() => users.id),
+  },
+  (t) => [
+    index("ar_applications_invoice_idx").on(t.invoiceId),
+    index("ar_applications_payment_idx").on(t.paymentId),
+    index("ar_applications_memo_idx").on(t.creditMemoId),
+  ],
+);
+export type ArApplication = typeof arApplications.$inferSelect;
+
+// ---- Deposits -------------------------------------------------------------
+// Receipts land in a clearing account when they are taken, then get banked in
+// batches: Dr Bank / Cr Undeposited funds. Matching the bank statement depends
+// on this batching, because the bank shows the batch, not the cheques.
+export const deposits = pgTable(
+  "deposits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    depositNumber: text("deposit_number").notNull().unique(), // "DEP-00001"
+    depositDate: timestamp("deposit_date", { withTimezone: true }).notNull().defaultNow(),
+    // Bank GL account the batch lands in.
+    bankAccountId: uuid("bank_account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    method: paymentMethodEnum("method").notNull().default("check"),
+    reference: text("reference"), // bank slip / batch reference
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    status: depositStatusEnum("status").notNull().default("open"),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("deposits_status_idx").on(t.status), index("deposits_date_idx").on(t.depositDate)],
+);
+export type Deposit = typeof deposits.$inferSelect;
 
 // A salesperson's over-limit / on-hold order needs finance sign-off before it
 // converts. Reps never see the numbers — they just submit; finance reviews here.
