@@ -575,6 +575,13 @@
       "when": 1789396030858,
       "tag": "0081_ar_credit_memos_applications_deposits",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1789397978808,
+      "tag": "0082_ap_payment_runs_vendor_credits",
+      "breakpoints": true
     }
   ]
 }

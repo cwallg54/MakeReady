@@ -285,6 +285,9 @@ export const creditMemoStatusEnum = pgEnum("credit_memo_status", ["draft", "open
 export const arApplicationSourceEnum = pgEnum("ar_application_source", ["payment", "credit_memo"]);
 // A deposit batches receipts out of the clearing account into the bank.
 export const depositStatusEnum = pgEnum("deposit_status", ["open", "deposited", "void"]);
+// A payment run is built, approved, then paid — cheques printed / ACH sent.
+export const paymentRunStatusEnum = pgEnum("payment_run_status", ["draft", "approved", "paid", "void"]);
+export const vendorCreditStatusEnum = pgEnum("vendor_credit_status", ["draft", "open", "applied", "void"]);
 // General ledger: the five fundamental account types. Asset & expense accounts
 // are debit-normal; liability, equity & revenue are credit-normal.
 export const glAccountTypeEnum = pgEnum("gl_account_type", ["asset", "liability", "equity", "revenue", "expense"]);
@@ -1465,6 +1468,11 @@ export const billPayments = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     billId: uuid("bill_id").references(() => bills.id, { onDelete: "set null" }),
     vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    // The payment run that produced this, when it came from one. A single
+    // cheque covering several bills shows up as several rows sharing a run and
+    // an instrument number.
+    runId: uuid("run_id"),
+    instrumentNumber: text("instrument_number"), // cheque number / ACH trace
     method: paymentMethodEnum("method").notNull().default("check"),
     reference: text("reference"),
     amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
@@ -1476,6 +1484,95 @@ export const billPayments = pgTable(
   (t) => [index("bill_payments_bill_idx").on(t.billId)],
 );
 export type BillPayment = typeof billPayments.$inferSelect;
+
+// ---- Payment runs ---------------------------------------------------------
+// AP is paid in weekly batches, not one bill at a time: select what is due,
+// get it approved, then produce cheques and an ACH file. The run is the record
+// of that decision, and of what was actually sent.
+export const paymentRuns = pgTable(
+  "payment_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runNumber: text("run_number").notNull().unique(), // "PR-00001"
+    runDate: timestamp("run_date", { withTimezone: true }).notNull().defaultNow(),
+    // Only bills due on or before this date were eligible.
+    dueThrough: date("due_through"),
+    method: paymentMethodEnum("method").notNull().default("ach"),
+    bankAccountId: uuid("bank_account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    status: paymentRunStatusEnum("status").notNull().default("draft"),
+    // Cheque numbering for the run, when it is a cheque run.
+    firstCheckNumber: integer("first_check_number"),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    createdBy: uuid("created_by").references(() => users.id),
+    approvedBy: uuid("approved_by").references(() => users.id),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("payment_runs_status_idx").on(t.status), index("payment_runs_date_idx").on(t.runDate)],
+);
+export type PaymentRun = typeof paymentRuns.$inferSelect;
+
+export const paymentRunLines = pgTable(
+  "payment_run_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runId: uuid("run_id").notNull().references(() => paymentRuns.id, { onDelete: "cascade" }),
+    billId: uuid("bill_id").references(() => bills.id, { onDelete: "cascade" }),
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    // Assigned when the run is paid: one instrument per vendor.
+    instrumentNumber: text("instrument_number"),
+    included: boolean("included").notNull().default(true),
+    note: text("note"),
+  },
+  (t) => [index("payment_run_lines_run_idx").on(t.runId), index("payment_run_lines_bill_idx").on(t.billId)],
+);
+export type PaymentRunLine = typeof paymentRunLines.$inferSelect;
+
+// ---- Vendor credits -------------------------------------------------------
+// The AP mirror of a credit memo: a credit from a supplier (return, shortage,
+// rebate) that offsets their bills.
+export const vendorCredits = pgTable(
+  "vendor_credits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creditNumber: text("credit_number").notNull().unique(), // "VC-00001"
+    vendorId: uuid("vendor_id").references(() => vendors.id, { onDelete: "set null" }),
+    billId: uuid("bill_id").references(() => bills.id, { onDelete: "set null" }),
+    vendorRef: text("vendor_ref"), // the supplier's own credit note number
+    status: vendorCreditStatusEnum("status").notNull().default("draft"),
+    issueDate: timestamp("issue_date", { withTimezone: true }),
+    reason: text("reason"),
+    // Where the credit lands in the GL (usually the original expense account).
+    accountId: uuid("account_id").references(() => glAccounts.id, { onDelete: "set null" }),
+    total: numeric("total", { precision: 14, scale: 2 }).notNull().default("0"),
+    notes: text("notes"),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    voidReason: text("void_reason"),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("vendor_credits_vendor_idx").on(t.vendorId), index("vendor_credits_status_idx").on(t.status)],
+);
+export type VendorCredit = typeof vendorCredits.$inferSelect;
+
+export const vendorCreditApplications = pgTable(
+  "vendor_credit_applications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    creditId: uuid("credit_id").notNull().references(() => vendorCredits.id, { onDelete: "cascade" }),
+    billId: uuid("bill_id").notNull().references(() => bills.id, { onDelete: "cascade" }),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull().default("0"),
+    appliedOn: timestamp("applied_on", { withTimezone: true }).notNull().defaultNow(),
+    createdBy: uuid("created_by").references(() => users.id),
+  },
+  (t) => [index("vendor_credit_apps_credit_idx").on(t.creditId), index("vendor_credit_apps_bill_idx").on(t.billId)],
+);
+export type VendorCreditApplication = typeof vendorCreditApplications.$inferSelect;
 
 // ---- Bank reconciliation --------------------------------------------------
 // Imported bank-statement lines, matched/cleared against the GL cash account.
