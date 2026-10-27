@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  // sharp's native binding dlopens libvips from a sibling package that file
+  // tracing can't see, so ship both with every server route (needs the flat
+  // install in .npmrc — Vercel rejects pnpm's symlinked directories).
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/@img/sharp-linux-x64/**/*", "./node_modules/@img/sharp-libvips-linux-x64/**/*"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
