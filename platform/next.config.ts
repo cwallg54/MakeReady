@@ -17,6 +17,15 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  // sharp's native binding dlopens libvips from a sibling package, which file
+  // tracing can't see through pnpm's layout, so the .so never reached the
+  // function bundle. Ship both packages with every server route.
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/**/*",
+      "./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/**/*",
+    ],
+  },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
