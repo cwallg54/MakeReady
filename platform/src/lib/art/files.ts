@@ -1,5 +1,4 @@
 import "server-only";
-import sharp from "sharp";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -38,6 +37,9 @@ function safeName(filename: string): string {
 async function renditions(bytes: Buffer, mimeType: string): Promise<{ preview: string | null; thumb: string | null }> {
   if (!RASTER.has(mimeType.toLowerCase())) return { preview: null, thumb: null };
   try {
+    // Loaded on demand: a page that only lists files must never depend on the
+    // native image library being loadable. If it can't load, the original is served.
+    const { default: sharp } = await import("sharp");
     const img = sharp(bytes, { failOn: "none" }).rotate();
     const [preview, thumb] = await Promise.all([
       img.clone().resize(PREVIEW_MAX, PREVIEW_MAX, { fit: "inside", withoutEnlargement: true }).webp({ quality: 78 }).toBuffer(),
