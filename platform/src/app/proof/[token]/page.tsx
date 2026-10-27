@@ -39,7 +39,7 @@ export default async function ProofPage({ params }: { params: Promise<{ token: s
 
   const order = await db.query.orders.findFirst({ where: eq(orders.id, proof.orderId) });
   const bp = order?.bpId ? await db.query.businessPartners.findFirst({ where: eq(businessPartners.id, order.bpId) }) : undefined;
-  const att = proof.attachmentId ? await db.query.orderAttachments.findFirst({ where: eq(orderAttachments.id, proof.attachmentId) }) : undefined;
+  const att = proof.attachmentId ? await db.query.orderAttachments.findFirst({ where: eq(orderAttachments.id, proof.attachmentId), columns: { filename: true, mimeType: true } }) : undefined;
   const isImg = att?.mimeType.startsWith("image/");
   const imgUrl = `/proof/${token}/image`;
   const decided = proof.status !== "pending";

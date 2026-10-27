@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
-import type { Order, OrderSpecItem, OrderAttachment } from "@/db/schema";
+import type { Order, OrderSpecItem, OrderAttachmentMeta } from "@/db/schema";
 import {
   saveOrderDetailsAction,
   addSpecItemAction,
@@ -69,7 +69,7 @@ export function ProductionDetails({
 }: {
   order: Order;
   specItems: OrderSpecItem[];
-  attachments: OrderAttachment[];
+  attachments: OrderAttachmentMeta[];
   editable: boolean;
 }) {
   const inHands = order.inHandsDate ? DateTime.fromJSDate(order.inHandsDate).setZone(TZ).toFormat("yyyy-LL-dd") : "";
@@ -155,18 +155,18 @@ export function ProductionDetails({
             const isImg = a.mimeType.startsWith("image/");
             return (
               <div key={a.id} className="overflow-hidden rounded-lg border border-neutral-200">
-                <a href={url} target="_blank" rel="noreferrer" className="block bg-neutral-50">
+                <a href={isImg ? url : `${url}?size=full`} target="_blank" rel="noreferrer" title={isImg ? "Open preview" : "Open / download"} className="block bg-neutral-50">
                   {isImg ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={url} alt={a.filename} className="h-32 w-full object-contain" />
+                    <img src={`${url}?size=thumb`} alt={a.filename} loading="lazy" className="h-32 w-full object-contain" />
                   ) : (
                     <div className="flex h-32 items-center justify-center text-4xl">📄</div>
                   )}
                 </a>
                 <div className="border-t border-neutral-200 p-2">
-                  <a href={url} target="_blank" rel="noreferrer" className="block truncate text-xs font-medium text-neutral-900 hover:underline" title={a.filename}>{a.filename}</a>
+                  <a href={`${url}?size=full`} target="_blank" rel="noreferrer" className="block truncate text-xs font-medium text-neutral-900 hover:underline" title={`Full-resolution original: ${a.filename}`}>{a.filename}</a>
                   <div className="mt-0.5 flex items-center justify-between text-[11px] text-neutral-400">
-                    <span>{KIND_LABELS[a.kind] ?? a.kind} · {fmtSize(a.sizeBytes)}</span>
+                    <span>{KIND_LABELS[a.kind] ?? a.kind} · {fmtSize(a.sizeBytes)}{isImg && <> · <a href={`${url}?size=full`} target="_blank" rel="noreferrer" className="font-medium text-brand-ink hover:underline">Full res</a></>}</span>
                     {editable && (
                       <form action={removeAttachmentAction}>
                         <input type="hidden" name="orderId" value={order.id} />

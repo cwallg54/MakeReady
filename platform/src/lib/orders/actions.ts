@@ -14,6 +14,7 @@ import { generateOrderPdf } from "./pdf";
 import { notifyTrackerStage, notifyTracker } from "./notify";
 import { ORDER_STAGES, type OrderStage } from "./stages";
 import { carrierTrackingUrl } from "./shipping";
+import { readArtBytes } from "@/lib/art/files";
 
 async function requireSalesEdit() {
   const user = await getCurrentUser();
@@ -120,12 +121,14 @@ export async function emailOrderPdfAction(formData: FormData): Promise<void> {
   // Attach the order PDF (the quoted line items & pricing) plus a preview image
   // of the item — prefer the catalogue image, then a proof/mockup, then customer art.
   const attachments = [{ filename: pdf.filename, content: pdf.base64 }];
-  const atts = await db.select().from(orderAttachments).where(eq(orderAttachments.orderId, id));
+  const atts = await db.select({ id: orderAttachments.id, filename: orderAttachments.filename, mimeType: orderAttachments.mimeType, kind: orderAttachments.kind }).from(orderAttachments).where(eq(orderAttachments.orderId, id));
   const rank: Record<string, number> = { catalog: 0, mockup: 1, art: 2, reference: 3 };
   const image = atts
     .filter((a) => a.mimeType.startsWith("image/"))
     .sort((a, b) => (rank[a.kind] ?? 9) - (rank[b.kind] ?? 9))[0];
-  if (image) attachments.push({ filename: image.filename, content: image.contentBase64 });
+  const imageRow = image ? await db.query.orderAttachments.findFirst({ where: eq(orderAttachments.id, image.id), columns: { storageProvider: true, storagePath: true, contentBase64: true } }) : undefined;
+  const imageBytes = imageRow ? await readArtBytes(imageRow) : null;
+  if (image && imageBytes) attachments.push({ filename: image.filename, content: imageBytes.toString("base64") });
 
   let status: "sent" | "queued" | "saved" = "saved";
   if (to) {

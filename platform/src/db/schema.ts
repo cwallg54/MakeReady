@@ -1959,8 +1959,9 @@ export const orderSpecItems = pgTable(
   (t) => [index("order_spec_items_order_id_idx").on(t.orderId)],
 );
 
-// Customer-provided files: art, mockups, reference photos. Stored inline
-// (base64) mirroring order_artifacts; a blob store can replace this later.
+// Customer-provided files: art, mockups, reference photos, proofs, production
+// photos. The original lives on Azure Files when configured (storage_path) or
+// inline here (content_base64); pages show the small WebP renditions. See lib/art/files.ts.
 export const orderAttachments = pgTable(
   "order_attachments",
   {
@@ -1972,7 +1973,11 @@ export const orderAttachments = pgTable(
     mimeType: text("mime_type").notNull().default("application/octet-stream"),
     sizeBytes: integer("size_bytes").notNull().default(0),
     kind: text("kind").notNull().default("art"), // art | mockup | reference | other
-    contentBase64: text("content_base64").notNull(),
+    storageProvider: text("storage_provider").notNull().default("db"), // db | azure_files
+    storagePath: text("storage_path"), // path on the Azure Files share
+    contentBase64: text("content_base64"), // null when the original is on Azure
+    previewBase64: text("preview_base64"), // ~1600px WebP, images only
+    thumbBase64: text("thumb_base64"), // ~400px WebP, images only
     notes: text("notes"),
     uploadedBy: uuid("uploaded_by").references(() => users.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -2069,6 +2074,8 @@ export type OrderEvent = typeof orderEvents.$inferSelect;
 export type OrderArtifact = typeof orderArtifacts.$inferSelect;
 export type OrderSpecItem = typeof orderSpecItems.$inferSelect;
 export type OrderAttachment = typeof orderAttachments.$inferSelect;
+/** An attachment without its bytes — what lists and pickers load. */
+export type OrderAttachmentMeta = Omit<OrderAttachment, "contentBase64" | "storagePath" | "previewBase64" | "thumbBase64">;
 export type OrderProof = typeof orderProofs.$inferSelect;
 export type ArtRequest = typeof artRequests.$inferSelect;
 

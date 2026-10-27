@@ -113,7 +113,7 @@ table(
         ["2", "Set the account up: terms, credit, contract pricing", "Sales → Business Partners → the customer → Account details, Contract pricing"],
         ["3", "Price it and send the quote", "Sales → Quotes → New quote → Quote Builder"],
         ["4", "They say yes; the quote becomes an order", "Sales → Quotes → Convert; then Sales → Orders"],
-        ["5", "Art is briefed, drawn, proofed and approved", "Art Department → the request"],
+        ["5", "Art is briefed, drawn, proofed and approved", "Art → Art Department → the request"],
         ["6", "Blanks are bought and received", "Inventory → Purchase Orders; Finance → GRNI"],
         ["7", "The job is scheduled, printed and checked", "Production → Schedule; Quality"],
         ["8", "It ships and you invoice it", "The order → Create invoice; Finance → Invoices"],
@@ -237,6 +237,9 @@ n("**Customer approved** — the proof goes to the customer from this screen, an
 n("**Production ready** — this one only unlocks once the readiness checklist is complete.")
 b("**Draft brief with AI** writes the customisation brief from the order specification; the artist edits it.")
 b("**Production files & handoff** is where the press-ready files go.")
+b("**Thumbnails, previews and originals.** Pages show a small thumbnail; click it for a sharp "
+  "preview. **Full resolution ↓** under a tile downloads the untouched original, which is kept on "
+  "the company's Azure file share, so pages stay fast however big the files are.")
 b("**Revisions** keeps every version, so 'which one did they approve?' always has an answer.")
 p("The artist schedule shows who is working on what, and what is unassigned.")
 shot("42-art-schedule", "Artist schedule — workload and anything unassigned.")

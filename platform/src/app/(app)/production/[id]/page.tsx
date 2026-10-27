@@ -103,7 +103,7 @@ export default async function ProductionJobPage({ params, searchParams }: { para
             <div className="mb-3 flex items-center gap-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800">
               {approvedCheck.photoAttachmentId && (
                 <a href={`/art/attachment/${approvedCheck.photoAttachmentId}`} target="_blank" rel="noreferrer">
-                  <img src={`/art/attachment/${approvedCheck.photoAttachmentId}`} alt="Approved first article" className="h-14 w-14 rounded border border-green-200 object-cover" />
+                  <img src={`/art/attachment/${approvedCheck.photoAttachmentId}?size=thumb`} alt="Approved first article" loading="lazy" className="h-14 w-14 rounded border border-green-200 object-cover" />
                 </a>
               )}
               <span>Approved by {nameOf(approvedCheck.reviewedBy)}{approvedCheck.reviewedAt ? ` · ${fmtDate(approvedCheck.reviewedAt)}` : ""}. The full run is released.</span>
@@ -127,7 +127,7 @@ export default async function ProductionJobPage({ params, searchParams }: { para
                     <div className="flex flex-wrap gap-2">
                       {artImages.map((a) => (
                         <a key={a.id} href={`/art/attachment/${a.id}`} target="_blank" rel="noreferrer">
-                          <img src={`/art/attachment/${a.id}`} alt={a.filename} className="h-28 w-28 rounded-lg border border-neutral-200 object-cover" />
+                          <img src={`/art/attachment/${a.id}?size=thumb`} alt={a.filename} loading="lazy" className="h-28 w-28 rounded-lg border border-neutral-200 object-cover" />
                         </a>
                       ))}
                     </div>
@@ -181,7 +181,7 @@ export default async function ProductionJobPage({ params, searchParams }: { para
                   <li key={c.id} className="flex items-center gap-3 rounded-md border border-neutral-200 px-3 py-2 text-xs">
                     {c.photoAttachmentId && (
                       <a href={`/art/attachment/${c.photoAttachmentId}`} target="_blank" rel="noreferrer">
-                        <img src={`/art/attachment/${c.photoAttachmentId}`} alt="" className="h-12 w-12 rounded border border-neutral-200 object-cover" />
+                        <img src={`/art/attachment/${c.photoAttachmentId}?size=thumb`} alt="" loading="lazy" className="h-12 w-12 rounded border border-neutral-200 object-cover" />
                       </a>
                     )}
                     <div className="flex-1">
@@ -261,7 +261,7 @@ export default async function ProductionJobPage({ params, searchParams }: { para
           <div className="flex flex-wrap gap-3">
             {images.map((a) => (
               <a key={a.id} href={`/art/attachment/${a.id}`} target="_blank" rel="noreferrer" title="Open / download" className="group block">
-                <img src={`/art/attachment/${a.id}`} alt={a.filename} className="h-28 w-28 rounded-lg border border-neutral-200 object-cover group-hover:ring-2 group-hover:ring-neutral-400" />
+                <img src={`/art/attachment/${a.id}?size=thumb`} alt={a.filename} loading="lazy" className="h-28 w-28 rounded-lg border border-neutral-200 object-cover group-hover:ring-2 group-hover:ring-neutral-400" />
                 <span className="mt-1 block text-center text-[10px] capitalize text-neutral-400">{a.kind}</span>
               </a>
             ))}

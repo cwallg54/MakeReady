@@ -11,6 +11,7 @@ import { canView, canEdit } from "@/lib/rbac";
 import { notifyTeam, teamRecipientIds } from "@/lib/teams/notify";
 import { sendSmsBatch, smsConfigured } from "@/lib/sms/client";
 import { audit } from "@/lib/audit";
+import { artFileColumns } from "@/lib/art/files";
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15 MB
 const ALLOWED_IMAGE = /^image\/(png|jpe?g|gif|webp|heic|heif)$/i;
@@ -67,7 +68,7 @@ export async function submitPressCheckAction(formData: FormData): Promise<void> 
       mimeType: file.type || "image/jpeg",
       sizeBytes: file.size,
       kind: "press_check",
-      contentBase64: buf.toString("base64"),
+      ...(await artFileColumns({ bytes: buf, mimeType: file.type || "image/jpeg", filename: file.name.slice(0, 200) || "press-check.jpg", folder: `orders/${job.orderId}` })),
       uploadedBy: user.id,
     })
     .returning({ id: orderAttachments.id });

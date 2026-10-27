@@ -4,6 +4,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { requireModule } from "@/lib/auth/guards";
 import { canEdit } from "@/lib/rbac";
 import { db } from "@/db";
+import { artFileListColumns } from "@/lib/art/files";
 import { orders, orderEvents, orderArtifacts, orderSpecItems, orderAttachments, orderProofs, businessPartners, contacts, users, userRoles, invoices } from "@/db/schema";
 import { createInvoiceFromOrderAction } from "@/lib/accounting/actions";
 import { PageHeader, Card } from "@/components/ui";
@@ -44,7 +45,7 @@ export default async function OrderDetailPage({ params, searchParams }: { params
     db.select().from(orderEvents).where(eq(orderEvents.orderId, id)).orderBy(asc(orderEvents.at)),
     db.select().from(orderArtifacts).where(eq(orderArtifacts.orderId, id)).orderBy(desc(orderArtifacts.createdAt)),
     db.select().from(orderSpecItems).where(eq(orderSpecItems.orderId, id)).orderBy(asc(orderSpecItems.sortOrder)),
-    db.select().from(orderAttachments).where(eq(orderAttachments.orderId, id)).orderBy(desc(orderAttachments.createdAt)),
+    db.select(artFileListColumns).from(orderAttachments).where(eq(orderAttachments.orderId, id)).orderBy(desc(orderAttachments.createdAt)),
     db.select().from(orderProofs).where(eq(orderProofs.orderId, id)).orderBy(desc(orderProofs.createdAt)),
   ]);
 

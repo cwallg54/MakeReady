@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import type { DecorationInput } from "./pricing";
+import { artFileColumns } from "@/lib/art/files";
 
 export async function nextSalesOrderNumber(): Promise<string> {
   return db.transaction(async (tx) => {
@@ -128,15 +129,21 @@ export async function createOrderFromQuote(quoteId: string, byUserId: string | n
     const picked = items.filter((it) => it.imageBase64 && it.code && codes.has(it.code));
     if (picked.length) {
       await db.insert(orderAttachments).values(
-        picked.map((it) => ({
-          orderId: o.id,
-          filename: `catalog-${(it.code ?? it.name).replace(/[^a-z0-9]+/gi, "-")}.${(it.imageMimeType ?? "image/png").split("/")[1] ?? "png"}`,
-          mimeType: it.imageMimeType ?? "image/png",
-          kind: "catalog",
-          contentBase64: it.imageBase64!,
-          notes: `Catalogue image — ${it.name}`,
-          uploadedBy: byUserId,
-        })),
+        await Promise.all(
+          picked.map(async (it) => {
+            const filename = `catalog-${(it.code ?? it.name).replace(/[^a-z0-9]+/gi, "-")}.${(it.imageMimeType ?? "image/png").split("/")[1] ?? "png"}`;
+            const mimeType = it.imageMimeType ?? "image/png";
+            return {
+              orderId: o.id,
+              filename,
+              mimeType,
+              kind: "catalog",
+              ...(await artFileColumns({ bytes: Buffer.from(it.imageBase64!, "base64"), mimeType, filename, folder: `orders/${o.id}` })),
+              notes: `Catalogue image — ${it.name}`,
+              uploadedBy: byUserId,
+            };
+          }),
+        ),
       );
     }
   }
@@ -145,16 +152,18 @@ export async function createOrderFromQuote(quoteId: string, byUserId: string | n
   const qAtt = await db.select().from(quoteAttachments).where(eq(quoteAttachments.quoteId, quoteId));
   if (qAtt.length) {
     await db.insert(orderAttachments).values(
-      qAtt.map((a) => ({
-        orderId: o.id,
-        filename: a.filename,
-        mimeType: a.mimeType,
-        sizeBytes: a.sizeBytes,
-        kind: a.kind,
-        contentBase64: a.contentBase64,
-        notes: a.notes,
-        uploadedBy: a.uploadedBy,
-      })),
+      await Promise.all(
+        qAtt.map(async (a) => ({
+          orderId: o.id,
+          filename: a.filename,
+          mimeType: a.mimeType,
+          sizeBytes: a.sizeBytes,
+          kind: a.kind,
+          ...(await artFileColumns({ bytes: Buffer.from(a.contentBase64, "base64"), mimeType: a.mimeType, filename: a.filename, folder: `orders/${o.id}` })),
+          notes: a.notes,
+          uploadedBy: a.uploadedBy,
+        })),
+      ),
     );
   }
   if (quote.bpId) {

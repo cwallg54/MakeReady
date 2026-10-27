@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { Card } from "@/components/ui";
 import { ConfirmButton } from "@/components/confirm-button";
 import { CopyLink } from "@/components/orders/copy-link";
-import type { Order, OrderProof, OrderAttachment } from "@/db/schema";
+import type { Order, OrderProof, OrderAttachmentMeta } from "@/db/schema";
 import { createProofAction, deleteProofAction } from "@/lib/orders/proof-actions";
 
 const TZ = "America/Denver";
@@ -24,7 +24,7 @@ export function OrderProofs({
 }: {
   order: Order;
   proofs: OrderProof[];
-  attachments: OrderAttachment[];
+  attachments: OrderAttachmentMeta[];
   editable: boolean;
   baseUrl: string;
   toEmail: string;

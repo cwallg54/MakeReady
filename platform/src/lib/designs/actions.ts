@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/service";
 import { canDoArt } from "@/lib/art/access";
 import { isAdmin } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { artFileColumns } from "@/lib/art/files";
 
 const MAX_IMG = 10 * 1024 * 1024;
 
@@ -210,7 +211,7 @@ export async function createDesignForArtAction(formData: FormData): Promise<void
       mimeType: res.imageMimeType,
       sizeBytes: Math.round((res.imageBase64.length * 3) / 4),
       kind: "art",
-      contentBase64: res.imageBase64,
+      ...(await artFileColumns({ bytes: Buffer.from(res.imageBase64, "base64"), mimeType: res.imageMimeType, filename: `${res.itemNumber}.${res.imageMimeType.split("/")[1] ?? "png"}`, folder: `orders/${orderId}` })),
       notes: `Design ${res.itemNumber} (art department)`,
       uploadedBy: user.id,
     });
@@ -317,7 +318,7 @@ export async function completeDesignForArtAction(formData: FormData): Promise<vo
       mimeType: imageMimeType,
       sizeBytes: Math.round((imageBase64.length * 3) / 4),
       kind: "art",
-      contentBase64: imageBase64,
+      ...(await artFileColumns({ bytes: Buffer.from(imageBase64, "base64"), mimeType: imageMimeType, filename: `${itemNumber ?? existing.itemNumber}.${imageMimeType.split("/")[1] ?? "png"}`, folder: `orders/${orderId}` })),
       notes: `Design ${itemNumber ?? existing.itemNumber} (art department)`,
       uploadedBy: user.id,
     });

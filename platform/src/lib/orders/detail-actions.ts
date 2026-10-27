@@ -11,6 +11,7 @@ import { audit } from "@/lib/audit";
 import { ensureJob } from "@/lib/production/actions";
 import { notifyTracker, notifyTrackerStage } from "@/lib/orders/notify";
 import { DateTime } from "luxon";
+import { artFileColumns } from "@/lib/art/files";
 
 // A yyyy-MM-dd form value denotes a calendar day in the business timezone, not
 // UTC. Parsing it as `new Date("yyyy-MM-dd")` yields UTC midnight, which renders
@@ -222,7 +223,7 @@ export async function uploadAttachmentsAction(formData: FormData): Promise<void>
       mimeType: file.type || "application/octet-stream",
       sizeBytes: file.size,
       kind: ["art", "mockup", "reference", "other"].includes(kind) ? kind : "art",
-      contentBase64: buf.toString("base64"),
+      ...(await artFileColumns({ bytes: buf, mimeType: file.type || "application/octet-stream", filename: file.name.slice(0, 200), folder: `orders/${orderId}` })),
       notes,
       uploadedBy: user.id,
     });

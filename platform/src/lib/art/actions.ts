@@ -16,6 +16,7 @@ import { artReadinessChecklist, productionReadinessChecklist } from "./gate";
 import { estimateArtMinutes } from "./scheduling";
 import { runArtHandoffAutomation } from "./automation";
 import { canDoArt } from "./access";
+import { artFileColumns } from "@/lib/art/files";
 
 const PROD_TYPES = ["screen_print", "embroidery", "headwear", "hard_goods", "other"] as const;
 const str = (v: FormDataEntryValue | null) => { const s = String(v ?? "").trim(); return s || null; };
@@ -252,7 +253,8 @@ export async function uploadProductionFileAction(formData: FormData): Promise<vo
       const buf = Buffer.from(await f.arrayBuffer());
       await db.insert(orderAttachments).values({
         orderId, filename: f.name || "production-file", mimeType: f.type || "application/octet-stream",
-        sizeBytes: f.size, kind: "production", contentBase64: buf.toString("base64"),
+        sizeBytes: f.size, kind: "production",
+        ...(await artFileColumns({ bytes: buf, mimeType: f.type || "application/octet-stream", filename: f.name || "production-file", folder: `orders/${orderId}` })),
         notes: "Production/digitized file", uploadedBy: user.id,
       });
     }
@@ -356,7 +358,7 @@ export async function uploadArtAction(formData: FormData): Promise<void> {
         mimeType: f.type || "application/octet-stream",
         sizeBytes: f.size,
         kind: "mockup",
-        contentBase64: b64,
+        ...(await artFileColumns({ bytes: buf, mimeType: f.type || "application/octet-stream", filename: f.name || "proposed-art", folder: `orders/${orderId}` })),
         notes: "Proposed art (art department)",
         uploadedBy: user.id,
       });

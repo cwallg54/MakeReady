@@ -71,7 +71,7 @@ This is the whole path from a phone call to money in the bank and a closed month
 | 2 | Set the account up: terms, credit, contract pricing | Sales → Business Partners → the customer → Account details, Contract pricing |
 | 3 | Price it and send the quote | Sales → Quotes → New quote → Quote Builder |
 | 4 | They say yes; the quote becomes an order | Sales → Quotes → Convert; then Sales → Orders |
-| 5 | Art is briefed, drawn, proofed and approved | Art Department → the request |
+| 5 | Art is briefed, drawn, proofed and approved | Art → Art Department → the request |
 | 6 | Blanks are bought and received | Inventory → Purchase Orders; Finance → GRNI |
 | 7 | The job is scheduled, printed and checked | Production → Schedule; Quality |
 | 8 | It ships and you invoice it | The order → Create invoice; Finance → Invoices |
@@ -245,6 +245,7 @@ An art request walks a fixed path, and the buttons enforce it in order.
 1. **Production ready** — this one only unlocks once the readiness checklist is complete.
 - **Draft brief with AI** writes the customisation brief from the order specification; the artist edits it.
 - **Production files & handoff** is where the press-ready files go.
+- **Thumbnails, previews and originals.** Pages show a small thumbnail; click it for a sharp preview. **Full resolution ↓** under a tile downloads the untouched original, which is kept on the company's Azure file share, so pages stay fast however big the files are.
 - **Revisions** keeps every version, so 'which one did they approve?' always has an answer.
 
 The artist schedule shows who is working on what, and what is unassigned.

@@ -138,11 +138,14 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
 
   const Thumb = ({ a }: { a: (typeof attachments)[number] }) => {
     const href = `/art/attachment/${a.id}`;
+    const isImg = a.mimeType.startsWith("image/");
+    // Tiles load the small thumbnail and open the preview; the original is a separate, deliberate click.
     return (
-      <a href={href} target="_blank" rel="noreferrer" title="Open / download original" className="group block">
-        {a.mimeType.startsWith("image/") ? (
+      <div className="w-28">
+      <a href={isImg ? href : `${href}?size=full`} target="_blank" rel="noreferrer" title={isImg ? "Open preview" : "Open / download original"} className="group block">
+        {isImg ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={href} alt={a.filename} className="h-28 w-28 rounded-lg border border-neutral-200 object-cover group-hover:ring-2 group-hover:ring-neutral-400" />
+          <img src={`${href}?size=thumb`} alt={a.filename} loading="lazy" className="h-28 w-28 rounded-lg border border-neutral-200 object-cover group-hover:ring-2 group-hover:ring-neutral-400" />
         ) : (
           <div className="flex h-28 w-28 flex-col items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-2 text-center group-hover:ring-2 group-hover:ring-neutral-400">
             <span className="text-2xl">📄</span>
@@ -151,6 +154,12 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
           </div>
         )}
       </a>
+      {isImg && (
+        <a href={`${href}?size=full`} target="_blank" rel="noreferrer" className="mt-1 block text-center text-[10px] font-medium text-brand-ink hover:underline" title={`Full-resolution original: ${a.filename}`}>
+          Full resolution ↓
+        </a>
+      )}
+      </div>
     );
   };
 
@@ -391,7 +400,7 @@ export default async function ArtRequestPage({ params, searchParams }: { params:
         {productionFiles.length > 0 && (
           <ul className="mb-3 flex flex-wrap gap-2">
             {productionFiles.map((a) => (
-              <li key={a.id}><a href={`/art/attachment/${a.id}`} target="_blank" rel="noreferrer" className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs text-neutral-700 hover:bg-neutral-100">📄 {a.filename}</a></li>
+              <li key={a.id}><a href={`/art/attachment/${a.id}?size=full`} target="_blank" rel="noreferrer" className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs text-neutral-700 hover:bg-neutral-100">📄 {a.filename}</a></li>
             ))}
           </ul>
         )}
