@@ -2,11 +2,10 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { and, eq, isNull, count } from "drizzle-orm";
 import { requireUser } from "@/lib/auth/guards";
-import { visibleModules, canView, canEdit, ROLE_LABELS } from "@/lib/rbac";
-import { canDoArt } from "@/lib/art/access";
+import { canView, canEdit, ROLE_LABELS } from "@/lib/rbac";
 import { db } from "@/db";
 import { notifications, systemSettings } from "@/db/schema";
-import { type NavItem } from "@/components/app-nav";
+import { buildSidebar } from "@/lib/sidebar";
 import { AppShell } from "@/components/app-shell";
 import { LogoutButton } from "@/components/logout-button";
 import { TAB_ICONS, type MobileTab, type SpeedDialAction } from "@/components/mobile-tab-bar";
@@ -31,115 +30,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }
   }
 
-  // Sub-menu definitions: modules that expand into collapsible children.
-  const SUBMENUS: Record<string, NavItem[]> = {
-    crm: [
-      { key: "crm-bp", label: "Business Partners", href: "/crm", phase1: true },
-      { key: "crm-pipeline", label: "Pipeline", href: "/crm/pipeline", phase1: true },
-      { key: "crm-reorders", label: "Reorder radar", href: "/crm/reorders", phase1: true },
-    ],
-    workflows: [
-      { key: "wf-home", label: "Workflows", href: "/workflows", phase1: true },
-      { key: "wf-approvals", label: "Approvals Inbox", href: "/workflows/approvals", phase1: true },
-    ],
-    controlling: [
-      { key: "ctrl-overview", label: "Overview", href: "/controlling", phase1: true },
-      { key: "ctrl-profit", label: "Profitability", href: "/controlling/profitability", phase1: true },
-      { key: "ctrl-jobcost", label: "Job Costing", href: "/controlling/job-costing", phase1: true },
-      { key: "ctrl-cc", label: "Cost Centers", href: "/controlling/cost-centers", phase1: true },
-      { key: "ctrl-budget", label: "Budget vs Actual", href: "/controlling/budget", phase1: true },
-    ],
-    sales: [
-      { key: "sales-quotes", label: "Quotes", href: "/sales", phase1: true },
-      { key: "sales-orders", label: "Orders", href: "/sales/orders", phase1: true },
-      { key: "sales-automations", label: "Automations", href: "/sales/automations", phase1: true },
-      { key: "sales-calendar", label: "Calendar", href: "/calendar", phase1: true },
-    ],
-    accounting: [
-      { key: "acct-overview", label: "Overview", href: "/accounting", phase1: true },
-      { key: "acct-h-reports", label: "Finance Reporting", phase1: true, header: true },
-      { key: "acct-flash", label: "Weekly Flash", href: "/accounting/flash", phase1: true },
-      { key: "acct-quarterly", label: "Quarterly Pack", href: "/accounting/quarterly", phase1: true },
-      { key: "acct-goals", label: "Sales Goals", href: "/accounting/goals", phase1: true },
-      { key: "acct-taxfiling", label: "Sales Tax Filing", href: "/accounting/tax-filing", phase1: true },
-      { key: "acct-h-ar", label: "Receivables", phase1: true, header: true },
-      { key: "acct-invoices", label: "Invoices", href: "/accounting/invoices", phase1: true },
-      { key: "acct-payments", label: "Payments", href: "/accounting/payments", phase1: true },
-      { key: "acct-collections", label: "Collections", href: "/accounting/collections", phase1: true },
-      { key: "acct-aging", label: "AR Aging", href: "/accounting/aging", phase1: true },
-      { key: "acct-credit-memos", label: "Credit Memos", href: "/accounting/credit-memos", phase1: true },
-      { key: "acct-deposits", label: "Deposits", href: "/accounting/deposits", phase1: true },
-      { key: "acct-statements", label: "Customer Statements", href: "/accounting/statements", phase1: true },
-      { key: "acct-credit", label: "Credit Requests", href: "/accounting/credit-requests", phase1: true },
-      { key: "acct-h-ap", label: "Payables", phase1: true, header: true },
-      { key: "acct-bills", label: "Bills", href: "/accounting/bills", phase1: true },
-      { key: "acct-vendors", label: "Vendors", href: "/accounting/vendors", phase1: true },
-      { key: "acct-runs", label: "Payment Runs", href: "/accounting/payment-runs", phase1: true },
-      { key: "acct-vcredits", label: "Vendor Credits", href: "/accounting/vendor-credits", phase1: true },
-      { key: "acct-grni", label: "GRNI", href: "/accounting/grni", phase1: true },
-      { key: "acct-payroll", label: "Payroll Journals", href: "/accounting/payroll", phase1: true },
-      { key: "acct-expenses", label: "Expenses", href: "/accounting/expenses", phase1: true },
-      { key: "acct-h-gl", label: "General Ledger", phase1: true, header: true },
-      { key: "acct-chart", label: "Chart of Accounts", href: "/accounting/chart", phase1: true },
-      { key: "acct-journal", label: "Journal Entries", href: "/accounting/journal", phase1: true },
-      { key: "acct-ledger", label: "Account Ledger", href: "/accounting/ledger", phase1: true },
-      { key: "acct-trial", label: "Trial Balance", href: "/accounting/trial-balance", phase1: true },
-      { key: "acct-h-stmt", label: "Financial Statements", phase1: true, header: true },
-      { key: "acct-pl", label: "Income Statement", href: "/accounting/income-statement", phase1: true },
-      { key: "acct-bs", label: "Balance Sheet", href: "/accounting/balance-sheet", phase1: true },
-      { key: "acct-cf", label: "Cash Flow", href: "/accounting/cash-flow", phase1: true },
-      { key: "acct-segpnl", label: "P&L by Segment", href: "/accounting/segment-pnl", phase1: true },
-      { key: "acct-h-assets", label: "Fixed Assets", phase1: true, header: true },
-      { key: "acct-assets", label: "Asset Register", href: "/accounting/assets", phase1: true },
-      { key: "acct-depr", label: "Depreciation", href: "/accounting/assets/depreciation", phase1: true },
-      { key: "acct-h-close", label: "Close & Setup", phase1: true, header: true },
-      { key: "acct-reconcile", label: "Bank Reconciliation", href: "/accounting/reconcile", phase1: true },
-      { key: "acct-periods", label: "Fiscal Periods", href: "/accounting/periods", phase1: true },
-      { key: "acct-close", label: "Period Close", href: "/accounting/close", phase1: true },
-      { key: "acct-import", label: "Import / Migrate", href: "/accounting/import", phase1: true },
-    ],
-  };
+  const items = buildSidebar(user.roles);
 
-  // The Operations group (Art, Production, Inventory) is rendered as a custom
-  // cluster below Sales, so exclude their base modules from the auto list.
-  // Controlling and Asset Accounting are unbuilt finance placeholders — their
-  // scope is surfaced on the Accounting hub instead of as empty sidebar items.
-  const HIDDEN_MODULES = new Set(["jobs", "inventory", "asset_accounting", "quality", "maintenance", "content_library"]);
-  const visible = visibleModules(user.roles).filter((m) => !HIDDEN_MODULES.has(m.key));
-  const items: NavItem[] = visible
-    .filter((m) => m.phase1)
-    .map((m) => {
-      const children = SUBMENUS[m.key];
-      return { key: m.key, label: m.label, href: children ? undefined : m.href, phase1: true, children };
-    });
-
-  // Operations cluster — placed directly below Sales in the sidebar.
-  const ops: NavItem[] = [];
-  if (canDoArt(user.roles)) ops.push({ key: "art", label: "Art Department", href: "/art", phase1: true });
-  if (canDoArt(user.roles)) ops.push({ key: "designs", label: "Design Library", href: "/designs", phase1: true });
-  if (canView(user.roles, "content_library")) ops.push({ key: "content", label: "Content Library", href: "/content-library", phase1: true });
-  if (canView(user.roles, "jobs")) ops.push({ key: "production", label: "Production", href: "/production", phase1: true });
-  if (canView(user.roles, "quality")) ops.push({ key: "quality", label: "Quality", href: "/quality", phase1: true });
-  if (canView(user.roles, "maintenance")) ops.push({ key: "maintenance", label: "Maintenance", href: "/maintenance", phase1: true });
-  if (canView(user.roles, "inventory")) ops.push({ key: "inventory", label: "Inventory", href: "/inventory", phase1: true });
-  if (ops.length) {
-    const salesIdx = items.findIndex((i) => i.key === "sales");
-    items.splice(salesIdx >= 0 ? salesIdx + 1 : items.length, 0, ...ops);
-  }
-  // Not-yet-built modules collapse into a single "Coming Soon" group so they
-  // don't clutter the main sidebar.
-  const soon = visible.filter((m) => !m.phase1);
-  if (soon.length) {
-    items.push({
-      key: "soon",
-      label: "Coming Soon",
-      phase1: true,
-      children: soon.map((m) => ({ key: m.key, label: m.label, href: `/module/${m.key}`, phase1: false })),
-    });
-  }
-
-  // Help Center — available to everyone.
-  items.push({ key: "help", label: "Help", href: "/help", phase1: true });
+  // Help lives in the top bar ("?"), which deep-links to the current page's article.
 
   // Field-sales bottom tabs (mobile only). Gated by module access; the center
   // "New" action starts a quote, the front door to the order process.
