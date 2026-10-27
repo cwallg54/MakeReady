@@ -46,7 +46,8 @@ async function renditions(bytes: Buffer, mimeType: string): Promise<{ preview: s
       img.clone().resize(THUMB_MAX, THUMB_MAX, { fit: "inside", withoutEnlargement: true }).webp({ quality: 70 }).toBuffer(),
     ]);
     return { preview: preview.toString("base64"), thumb: thumb.toString("base64") };
-  } catch {
+  } catch (e) {
+    console.error("[art] rendition failed; serving the original", e);
     return { preview: null, thumb: null };
   }
 }
