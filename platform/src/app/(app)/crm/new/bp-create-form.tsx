@@ -28,15 +28,15 @@ export function BpCreateForm({
             <span className="font-semibold text-neutral-800">📇 Scan a business card</span>
             <span className="ml-1 text-neutral-500">— snap it and we&rsquo;ll fill in the details below.</span>
           </div>
-          <div className="flex items-center gap-2 sm:ml-auto">
-            <input type="file" name="card" accept="image/*" capture="environment" className="text-sm text-neutral-700" />
-            <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">{ocrPending ? "Reading…" : "Scan"}</button>
+          <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+            <input type="file" name="card" accept="image/*" capture="environment" className="min-w-0 flex-1 text-sm text-neutral-700" />
+            <button className="shrink-0 rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700 sm:py-1.5">{ocrPending ? "Reading…" : "Scan"}</button>
           </div>
         </form>
         {ocr.error && <p className="mt-2 text-sm text-red-600">{ocr.error}</p>}
         {ocr.fields && <p className="mt-2 text-sm text-green-700">Filled from the card — review and adjust below, then create.</p>}
       </div>
-      <form key={ocr.nonce ?? "blank"} action={action} className="space-y-5">
+      <form key={ocr.nonce ?? "blank"} action={action} className="space-y-6">
       <FormError message={state.error} />
       {state.duplicate && (
         <label className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -45,10 +45,30 @@ export function BpCreateForm({
         </label>
       )}
 
-      <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-neutral-900">Account</h3>
+      <Step n={1} title="Company & primary contact" note="Required">
         <div className="grid gap-4 sm:grid-cols-2">
-          <AdminField label="Company name" name="companyName" required defaultValue={f.companyName} />
+          <AdminField label="Company name *" name="companyName" required defaultValue={f.companyName} autoComplete="organization" />
+          <AdminField label="Contact name *" name="primaryContactName" required defaultValue={f.primaryContactName} autoComplete="name" />
+          <AdminField label="Contact email *" name="primaryContactEmail" type="email" required defaultValue={f.primaryContactEmail} autoComplete="email" inputMode="email" />
+          <AdminField label="Phone" name="phone" type="tel" defaultValue={f.phone} autoComplete="tel" inputMode="tel" />
+        </div>
+      </Step>
+
+      <Step n={2} title="Address" note="Main / billing — add shipping addresses on the account">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <AdminField label="Street" name="addressStreet" defaultValue={f.addressStreet} autoComplete="street-address" />
+          </div>
+          <AdminField label="City" name="addressCity" defaultValue={f.addressCity} autoComplete="address-level2" />
+          <div className="grid grid-cols-2 gap-4">
+            <AdminField label="State" name="addressState" defaultValue={f.addressState} autoComplete="address-level1" maxLength={2} placeholder="UT" />
+            <AdminField label="ZIP" name="addressZip" defaultValue={f.addressZip} autoComplete="postal-code" inputMode="numeric" maxLength={10} />
+          </div>
+        </div>
+      </Step>
+
+      <Step n={3} title="Account setup">
+        <div className="grid gap-4 sm:grid-cols-2">
           <AdminSelect
             label="Stage"
             name="lifecycleStage"
@@ -58,6 +78,12 @@ export function BpCreateForm({
               { value: "prospect", label: "Prospect" },
               { value: "customer", label: "Customer" },
             ]}
+          />
+          <AdminSelect
+            label="Account group"
+            name="accountGroupId"
+            defaultValue=""
+            options={[{ value: "", label: "— None (assign later) —" }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
           />
           <AdminSelect
             label="Lead source"
@@ -73,12 +99,6 @@ export function BpCreateForm({
               { value: "Other", label: "Other" },
             ]}
           />
-          <AdminSelect
-            label="Account group"
-            name="accountGroupId"
-            defaultValue=""
-            options={[{ value: "", label: "— None (assign later) —" }, ...groups.map((g) => ({ value: g.id, label: g.name }))]}
-          />
           {!scoped && (
             <AdminSelect
               label="Owner"
@@ -87,60 +107,67 @@ export function BpCreateForm({
               options={[{ value: "", label: "— Unassigned —" }, ...owners.map((o) => ({ value: o.id, label: o.name }))]}
             />
           )}
-          <AdminField label="Tags" name="tags" hint="Comma-separated, e.g. VIP, screen-print" />
-          <AdminSelect
-            label="Send financial application"
-            name="paymentApp"
-            defaultValue=""
-            options={[
-              { value: "", label: "— None for now —" },
-              { value: "terms_application", label: "Terms / Credit Application (Net 30)" },
-              { value: "credit_card_application", label: "Credit Card Application" },
-            ]}
-          />
+          <div className="sm:col-span-2">
+            <AdminField label="Tags" name="tags" hint="Comma-separated, e.g. VIP, screen-print" />
+          </div>
         </div>
-      </section>
+      </Step>
 
-      <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-neutral-900">Primary contact</h3>
+      <Step n={4} title="Credit & payment">
         <div className="grid gap-4 sm:grid-cols-2">
-          <AdminField label="Contact name" name="primaryContactName" required defaultValue={f.primaryContactName} />
-          <AdminField label="Contact email" name="primaryContactEmail" type="email" required defaultValue={f.primaryContactEmail} />
-          <AdminField label="Phone" name="phone" defaultValue={f.phone} />
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-neutral-900">Address</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <AdminField label="Street" name="addressStreet" defaultValue={f.addressStreet} />
-          <AdminField label="City" name="addressCity" defaultValue={f.addressCity} />
-          <AdminField label="State" name="addressState" defaultValue={f.addressState} />
-          <AdminField label="ZIP" name="addressZip" defaultValue={f.addressZip} />
-        </div>
-      </section>
-
-      {showFinance && (
-        <section className="space-y-4">
-          <h3 className="text-sm font-semibold text-neutral-900">Terms</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Credit limit" name="creditLimit" type="number" />
+          <div className="sm:col-span-2">
             <AdminSelect
-              label="Payment terms"
-              name="paymentTerms"
-              defaultValue="Net 30"
+              label="Send financial application"
+              name="paymentApp"
+              defaultValue=""
               options={[
-                { value: "Net 30", label: "Net 30" },
-                { value: "Prepay (Credit Card)", label: "Prepay (Credit Card)" },
+                { value: "", label: "— None for now —" },
+                { value: "terms_application", label: "Terms / Credit Application (Net 30)" },
+                { value: "credit_card_application", label: "Credit Card Application" },
               ]}
             />
+            <p className="mt-1 text-xs text-neutral-500">Creates a secure link on the account you can copy or email to the customer.</p>
           </div>
-          <AdminField label="Internal notes" name="internalNotes" />
-        </section>
-      )}
+          {showFinance && (
+            <>
+              <AdminField label="Credit limit" name="creditLimit" type="number" inputMode="decimal" />
+              <AdminSelect
+                label="Payment terms"
+                name="paymentTerms"
+                defaultValue="Net 30"
+                options={[
+                  { value: "Net 30", label: "Net 30" },
+                  { value: "Prepay (Credit Card)", label: "Prepay (Credit Card)" },
+                ]}
+              />
+              <div className="sm:col-span-2">
+                <AdminField label="Internal notes" name="internalNotes" />
+              </div>
+            </>
+          )}
+        </div>
+      </Step>
 
-      <AdminSubmit>Create Business Partner</AdminSubmit>
+      <div className="flex flex-col gap-2 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-neutral-500">Next you&rsquo;ll land on the account, where a setup checklist walks through the remaining steps.</p>
+        <div className="[&>button]:w-full sm:[&>button]:w-auto">
+          <AdminSubmit>Create Business Partner</AdminSubmit>
+        </div>
+      </div>
       </form>
     </>
+  );
+}
+
+function Step({ n, title, note, children }: { n: number; title: string; note?: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-4">
+      <div className="flex items-baseline gap-2">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center self-center rounded-full bg-neutral-900 text-xs font-semibold text-white">{n}</span>
+        <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
+        {note && <span className="text-xs text-neutral-400">{note}</span>}
+      </div>
+      {children}
+    </section>
   );
 }

@@ -13,6 +13,7 @@ import { CustomerSummary } from "@/components/ai/customer-summary";
 import { AiEmailDraft } from "@/components/ai/email-draft";
 import { invitePortalCustomerAction } from "@/lib/store/portal-actions";
 import { ContactsManager } from "@/components/crm/contacts-manager";
+import { OnboardingChecklist } from "@/components/crm/onboarding-checklist";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
 import { PhoneLink, EmailLink } from "@/components/phone-link";
@@ -131,6 +132,20 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
   const baseUrl = process.env.APP_URL ?? "https://makeready.g54.com";
   const ownerSchedule = bp.ownerId ? await db.query.schedulingProfiles.findFirst({ where: eq(schedulingProfiles.userId, bp.ownerId) }) : null;
   const portalAccount = await db.query.storeCustomers.findFirst({ where: eq(storeCustomers.bpId, id), columns: { email: true, status: true } });
+  const appStatus = docs.some((d) => d.status === "completed") ? "completed" : docs.length ? "requested" : "none";
+  const welcomeSent = activityRows.some((a) => a.content.startsWith("Welcome / account-approved email sent"));
+  const SECTIONS = [
+    ["setup", "Setup"],
+    ["details", "Details"],
+    ["contacts", "Contacts"],
+    ["addresses", "Addresses"],
+    ["financial-docs", "Applications"],
+    ...(canVault ? [["vault", "Vault"]] : []),
+    ["portal", "Portal"],
+    ["tasks", "Tasks"],
+    ["activity", "Activity"],
+    ["orders", "Orders"],
+  ];
 
   return (
     <div className="max-w-5xl">
@@ -140,12 +155,35 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
         description={`${bp.bpNumber} · ${group?.name ?? "No account group"}${bp.leadSource ? ` · Source: ${bp.leadSource}` : ""} · Web Store: ${WEB_STORE_LABEL[bp.webStoreStatus]}`}
       />
 
+      {/* Phone: jump between the account's sections instead of scrolling the whole page. */}
+      <nav aria-label="Account sections" className="sticky top-14 z-20 -mx-4 mb-4 flex gap-2 overflow-x-auto border-b border-neutral-200 bg-neutral-50/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:hidden">
+        {SECTIONS.map(([key, label]) => (
+          <a key={key} href={`#${key}`} className="shrink-0 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 active:bg-neutral-100">{label}</a>
+        ))}
+      </nav>
+
+      <OnboardingChecklist
+        bpId={bp.id}
+        stage={bp.lifecycleStage}
+        createdAt={bp.createdAt}
+        hasContactEmail={contactRows.some((c) => !!c.email)}
+        hasAddress={addressRows.length > 0 || !!(bp.addressStreet && bp.addressCity)}
+        hasAccountGroup={!!bp.accountGroupId}
+        appStatus={appStatus}
+        creditApproved={!!bp.creditLimit || !!bp.paymentTerms}
+        welcomeSent={welcomeSent}
+        portal={portalAccount ? (portalAccount.status === "active" ? "active" : "invited") : "none"}
+        editable={editable}
+        canSetTerms={editable && showFinance}
+        canFinance={canManageVault}
+      />
+
       <div className="mb-6 space-y-3">
         <CustomerSummary bpId={bp.id} />
         <AiEmailDraft bpId={bp.id} />
       </div>
 
-      <Card className="mb-6">
+      <Card id="portal" className="mb-6 scroll-mt-28">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-neutral-900">Customer portal</h2>
@@ -158,10 +196,10 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
             </p>
           </div>
           {canEdit(user.roles, "crm") && (
-            <form action={invitePortalCustomerAction} className="flex flex-wrap items-end gap-2">
+            <form action={invitePortalCustomerAction} className="flex w-full flex-wrap items-end gap-2 sm:w-auto">
               <input type="hidden" name="bpId" value={bp.id} />
               <input type="hidden" name="name" value={bp.companyName} />
-              <input name="email" type="email" defaultValue={portalAccount?.email ?? contactEmail ?? ""} placeholder="customer@email.com" className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand" />
+              <input name="email" type="email" defaultValue={portalAccount?.email ?? contactEmail ?? ""} placeholder="customer@email.com" inputMode="email" autoComplete="email" className="min-w-0 flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand" />
               <button className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-neutral-700">{portalAccount ? "Re-send invite" : "Invite to portal"}</button>
             </form>
           )}
@@ -244,7 +282,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <Card>
+          <Card id="details" className="scroll-mt-28">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-neutral-900">Account details</h2>
               <Link href={`/crm/${bp.id}/pricing`} className="text-xs font-medium text-brand-ink hover:underline">Contract pricing →</Link>
@@ -286,7 +324,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
           </Card>
 
           {/* Tasks */}
-          <Card>
+          <Card id="tasks" className="scroll-mt-28">
             <h2 className="mb-3 text-sm font-semibold text-neutral-900">Tasks &amp; follow-ups</h2>
             {editable && (
               <form action={addTaskAction} className="mb-4 grid gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
@@ -334,19 +372,19 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
           </Card>
 
           {/* Activity log */}
-          <div id="activity" className="scroll-mt-20" />
+          <div id="activity" className="scroll-mt-28" />
           <Card>
             <h2 className="mb-1 text-sm font-semibold text-neutral-900">Activity log</h2>
             <p className="mb-3 text-xs text-neutral-400">Notes and calls you log, plus automatic records of every change to this account.</p>
             {editable && (
-              <form action={addActivityAction} className="mb-4 flex gap-2">
+              <form action={addActivityAction} className="mb-4 flex flex-wrap gap-2 sm:flex-nowrap">
                 <input type="hidden" name="bpId" value={bp.id} />
                 <select name="type" className="rounded-md border border-neutral-300 bg-white px-2 py-2 text-sm text-neutral-900">
                   {Object.entries(ACTIVITY_LABEL).map(([v, l]) => (
                     <option key={v} value={v}>{l}</option>
                   ))}
                 </select>
-                <input name="content" required placeholder="Log a note, call, email, or visit…" className={`flex-1 ${input}`} />
+                <input name="content" required placeholder="Log a note, call, email, or visit…" className={`order-last min-w-0 basis-full sm:order-none sm:basis-auto sm:flex-1 ${input}`} />
                 <button className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-700">Log</button>
               </form>
             )}
@@ -362,7 +400,7 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
           </Card>
 
           {/* Order history (live MakeReady orders + SAP-imported history) */}
-          <Card>
+          <Card id="orders" className="scroll-mt-28">
             <div className="mb-3 flex items-baseline justify-between gap-2">
               <h2 className="text-sm font-semibold text-neutral-900">Order history</h2>
               {totalOrders > 0 && (
@@ -410,12 +448,12 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
 
         {/* Right column */}
         <div className="space-y-6">
-          <Card>
+          <Card id="contacts" className="scroll-mt-28">
             <h2 className="mb-3 text-sm font-semibold text-neutral-900">Contacts</h2>
             <ContactsManager bpId={bp.id} contacts={contactRows} editable={editable} />
           </Card>
 
-          <Card>
+          <Card id="addresses" className="scroll-mt-28">
             <h2 className="mb-3 text-sm font-semibold text-neutral-900">Addresses</h2>
             <ul className="space-y-3">
               {addressRows.length === 0 && <li className="text-sm text-neutral-400">No addresses.</li>}
@@ -457,19 +495,23 @@ export default async function BpDetailPage({ params }: { params: Promise<{ id: s
             )}
           </Card>
 
+          <div id="financial-docs" className="scroll-mt-28">
           <FinancialDocs
             bpId={bp.id}
             editable={editable}
             baseUrl={baseUrl}
             docs={docs.map((d) => ({ id: d.id, docType: d.docType, token: d.token, status: d.status, createdAt: d.createdAt, submittedAt: d.submittedAt }))}
           />
+          </div>
 
           {canVault && (
+            <div id="vault" className="scroll-mt-28">
             <CustomerVault
               bpId={bp.id}
               canManage={canManageVault}
               docs={vaultDocs.map((d) => ({ id: d.id, kind: d.kind, filename: d.filename, sizeBytes: d.sizeBytes, notes: d.notes, createdAt: d.createdAt }))}
             />
+            </div>
           )}
         </div>
       </div>

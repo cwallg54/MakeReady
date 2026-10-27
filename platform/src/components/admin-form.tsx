@@ -11,6 +11,10 @@ export function AdminField({
   hint,
   min,
   max,
+  autoComplete,
+  inputMode,
+  placeholder,
+  maxLength,
 }: {
   label: string;
   name: string;
@@ -20,6 +24,10 @@ export function AdminField({
   hint?: string;
   min?: number;
   max?: number;
+  autoComplete?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  placeholder?: string;
+  maxLength?: number;
 }) {
   return (
     <label className="block">
@@ -31,6 +39,10 @@ export function AdminField({
         defaultValue={defaultValue}
         min={min}
         max={max}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        placeholder={placeholder}
+        maxLength={maxLength}
         className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-brand"
       />
       {hint && <span className="mt-1 block text-xs text-neutral-500">{hint}</span>}

@@ -45,7 +45,7 @@ export const USER_GUIDE_ARTICLES: HelpArticle[] = [
     related: ["guide-overview", "guide-take-in-the-enquiry"],
     blocks: [
       { k: "p", text: "This is the whole path from a phone call to money in the bank and a closed month. Each row is a stage; the right-hand column is where you do it." },
-      { k: "table", headers: ["#", "What happens", "Where in MakeReady"], rows: [["1", "An enquiry arrives; you record who it is", "CRM → Business Partners / Pipeline"], ["2", "Set the account up: terms, credit, contract pricing", "CRM → the customer → Account details, Contract pricing"], ["3", "Price it and send the quote", "Sales → Quotes → New quote → Quote Builder"], ["4", "They say yes; the quote becomes an order", "Sales → Quotes → Convert; then Sales → Orders"], ["5", "Art is briefed, drawn, proofed and approved", "Art Department → the request"], ["6", "Blanks are bought and received", "Inventory → Purchase Orders; Accounting → GRNI"], ["7", "The job is scheduled, printed and checked", "Production → Schedule; Quality"], ["8", "It ships and you invoice it", "The order → Create invoice; Accounting → Invoices"], ["9", "The money comes in and is banked", "Accounting → Payments → Deposits"], ["10", "Slow payers are chased", "Accounting → Collections, Aging, Statements"], ["11", "Suppliers, staff and expenses are paid", "Accounting → Bills, Payment Runs, Expenses, Payroll"], ["12", "The month is closed and reported", "Accounting → Periods, Close, Financial Statements"], ["13", "You check how the business is doing", "Accounting → Flash, Quarterly; Controlling; Reports"]] },
+      { k: "table", headers: ["#", "What happens", "Where in MakeReady"], rows: [["1", "An enquiry arrives; you record who it is", "Sales → Business Partners / Pipeline"], ["2", "Set the account up: terms, credit, contract pricing", "Sales → Business Partners → the customer → Account details, Contract pricing"], ["3", "Price it and send the quote", "Sales → Quotes → New quote → Quote Builder"], ["4", "They say yes; the quote becomes an order", "Sales → Quotes → Convert; then Sales → Orders"], ["5", "Art is briefed, drawn, proofed and approved", "Art Department → the request"], ["6", "Blanks are bought and received", "Inventory → Purchase Orders; Finance → GRNI"], ["7", "The job is scheduled, printed and checked", "Production → Schedule; Quality"], ["8", "It ships and you invoice it", "The order → Create invoice; Finance → Invoices"], ["9", "The money comes in and is banked", "Finance → Payments → Deposits"], ["10", "Slow payers are chased", "Finance → Collections, Aging, Statements"], ["11", "Suppliers, staff and expenses are paid", "Finance → Bills, Payment Runs, Expenses, Payroll"], ["12", "The month is closed and reported", "Finance → Fiscal Periods, Close, Financial Statements"], ["13", "You check how the business is doing", "Reports → Weekly Flash, Quarterly Pack; Finance → Controlling; Reports"]] },
       { k: "tip", text: "Every order carries an Order journey strip showing exactly which of these stages it has reached. If you only ever learn one thing about an order, learn to read that strip." },
     ],
   },
@@ -59,11 +59,11 @@ export const USER_GUIDE_ARTICLES: HelpArticle[] = [
     related: ["guide-the-job-on-one-page", "guide-set-up-the-account"],
     blocks: [
       { k: "p", text: "Everyone you deal with — lead, prospect or customer — is a Business Partner. CRM lists them all, filtered by stage, by owner, or down to just your own accounts." },
-      { k: "img", src: "guide/10-crm-list.png", caption: "CRM → Business Partners. Filter by stage or to My accounts." },
+      { k: "img", src: "guide/10-crm-list.png", caption: "Sales → Business Partners. Filter by stage or to My accounts." },
       { k: "p", text: "The Pipeline is the same information as a board, so you can see what is moving." },
       { k: "img", src: "guide/11-crm-pipeline.png", caption: "Pipeline — leads, prospects and customers as columns." },
       { k: "h", text: "Adding someone new" },
-      { k: "steps", items: [{ text: "CRM → New Business Partner." }, { text: "Fill in the account, the primary contact, the address and the terms." }, { text: "Save. They start as a Lead; promote them to Prospect and then Customer as the relationship moves." }] },
+      { k: "steps", items: [{ text: "Sales → Business Partners → New." }, { text: "Work down the four numbered steps: company and primary contact (required), address, account setup, and credit & payment." }, { text: "Save. You land on the account, where the Customer setup checklist lists what is left and takes you to each step." }, { text: "They start as a Lead unless you chose otherwise; the checklist's Mark as Customer button promotes them when they are ready." }] },
       { k: "p", text: "If you are holding their business card, press Scan instead of typing: photograph the card and the details are read off it and filled in for you to check." },
       { k: "img", src: "guide/12-crm-new.png", caption: "New Business Partner — or scan a business card and let it fill itself in." },
     ],
@@ -79,6 +79,8 @@ export const USER_GUIDE_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "The customer page is the single place everything about an account lives: details, contacts, addresses, order history, open financial documents, tasks and the full activity log." },
       { k: "img", src: "guide/13-customer.png", caption: "A customer record — details, contacts, history, financials and activity in one place." },
+      { k: "p", text: "Customer setup at the top of the page is the onboarding checklist: primary contact, billing and shipping address, account group, credit or card application, credit limit and terms, mark as Customer, welcome email, and the customer portal invite. Each step ticks itself off from what is already on the record, and its button either does the step there and then or jumps to the card that does. It folds away once everything is done." },
+      { k: "p", text: "On a phone, a row of section buttons stays pinned under the top bar (Setup, Details, Contacts, Addresses, Applications, Portal, Tasks, Activity, Orders) so you can jump straight to a part of the account instead of scrolling." },
       { k: "list", items: ["Log a call, an email or a visit with the buttons at the top — that is what feeds the rep activity report, so it is worth doing.", "AI summary reads the account's history and tells you where things stand before you ring them.", "Draft email writes a first draft you then edit; it is never sent without you sending it.", "Invite to portal gives the customer their own login to see orders, proofs and invoices.", "New Quote starts a quote with this customer already selected."] },
       { k: "h", text: "Contract pricing" },
       { k: "p", text: "Where a customer has negotiated pricing — a percentage off, or a fixed price per unit — record it once here and the quote builder applies it automatically for everyone who quotes them." },
@@ -189,9 +191,9 @@ export const USER_GUIDE_ARTICLES: HelpArticle[] = [
     who: "Finance",
     related: ["guide-make-it", "guide-get-the-money-in"],
     blocks: [
-      { k: "p", text: "Invoices are normally raised from the order with Create invoice, so the lines and the customer come across already correct. Accounting → Invoices → New invoice is there for anything standalone." },
+      { k: "p", text: "Invoices are normally raised from the order with Create invoice, so the lines and the customer come across already correct. Finance → Invoices → New invoice is there for anything standalone." },
       { k: "img", src: "guide/70-invoices.png", caption: "Invoices, filtered by status — draft, sent, partial, paid, void." },
-      { k: "img", src: "guide/72-invoice-new.png", caption: "Accounting → Invoices → New invoice, for anything not raised from an order." },
+      { k: "img", src: "guide/72-invoice-new.png", caption: "Finance → Invoices → New invoice, for anything not raised from an order." },
       { k: "img", src: "guide/71-invoice.png", caption: "An invoice — lines, payments, PDF and email." },
       { k: "list", items: ["PDF produces the document; Email invoice sends it to the customer.", "The emailed invoice carries a pay link: the customer can pay by ACH with no fee, or by card with the surcharge shown, without ringing anyone.", "Record payment takes a receipt straight against this invoice.", "Void reverses an invoice raised in error. Invoices are never deleted — the number stays, marked void, so the sequence has no holes."] },
     ],
@@ -207,7 +209,7 @@ export const USER_GUIDE_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Cash comes in two steps, deliberately: you record the receipt when it arrives, then bank it in a batch. The bank statement shows the batch, not the individual cheques, which is what makes the reconciliation work." },
       { k: "img", src: "guide/80-payments.png", caption: "Payments — every receipt, and the on-account box for cash you cannot yet match." },
-      { k: "steps", items: [{ text: "Record the receipt. Against one invoice, across several, or on account if you do not yet know what it pays." }, { text: "Bank it. Accounting → Deposits batches the undeposited receipts into the deposit you actually take to the bank." }] },
+      { k: "steps", items: [{ text: "Record the receipt. Against one invoice, across several, or on account if you do not yet know what it pays." }, { text: "Bank it. Finance → Deposits batches the undeposited receipts into the deposit you actually take to the bank." }] },
       { k: "img", src: "guide/81-deposits.png", caption: "Deposits — undeposited receipts, ready to batch." },
       { k: "h", text: "Chasing what is late" },
       { k: "p", text: "The aging report is the overall picture: everything owed, by customer, by how late it is." },

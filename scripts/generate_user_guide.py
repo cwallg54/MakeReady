@@ -23,7 +23,8 @@ from generate_sow import (  # noqa: E402
     set_cell_bg, set_run_font, add_divider, add_footer, set_margins, add_page_break,
 )
 
-ROOT = r"C:\Projects\GMW"
+# The repo root, wherever this clone lives.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHOTS = os.path.join(ROOT, "platform", "public", "help", "guide")
 OUT_MD = os.path.join(ROOT, "docs", "training", "MakeReady_User_Guide.md")
 # The Word edition is downloadable from inside the app, so it is served
@@ -108,19 +109,19 @@ p("This is the whole path from a phone call to money in the bank and a closed mo
 table(
     ["#", "What happens", "Where in MakeReady"],
     [
-        ["1", "An enquiry arrives; you record who it is", "CRM → Business Partners / Pipeline"],
-        ["2", "Set the account up: terms, credit, contract pricing", "CRM → the customer → Account details, Contract pricing"],
+        ["1", "An enquiry arrives; you record who it is", "Sales → Business Partners / Pipeline"],
+        ["2", "Set the account up: terms, credit, contract pricing", "Sales → Business Partners → the customer → Account details, Contract pricing"],
         ["3", "Price it and send the quote", "Sales → Quotes → New quote → Quote Builder"],
         ["4", "They say yes; the quote becomes an order", "Sales → Quotes → Convert; then Sales → Orders"],
         ["5", "Art is briefed, drawn, proofed and approved", "Art Department → the request"],
-        ["6", "Blanks are bought and received", "Inventory → Purchase Orders; Accounting → GRNI"],
+        ["6", "Blanks are bought and received", "Inventory → Purchase Orders; Finance → GRNI"],
         ["7", "The job is scheduled, printed and checked", "Production → Schedule; Quality"],
-        ["8", "It ships and you invoice it", "The order → Create invoice; Accounting → Invoices"],
-        ["9", "The money comes in and is banked", "Accounting → Payments → Deposits"],
-        ["10", "Slow payers are chased", "Accounting → Collections, Aging, Statements"],
-        ["11", "Suppliers, staff and expenses are paid", "Accounting → Bills, Payment Runs, Expenses, Payroll"],
-        ["12", "The month is closed and reported", "Accounting → Periods, Close, Financial Statements"],
-        ["13", "You check how the business is doing", "Accounting → Flash, Quarterly; Controlling; Reports"],
+        ["8", "It ships and you invoice it", "The order → Create invoice; Finance → Invoices"],
+        ["9", "The money comes in and is banked", "Finance → Payments → Deposits"],
+        ["10", "Slow payers are chased", "Finance → Collections, Aging, Statements"],
+        ["11", "Suppliers, staff and expenses are paid", "Finance → Bills, Payment Runs, Expenses, Payroll"],
+        ["12", "The month is closed and reported", "Finance → Fiscal Periods, Close, Financial Statements"],
+        ["13", "You check how the business is doing", "Reports → Weekly Flash, Quarterly Pack; Finance → Controlling; Reports"],
     ],
 )
 note("Every order carries an **Order journey** strip showing exactly which of these stages it has "
@@ -136,13 +137,17 @@ h1("Part 2 — Step by step")
 h2("1. Take in the enquiry")
 p("Everyone you deal with — lead, prospect or customer — is a Business Partner. CRM lists them "
   "all, filtered by stage, by owner, or down to just your own accounts.")
-shot("10-crm-list", "CRM → Business Partners. Filter by stage or to My accounts.")
+shot("10-crm-list", "Sales → Business Partners. Filter by stage or to My accounts.")
 p("The Pipeline is the same information as a board, so you can see what is moving.")
 shot("11-crm-pipeline", "Pipeline — leads, prospects and customers as columns.")
 h3("Adding someone new")
-n("CRM → **New Business Partner**.")
-n("Fill in the account, the primary contact, the address and the terms.")
-n("Save. They start as a **Lead**; promote them to Prospect and then Customer as the relationship moves.")
+n("Sales → Business Partners → **New**.")
+n("Work down the four numbered steps: company and primary contact (required), address, account "
+  "setup, and credit & payment.")
+n("Save. You land on the account, where the **Customer setup** checklist lists what is left and "
+  "takes you to each step.")
+n("They start as a **Lead** unless you chose otherwise; the checklist's **Mark as Customer** button "
+  "promotes them when they are ready.")
 p("If you are holding their business card, press **Scan** instead of typing: photograph the card "
   "and the details are read off it and filled in for you to check.")
 shot("12-crm-new", "New Business Partner — or scan a business card and let it fill itself in.")
@@ -154,6 +159,14 @@ h2("2. Set the account up properly")
 p("The customer page is the single place everything about an account lives: details, contacts, "
   "addresses, order history, open financial documents, tasks and the full activity log.")
 shot("13-customer", "A customer record — details, contacts, history, financials and activity in one place.")
+p("**Customer setup** at the top of the page is the onboarding checklist: primary contact, "
+  "billing and shipping address, account group, credit or card application, credit limit and "
+  "terms, mark as Customer, welcome email, and the customer portal invite. Each step ticks itself "
+  "off from what is already on the record, and its button either does the step there and then or "
+  "jumps to the card that does. It folds away once everything is done.")
+p("On a phone, a row of section buttons stays pinned under the top bar (Setup, Details, Contacts, "
+  "Addresses, Applications, Portal, Tasks, Activity, Orders) so you can jump straight to a part of "
+  "the account instead of scrolling.")
 b("**Log a call, an email or a visit** with the buttons at the top — that is what feeds the rep "
   "activity report, so it is worth doing.")
 b("**AI summary** reads the account's history and tells you where things stand before you ring them.")
@@ -266,10 +279,10 @@ art("guide-invoice-it", "Step 8 — Invoice it",
     "Raising the invoice from the order, emailing it, and the customer pay link.", "Finance")
 h2("8. Invoice it")
 p("Invoices are normally raised from the order with **Create invoice**, so the lines and the "
-  "customer come across already correct. Accounting → Invoices → **New invoice** is there for "
+  "customer come across already correct. Finance → Invoices → **New invoice** is there for "
   "anything standalone.")
 shot("70-invoices", "Invoices, filtered by status — draft, sent, partial, paid, void.")
-shot("72-invoice-new", "Accounting → Invoices → New invoice, for anything not raised from an order.")
+shot("72-invoice-new", "Finance → Invoices → New invoice, for anything not raised from an order.")
 shot("71-invoice", "An invoice — lines, payments, PDF and email.")
 b("**PDF** produces the document; **Email invoice** sends it to the customer.")
 b("The emailed invoice carries a **pay link**: the customer can pay by ACH with no fee, or by card "
@@ -288,7 +301,7 @@ p("Cash comes in two steps, deliberately: you record the receipt when it arrives
 shot("80-payments", "Payments — every receipt, and the on-account box for cash you cannot yet match.")
 n("**Record the receipt.** Against one invoice, across several, or on account if you do not yet "
   "know what it pays.")
-n("**Bank it.** Accounting → Deposits batches the undeposited receipts into the deposit you "
+n("**Bank it.** Finance → Deposits batches the undeposited receipts into the deposit you "
   "actually take to the bank.")
 shot("81-deposits", "Deposits — undeposited receipts, ready to batch.")
 h3("Chasing what is late")

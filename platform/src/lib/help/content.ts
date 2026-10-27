@@ -128,7 +128,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Go to CRM in the left nav, then click \"New\" (top right of the Business Partner list) to open the new-partner form." },
+          { text: "Go to Sales → Business Partners in the left nav, then click \"New\" (top right of the Business Partner list) to open the new-partner form." },
           { text: "Fill in the company name, primary contact, email and phone. Set Lifecycle stage to \"Lead\", assign the Owner (usually you), and add an Account group and any Tags. Save." },
           { text: "Fast path from a business card: on the New Business Partner screen use \"Scan business card\" — snap or upload the card photo and the OCR auto-fills the name, company, phone and email into a new Lead for you to review before saving. The card image stays attached." },
           { text: "On the new account's page, log your first touch: use the Activity feed to record the call, email or visit. Every future interaction gets logged here too, so the account's whole history is in one place." },
@@ -215,8 +215,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Go to Accounting → Invoices → \"New\" and create the invoice from the delivered order (or open the order and invoice it). The invoice carries the customer's terms, due date and an online \"Pay online\" link." },
-          { text: "The customer pays on the public invoice page: bank/ACH with no fee, or card with the transparent processing surcharge. Checks are posted manually under Accounting → Payments." },
+          { text: "Go to Finance → Invoices → \"New\" and create the invoice from the delivered order (or open the order and invoice it). The invoice carries the customer's terms, due date and an online \"Pay online\" link." },
+          { text: "The customer pays on the public invoice page: bank/ACH with no fee, or card with the transparent processing surcharge. Checks are posted manually under Finance → Payments." },
           { text: "Automated reminders go out on their own — an escalating email/SMS at each milestone (due soon, due today, past due), each with the pay link, deduped per invoice. A late fee posts automatically once an invoice is overdue past the configured days." },
           { text: "Track the money in Accounting: AR aging shows who owes what by age bucket, Statements show a customer's full open/closed history, and the payment posts through to the general ledger. The customer's account balance and any overdue flag feed right back to the top of the flow for their next job." },
         ],
@@ -225,14 +225,14 @@ export const HELP_ARTICLES: HelpArticle[] = [
 
       { k: "h", text: "Where each stage lives (quick reference)" },
       { k: "list", items: [
-        "Stage 1 Capture the lead → CRM → New (business-card scan optional)",
+        "Stage 1 Capture the lead → Sales → Business Partners → New (business-card scan optional)",
         "Stage 2 Account, documents & credit → CRM account page (finance vault, terms, credit limit) + Finance/AR",
         "Stage 3 Quote → Sales → Quotes → New quote (Garments & Decoration builder)",
         "Stage 4 Order → Convert quote to order (creates the tracking link)",
         "Stage 5 Design & proof → Art board (Submit to art → assign → proof → approve)",
         "Stage 6 Production → Production board (checklist, press check, production-ready)",
         "Stage 7 Deliver → Sales → Orders (Shipped → Delivered)",
-        "Stage 8 Invoice & payment → Accounting → Invoices / Payments / Aging",
+        "Stage 8 Invoice & payment → Finance → Invoices / Payments / Aging",
       ] },
     ],
     related: ["lead-to-cash", "business-partners", "financial-intake-documents", "building-a-quote", "editing-and-emailing-a-quote", "orders-and-production-stages", "art-department", "proof-approvals", "customer-order-tracker", "invoicing-and-payments"],
@@ -296,20 +296,23 @@ export const HELP_ARTICLES: HelpArticle[] = [
       },
       { k: "p", text: "Below the tiles you'll find a Pipeline snapshot (Leads / Prospects / Customers), your open tasks with overdue ones flagged in red, and a Quick actions panel with shortcuts like New quote, New business partner, Pipeline, Orders, Calendar, and Reports." },
       { k: "h", text: "The sidebar" },
-      { k: "p", text: "The left sidebar lists the modules you have access to. Some are collapsible groups — click a heading to expand it:" },
+      { k: "p", text: "The left sidebar is organised by department into eight sections. Click a section to open it; only one stays open at a time, and the section holding the page you're on opens by itself. You only see the pages your role can use, so a section you can reach just one page of shows as that single link (a sales rep sees \"Dashboard\" rather than a Home menu)." },
       {
         k: "list",
         items: [
-          "CRM → Business Partners, Pipeline",
-          "Sales → Quotes, Orders, Automations, Calendar",
-          "Operations → Art Department, Production, Inventory",
-          "Reports and Help",
-          "Administration (admins only) → Users, Account Groups, Order Templates, Configuration, Audit Log",
+          "Home → Dashboard, Approvals Inbox",
+          "Sales → Business Partners, Pipeline, Reorder radar (Customers); Quotes, Orders, Calendar, Automations (Selling)",
+          "Web Store",
+          "Art → Art Department, Design Library, Content Library",
+          "Operations → Production, Inventory, Quality, Maintenance",
+          "Finance → Overview, then Receivables, Payables, General Ledger, Financial Statements, Fixed Assets, Controlling, and Tax, Close & Setup",
+          "Reports → Reports, Weekly Flash, Quarterly Pack, Sales Goals",
+          "Admin → Administration, Workflows",
         ],
       },
-      { k: "p", text: "The active page is highlighted, and its parent group opens automatically. Items marked \"Soon\" are planned modules that aren't live yet." },
+      { k: "p", text: "Inside Sales and Finance, small grey labels (Receivables, Payables and so on) group related pages; they're headings, not links. The active page is highlighted." },
       { k: "h", text: "The top bar" },
-      { k: "p", text: "Top-right you'll find the Notifications bell (with an unread badge), your initials avatar (which opens Account Security), and Sign out. Your name and roles are shown at the bottom of the sidebar." },
+      { k: "p", text: "Top-right you'll find the Notifications bell (with an unread badge), the \"?\" Help button (it opens the help article for the page you're on, or the Help Center), your initials avatar (which opens Account Security), and Sign out. Your name and roles are shown at the bottom of the sidebar." },
     ],
     related: ["signing-in", "notifications", "two-factor-authentication", "mobile-app"],
   },
@@ -450,7 +453,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "On an art request" },
       { k: "p", text: "Open an art request and you'll find \"✨ Draft brief with AI\", which writes a clean art brief straight from the order's production spec — so the artist has a tidy summary of what's needed without you writing it by hand." },
       { k: "h", text: "On a vendor bill line" },
-      { k: "p", text: "In Accounting → Bills, when you add a line to a bill a ✨ button suggests the best GL account for that line based on its description — so you don't have to hunt through the chart of accounts for the right expense or asset account." },
+      { k: "p", text: "In Finance → Bills, when you add a line to a bill a ✨ button suggests the best GL account for that line based on its description — so you don't have to hunt through the chart of accounts for the right expense or asset account." },
       { k: "warn", text: "These features need AI to be enabled for your workspace. If you see a message like \"AI isn't set up yet\", an administrator needs to add the API key before the ✨ buttons will work." },
     ],
     related: ["searching", "art-department", "accounts-payable", "managing-an-account"],
@@ -504,7 +507,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Find customers, leads, and prospects; filter by stage; search; and understand the columns.",
     who: "Admin, Sales Manager, Sales Rep (own accounts), Finance (view)",
     blocks: [
-      { k: "p", text: "Business Partners are the heart of CRM — every customer, lead, and prospect. They anchor quotes, orders, and (in later phases) invoices and Web Store access. Open CRM → Business Partners." },
+      { k: "p", text: "Business Partners are the heart of CRM — every customer, lead, and prospect. They anchor quotes, orders, and (in later phases) invoices and Web Store access. Open Sales → Business Partners." },
       { k: "img", src: "crm-list.png", caption: "The Business Partners list with stage filters and search." },
       { k: "img", src: "crm-list-mobile.png", caption: "On a phone the list becomes tap-friendly cards with the same search." },
       { k: "h", text: "Filter and search" },
@@ -526,7 +529,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "creating-a-business-partner",
     title: "Creating a Business Partner",
     section: "CRM",
-    summary: "Add a new customer or lead, set the owner, tags, and optionally send a financial application.",
+    summary: "Add a new customer or lead in four short steps, then finish setup from the account's checklist.",
     who: "Admin, Sales Manager, Sales Rep",
     blocks: [
       { k: "p", text: "From the Business Partners list, click \"New Business Partner\"." },
@@ -536,12 +539,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Under \"Account\", enter the Company name and choose a Stage (Lead, Prospect, or Customer) and a Lead source." },
-          { text: "Pick an Account group (this drives pricing tier and Web Store catalog) and an Owner. Sales Reps automatically own what they create, so the Owner field is hidden for them." },
-          { text: "Add comma-separated Tags if useful (e.g. \"VIP, screen-print\")." },
-          { text: "Optionally choose a financial application to send — \"Terms / Credit Application\" or \"Credit Card Application\" — and a secure request is created automatically on save." },
-          { text: "Fill in the Primary contact (name and email are required) and an Address. Finance-capable roles also see the Terms section — a credit limit, internal notes, and Payment terms, which is a dropdown with two choices: Net 30 or Prepay (Credit Card)." },
-          { text: "Click \"Create Business Partner\". A BP number is assigned and you're taken to the new record." },
+          { text: "Step 1, Company & primary contact: enter the Company name, the contact's name and email (all required) and a phone number. On a phone the email, phone and ZIP fields bring up the matching keyboard." },
+          { text: "Step 2, Address: the main (billing) address. Add separate shipping addresses later on the account." },
+          { text: "Step 3, Account setup: choose a Stage (Lead, Prospect, or Customer), an Account group (this drives pricing tier and Web Store catalog), a Lead source and an Owner, plus comma-separated Tags if useful (e.g. \"VIP, screen-print\"). Sales Reps automatically own what they create, so the Owner field is hidden for them." },
+          { text: "Step 4, Credit & payment: optionally choose a financial application to send, either \"Terms / Credit Application\" or \"Credit Card Application\", and a secure request is created on save. Finance-capable roles also set the credit limit, Payment terms (Net 30 or Prepay (Credit Card)) and internal notes here." },
+          { text: "Click \"Create Business Partner\". A BP number is assigned and you're taken to the new record, where the Customer setup checklist shows what's left to do." },
         ],
       },
       { k: "tip", text: "If a company with the same name already exists you'll get a soft warning. Tick \"Create anyway\" and resubmit if it really is a different account." },
@@ -553,12 +555,30 @@ export const HELP_ARTICLES: HelpArticle[] = [
     slug: "managing-an-account",
     title: "Managing an account",
     section: "CRM",
-    summary: "The account detail page: stage & owner, contacts, addresses, tasks, and the immutable activity log.",
+    summary: "The account detail page: the customer setup checklist, stage & owner, contacts, addresses, tasks, and the immutable activity log.",
     who: "Admin, Sales Manager, Sales Rep (own accounts), Finance (view)",
     blocks: [
       { k: "p", text: "Opening a Business Partner shows everything about the account on one page." },
       { k: "img", src: "crm-detail.png", caption: "A Business Partner record." },
       { k: "img", src: "crm-detail-mobile.png", caption: "The account on a phone, with the tap-to-call / email / log quick-action row." },
+      { k: "h", text: "Customer setup checklist" },
+      { k: "p", text: "The top of every account shows Customer setup: the eight onboarding steps in order, each ticked off from what's already on the record. It's open while an account is being set up and folds away once it's complete (and for long-standing customers), showing just \"6 of 8 done · Next: …\"." },
+      {
+        k: "list",
+        items: [
+          "Primary contact with email → jumps to Contacts",
+          "Billing & shipping address → jumps to Addresses",
+          "Account group → jumps to Account details; once set, links to Contract pricing",
+          "Credit or card application → jumps to Financial documents to send or copy the link. Shows \"waiting\" while the customer has it, and counts as done once returned or once terms are already set",
+          "Credit limit & payment terms (Finance) → jumps to Account details",
+          "Mark as Customer → one tap, right in the checklist",
+          "Welcome email (Finance) → Finance sends it from the checklist",
+          "Customer portal invite → jumps to the portal card. Shows \"waiting\" until the customer sets a password",
+        ],
+      },
+      { k: "tip", text: "The checklist doesn't add any new rules or hide anything. Every card below it still works as before; the checklist just tells you what's left and takes you there." },
+      { k: "h", text: "On a phone" },
+      { k: "p", text: "A row of section buttons (Setup, Details, Contacts, Addresses, Applications, Portal, Tasks, Activity, Orders) stays pinned under the top bar, so you can jump straight to any part of the account instead of scrolling. Checklist buttons are full width for easy tapping." },
       { k: "h", text: "Stage & owner" },
       { k: "p", text: "Use the quick buttons in the stage bar (e.g. \"→ Prospect\") to move the account through its lifecycle, and set the Owner from the dropdown. Every change is recorded automatically." },
       { k: "h", text: "Account details" },
@@ -586,7 +606,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Move accounts through Lead → Prospect → Customer on a Kanban board.",
     who: "Admin, Sales Manager, Sales Rep (own accounts)",
     blocks: [
-      { k: "p", text: "The Pipeline gives you a Kanban view of your accounts by stage. Open CRM → Pipeline (or \"Pipeline\" from the Business Partners list)." },
+      { k: "p", text: "The Pipeline gives you a Kanban view of your accounts by stage. Open Sales → Pipeline (or \"Pipeline\" from the Business Partners list)." },
       { k: "img", src: "pipeline.png", caption: "Leads, Prospects, and Customers as columns." },
       { k: "img", src: "pipeline-mobile.png", caption: "On a phone, with a List / Board toggle and press-and-hold drag." },
       {
@@ -608,7 +628,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Admin, Sales Manager, Sales Rep (own accounts)",
     blocks: [
       { k: "p", text: "Every account has a natural buying rhythm — a customer who reorders shirts every eight weeks, a school that restocks each season. Reorder radar learns that rhythm from each account's full order history (both the SAP orders migrated at go-live and new orders placed in MakeReady) and flags the accounts that are now past due for their next order." },
-      { k: "p", text: "Open CRM → Reorder radar. Each account is ranked by how overdue it is and how valuable it is, so the biggest at-risk revenue floats to the top." },
+      { k: "p", text: "Open Sales → Reorder radar. Each account is ranked by how overdue it is and how valuable it is, so the biggest at-risk revenue floats to the top." },
       { k: "h", text: "Reading a card" },
       {
         k: "list",
@@ -926,7 +946,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Open Art Department in the sidebar. Toggle between Queue (a sortable list) and Kanban (a board)." },
+          { text: "Open Art → Art Department in the sidebar. Toggle between Queue (a sortable list) and Kanban (a board)." },
           { text: "On the Kanban, drag a card between columns — To do → In progress → Proofing → Revisions → Approved → Done — to update its status (on a phone or tablet, press and hold a card, then drag). In the Queue, use the status dropdown." },
           { text: "Assign a request to yourself or a teammate with the assignee dropdown. Rush jobs are flagged." },
         ],
@@ -1253,7 +1273,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Send an approved order to the shop floor and track it on the production Kanban board.",
     who: "Admin, Production, Sales Manager",
     blocks: [
-      { k: "p", text: "Once art is approved (or for blank/stock orders, straight after the order is created), the order is handed to Production. Open Production from the sidebar." },
+      { k: "p", text: "Once art is approved (or for blank/stock orders, straight after the order is created), the order is handed to Production. Open Operations → Production from the sidebar." },
       { k: "h", text: "Sending an order to production" },
       { k: "p", text: "From the order, click \"Send to production\". MakeReady creates a production job, notifies the production team, and moves the order into its production stage on the customer tracker." },
       { k: "h", text: "The production board" },
@@ -1292,7 +1312,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "The item master, on-hand quantities, low-stock flags, and the stock ledger (receive / consume / count / adjust).",
     who: "Admin, Production, Warehouse",
     blocks: [
-      { k: "p", text: "Open Inventory from the sidebar to see the item master — every stocked SKU with its category, unit, supplier, cost, quantity on hand, and reorder point." },
+      { k: "p", text: "Open Operations → Inventory from the sidebar to see the item master — every stocked SKU with its category, unit, supplier, cost, quantity on hand, and reorder point." },
       { k: "h", text: "Finding items" },
       { k: "p", text: "Search by SKU or name and page through the list. Items at or below their reorder point are flagged as low stock so you know what to reorder." },
       { k: "h", text: "Reorder points & lead time" },
@@ -1597,10 +1617,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Beyond Accounts Receivable, MakeReady keeps a full double-entry general ledger — the controller/CFO books. Everything rolls up from posted journal entries into the trial balance and the financial statements." },
       { k: "h", text: "Chart of Accounts" },
-      { k: "p", text: "Accounting → Chart of Accounts is your account structure, grouped by the five types: Assets and Expenses are debit-normal; Liabilities, Equity, and Revenue are credit-normal. A standard chart is pre-loaded (cash, AR, inventory, AP, sales tax, sales, COGS, and common expenses). Add, rename, or disable accounts as needed. Accounts marked “system” are used by automatic posting — keep them." },
+      { k: "p", text: "Finance → Chart of Accounts is your account structure, grouped by the five types: Assets and Expenses are debit-normal; Liabilities, Equity, and Revenue are credit-normal. A standard chart is pre-loaded (cash, AR, inventory, AP, sales tax, sales, COGS, and common expenses). Add, rename, or disable accounts as needed. Accounts marked “system” are used by automatic posting — keep them." },
       { k: "h", text: "Journal entries" },
       { k: "steps", items: [
-        { text: "Accounting → Journal Entries → New entry. Set the date and a memo." },
+        { text: "Finance → Journal Entries → New entry. Set the date and a memo." },
         { text: "Add lines, each posting a debit or a credit to an account. The running totals show a live balance check." },
         { text: "Debits must equal credits. Click “Save & post” to post it to the ledger, or “Save draft” to finish later." },
         { text: "A posted entry can be voided (with a reason) — it stays on record but is excluded from balances. Drafts can be deleted." },
@@ -1611,11 +1631,11 @@ export const HELP_ARTICLES: HelpArticle[] = [
       { k: "h", text: "Financial statements" },
       { k: "p", text: "Income Statement (P&L) shows revenue minus expenses over a period you pick (defaults to year-to-date). Balance Sheet shows assets versus liabilities plus equity as of a date, with current-period net income folded into equity — it flags if anything is out of balance. Cash Flow Statement shows cash in and out over a period by activity (operating, investing, financing) and reconciles beginning to ending cash. All three are formatted like traditional statements (company header, sections, subtotals, and double-underlined totals) and have a Print / Save PDF button that prints just the statement. The AR Aging and customer Statements share the same format." },
       { k: "h", text: "Closing periods" },
-      { k: "p", text: "Accounting → Period Close sets a closing date. Journal entries dated on or before it are locked — they can't be created as posted, posted, or voided — so a reviewed period can't be changed after the fact. Set it to the end of a closed month or fiscal year; clear it to reopen. Auto-posted documents that fall in a closed period are skipped rather than posted." },
+      { k: "p", text: "Finance → Period Close sets a closing date. Journal entries dated on or before it are locked — they can't be created as posted, posted, or voided — so a reviewed period can't be changed after the fact. Set it to the end of a closed month or fiscal year; clear it to reopen. Auto-posted documents that fall in a closed period are skipped rather than posted." },
       { k: "h", text: "Bank reconciliation" },
-      { k: "p", text: "Accounting → Bank Reconciliation imports a bank statement (paste date, description, amount — deposits positive, withdrawals negative), then you tick off each line as it clears and post any bank-only items (fees, interest) straight to the GL. Enter the statement's ending balance and the page shows the difference against the book cash balance, so you can reconcile to the bank." },
+      { k: "p", text: "Finance → Bank Reconciliation imports a bank statement (paste date, description, amount — deposits positive, withdrawals negative), then you tick off each line as it clears and post any bank-only items (fees, interest) straight to the GL. Enter the statement's ending balance and the page shows the difference against the book cash balance, so you can reconcile to the bank." },
       { k: "h", text: "Importing real balances" },
-      { k: "p", text: "Accounting → Import / Migrate posts a batch of real GL lines pasted as CSV (account code, debit, credit, memo) — for loading a trial balance, a period's P&L, or an expense batch from another system. The same page retires the modeled expense estimates once your real numbers are in, so the statements become 100% actual." },
+      { k: "p", text: "Finance → Import / Migrate posts a batch of real GL lines pasted as CSV (account code, debit, credit, memo) — for loading a trial balance, a period's P&L, or an expense batch from another system. The same page retires the modeled expense estimates once your real numbers are in, so the statements become 100% actual." },
       { k: "tip", text: "The ledger was seeded from the SAP backup: revenue and the inventory opening balance are real, but because the backup has no expense data, operating expenses are currently modeled estimates (tagged \"estimate\" in the journal). The Income Statement shows a banner while estimates are in play; they'll be replaced when a real expense/GL export is loaded." },
       { k: "warn", text: "Only POSTED entries affect balances and statements; drafts and voided entries do not. The general ledger is finance-only (Admin and Finance roles)." },
     ],
@@ -1629,10 +1649,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Spread a shipment's freight and duty across its items so each item's cost reflects true landed cost, and post it to the GL.",
     who: "Admin, Finance",
     blocks: [
-      { k: "p", text: "When goods arrive from a vendor, the freight (ocean/LCL, duty, brokerage) is a real part of what each item cost you. Accounting → Landed Cost spreads those charges across the shipment so each item's cost is its true landed cost — base cost plus its share of freight — instead of just the PO price." },
+      { k: "p", text: "When goods arrive from a vendor, the freight (ocean/LCL, duty, brokerage) is a real part of what each item cost you. Finance → Landed Cost spreads those charges across the shipment so each item's cost is its true landed cost — base cost plus its share of freight — instead of just the PO price." },
       { k: "h", text: "Building a landed-cost sheet" },
       { k: "steps", items: [
-        { text: "Accounting → Landed Cost → “New landed-cost sheet”." },
+        { text: "Finance → Landed Cost → “New landed-cost sheet”." },
         { text: "Enter the shipment: freight company, container/BOL reference, the freight amount, and any other charges (duty, brokerage) with a label." },
         { text: "Add each item on the shipment. Type the SKU — it auto-fills the item name and its current cost. Enter the quantity received. (Base cost pre-fills but you can override it.)" },
         { text: "Choose how to spread the charges: by quantity (each unit gets an equal share) or by value (bigger-dollar items absorb more). The sheet shows each line's freight share and resulting landed unit cost live." },
@@ -1660,12 +1680,12 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Accounts Payable is the expense side of the books — the bills you owe vendors. Like invoices post to the GL automatically, approving a bill and paying it flow straight into the ledger and the financial statements." },
       { k: "h", text: "Vendors" },
-      { k: "p", text: "Accounting → Vendors lists your suppliers. Add a vendor with their name, contact, and terms, and optionally a default expense account so new bills from them suggest the right account. Disable a vendor to retire it." },
+      { k: "p", text: "Finance → Vendors lists your suppliers. Add a vendor with their name, contact, and terms, and optionally a default expense account so new bills from them suggest the right account. Disable a vendor to retire it." },
       { k: "h", text: "Entering a bill" },
       {
         k: "steps",
         items: [
-          { text: "Accounting → Bills → \"New bill\". Pick the vendor and enter their invoice number, then Create bill (it opens as a draft)." },
+          { text: "Finance → Bills → \"New bill\". Pick the vendor and enter their invoice number, then Create bill (it opens as a draft)." },
           { text: "Add lines — a description, the GL account to charge (an expense like Payroll or Rent, or an asset like Inventory), quantity, and unit price. The total builds as you go. Not sure which account fits? Click the ✨ button on the line and AI suggests the best GL account from the description (review it before you save)." },
           { text: "Set the due date and terms on the bill." },
         ],
@@ -1686,16 +1706,16 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Management accounting on top of the ledger: company margins, profit by customer and salesperson, and budget vs. actual.",
     who: "Admin, Finance",
     blocks: [
-      { k: "p", text: "Where Accounting keeps the statutory books, Controlling answers the management questions — where money is made and lost, and whether you're on budget. Open Controlling from the sidebar." },
+      { k: "p", text: "Where Accounting keeps the statutory books, Controlling answers the management questions — where money is made and lost, and whether you're on budget. Open Finance → Controlling → Overview from the sidebar." },
       { k: "h", text: "Margins" },
       { k: "p", text: "The overview shows the headline margins from the ledger: revenue, gross margin %, net margin %, and operating expenses for the year to date." },
       { k: "h", text: "Profitability" },
-      { k: "p", text: "Controlling → Profitability ranks revenue by customer and by salesperson, with an estimated gross profit for each. The estimate applies the company-wide gross margin to each one's revenue (per-order cost isn't tracked yet), so it sharpens as real product costs and bills enter the ledger. Salesperson figures attribute revenue to the account's owner." },
+      { k: "p", text: "Finance → Controlling → Profitability ranks revenue by customer and by salesperson, with an estimated gross profit for each. The estimate applies the company-wide gross margin to each one's revenue (per-order cost isn't tracked yet), so it sharpens as real product costs and bills enter the ledger. Salesperson figures attribute revenue to the account's owner." },
       { k: "h", text: "Budget vs. Actual" },
       {
         k: "steps",
         items: [
-          { text: "Controlling → Budget vs. Actual. Pick the year." },
+          { text: "Finance → Controlling → Budget vs. Actual. Pick the year." },
           { text: "Set an annual budget for each revenue and expense account in the form at the bottom, and save." },
           { text: "The table compares budget to the actual postings for the year and shows the variance — favourable (green) when revenue beats budget or an expense stays under it." },
         ],
@@ -1713,14 +1733,14 @@ export const HELP_ARTICLES: HelpArticle[] = [
     who: "Admin, Finance",
     blocks: [
       { k: "p", text: "Accounting is a full double-entry finance platform: Accounts Receivable (invoices, payments, aging, statements), Accounts Payable (vendors & bills), and the general ledger with financial statements. This article covers AR — turning delivered work into invoices and collecting on them. See Accounts Payable for what you owe vendors, and General ledger & financial statements for the books, trial balance, income statement, balance sheet, and cash flow." },
-      { k: "p", text: "Open Accounting from the sidebar for the AR overview (outstanding, overdue, collected), then Invoices, Payments, AR Aging, and Statements." },
+      { k: "p", text: "Open Finance → Overview from the sidebar for the AR overview (outstanding, overdue, collected), then Invoices, Payments, AR Aging, and Statements." },
       { k: "img", src: "accounting-mobile.png", caption: "The Accounting overview on a phone — stat tiles and overdue invoices as cards." },
       { k: "h", text: "Creating an invoice" },
       {
         k: "steps",
         items: [
           { text: "From a delivered order, click \"Create invoice\" — the quoted lines are copied onto a new invoice automatically. There's one invoice per order; the button becomes \"View invoice\" afterwards." },
-          { text: "Or, from Accounting → Invoices → \"New invoice\", search for the customer and create a blank invoice, then add line items by hand." },
+          { text: "Or, from Finance → Invoices → \"New invoice\", search for the customer and create a blank invoice, then add line items by hand." },
           { text: "On the invoice, set the terms, due date, any discount, and notes. Add or remove line items — the subtotal, total, and balance recalculate as you go." },
         ],
       },
@@ -1732,7 +1752,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         items: [
           { text: "On an invoice with a balance, use \"Record payment\" — enter the amount (it defaults to the full balance), method (check, ACH, card, cash, credit), a reference, and the date received." },
           { text: "Partial payments are fine — the invoice moves to \"Partial\" and shows the remaining balance; it flips to \"Paid\" when the balance reaches zero." },
-          { text: "To log a payment not tied to a single invoice, use Accounting → Payments → \"Record an on-account payment\"." },
+          { text: "To log a payment not tied to a single invoice, use Finance → Payments → \"Record an on-account payment\"." },
         ],
       },
       { k: "p", text: "Recording a payment (or issuing/voiding an invoice) keeps the customer's account balance current automatically." },
@@ -1756,12 +1776,12 @@ export const HELP_ARTICLES: HelpArticle[] = [
     blocks: [
       { k: "p", text: "Two views help you collect: the AR Aging report and customer Statements." },
       { k: "h", text: "AR Aging" },
-      { k: "p", text: "Accounting → AR Aging lists every customer with an open balance, split into Current, 1–30, 31–60, 61–90, and 90+ days past due, with per-customer totals and a column-total footer. 90+ balances are highlighted. Click a customer to open their Credit Report." },
+      { k: "p", text: "Finance → AR Aging lists every customer with an open balance, split into Current, 1–30, 31–60, 61–90, and 90+ days past due, with per-customer totals and a column-total footer. 90+ balances are highlighted. Click a customer to open their Credit Report." },
       { k: "h", text: "Statements" },
       {
         k: "steps",
         items: [
-          { text: "Accounting → Statements → search for the customer to open their statement — open invoices with aging, an aging summary, and the total balance due as of today." },
+          { text: "Finance → Customer Statements → search for the customer to open their statement — open invoices with aging, an aging summary, and the total balance due as of today." },
           { text: "Use \"PDF\" for a printable statement, or \"Email statement\" to send it to the customer's primary contact (logged to their activity history)." },
         ],
       },
@@ -1864,7 +1884,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Open Accounting → Credit Requests (a pending count also shows on the Accounting dashboard)." },
+          { text: "Open Finance → Credit Requests (a pending count also shows on the Accounting dashboard)." },
           { text: "Each request shows the order amount, the customer's balance, their limit, and how much over. Approve & convert (optionally set a new credit limit and/or clear the hold) — which creates the order — or Decline with a reason." },
           { text: "The rep is notified of the decision either way, and it's logged to the customer's activity." },
         ],
@@ -1917,7 +1937,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         k: "steps",
         items: [
-          { text: "Open Design Library from the sidebar (under Art Department). The search box matches item number, customer, description, and design base — so “Brian Head”, “BRI010”, “4015”, or “Puffin” all work." },
+          { text: "Open Art → Design Library from the sidebar. The search box matches item number, customer, description, and design base — so “Brian Head”, “BRI010”, “4015”, or “Puffin” all work." },
           { text: "There's also a ✨ AI catalog search: describe the design you're after in plain English and it helps surface the closest matches — useful when you don't have the number or exact name handy." },
           { text: "Use the Catalog dropdown to narrow to G54, ESM, EMB, Patches, OSH, Wood, Stain, Royalty, UVS or DTF. Tick “include archives” to search historical rows too (hidden by default)." },
           { text: "Open a row to see the full record — customer, design base, description, printing method, royalty, print location, salesperson, assignee initials, stitch count (embroidery) — and every barcode linked to it." },
@@ -2181,16 +2201,16 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Keep the capital asset register — cost, accumulated depreciation, and net book value — and post monthly straight-line depreciation to the general ledger.",
     who: "Admin, Finance",
     blocks: [
-      { k: "p", text: "The fixed-asset register lives under Accounting → Fixed Assets → Asset Register. It tracks each capital asset (presses, vehicles, furniture) at cost, depreciates it on a straight line, and posts the expense to the GL each month. This is part of retiring SAP B1 from Finance." },
+      { k: "p", text: "The fixed-asset register lives under Finance → Fixed Assets → Asset Register. It tracks each capital asset (presses, vehicles, furniture) at cost, depreciates it on a straight line, and posts the expense to the GL each month. This is part of retiring SAP B1 from Finance." },
       { k: "h", text: "Add an asset" },
       { k: "steps", items: [
-        { text: "Open Accounting → Fixed Assets → Asset Register and click \"New asset\"." },
+        { text: "Open Finance → Fixed Assets → Asset Register and click \"New asset\"." },
         { text: "Enter the name, category, cost, salvage value, and useful life in months. The in-service date is when depreciation begins (defaults to the acquisition date)." },
         { text: "Save. The register shows the asset's cost, accumulated depreciation, and net book value." },
       ] },
       { k: "h", text: "Run monthly depreciation" },
       { k: "steps", items: [
-        { text: "Open Accounting → Fixed Assets → Depreciation. Pick the period (month) and click Preview to see the depreciation due across every active asset." },
+        { text: "Open Finance → Fixed Assets → Depreciation. Pick the period (month) and click Preview to see the depreciation due across every active asset." },
         { text: "Click \"Post depreciation\" to book it. This posts one balanced journal — Dr Depreciation Expense / Cr Accumulated Depreciation — and advances each asset's accumulated total. Only one run is allowed per period." },
       ] },
       { k: "tip", text: "Straight-line monthly depreciation = (cost − salvage) ÷ useful-life-months. An asset stops depreciating once it's fully depreciated, and disposing an asset removes its cost and accumulated depreciation from the GL and books any gain or loss." },
@@ -2207,10 +2227,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summary: "Capture actual labor, material, and machine costs on production jobs to see true order and department profitability — not a company-average estimate.",
     who: "Admin, Finance",
     blocks: [
-      { k: "p", text: "Controlling can measure real profitability once you capture actual costs on jobs. Set up cost centers (departments and overhead pools) under Controlling → Cost Centers, then capture costs on each production job. Job Costing then shows revenue vs. actual cost per order." },
+      { k: "p", text: "Controlling can measure real profitability once you capture actual costs on jobs. Set up cost centers (departments and overhead pools) under Finance → Controlling → Cost Centers, then capture costs on each production job. Job Costing then shows revenue vs. actual cost per order." },
       { k: "h", text: "Set up cost centers" },
       { k: "steps", items: [
-        { text: "Open Controlling → Cost Centers and add a center for each department (Silkscreen, Embroidery, DTF, Art) with its fully-burdened labor rate per hour." },
+        { text: "Open Finance → Controlling → Cost Centers and add a center for each department (Silkscreen, Embroidery, DTF, Art) with its fully-burdened labor rate per hour." },
         { text: "Add overhead pools (e.g. Warehouse) as type \"overhead\", then open the pool and set the percentage each department absorbs. Overhead spreads onto departments automatically in the cost-by-center view." },
       ] },
       { k: "h", text: "Capture costs on a job" },
@@ -2218,7 +2238,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         { text: "Open a production job (Production → the job). In the Job costing card, add a cost line — choose labor, material, or machine, pick the cost center, and enter minutes or a dollar amount." },
         { text: "For labor, entering minutes against a cost center computes the cost from that center's labor rate automatically." },
       ] },
-      { k: "tip", text: "Controlling → Job Costing lists every job with its revenue (order total), captured cost, and margin. Export it to CSV for deeper analysis. Jobs with no captured cost simply show no margin yet." },
+      { k: "tip", text: "Finance → Controlling → Job Costing lists every job with its revenue (order total), captured cost, and margin. Export it to CSV for deeper analysis. Jobs with no captured cost simply show no margin yet." },
     ],
     related: ["controlling", "orders-and-production-stages"],
   },
